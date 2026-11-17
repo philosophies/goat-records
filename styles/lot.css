@@ -417,6 +417,9 @@
 }
 .person .pixel {
   animation: bob 1.6s steps(2) infinite;
+  /* A light outline keeps people readable on any wall color. */
+  filter: drop-shadow(1px 0 0 #fffbe8) drop-shadow(-1px 0 0 #fffbe8) drop-shadow(0 1px 0 #fffbe8)
+    drop-shadow(0 -1px 0 #fffbe8);
 }
 .person.walking .pixel {
   animation-duration: 0.36s;
@@ -425,7 +428,8 @@
   transform: scaleX(-1);
 }
 .person.hot .pixel {
-  filter: drop-shadow(0 0 2px #ffd84a) drop-shadow(0 0 4px #ff7a2f);
+  filter: drop-shadow(1px 0 0 #fffbe8) drop-shadow(-1px 0 0 #fffbe8) drop-shadow(0 0 2px #ffd84a)
+    drop-shadow(0 0 4px #ff7a2f);
 }
 .person.hot::after {
   content: "";
