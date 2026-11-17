@@ -69,11 +69,13 @@ for (let i = 0; i < 20 && saved().albums[0].production.stage < 3; i++) {
 }
 while (saved().event) click({ action: "choose", id: 2 });
 const albumId = saved().albums[0].id;
-assert.match(element("production").innerHTML, /Release single · \$1,800/);
-assert.match(element("production").innerHTML, /Market impact \+5/);
+// Albums waiting between stages are listed in the studio queue; ready ones show over the lot.
+const productionRows = () => element("production").innerHTML + element("studioQueue").innerHTML;
+assert.match(productionRows(), /Release single · \$1,800/);
+assert.match(productionRows(), /Market impact \+5/);
 click({ action: "promoSingle", album: String(albumId) });
 assert.ok(saved().promotion.singles[albumId], "the single is saved");
-assert.match(element("production").innerHTML, /Lead single out/);
+assert.match(productionRows(), /Lead single out/);
 
 // Finish and release the album, then make the artist hot.
 for (let i = 0; i < 20 && !saved().albums[0].released; i++) {

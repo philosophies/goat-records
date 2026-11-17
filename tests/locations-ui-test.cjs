@@ -39,7 +39,7 @@ function click(data) {
 
 // Locations screen before any visit: every location, locks and hidden signature themes.
 click({ tab: "locations" });
-assert.match(element("menu").innerHTML, /data-tab="locations"[^>]*>Locations</);
+assert.match(element("menu").innerHTML, /data-tab="locations"[\s\S]*?<span>Locations<\/span>/);
 assert.match(html(), /Recording locations/);
 for (const l of vm.runInContext("G.LOCATIONS", context)) assert.ok(html().includes(l.name), l.name);
 assert.match(html(), /Locked · rank 2/);
@@ -93,6 +93,8 @@ const p = saved().albums[0];
 assert.equal(p.location, "barn");
 assert.equal(p.budget, 4600);
 assert.ok(saved().themes.includes("Working Class"));
+// Starting an album returns to the lot; reopen the studio to see the artist card.
+click({ tab: "studio" });
 assert.match(html(), /Gigs are not possible while recording or touring/);
 
 // The Locations screen now shows the visit and the signature theme.

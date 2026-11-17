@@ -9,6 +9,9 @@ const G = LabelGame,
     );
 let state,
   tab = "studio",
+  panelOpen = false,
+  modalHidden = false,
+  modalKey = "",
   audioContext,
   sound = false,
   saveOK = true;
@@ -65,15 +68,28 @@ function act(fn) {
     $("message").textContent = e.message;
   }
 }
+const painted = {};
+/** Sets an element's HTML only when it changed, so clicks, hover and focus survive clock ticks. */
+function paintHTML(id, html) {
+  if (painted[id] === html) return;
+  painted[id] = html;
+  $(id).innerHTML = html;
+}
 const disable = (condition) => (condition ? "disabled" : "");
 const blocked = () => state.finished || !!state.event;
 const clampRating = (n) => Math.max(0, Math.min(100, n));
 function calculation(r, key) {
   return `<article class="calculation"><h3>${esc(r.area || r.name)}</h3>${r.choice ? `<p>${esc(r.choice)} · Trend when chosen: ${esc(r.trend)}</p>` : ""}<div class="formula">${r.parts.map((c, i) => `<div class="component" style="--delay:${i * 130}ms"><span>${esc(c.name)}</span><b>${c.value >= 0 ? "+" : ""}${c.value}</b></div>`).join("")}</div><div class="rating-total"><span>RATING <small>(clamped to 0–100)</small></span><strong data-count="${r.score}">${r.score}</strong><span>/100</span></div><div class="rating-track"><span style="--rating:${r.score}%;--delay:${r.parts.length * 130}ms"></span></div></article>`;
 }
-function productionPanels() {
+/** True while an album waits out studio weeks with no decision for the player. */
+function inStudioWaiting(p) {
+  const d = p.production;
+  return !!d && !p.released && !d.review && !d.releaseReady && d.cooldown > 0;
+}
+/** Album panels: decisions and results (shown over the lot), or albums still in the studio. */
+function productionPanels(waiting = false) {
   return state.albums
-    .filter((p) => !p.released || p.launchReview)
+    .filter((p) => (!p.released || p.launchReview) && inStudioWaiting(p) === waiting)
     .map((p) => {
       const d = p.production;
       if (!d) return "";
@@ -235,7 +251,7 @@ function selectedAddons() {
   return [...document.querySelectorAll('input[name="albumAddon"]:checked')].map((e) => e.value);
 }
 function updateAlbumQuote() {
-  if (tab !== "studio") return;
+  if (tab !== "studio" || !panelOpen) return;
   const a = state.artists.find((a) => a.id === Number($("artist").value));
   if (!a) {
     $("albumQuote").textContent =
@@ -320,7 +336,7 @@ function readTourPlan() {
   };
 }
 function updateTourQuote(refreshPartners = false) {
-  if (tab !== "road") return;
+  if (tab !== "road" || !panelOpen) return;
   const plan = readTourPlan(),
     p = state.albums.find((p) => p.id === Number(plan.albumId));
   $("tour-partner-wrap").hidden = plan.mode !== "labelmate";
@@ -527,18 +543,28 @@ function catalog() {
     '<div class="empty">A label is a collection of choices. Your first record starts in The studio.</div>'
   }</div>`;
 }
+/** Compact list of what the label is working on, shown in the side ticker. */
 function activityHub() {
   const projects = state.albums.filter((p) => !p.released || p.launchReview),
     tours = state.tours.filter((t) => t.status === "active");
-  return `<div class="sectionhead"><div><span class="tag">LABEL CONTROL</span><h2>Active activities</h2></div><span class="muted">${projects.length} album project${projects.length === 1 ? "" : "s"} · ${tours.length} tour${tours.length === 1 ? "" : "s"}</span></div><div class="activity-grid">${state.event ? `<a class="activity-card urgent" href="#event"><span class="tag">DECISION REQUIRED · TIME PAUSED</span><b>${esc(state.event.title)}</b><small>Resolve this event to continue →</small></a>` : ""}${projects
+  return `<div class="sectionhead"><span class="tag">ACTIVE WORK</span><span class="muted">${projects.length} album${projects.length === 1 ? "" : "s"} · ${tours.length} tour${tours.length === 1 ? "" : "s"}</span></div><div class="activity-grid">${state.event ? `<button class="activity-card urgent" data-action="showModal"><span class="tag">DECISION REQUIRED</span><b>${esc(state.event.title)}</b><small>Resolve this event to continue →</small></button>` : ""}${projects
     .map((p) => {
       const d = p.production,
-        waiting = !p.released && !d.review && !d.releaseReady && d.cooldown > 0;
-      return `<a class="activity-card ${waiting ? "" : "ready"}" href="#project-${p.id}"><span class="tag">ALBUM · ${waiting ? "IN PROGRESS" : "ACTION READY"}</span><b>${esc(p.title)}</b><small>${esc(p.artistName)} · ${p.launchReview ? "Release results" : d.review ? "Review stage results" : d.releaseReady ? "Final review & release" : waiting ? d.cooldown + " week(s) to next step" : G.STAGES[d.stage].name} →</small><div class="progress"><span style="width:${d.stage * 20}%"></span></div></a>`;
+        waiting = inStudioWaiting(p);
+      return waiting
+        ? ""
+        : `<button class="activity-card ready" data-action="showModal"><span class="tag">ALBUM · ACTION READY</span><b>${esc(p.title)}</b><small>${esc(p.artistName)} · ${p.launchReview ? "Release results" : d.review ? "Review stage results" : d.releaseReady ? "Final review & release" : G.STAGES[d.stage].name} →</small><div class="progress"><span style="width:${d.stage * 20}%"></span></div></button>`;
     })
     .join(
       "",
-    )}${tours.map((t) => `<button class="activity-card ready" data-action="openRoad"><span class="tag">TOUR · DAY ${t.day}/${t.plannedDays}</span><b>${esc(t.artistName)} / ${esc(t.title)}</b><small>Quality ${Math.round(t.quality)}/100 · net ${money(t.net)}<br>${state.event ? "Resolve current event first" : G.productionBlock(state) ? "Complete the album decision before advancing" : "Advance to the next scheduled activity"} · Open tour →</small><div class="progress"><span style="width:${Math.min(100, (t.day / t.plannedDays) * 100)}%"></span></div></button>`).join("")}${!projects.length && !tours.length && !state.event ? '<div class="empty">No active projects. Start an album in The studio or book a tour in The road.</div>' : ""}</div>`;
+    )}${tours.map((t) => `<button class="activity-card" data-action="openRoad"><span class="tag">TOUR · DAY ${t.day}/${t.plannedDays}</span><b>${esc(t.artistName)} / ${esc(t.title)}</b><small>Quality ${Math.round(t.quality)}/100 · net ${money(t.net)} · Open tour →</small><div class="progress"><span style="width:${Math.min(100, (t.day / t.plannedDays) * 100)}%"></span></div></button>`).join("")}${!projects.length && !tours.length && !state.event ? '<div class="empty">No active projects. Start an album in The studio or book a tour in The road.</div>' : ""}</div>`;
+}
+/** The latest label news lines for the side ticker. */
+function newsFeed() {
+  return `<span class="tag">LABEL NEWS</span>${state.news
+    .slice(0, 6)
+    .map((n) => `<div class="line">${esc(n)}</div>`)
+    .join("")}`;
 }
 const BUILT_IN_SCREENS = [
   { id: "studio", label: "The studio", order: 10, render: () => studio() },
@@ -558,53 +584,123 @@ function menuScreens() {
     (a, b) => (a.order ?? 50) - (b.order ?? 50),
   );
 }
+/** Steps time once: to the next tour activity while a tour is on the road, else one week. */
+function advanceOnce() {
+  act(() =>
+    state.tours.some((t) => t.status === "active") ? G.advanceTourToNextActivity(state) : G.advance(state),
+  );
+}
+function openPanel(id) {
+  tab = id;
+  panelOpen = true;
+  hqView.selected = null;
+  hqView.moving = null;
+  render();
+  $("content").scrollTop = 0;
+}
+function closePanel() {
+  panelOpen = false;
+  render();
+}
 function render() {
   const s = state;
-  $("stats").innerHTML = [
-    ["Cash", money(s.cash)],
-    ["Fame", s.fame],
-    ["Reputation", s.reputation + "/100"],
-    ["Roster", s.artists.length + " / " + G.slots(s)],
-    ["Awards", s.awards],
-  ]
-    .map(([k, v]) => `<div class="stat"><small>${k}</small><b>${v}</b></div>`)
-    .join("");
-  $("date").textContent =
-    `YEAR ${String(1 + Math.floor((s.week - 1) / 52)).padStart(2, "0")} / WEEK ${1 + ((s.week - 1) % 52)}${s.tours.some((t) => t.status === "active") ? " / DAY " + Math.min(7, s.event?.type === "tourDay" ? s.tourDayInWeek : s.tourDayInWeek + 1) : ""} · ${G.rankInfo(s).name}`;
-  $("trend").textContent = `Trending: ${s.trend} · Weekly overhead: ${money(G.upkeep(s))}`;
+  paintHTML(
+    "stats",
+    [
+      ["Cash", money(s.cash), s.cash < 0 ? "bad" : ""],
+      ["Fame", s.fame, ""],
+      ["Reputation", s.reputation + "/100", ""],
+      ["Roster", s.artists.length + " / " + G.slots(s), ""],
+      ["Awards", s.awards, ""],
+    ]
+      .map(([k, v, c]) => `<div class="stat ${c}"><small>${k}</small><b>${v}</b></div>`)
+      .join(""),
+  );
+  const rank = G.rankStatus(s);
+  paintHTML(
+    "rank",
+    `<span class="stars">${"★".repeat(rank.rank)}<i>${"★".repeat(G.RANKS.length - rank.rank)}</i></span> ${esc(rank.name)}`,
+  );
+  $("date").innerHTML =
+    `YEAR ${String(1 + Math.floor((s.week - 1) / 52)).padStart(2, "0")} · WEEK ${1 + ((s.week - 1) % 52)} · <span id="dateDay">DAY ${GoatClock.day()}</span>`;
+  $("trend").textContent = `Trending: ${s.trend} · Overhead ${money(G.upkeep(s))}/week`;
   $("continueCareer").hidden = !G.canContinueCareer(s);
   $("advance").disabled = blocked() || G.productionBlock(s);
   $("advance").textContent = G.productionBlock(s)
-    ? "Album decision required ↑"
+    ? "Decision waiting"
     : state.tours.some((t) => t.status === "active")
-      ? "Advance to next activity →"
-      : "Advance one week →";
+      ? "Next activity ›"
+      : "Next week ›";
   $("goal").textContent = s.finished ? s.outcome : G.campaignGoalText(s) + " " + rankLine();
-  $("event").innerHTML = s.event
-    ? `<div class="event"><span class="tag">INDUSTRY MOMENT · TIME IS PAUSED</span><h2>${esc(s.event.title)}</h2><p>${esc(s.event.body)}</p><div class="options">${s.event.options.map((o, i) => `<button data-action="choose" data-id="${i}" ${disable(!G.eventOptionAvailable(s, o))}>${esc(o.label)}<small>${esc(o.hint)}${o.extension && s.albums.find((p) => p.id === s.event.album)?.salesWeeks >= 18 ? " Extension cap reached." : ""}${s.staff.includes("Public Relations") && o.trust < 0 ? " PR staff reduces the immediate trust loss." : ""}</small></button>`).join("")}</div></div>`
-    : "";
+  // The campaign system shows the run's final review as a card, so no separate outcome card.
+  paintHTML("outcome", "");
+  paintHTML(
+    "event",
+    s.event
+      ? `<div class="event"><span class="tag">INDUSTRY MOMENT · TIME IS PAUSED</span><h2>${esc(s.event.title)}</h2><p>${esc(s.event.body)}</p><div class="options">${s.event.options.map((o, i) => `<button data-action="choose" data-id="${i}" ${disable(!G.eventOptionAvailable(s, o))}>${esc(o.label)}<small>${esc(o.hint)}${o.extension && s.albums.find((p) => p.id === s.event.album)?.salesWeeks >= 18 ? " Extension cap reached." : ""}${s.staff.includes("Public Relations") && o.trust < 0 ? " PR staff reduces the immediate trust loss." : ""}</small></button>`).join("")}</div></div>`
+      : "",
+  );
   const screens = menuScreens();
   if (!screens.some((x) => x.id === tab)) tab = "studio";
-  $("menu").innerHTML = screens
-    .map((x) => `<button data-tab="${x.id}" class="${x.id === tab ? "active" : ""}">${esc(x.label)}</button>`)
-    .join("");
-  $("content").innerHTML = screens.find((x) => x.id === tab).render();
-  $("hud").innerHTML = GoatUI.html("hud");
-  $("milestones").innerHTML = GoatUI.html("banners") + milestoneBanner();
-  $("activities").innerHTML = activityHub();
-  $("production").innerHTML = productionPanels();
+  const screen = screens.find((x) => x.id === tab);
+  paintHTML(
+    "menu",
+    screens
+      .map(
+        (x) =>
+          `<button data-tab="${x.id}" class="menu-btn ${panelOpen && x.id === tab ? "active" : ""}">${menuIcon(x.id)}<span>${esc(x.label)}</span></button>`,
+      )
+      .join(""),
+  );
+  $("drawer").hidden = !panelOpen;
+  $("drawerTitle").textContent = panelOpen ? screen.label : "";
+  $("content").innerHTML = panelOpen ? screen.render() : "";
+  paintHTML("hud", GoatUI.html("hud"));
+  const banners = GoatUI.banners.map((b) => b.render() || "").filter(Boolean),
+    // A banner with a button (an action or a screen to open) is shown as a card over the lot.
+    inputBanners = banners.filter((h) => /data-(action|tab)=/.test(h));
+  paintHTML("notices", banners.filter((h) => !inputBanners.includes(h)).join(""));
+  paintHTML("milestones", inputBanners.join("") + milestoneBanner());
+  paintHTML("activities", activityHub());
+  paintHTML("production", productionPanels());
+  paintHTML("studioQueue", productionPanels(true));
+  paintHTML("feed", newsFeed());
+  const key = [
+    s.finished ? "finished:" + s.outcome : undefined,
+    s.event?.title,
+    ...s.albums
+      .filter((p) => (!p.released || p.launchReview) && !inStudioWaiting(p))
+      .map((p) => `${p.id}.${p.production?.stage}.${p.production?.review}.${p.launchReview}`),
+    ...s.notifications.map((n) => n.id),
+    ...inputBanners,
+  ]
+    .filter((x) => x !== undefined)
+    .join("|");
+  if (key !== modalKey) {
+    modalKey = key;
+    modalHidden = false;
+  }
+  $("modal").hidden = !key || modalHidden;
+  GoatLot.render();
+  measureShell();
   animateRatings();
   updateAlbumQuote();
   updateTourQuote(true);
   animateTourMoney();
-  document.querySelectorAll("[data-tab]").forEach((b) => b.classList.toggle("active", b.dataset.tab === tab));
+  GoatClock.update(
+    [
+      panelOpen && "menu open",
+      (hqView.selected || hqView.moving) && "building",
+      inputBanners.length && "label news",
+      ...GoatUI.pauses.map((p) => p.reason?.() || ""),
+    ].filter(Boolean),
+  );
 }
 document.addEventListener("click", (e) => {
   const b = e.target.closest("button");
   if (!b) return;
   if (b.dataset.action === "openRoad") {
-    tab = "road";
-    render();
+    openPanel("road");
     $("active-tours").scrollIntoView?.({ behavior: "smooth", block: "start" });
     return;
   }
@@ -618,8 +714,33 @@ document.addEventListener("click", (e) => {
     return;
   }
   if (b.dataset.tab) {
-    tab = b.dataset.tab;
+    openPanel(b.dataset.tab);
+    return;
+  }
+  if (b.dataset.action === "closePanel") {
+    closePanel();
+    return;
+  }
+  if (b.dataset.action === "showModal") {
+    modalHidden = false;
     render();
+    return;
+  }
+  if (b.dataset.action === "hideModal") {
+    modalHidden = true;
+    render();
+    return;
+  }
+  if (b.dataset.action === "continueCareer") {
+    $("continueCareer").onclick();
+    return;
+  }
+  if (b.dataset.action === "newLabel") {
+    $("reset").onclick();
+    return;
+  }
+  if (b.dataset.action === "clockSpeed") {
+    GoatClock.setSpeed(Number(b.dataset.id));
     return;
   }
   if (b.dataset.action && GoatUI.click.some((fn) => fn(b))) return;
@@ -709,7 +830,10 @@ document.addEventListener("submit", (e) => {
   }
   if (e.target.id !== "albumForm") return;
   e.preventDefault();
-  act(() => G.record(state, readAlbumPlan()));
+  act(() => {
+    G.record(state, readAlbumPlan());
+    panelOpen = false;
+  });
 });
 document.addEventListener("change", (e) => {
   if (GoatUI.change.some((fn) => fn(e))) return;
@@ -766,10 +890,18 @@ document.addEventListener("change", (e) => {
   }
 });
 $("continueCareer").onclick = () => act(() => G.continueCareer(state));
-$("advance").onclick = () =>
-  act(() =>
-    state.tours.some((t) => t.status === "active") ? G.advanceTourToNextActivity(state) : G.advance(state),
-  );
+$("advance").onclick = () => {
+  GoatClock.progress = 0;
+  advanceOnce();
+};
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  if (hqView.selected || hqView.moving) {
+    hqView.selected = null;
+    hqView.moving = null;
+    render();
+  } else if (panelOpen) closePanel();
+});
 $("sound").onclick = () => {
   sound = !sound;
   $("sound").textContent = sound ? "Sound on" : "Sound off";
@@ -780,6 +912,11 @@ $("reset").onclick = () => {
     act(() => {
       state = G.create();
       tab = "studio";
+      panelOpen = false;
+      hqView.selected = null;
+      hqView.moving = null;
+      GoatClock.reset();
+      GoatLot.reset();
     });
 };
 $("testFunds").onclick = () =>
@@ -867,6 +1004,7 @@ $("import").onchange = async (e) => {
     if (confirm("Replace your current label with this save?"))
       act(() => {
         state = parsed;
+        GoatLot.reset();
       });
   } catch (err) {
     $("message").textContent = err.message;
@@ -877,5 +1015,15 @@ if (!validSave(state)) state = G.create();
 G.migrate(state);
 if (!validProductionSave(state) || !G.validManagementSave(state) || !G.validRoadSave(state))
   state = G.migrate(G.create());
+/** Keeps panels and cards below the top bar, whose height changes with the window width. */
+function measureShell() {
+  const bar = $("hudbar"),
+    menu = $("menu");
+  if (!bar?.offsetHeight || !document.documentElement?.style) return;
+  document.documentElement.style.setProperty("--hud-h", bar.offsetHeight + "px");
+  if (menu?.offsetHeight) document.documentElement.style.setProperty("--menu-h", menu.offsetHeight + "px");
+}
+if (typeof window !== "undefined") window.addEventListener("resize", measureShell);
 save();
+GoatClock.init(state.week === 1 && !state.artists.length && !state.albums.length);
 render();
