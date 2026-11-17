@@ -1,0 +1,132 @@
+/* Promotion: hot streaks, lead singles and ad campaigns. */
+.promo-hot {
+  margin: 10px 0;
+  padding: 8px 10px;
+  border: 1px solid var(--orange);
+  background: rgba(246, 167, 113, 0.1);
+  box-shadow: 0 0 14px rgba(246, 120, 60, 0.35);
+  animation: promo-flicker 2.4s ease-in-out infinite;
+}
+.promo-hot b {
+  display: block;
+  color: var(--orange);
+  font: 11px monospace;
+  letter-spacing: 0.06em;
+}
+.promo-hot small,
+.promo-row small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+.promo-rows {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+.promo-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--lime);
+}
+.promo-row > div {
+  flex: 1 1 260px;
+}
+.promo-row.locked {
+  border-left-color: var(--line);
+  opacity: 0.75;
+}
+.promo-row.done {
+  border-left-color: var(--lime);
+  background: rgba(210, 239, 132, 0.06);
+  display: block;
+}
+.promo-row.hot {
+  display: block;
+  border-left-color: var(--orange);
+  background: rgba(246, 167, 113, 0.08);
+}
+.promo-row.hot b {
+  color: var(--orange);
+}
+.promo-row.ad small {
+  flex-basis: 100%;
+}
+.promo-row.ad.active {
+  display: block;
+  border-left-color: var(--orange);
+}
+.promo-row label {
+  display: flex;
+  white-space: nowrap;
+  gap: 8px;
+  align-items: center;
+}
+.promo-chip {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 1px 8px;
+  border: 1px solid var(--orange);
+  color: var(--orange);
+  font: 11px monospace;
+  text-transform: uppercase;
+  box-shadow: 0 0 10px rgba(246, 120, 60, 0.4);
+}
+.promo-explainer {
+  margin-bottom: 18px;
+}
+.promo-list {
+  margin: 6px 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.promo-hot-card {
+  border-color: var(--orange);
+  box-shadow: 0 0 calc(8px + var(--heat, 1) * 6px) rgba(246, 120, 60, 0.4);
+}
+.promo-meter {
+  height: 6px;
+  background: var(--line);
+}
+.promo-meter span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--orange), #f3d25b);
+}
+.promo-album {
+  margin-bottom: 10px;
+}
+.promo-table {
+  overflow-x: auto;
+}
+.promo-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.promo-table th,
+.promo-table td {
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--line);
+}
+.promo-table tr.locked {
+  color: var(--muted);
+  opacity: 0.7;
+}
+@keyframes promo-flicker {
+  50% {
+    box-shadow: 0 0 22px rgba(246, 120, 60, 0.55);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .promo-hot {
+    animation: none;
+  }
+}
