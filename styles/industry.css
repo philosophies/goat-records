@@ -1,0 +1,92 @@
+.chart-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: end;
+  margin: 20px 0;
+}
+.chart-controls label {
+  font-size: 12px;
+  min-width: 140px;
+  color: var(--muted);
+}
+.chart-controls > span {
+  font: 11px monospace;
+  color: var(--muted);
+  padding: 12px 0;
+}
+.chart-controls button {
+  font-size: 12px;
+}
+.company-card h3 {
+  font-size: 22px;
+}
+.company-card p {
+  margin-bottom: 0;
+}
+.award-year {
+  display: block;
+  width: 230px;
+  font-size: 12px;
+  margin: 20px 0;
+}
+.award-results {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.award-results summary {
+  cursor: pointer;
+  font-size: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.award-results .calculation {
+  margin: 12px 0;
+  padding: 15px;
+}
+.award-results .calculation h3 {
+  font-size: 20px;
+}
+.award-results .rating-total strong {
+  font-size: 32px;
+}
+.finance-table {
+  border: 1px solid var(--line);
+  padding: 10px 20px;
+  border-radius: 8px;
+}
+.tour-card .tour-quality {
+  display: block;
+  font: 12px monospace;
+  color: var(--lime);
+  margin: 8px 0;
+}
+.chart-row .tag {
+  font-size: 8px;
+  margin-left: 6px;
+}
+.chart-row > :nth-child(3) {
+  font-size: 11px;
+}
+.tour-week-history {
+  max-height: 260px;
+  overflow: auto;
+}
+.grid .card label select {
+  font-size: 12px;
+}
+@media (max-width: 700px) {
+  .award-results {
+    grid-template-columns: 1fr;
+  }
+  .chart-controls button {
+    padding: 9px;
+  }
+  .chart-controls label {
+    min-width: 120px;
+  }
+  .chart-controls > span {
+    width: 100%;
+  }
+}

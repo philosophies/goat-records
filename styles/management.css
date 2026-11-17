@@ -1,0 +1,238 @@
+.search-budgets {
+  margin: 20px 0 28px;
+}
+.search-budgets .card {
+  background: #232c23;
+}
+.card label,
+.drive-controls label {
+  font-size: 12px;
+  color: var(--muted);
+}
+.card select {
+  margin-bottom: 12px;
+}
+.contract-summary {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 12px 0;
+  margin-bottom: 15px;
+}
+.contract-summary > b {
+  color: var(--lime);
+  font-size: 13px;
+}
+.contract-summary p {
+  margin: 6px 0;
+}
+.team-role {
+  margin: 28px 0 40px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+}
+.team-role .sectionhead {
+  gap: 20px;
+}
+.team-role .sectionhead h2 {
+  margin-top: 8px;
+}
+.employee-badge {
+  padding: 14px;
+  border: 1px solid #5c724b;
+  border-radius: 8px;
+  min-width: 240px;
+  background: #252f24;
+}
+.employee-badge b,
+.employee-badge small {
+  display: block;
+}
+.employee-badge small {
+  color: var(--muted);
+  font-size: 11px;
+  margin: 5px 0 10px;
+}
+.employee-badge button {
+  font-size: 11px;
+  padding: 5px 9px;
+}
+.drive-controls {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin: 12px 0 20px;
+}
+.drive-controls select {
+  max-width: 440px;
+}
+.drive-controls button {
+  margin-top: 22px;
+}
+.chart-table {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.chart-row {
+  display: grid;
+  grid-template-columns: 70px minmax(150px, 1fr) 130px 140px;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 20px;
+  background: #1c2326;
+  border-bottom: 1px solid #303b3a;
+  font-size: 13px;
+}
+.chart-heading {
+  font: 10px monospace;
+  background: #2b3430;
+  color: #b8c6b2;
+}
+.chart-row small {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.chart-row > :last-child {
+  text-align: right;
+}
+.chart-rank {
+  font: 25px Georgia;
+  color: var(--muted);
+}
+.chart-row.owned {
+  background: #2e4027;
+  border-left: 4px solid var(--lime);
+  padding-left: 16px;
+}
+.chart-row.owned .chart-rank {
+  color: var(--lime);
+}
+.chart-history {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.chart-history span {
+  font: 11px monospace;
+  background: #364632;
+  padding: 5px 7px;
+  border-radius: 4px;
+  color: var(--lime);
+}
+.chart-alert {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin: 22px 0;
+  padding: 25px;
+  background: linear-gradient(120deg, #354e26, #263429);
+  border: 1px solid var(--lime);
+  border-radius: 10px;
+  animation: chart-arrive 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.chart-alert h2 {
+  margin: 10px 0;
+}
+.chart-alert p {
+  margin: 0;
+  color: #dde9ce;
+  font-size: 13px;
+}
+.chart-alert button {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.chart-award {
+  flex-shrink: 0;
+  width: 105px;
+  height: 105px;
+  display: grid;
+  place-items: center;
+  background: repeating-radial-gradient(#161e17 0 3px, #303f27 4px 5px);
+  border: 5px solid #abc971;
+  border-radius: 50%;
+  font: 36px Georgia;
+  color: var(--lime);
+  animation: chart-medal 1.2s ease-out;
+}
+.chart-alert.seen,
+.chart-alert.seen .chart-award {
+  animation: none;
+}
+@keyframes chart-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes chart-medal {
+  0% {
+    transform: rotate(-40deg) scale(0.35);
+  }
+  70% {
+    transform: rotate(8deg) scale(1.08);
+  }
+  100% {
+    transform: rotate(0) scale(1);
+  }
+}
+@media (max-width: 700px) {
+  .team-role .sectionhead {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .drive-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .drive-controls button {
+    margin-top: 0;
+  }
+  .chart-row {
+    grid-template-columns: 42px minmax(110px, 1fr) 70px;
+    gap: 8px;
+    padding: 12px 10px;
+    font-size: 11px;
+  }
+  .chart-row > :nth-child(3) {
+    display: none;
+  }
+  .chart-row.owned {
+    padding-left: 6px;
+  }
+  .chart-rank {
+    font-size: 22px;
+  }
+  .chart-alert {
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 18px;
+  }
+  .chart-alert button {
+    margin: 0;
+  }
+  .chart-award {
+    height: 75px;
+    width: 75px;
+    font-size: 27px;
+  }
+  .chart-alert > div:nth-child(2) {
+    flex: 1;
+    min-width: 150px;
+  }
+  .chart-heading {
+    font-size: 9px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chart-alert,
+  .chart-award {
+    animation: none;
+  }
+}

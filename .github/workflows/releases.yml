@@ -1,0 +1,31 @@
+name: Publish game versions
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node run-checks.cjs
+      - name: Publish missing version packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          mkdir -p packages
+          for version in $(git tag --list 'v*' --sort=version:refname); do
+            git archive --format=zip --prefix=Label-Empire/ --output="packages/Label-Empire-$version.zip" "$version"
+            if ! gh release view "$version" >/dev/null 2>&1; then
+              printf 'Playable prototype %s. Download and extract the ZIP, then open Start Game.cmd. See README.md and VALIDATION.md inside the package for controls and verification. Historical releases are imported version snapshots.\n' "$version" > packages/notes.md
+              gh release create "$version" "packages/Label-Empire-$version.zip" --verify-tag --title "Label Empire $version" --notes-file packages/notes.md
+            fi
+          done

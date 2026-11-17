@@ -1,0 +1,216 @@
+[hidden] {
+  display: none !important;
+}
+.album-addons {
+  grid-column: 1/-1;
+  border: 1px solid #4a5946;
+  padding: 18px;
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+.album-addons legend {
+  font: 12px monospace;
+  color: var(--lime);
+  padding: 0 10px;
+}
+.album-addons label {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+  background: #222c24;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.album-addons input[type="checkbox"] {
+  appearance: auto;
+  accent-color: var(--lime);
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin: 3px 0;
+}
+.album-addons b,
+.album-addons small {
+  display: block;
+}
+.album-addons b {
+  color: var(--ink);
+  font-size: 13px;
+}
+.album-addons small {
+  margin-top: 5px;
+  font-size: 11px;
+  line-height: 1.7;
+}
+.form-full {
+  grid-column: 1/-1;
+}
+.plan-quote {
+  padding: 18px;
+  border-left: 3px solid var(--lime);
+  background: #263126;
+  font-size: 14px;
+}
+.plan-quote p {
+  margin: 8px 0 0;
+}
+.expectation {
+  border: 1px solid #4d6741;
+  border-radius: 6px;
+  padding: 14px;
+  margin: 15px 0;
+}
+.expectation > b {
+  font: 10px monospace;
+  color: var(--lime);
+  letter-spacing: 1px;
+}
+.expectation p {
+  margin: 7px 0;
+}
+.expectation small {
+  font-size: 10px;
+  color: var(--muted);
+}
+.expectation.missed {
+  border-color: #b8795b;
+}
+.expectation.missed > b {
+  color: var(--orange);
+}
+.expectation.missed .progress span {
+  background: var(--orange);
+}
+.tour-card {
+  margin: 18px 0;
+  padding: 26px;
+}
+.tour-card .sectionhead {
+  gap: 24px;
+  align-items: flex-start;
+}
+.tour-card h3 {
+  margin-top: 12px;
+}
+.tour-card .metrics {
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.tour-card .metrics > span {
+  display: flex;
+  flex-direction: column;
+  color: var(--muted);
+  font-size: 11px;
+}
+.tour-card .metrics b {
+  float: none;
+  font-size: 19px;
+  margin-top: 5px;
+  color: var(--ink);
+}
+.tour-net {
+  text-align: right;
+  min-width: 200px;
+}
+.tour-net small {
+  display: block;
+  font: 10px monospace;
+  letter-spacing: 1px;
+  margin: 8px 0;
+}
+.tour-net > b {
+  display: block;
+  font: 38px Georgia;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.positive {
+  color: var(--lime);
+}
+.negative {
+  color: var(--orange);
+}
+.tour-recovery {
+  height: 12px;
+  background: #31372e;
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 20px 0 10px;
+}
+.tour-recovery span {
+  width: var(--recovered);
+  height: 100%;
+  display: block;
+  background: linear-gradient(90deg, #9eaf65, var(--lime));
+  animation: road-recovery 1.2s ease-out;
+  transform-origin: left;
+}
+.tour-week-history {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+.tour-week-history > div {
+  background: #151c19;
+  padding: 8px 10px;
+  border-radius: 5px;
+}
+.tour-week-history small,
+.tour-week-history b {
+  display: block;
+  font: 10px/1.8 monospace;
+}
+.tour-week-history small {
+  color: var(--muted);
+}
+.touring-status {
+  color: var(--lime) !important;
+  border-left: 2px solid var(--lime);
+  padding: 8px 12px;
+  background: #2c3b27;
+}
+.toolbar {
+  flex-wrap: wrap;
+}
+.toolbar #continueCareer {
+  background: #354f2a;
+  color: var(--lime);
+}
+@keyframes road-recovery {
+  from {
+    transform: scaleX(0.75);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@media (max-width: 700px) {
+  .album-addons {
+    grid-template-columns: 1fr;
+  }
+  .tour-card .sectionhead {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .tour-net {
+    text-align: left;
+  }
+  .tour-card .metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+  .tour-card {
+    padding: 18px;
+  }
+  .tour-net > b {
+    font-size: 34px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tour-recovery span {
+    animation: none;
+  }
+}

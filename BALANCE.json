@@ -1,0 +1,30 @@
+{
+  "version": "0.6",
+  "seeds": 30,
+  "policies": {
+    "Develop a local discovery": {
+      "survived": 30,
+      "breakoutWins": 0,
+      "averageStartingCraft": 58.6,
+      "averageFinalCraft": 80.5,
+      "highestFinalCraft": 84,
+      "averageDevelopmentSessions": 10.2,
+      "averageReleasedAlbums": 6,
+      "averageCash": 12308.1,
+      "averageFame": 92.3,
+      "averageFinalLevel": 4
+    },
+    "Sign a national headliner": {
+      "survived": 30,
+      "breakoutWins": 0,
+      "averageStartingCraft": 80.8,
+      "averageFinalCraft": 86.1,
+      "highestFinalCraft": 88,
+      "averageDevelopmentSessions": 4.5,
+      "averageReleasedAlbums": 6,
+      "averageCash": 33099.8,
+      "averageFame": 123.4,
+      "averageFinalLevel": 3.9
+    }
+  }
+}
