@@ -1,0 +1,76 @@
+/* Recording locations, the album form location line and paid gigs. */
+.location-card {
+  border-top: 4px solid var(--accent);
+}
+.location-card.locked {
+  opacity: 0.55;
+}
+.location-head {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.location-head .pixel {
+  image-rendering: pixelated;
+  display: block;
+  flex: none;
+  background: #e7dfc9;
+  border-top: 8px solid var(--accent);
+  padding: 4px;
+  box-sizing: content-box;
+}
+.location-head h3 {
+  margin: 6px 0 2px;
+}
+.location-pips {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--lime);
+}
+.location-pips span {
+  color: #4b4a52;
+}
+.location-card .progress {
+  margin: 10px 0 0;
+}
+.location-line {
+  border-left: 3px solid var(--line);
+  padding-left: 10px;
+}
+.location-line.fit-great {
+  border-color: var(--lime);
+}
+.location-line.fit-good {
+  border-color: #9fc7e0;
+}
+.location-line.fit-poor {
+  border-color: var(--orange);
+}
+.gig-row {
+  margin-top: 4px;
+}
+.gig-row p {
+  margin: 6px 0 8px;
+}
+.gig-row .gig-wait {
+  color: var(--orange);
+}
+.gig-table th small {
+  display: block;
+  color: var(--muted);
+  font-weight: normal;
+  font-size: 11px;
+}
+.gig-table tr.locked {
+  opacity: 0.5;
+}
+.gig-history {
+  color: var(--muted);
+  font-size: 13px;
+  padding-left: 18px;
+}
+@media (max-width: 760px) {
+  .location-grid {
+    grid-template-columns: 1fr;
+  }
+}
