@@ -182,9 +182,10 @@ function validProductionSave(s) {
             r.score >= 0 &&
             r.score <= 100 &&
             Array.isArray(r.parts) &&
-            // Five base rows, optional inspiration, up to four theme and headquarters rows, then variation.
+            // Five base rows, then optional rows added by systems (inspiration, themes, headquarters,
+            // location, heat), then variation.
             r.parts.length >= 6 &&
-            r.parts.length <= 12 &&
+            r.parts.length <= 24 &&
             r.parts.every((c) => typeof c.name === "string" && Number.isFinite(c.value)),
         ) &&
         (!p.launchReview ||

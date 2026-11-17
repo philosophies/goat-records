@@ -45,7 +45,7 @@ assert.match(screen(), /Nobody is on fire yet/);
 assert.match(screen(), /Street posters/);
 assert.match(screen(), /Locked · rank 6/);
 assert.match(screen(), /×1\.60/, "the promotion cap is spelled out");
-assert.equal(element("hud").innerHTML, "", "no chip while nobody is hot");
+assert.doesNotMatch(element("hud").innerHTML, /on fire/, "no heat chip while nobody is hot");
 
 // Sign an artist and record up to the end of Recording.
 click({ tab: "scout" });
