@@ -160,11 +160,17 @@
       const left = THEMES.filter((t) => !s.themes.includes(t.name));
       if (!left.length) return null;
       const t = left[Math.floor(discoveryRoll(s) * left.length)].name;
-      s.themes.push(t);
-      s.themeLog.unshift({ theme: t, week: s.week, source });
-      s.themeLog = s.themeLog.slice(0, 40);
-      if (!quiet) log(s, `New album theme discovered (${source}): ${t}.`);
+      learnTheme(s, t, source, quiet);
       return t;
+    }
+    /** Adds a specific theme. Returns false when it is unknown or already discovered. */
+    function learnTheme(s, name, source, quiet = false) {
+      if (!theme(name) || s.themes.includes(name)) return false;
+      s.themes.push(name);
+      s.themeLog.unshift({ theme: name, week: s.week, source });
+      s.themeLog = s.themeLog.slice(0, 40);
+      if (!quiet) log(s, `New album theme discovered (${source}): ${name}.`);
+      return true;
     }
     function onRecord(s, p, plan = {}) {
       p.themes = [...(plan.themes ?? [])];
@@ -446,6 +452,7 @@
       comboInfo,
       validateThemes,
       discoverTheme,
+      learnTheme,
       onRecord,
       onRelease,
       lotSize,

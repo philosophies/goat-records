@@ -99,14 +99,9 @@
         };
       });
     }
-    // Adds a named theme to the label's theme list in the same format the label system uses.
+    // Signature themes go through the label system so its log and checks stay in one place.
     function learnTheme(s, name, source) {
-      if (s.themes.includes(name)) return false;
-      s.themes.push(name);
-      s.themeLog.unshift({ theme: name, week: s.week, source });
-      s.themeLog = s.themeLog.slice(0, 40);
-      log(s, `New album theme discovered (${source}): ${name}.`);
-      return true;
+      return core.api().learnTheme(s, name, source);
     }
 
     /* ---------------- Gigs ---------------- */

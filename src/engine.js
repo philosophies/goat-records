@@ -3361,6 +3361,7 @@
     comboInfo: L.comboInfo,
     fitOf: L.fitOf,
     discoverTheme: L.discoverTheme,
+    learnTheme: L.learnTheme,
     lotSize: L.lotSize,
     facilityAt: L.facilityAt,
     builtFacility: L.builtFacility,
