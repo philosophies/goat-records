@@ -1,5 +1,9 @@
 # Validation
 
+## v0.9.1 — November 17, 2026
+
+The interface harness now checks that a save with themed stage results passes the load check (it failed before the fix). In Chrome, a label with a Writers' Room and a themed album in production kept its week, album and facility after a page reload.
+
 ## v0.9.0 — November 17, 2026
 
 107 simulation checks and three interface harnesses pass (`node run-checks.cjs`). Twenty-two new checks in `tests/label-test.cjs` cover rank requirements and timing, theme grants, no demotion, chart-peak direction, migration of older saves, theme validation and atomic rejection, hidden-then-revealed combo fit, stage targeting, two-theme scaling, combo levels and the 26-week freshness window, facility rank locks, lot bounds, uniqueness, upkeep, upgrade pricing, stage bonuses, wall-sharing pairings, swaps, shop takings with Fan district, archive residuals, Lounge care for idle artists only, the separate discovery random stream, Writers' Room discovery, Talent Academy effects and rejection of malformed save data. The main interface harness now builds and moves a facility, records a themed album and checks the combo notebook.

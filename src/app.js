@@ -181,7 +181,9 @@ function validProductionSave(s) {
             r.score >= 0 &&
             r.score <= 100 &&
             Array.isArray(r.parts) &&
-            (r.parts.length === 6 || r.parts.length === 7) &&
+            // Five base rows, optional inspiration, up to four theme and headquarters rows, then variation.
+            r.parts.length >= 6 &&
+            r.parts.length <= 12 &&
             r.parts.every((c) => typeof c.name === "string" && Number.isFinite(c.value)),
         ) &&
         (!p.launchReview ||

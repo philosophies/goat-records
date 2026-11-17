@@ -103,6 +103,16 @@ assert.match(
   /<td class="fit-/,
   "a recorded combo shows its fit in the notebook",
 );
+assert.equal(
+  vm.runInContext("state.albums.some((p) => p.production?.results.some((r) => r.parts.length > 7))", context),
+  true,
+  "a themed album has extra calculation rows",
+);
+assert.equal(
+  vm.runInContext("validProductionSave(JSON.parse(JSON.stringify(state)))", context),
+  true,
+  "a save with themed albums survives a page reload",
+);
 assert.equal(vm.runInContext("validSave(JSON.parse(JSON.stringify(state)))", context), true);
 assert.equal(vm.runInContext("validSave({version:1})", context), false);
 assert.equal(
