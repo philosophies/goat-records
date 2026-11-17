@@ -3441,6 +3441,8 @@
     advance,
     busy,
   };
+  // Systems publish their own functions through an `api` object.
+  for (const x of SYS) Object.assign(api, x.api || {});
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   root.LabelGame = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

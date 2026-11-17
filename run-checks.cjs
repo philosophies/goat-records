@@ -1,17 +1,14 @@
-const { spawnSync } = require("node:child_process");
-for (const file of [
-  "test.cjs",
-  "management-test.cjs",
-  "road-test.cjs",
-  "industry-test.cjs",
-  "inspiration-test.cjs",
-  "tour-timing-test.cjs",
-  "tour-cadence-test.cjs",
-  "label-test.cjs",
-  "ui-test.cjs",
-  "road-ui-test.cjs",
-  "industry-ui-test.cjs",
-]) {
+// Runs every simulation and interface suite in tests/ (files named test.cjs or *-test.cjs).
+const { spawnSync } = require("node:child_process"),
+  fs = require("node:fs");
+const first = ["test.cjs"],
+  files = fs
+    .readdirSync(__dirname + "/tests")
+    .filter((f) => f === "test.cjs" || f.endsWith("-test.cjs"))
+    .sort(
+      (a, b) => Number(b.includes("ui-test")) * -1 - Number(a.includes("ui-test")) * -1 || a.localeCompare(b),
+    );
+for (const file of [...first, ...files.filter((f) => !first.includes(f))]) {
   const result = spawnSync(process.execPath, [file], {
     cwd: __dirname + "/tests",
     encoding: "utf8",
