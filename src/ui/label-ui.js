@@ -164,6 +164,7 @@ function hqClick(b) {
       return true;
     }
     hqView.selected = hqView.selected === x + "," + y ? null : x + "," + y;
+    panelOpen = false;
     render();
     return true;
   }
