@@ -2,6 +2,8 @@ name: Publish game versions
 on:
   push:
     tags: ['v*']
+  release:
+    types: [published]
   workflow_dispatch:
 permissions:
   contents: write
@@ -23,12 +25,21 @@ jobs:
         run: |
           mkdir -p packages
           for version in $(git tag --list 'v*' --sort=version:refname); do
-            git archive --format=zip --prefix=Goat-Records/ --output="packages/Goat-Records-$version.zip" "$version"
+            zip="packages/Goat-Records-$version.zip"
+            git archive --format=zip --prefix=Goat-Records/ --output="$zip" "$version"
+            {
+              awk -v v="## $version" '$0==v{on=1;next} on&&/^## /{exit} on' CHANGELOG.md
+              printf '\nDownload and extract the ZIP, then open Start Game.cmd. README.md and VALIDATION.md are inside the package.\n'
+            } > packages/notes.md
             if ! gh release view "$version" >/dev/null 2>&1; then
-              {
-                awk -v v="## $version" '$0==v{on=1;next} on&&/^## /{exit} on' CHANGELOG.md
-                printf '\nDownload and extract the ZIP, then open Start Game.cmd. README.md and VALIDATION.md are inside the package.\n'
-              } > packages/notes.md
-              gh release create "$version" "packages/Goat-Records-$version.zip" --verify-tag --title "Goat Records $version" --notes-file packages/notes.md
+              gh release create "$version" "$zip" --verify-tag --title "Goat Records $version" --notes-file packages/notes.md
+              continue
+            fi
+            # Releases published from the GitHub website get the package, and changelog notes if left blank.
+            if ! gh release view "$version" --json assets --jq '.assets[].name' | grep -qx "Goat-Records-$version.zip"; then
+              gh release upload "$version" "$zip"
+            fi
+            if [ -z "$(gh release view "$version" --json body --jq '.body' | tr -d '[:space:]')" ]; then
+              gh release edit "$version" --notes-file packages/notes.md
             fi
           done
