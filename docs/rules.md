@@ -56,6 +56,121 @@ Facilities that share a wall form a pairing. Each pairing applies once, whatever
 
 Stage bonuses are added when a stage decision is made, so building mid-album helps the stages still to come. Weekly takings are paid at the settlement and listed in Finances.
 
+## Campaign and New Game+
+
+- Year one's Breakout Label target (180 fame, one award, six releases, cash remaining) is the first yearly goal. Play continues into year two whether it was met or missed.
+- Goals are checked at each year boundary, right after the annual awards. A met goal pays its reward once: cash, label fame, or new album themes. Each year is scored only once.
+- Goal types: reach a label rank, an album that peaked at a chart position (or several), awards won, albums released, hit albums, facilities built, label fame, cash on hand. "Total" goals count the whole run; "this year" goals count only that operating year's releases or awards.
+- Each year end queues a yearly review: the goal result and reward, the year's numbers (releases, hits, awards, best chart position, fame gained, cash change, rank) and the next goal. Continue dismisses it.
+- The current goal shows as a status chip and in the goal line. The Campaign screen lists all 20 years with their goals, rewards and results, the score so far, legacy bonuses in use and earlier runs.
+- The run ends once the year-20 awards ceremony is resolved. The final review shows the score breakdown, the star grade and highlights: best album, #1 albums, awards, top rank, peak cash, artists developed (career level 5+) and goals met.
+- New Game+ opens when a run reaches the end of year 20, or runs out of cash after year one. The player picks legacy bonuses with legacy points; the new run starts at week 1 with a fresh roster and catalog, the run number raised and earlier runs listed.
+
+| Bonus            | Points | Effect                                                  |
+| ---------------- | -----: | ------------------------------------------------------- |
+| Seed money       |      3 | +$15,000 starting cash                                  |
+| Trust fund       |      7 | +$40,000 starting cash                                  |
+| Theme library    |      5 | Keep every theme discovered                             |
+| Combo notebook   |      4 | Keep each recorded combo's fit; combo levels start over |
+| Founding room    |      4 | Writers' Room already built                             |
+| Second studio    |      4 | Neon Vault already built                                |
+| Indie start      |      8 | Start at Indie Imprint                                  |
+| Scouting network |      3 | A free National talent search at the start              |
+| Veteran team     |      6 | Keep the last run's staff with no hiring fees           |
+
+Final score = rank × 100 + awards × 60 + fame × 0.5 + #1 albums × 80 + other Top 10 albums × 25 + hit albums × 10 + yearly goals met × 30 + 1 per $1,000 on hand (max 500). A run that ends out of cash loses 25% of that total.
+
+Stars: 1 below 800, 2 from 800, 3 from 1,600, 4 from 2,600, 5 from 3,600.
+
+Legacy points = floor(final score / 100) + points left unspent from the last New Game+.
+
+## Recording locations and paid gigs
+
+### Locations
+
+- An album may pick one location, or none. A location needs its label rank and hosts one album in production at a time.
+- Rent is paid with the album budget when recording starts. It counts toward the album's total investment.
+- A location adds its stage boosts to the stages it lists and its genre affinity to every stage. Bonuses lock at the level the location had when recording started.
+- Each release there adds 1 experience, 2 for a hit (quality 75+). Levels raise the stage boosts and the rent.
+- The first album recorded at a location reveals its signature theme and adds it to the label's themes if it is new. Later albums never add it again. The theme cannot be used on the album that found it.
+- Each location records albums started, releases, experience, level and best quality.
+
+| Location         | Rank |   Rent | Stage boosts                | Great         | Good                       | Poor    | Signature     |
+| ---------------- | ---: | -----: | --------------------------- | ------------- | -------------------------- | ------- | ------------- |
+| Barn Loft        |    1 |   $600 | Identity +2, Songwriting +1 | Country       | Rock, Sacred               | Rap     | Working Class |
+| Old Chapel       |    1 |   $800 | Performance +2, Sound +1    | Sacred        | R&B, Country               | Rap     | Healing       |
+| Rooftop Loft     |    2 | $1,200 | Songwriting +2, Reach +1    | Rap           | R&B, Pop                   | Country | City Lights   |
+| Beach House      |    2 | $1,400 | Identity +2, Performance +1 | Pop           | R&B, Rock                  | Sacred  | First Love    |
+| Lake Cabin       |    2 | $1,000 | Songwriting +3              | —             | Country, Rock, Sacred, R&B | —       | Nostalgia     |
+| Warehouse Floor  |    3 | $1,800 | Performance +3, Sound +1    | Rock          | Rap                        | Pop     | Rebellion     |
+| Desert Ranch     |    3 | $2,000 | Identity +2, Performance +2 | Country, Rock | —                          | R&B     | Road Trip     |
+| Concert Hall     |    4 | $3,200 | Performance +3, Sound +3    | Sacred, R&B   | Pop                        | Rap     | Legacy        |
+| Hillside Mansion |    4 | $3,500 | Songwriting +2, Reach +3    | Rap, Pop      | R&B                        | Country | Money         |
+| Island Studio    |    5 | $6,000 | Every stage +2              | Pop, R&B      | Rap, Rock                  | —       | Party         |
+
+### Gigs
+
+- An artist under contract who is not recording or touring can play one gig, then waits out that gig's cooldown before the next. Gigs are refused during an industry event.
+- A gig costs energy, pays cash at once, changes morale within its range and may add fans, artist fame and career XP. It has a small chance to find a new album theme.
+
+| Gig               | Rank | Energy | Cooldown |         Fans |  XP | Morale   | Theme chance |
+| ----------------- | ---: | -----: | -------: | -----------: | --: | -------- | -----------: |
+| Bar set           |    1 |     15 |  2 weeks |           +1 |   — | −2 to +3 |           3% |
+| Wedding           |    1 |     20 |  3 weeks |            — |   — | −4 to +2 |           5% |
+| College tour stop |    2 |     25 |  3 weeks |           +1 |  +1 | 0 to +4  |           8% |
+| Festival slot     |    3 |     35 |  5 weeks | +2 (fame +1) |  +1 | +1 to +6 |          12% |
+| Corporate show    |    4 |     25 |  4 weeks |            — |   — | −6 to −1 |           2% |
+
+### Location and gig formulas
+
+- Affinity points per stage: Great +4, Good +2, Fair 0, Poor −3.
+- Stage boost = listed value + level bonus. Level bonus by level 1–9: 0, 1, 1, 2, 2, 3, 3, 4, 5.
+- Experience for levels 2–9: 2, 4, 7, 10, 14, 19, 25, 32.
+- Rent = base rent × (1 + 0.05 × (level − 1)), rounded to $50.
+- Gig pay = (base + min(fans, venue cap) × per fan + artist fame × per fame + craft × per craft) × (1 − spread + 2 × spread × roll), rounded to $10.
+
+| Gig               |   Base | Per fan | Venue cap | Per fame | Per craft | Spread |
+| ----------------- | -----: | ------: | --------: | -------: | --------: | -----: |
+| Bar set           |   $150 |      $3 |       120 |       $4 |        $2 |   ±15% |
+| Wedding           |   $400 |       — |         — |       $4 |        $4 |   ±10% |
+| College tour stop |   $300 |      $5 |       250 |       $6 |        $3 |   ±20% |
+| Festival slot     |   $500 |      $5 |       400 |       $8 |        $5 |   ±25% |
+| Corporate show    | $1,500 |       — |         — |      $15 |       $10 |   ±10% |
+
+## Promotion: hot streaks, singles and ads
+
+- **Hot streaks.** An artist catches fire after a hit release (quality 75+), a Top 10 chart week or an award win. Each album can trigger Top 10 heat once; each award counts once.
+- A trigger adds its levels (max 3) and resets the timer to at least its weeks (max 12). A shorter trigger never cuts the timer. The timer counts down at every weekly settlement, except in the week the heat was added. At zero the streak ends.
+- While on fire, every production stage the artist records shows an "On fire · N weeks left" row, and all their albums still in an earning run sell more.
+- **Lead single.** Once Recording is done (three of five stages), an album in production can release one lead single. Not before Recording, not twice, not after the album is out. It costs by budget tier and raises the artist's fans and attention at once. At launch it adds a row to Fan response and Market impact (Critics ignore it) and boosts sales for the first three earning weeks.
+- A single's reception (Quiet −2, Steady 0, Strong +2, Breakout +4) is drawn when it is released and added to both launch rows.
+- **Ads.** A released album still in its earning run can run one ad at a time. Types unlock by label rank. The cost is paid at once, any fan, attention or reputation effect applies at once, and the sales boost starts with the next weekly settlement. An ad is clipped to the earning weeks left.
+- All promotion actions are refused during an industry event or after the season ends.
+
+| Ad              | Rank | Base cost | Sales | Weeks | Also                                         |
+| --------------- | ---: | --------: | ----: | ----: | -------------------------------------------- |
+| Street posters  |    1 |      $450 | ×1.10 |     4 | —                                            |
+| Radio spot      |    2 |      $900 | ×1.15 |     4 | attention +6                                 |
+| Playlist push   |    3 |    $3,000 | ×1.22 |     5 | fans +4                                      |
+| Billboard       |    4 |    $5,500 | ×1.30 |     5 | label reputation +1                          |
+| TV spot         |    5 |   $13,000 | ×1.40 |     6 | fans +8, attention +8                        |
+| Global campaign |    6 |   $22,000 | ×1.50 |     8 | fans +15, attention +10, label reputation +2 |
+
+| Single tier | Album budget |   Cost | Fans | Attention | Fan response | Market impact |
+| ----------- | -----------: | -----: | ---: | --------: | -----------: | ------------: |
+| Lean        |       $4,000 | $1,000 |   +4 |       +10 |           +3 |            +4 |
+| Standard    |       $8,000 | $1,800 |   +6 |       +14 |           +4 |            +5 |
+| Premium     |      $12,000 | $2,600 |   +9 |       +18 |           +5 |            +6 |
+
+### Promotion formulas
+
+- Heat triggers: hit +1 level for 6 weeks; Top 10 week +1 level for 4 weeks; award +2 levels for 8 weeks.
+- Stage bonus = heat level (up to +3).
+- Heat sales = 1 + 0.06 × heat level (up to ×1.18).
+- Single sales = ×1.15 while the album's earning age is below 3.
+- Ad cost = base × (1 + label fame ÷ 1,000), rounded to $50.
+- Promotion multiplier = min(1.6, heat × single × ad). It multiplies with the engine's own sales factors and campaign event boosts.
+
 ## Make an album
 
 1. Scout and sign an artist on a 1-, 3- or 5-album contract. Artist age and listener audience are independent.
@@ -75,7 +190,7 @@ New releases earn 3 career XP and development sessions earn 1. Ten levels use cu
 
 Salaries and booth upkeep are paid weekly. Albums generate diminishing gross revenue over 12 earning weeks. Contract royalties and distribution fees are deducted before label income. Interactive events can extend campaigns to 18 earning weeks. Label rank sets roster limits: 2 at Bedroom Label, rising to 8 at Label Empire. Quality 75+ is a hit and increases booth prestige. Annual awards accept one released album per genre from the current operating year. Submit or replace entries before week 52 ends. The ceremony occurs when the year closes; quarterly industry spotlights remain separate.
 
-Industry events occur every four weeks; rival encounters every eight. Resolve events before managing production. Delayed consequences appear in Industry wire. Earn Breakout Label by finishing the season with 180 fame, one award, six releases and cash remaining. Negative cash ends the game. Business pressure and strategy variety still need human playtesting; the first-year campaign has a results checkpoint, followed by an optional Continue career mode.
+Industry events occur every four weeks; rival encounters every eight. Resolve events before managing production. Delayed consequences appear in Industry wire. A run lasts 20 years with a goal each year; year one's goal is Breakout Label (180 fame, one award, six releases and cash remaining). Negative cash ends the run. See Campaign and New Game+.
 
 ## Paid scouting and recruitment
 
@@ -165,7 +280,7 @@ Tour choices occur at scheduled reviews, capped at three per label week across a
 
 The ledger animates cumulative net and cost recovery every day. It includes setup, tour operations and tour-event fees. Existing label salaries, album sales and awards remain outside this tour net. Break-even triggers a one-time celebration. Both artists are released from the recording lock when a labelmate tour ends.
 
-At the first-year results screen, Continue career keeps contracts, albums and tours running into year two and beyond. Bankruptcy still ends the run.
+Contracts, albums and tours carry on from year to year. Bankruptcy still ends the run.
 
 ## Finding active work
 
