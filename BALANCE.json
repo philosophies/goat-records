@@ -1,30 +1,66 @@
 {
-  "version": "0.6",
+  "version": "0.9",
   "seeds": 30,
   "policies": {
     "Develop a local discovery": {
       "survived": 30,
       "breakoutWins": 0,
       "averageStartingCraft": 58.6,
-      "averageFinalCraft": 80.5,
-      "highestFinalCraft": 84,
-      "averageDevelopmentSessions": 10.2,
+      "averageFinalCraft": 78.8,
+      "highestFinalCraft": 80,
+      "averageDevelopmentSessions": 9.1,
       "averageReleasedAlbums": 6,
-      "averageCash": 12308.1,
-      "averageFame": 92.3,
-      "averageFinalLevel": 4
+      "averageCash": 13416.1,
+      "averageFame": 84.2,
+      "averageFinalLevel": 4,
+      "averageRank": 1,
+      "averageFacilities": 0,
+      "averageThemesKnown": 8.1
     },
     "Sign a national headliner": {
       "survived": 30,
       "breakoutWins": 0,
       "averageStartingCraft": 80.8,
-      "averageFinalCraft": 86.1,
-      "highestFinalCraft": 88,
-      "averageDevelopmentSessions": 4.5,
+      "averageFinalCraft": 82.3,
+      "highestFinalCraft": 86,
+      "averageDevelopmentSessions": 0.8,
       "averageReleasedAlbums": 6,
-      "averageCash": 33099.8,
-      "averageFame": 123.4,
-      "averageFinalLevel": 3.9
+      "averageCash": 37328.9,
+      "averageFame": 118.2,
+      "averageFinalLevel": 3.2,
+      "averageRank": 1,
+      "averageFacilities": 0,
+      "averageThemesKnown": 6.1
+    },
+    "Local discovery with headquarters and themes": {
+      "survived": 30,
+      "breakoutWins": 0,
+      "averageStartingCraft": 58.6,
+      "averageFinalCraft": 78.9,
+      "highestFinalCraft": 83,
+      "averageDevelopmentSessions": 9.2,
+      "averageReleasedAlbums": 6,
+      "averageCash": 11941.6,
+      "averageFame": 107.2,
+      "averageFinalLevel": 4,
+      "averageRank": 2,
+      "averageFacilities": 1.1,
+      "averageThemesKnown": 16
+    },
+    "National headliner with headquarters and themes": {
+      "survived": 30,
+      "breakoutWins": 0,
+      "averageStartingCraft": 80.8,
+      "averageFinalCraft": 85.2,
+      "highestFinalCraft": 88,
+      "averageDevelopmentSessions": 3.7,
+      "averageReleasedAlbums": 6,
+      "averageCash": 23529.4,
+      "averageFame": 132.8,
+      "averageFinalLevel": 3.8,
+      "averageRank": 2.8,
+      "averageFacilities": 3.4,
+      "averageThemesKnown": 14.5
     }
   }
 }

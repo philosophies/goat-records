@@ -166,7 +166,7 @@ test("Facilities respect rank, lot bounds, occupied tiles and one of each", () =
   assert.throws(() => G.buildFacility(s, "mix", 0, 0), /rank 2/);
   assert.throws(() => G.buildFacility(s, "writers", 3, 0), /outside/);
   G.buildFacility(s, "writers", 0, 0);
-  assert.equal(s.cash, 500000 - 6000);
+  assert.equal(s.cash, 500000 - 4000);
   assert.throws(() => G.buildFacility(s, "vocal", 0, 0), /occupied/);
   assert.throws(() => G.buildFacility(s, "writers", 1, 0), /already built/);
   s.rank = 2;
@@ -179,9 +179,9 @@ test("Facility upkeep joins weekly overhead and scales with level", () => {
   s.cash = 500000;
   const base = G.upkeep(s);
   G.buildFacility(s, "writers", 0, 0);
-  assert.equal(G.upkeep(s), base + 90);
+  assert.equal(G.upkeep(s), base + 50);
   G.upgradeFacility(s, "writers");
-  assert.equal(G.upkeep(s), base + 180);
+  assert.equal(G.upkeep(s), base + 100);
 });
 
 test("Upgrades cost build price × current level and stop at level 3", () => {
@@ -190,10 +190,10 @@ test("Upgrades cost build price × current level and stop at level 3", () => {
   G.buildFacility(s, "vocal", 1, 1);
   let cash = s.cash;
   G.upgradeFacility(s, "vocal");
-  assert.equal(cash - s.cash, 7000);
+  assert.equal(cash - s.cash, 5000);
   cash = s.cash;
   G.upgradeFacility(s, "vocal");
-  assert.equal(cash - s.cash, 14000);
+  assert.equal(cash - s.cash, 10000);
   assert.throws(() => G.upgradeFacility(s, "vocal"), /top level/);
 });
 
@@ -206,7 +206,7 @@ test("Facilities add their stage bonus to the matching production stage", () => 
   assert.equal(part(preview(s, p, 2), "Headquarters"), undefined);
 });
 
-test("Neighbouring facilities unlock their pairing; diagonals do not", () => {
+test("Neighboring facilities unlock their pairing; diagonals do not", () => {
   const { s, a } = label(15);
   G.buildFacility(s, "writers", 0, 0);
   G.buildFacility(s, "lounge", 1, 1);
