@@ -161,7 +161,8 @@ function play(seed) {
   let s = G.create(seed);
   G.sign(s, s.candidates.toSorted((a, b) => b.talent - a.talent)[0].id);
   G.hire(s, "Producer");
-  while (!s.finished) {
+  // Plays the first operating year; the campaign continues after it, so the sample stops at week 53.
+  while (!s.finished && s.week < 53) {
     while (s.event) G.choose(s, 2);
     if (s.finished) break;
     let a = s.artists[0];
@@ -186,14 +187,17 @@ function play(seed) {
   }
   return s;
 }
-test("Fifty seeded seasons reach a valid end state", () => {
+test("Fifty seeded first years either go bankrupt or carry on into year two", () => {
   let wins = 0,
     survived = 0;
   for (let i = 1; i <= 50; i++) {
     let s = play(i);
-    assert.ok(s.finished);
-    if (s.week === 53) survived++;
-    if (s.outcome.startsWith("You built")) wins++;
+    assert.ok(s.finished ? s.cash < 0 : s.week === 53, "only bankruptcy stops a run in year one");
+    if (!s.finished) {
+      survived++;
+      assert.equal(s.campaign.goals[0].year, 1);
+      if (s.campaign.goals[0].status === "met") wins++;
+    }
   }
   console.log(`  Conservative strategy: ${survived}/50 survived, ${wins}/50 reached Breakout Label.`);
   assert.ok(survived > 0);

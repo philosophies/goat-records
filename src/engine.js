@@ -305,7 +305,8 @@
   function scout(s) {
     s.candidates = Array.from({ length: 4 }, () => prospect(s, 0));
   }
-  function create(seed = Date.now()) {
+  /** New label. `options.legacy` carries New Game+ bonuses, applied by the campaign system's init. */
+  function create(seed = Date.now(), options = {}) {
     let s = {
       version: 1,
       seed: seed >>> 0,
@@ -328,6 +329,7 @@
       trend: "Pop",
     };
     scout(s);
+    if (options.legacy) s.legacy = options.legacy;
     initializeManagement(s);
     log(s, "Welcome to Goat Records. Sign an artist, start an album, then advance weeks.");
     return s;
@@ -751,8 +753,7 @@
     if (!s.event && s.pendingTourWeek) {
       s.pendingTourWeek = false;
       advance(s, { fromDays: true });
-    } else if (!s.event && !s.eventQueue.length && s.week >= 53 && !s.careerMode && !s.finished)
-      finalizeFirstYear(s);
+    } else finalizeRun(s);
   }
   function advance(s, options = {}) {
     requireAction(s);
@@ -850,7 +851,7 @@
         if (e) s.eventQueue.push(e);
       }
       s.event = s.eventQueue.shift() || null;
-      if (s.week >= 53 && !s.careerMode && !s.event) finalizeFirstYear(s);
+      finalizeRun(s);
     }
     s.financeHistory.push({
       week: s.week,
@@ -1995,12 +1996,17 @@
       endTour(s, t, "An avoidable disruption cancelled the remaining shows");
     }
   }
+  // Labels no longer stop after year one; loading an older save resumes it (campaign system).
+  // These remain for labels still marked finished at the old year-one checkpoint.
+  function canContinueCareer(s) {
+    return s.finished && s.cash >= 0 && s.week >= 53 && !api.campaignOver?.(s);
+  }
   function continueCareer(s) {
-    if (!s.finished || s.cash < 0 || s.week < 53)
-      throw Error("Complete the first year with cash remaining to continue.");
+    if (!canContinueCareer(s)) throw Error("Complete the first year with cash remaining to continue.");
     s.finished = false;
     s.careerMode = true;
-    log(s, "Year-one results recorded. Career mode continues with existing albums, contracts and tours.");
+    s.outcome = null;
+    log(s, "Year-one results recorded. The label continues with existing albums, contracts and tours.");
   }
   function validRoadSave(s) {
     return (
@@ -2656,12 +2662,14 @@
     });
     log(s, `Year ${year} annual awards results published. Next operating year begins.`);
   }
-  function finalizeFirstYear(s) {
+  // The run ends once the campaign reports its last year done and every pending event is resolved.
+  // Year one's Breakout Label target is now the campaign's first yearly goal.
+  function finalizeRun(s) {
+    if (s.finished || s.event || s.eventQueue.length) return;
+    const outcome = api.campaignOutcome?.(s);
+    if (!outcome) return;
     s.finished = true;
-    const won = s.fame >= 180 && s.awards >= 1 && s.albums.filter((p) => p.released).length >= 6;
-    s.outcome = won
-      ? "You built a breakout label! Continue career to keep growing."
-      : "Year one complete. Breakout Label requires 180 fame, an award, six releases and cash remaining. Continue career to keep growing.";
+    s.outcome = outcome;
   }
 
   function tourInteractionBudget(s) {
@@ -3397,6 +3405,7 @@
     startTour,
     cancelTour,
     continueCareer,
+    canContinueCareer,
     validRoadSave,
     SCOUT_BUDGETS,
     RECRUIT_BUDGETS,
