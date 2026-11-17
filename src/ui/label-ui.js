@@ -1,7 +1,8 @@
 // Headquarters, label rank and album theme screens. Uses the page globals set up in app.js
-// (G, state, esc, money, disable, blocked) at render time.
+// (G, state, esc, money, disable, blocked) at render time. The lot itself is drawn by lot.js.
 "use strict";
 
+/** Selected lot tile ("x,y") and the facility being moved, shared with the lot on the main screen. */
 const hqView = { selected: null, moving: null };
 
 /** Renders a pixel map as a crisp SVG. Each character is one pixel; "." is transparent. */
@@ -22,9 +23,6 @@ function pixelSvg(map, accent, size = 40, label = "") {
   const w = map[0].length,
     h = map.length;
   return `<svg class="pixel" viewBox="0 0 ${w} ${h}" width="${size}" height="${Math.round((size * h) / w)}" shape-rendering="crispEdges" ${label ? `role="img" aria-label="${esc(label)}"` : 'aria-hidden="true"'}>${rects}</svg>`;
-}
-function artistSprite(a, i) {
-  return `<span class="sprite" style="--delay:${(i % 5) * 0.37}s" title="${esc(a.name)}">${pixelSvg(G.ARTIST_SPRITE, G.GENRE_COLORS[a.genre] || "#ccc", 18)}</span>`;
 }
 function facilityDef(id) {
   return G.FACILITIES.find((f) => f.id === id);
@@ -83,58 +81,12 @@ function rankLine() {
 
 /* ---------------- Headquarters ---------------- */
 
-function occupantsByTile() {
-  const out = new Map(),
-    place = (fid, a) => {
-      const f = G.builtFacility(state, fid);
-      if (!f) return false;
-      const k = f.x + "," + f.y;
-      out.set(k, [...(out.get(k) || []), a]);
-      return true;
-    };
-  for (const a of state.artists) {
-    if (G.onTour(state, a.id)) continue;
-    const recording = state.albums.some((p) => !p.released && p.artist === a.id);
-    if (recording) place("vocal", a) || place("mix", a) || place("writers", a);
-    else place("lounge", a) || place("rehearsal", a) || place("bar", a);
-  }
-  return out;
-}
 function synergyEdges() {
   return G.activeSynergies(state).map((syn) => {
     const a = G.builtFacility(state, syn.pair[0]),
       b = G.builtFacility(state, syn.pair[1]);
     return { name: syn.name, a, b };
   });
-}
-function lotGrid() {
-  const [w, h] = G.lotSize(state),
-    next = G.RANKS[G.rank(state)]?.lot || [w, h],
-    gw = Math.max(w, next[0]),
-    gh = Math.max(h, next[1]),
-    people = occupantsByTile(),
-    edges = synergyEdges();
-  let cells = "";
-  for (let y = 0; y < gh; y++)
-    for (let x = 0; x < gw; x++) {
-      const inside = x < w && y < h,
-        f = inside && G.facilityAt(state, x, y),
-        key = x + "," + y,
-        sel = hqView.selected === key,
-        linked = f && edges.filter((e) => e.a === f || e.b === f);
-      if (!inside) {
-        cells += `<div class="tile locked" aria-label="Locked tile"><small>Next rank</small></div>`;
-        continue;
-      }
-      if (!f) {
-        cells += `<button class="tile empty ${sel ? "selected" : ""} ${hqView.moving ? "target" : ""}" data-action="hqTile" data-x="${x}" data-y="${y}" aria-label="Empty tile ${x + 1}, ${y + 1}"><span class="plus">${hqView.moving ? "Move here" : "+"}</span></button>`;
-        continue;
-      }
-      const def = facilityDef(f.id),
-        who = people.get(key) || [];
-      cells += `<button class="tile built ${sel ? "selected" : ""} ${hqView.moving === f.id ? "moving" : ""} ${linked.length ? "linked" : ""}" style="--accent:${def.accent}" data-action="hqTile" data-x="${x}" data-y="${y}" aria-label="${esc(def.name)} level ${f.level}${linked.length ? ", paired: " + linked.map((e) => e.name).join(", ") : ""}"><span class="wall"></span>${pixelSvg(def.icon, def.accent, 44)}<span class="tile-name">${esc(def.name)}</span><span class="pips">${"●".repeat(f.level)}${"○".repeat(G.HQ.maxLevel - f.level)}</span>${who.length ? `<span class="crowd">${who.slice(0, 3).map(artistSprite).join("")}</span>` : ""}</button>`;
-    }
-  return `<div class="lot" style="--cols:${gw}">${cells}</div>`;
 }
 function buildMenu(x, y) {
   const r = G.rank(state);
@@ -179,21 +131,25 @@ function synergyText(p) {
   if (p.trainingDiscount) out.push(`development fees −${Math.round(p.trainingDiscount * 100)}%`);
   return out.join(", ");
 }
+/** Facility list: what is built, what can be built, pairings and the rank ladder. */
 function headquarters() {
   const [w, h] = G.lotSize(state),
-    sel = hqView.selected?.split(",").map(Number),
-    f = sel && G.facilityAt(state, sel[0], sel[1]);
+    r = G.rank(state),
+    active = G.activeSynergies(state);
   const pairs = G.SYNERGIES.map((p) => {
-    const on = G.activeSynergies(state).includes(p);
+    const on = active.includes(p);
     return `<li class="${on ? "met" : ""}"><span>${on ? "✓" : "·"}</span><b>${esc(p.name)}</b><small>${esc(facilityDef(p.pair[0]).name)} + ${esc(facilityDef(p.pair[1]).name)} · ${esc(synergyText(p))}</small></li>`;
   }).join("");
-  return `${rankPanel()}<div class="sectionhead"><h2>Headquarters</h2><span class="muted">${state.hq.facilities.length} facilities · lot ${w}×${h}</span></div><p class="muted">Each facility fills one tile and can be upgraded twice. Facilities that share a wall can pair up for an extra bonus. Your artists hang out where they work: recording artists in the booth, idle ones in the lounge.</p><div class="hq-layout"><div>${lotGrid()}${hqSummary()}</div><aside class="card hq-panel" aria-live="polite">${
-    f
-      ? facilityPanel(f)
-      : sel
-        ? buildMenu(sel[0], sel[1])
-        : "<h3>Pick a tile</h3><p>Choose an empty tile to build, or a facility to upgrade or move it.</p>"
-  }</aside></div><h2>Pairings</h2><ul class="rank-checks pairings">${pairs}</ul>`;
+  const rows = G.FACILITIES.map((def) => {
+    const f = G.builtFacility(state, def.id),
+      locked = r < def.rank;
+    return `<div class="build-option facility-row ${f ? "" : "off"}" style="--accent:${def.accent}">${pixelSvg(def.icon, def.accent, 30)}<div><b>${esc(def.name)}</b>${f ? ` <span class="tag">LEVEL ${f.level} / ${G.HQ.maxLevel}</span>` : ""}<small>${esc(def.text)}<br>${
+      f
+        ? `Tile ${f.x + 1}, ${f.y + 1} · ${money(def.upkeep * f.level)}/week`
+        : `${money(def.cost)} · ${money(def.upkeep)}/week per level${locked ? ` · rank ${def.rank} (${esc(G.RANKS[def.rank - 1].name)})` : " · pick an empty tile on the lot"}`
+    }</small></div>${f ? `<button data-action="hqFocus" data-x="${f.x}" data-y="${f.y}">Show on lot</button>` : ""}</div>`;
+  }).join("");
+  return `${rankPanel()}<div class="sectionhead"><h2>Facilities</h2><span class="muted">${state.hq.facilities.length} built · lot ${w}×${h}</span></div><p class="muted">Click any tile on the lot to build, upgrade, move or close a facility. Each facility fills one tile and can be upgraded twice. Facilities that share a wall can pair up for an extra bonus. Recording artists work in the Vocal Booth, Mix Suite or Writers' Room; idle artists relax in the Lounge, Rehearsal Hall or Listening Bar.</p>${hqSummary()}<div class="build-list facility-list">${rows}</div><h2>Pairings</h2><ul class="rank-checks pairings">${pairs}</ul>`;
 }
 function hqClick(b) {
   const action = b.dataset.action;
@@ -209,6 +165,18 @@ function hqClick(b) {
     }
     hqView.selected = hqView.selected === x + "," + y ? null : x + "," + y;
     render();
+    return true;
+  }
+  if (action === "hqClose") {
+    hqView.selected = null;
+    hqView.moving = null;
+    render();
+    return true;
+  }
+  if (action === "hqFocus") {
+    hqView.selected = b.dataset.x + "," + b.dataset.y;
+    hqView.moving = null;
+    closePanel();
     return true;
   }
   if (action === "hqMove") {

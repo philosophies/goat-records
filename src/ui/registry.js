@@ -15,10 +15,21 @@ const GoatUI = {
   catalogCard: [],
   /** Extra rows under an album that is in production: { render(album) }. */
   productionPanel: [],
-  /** Small status chips beside the date: { render() }. */
+  /** Small status chips in the top bar beside the date: { render() }. */
   hud: [],
-  /** Full-width notices above the activity list (rank-ups and similar): { render() }. */
+  /**
+   * Notices (rank-ups and similar): { render() }. A banner with a data-action button is shown as
+   * a card over the lot and pauses the clock; one without is shown in the side ticker.
+   */
   banners: [],
+  /**
+   * Reasons to hold the clock: { reason() -> short text or "" }. Any non-empty reason pauses
+   * time until it clears, for example "contract offer". Banners with a data-action button
+   * already pause the clock.
+   */
+  pauses: [],
+  /** Extra items drawn on the ground in front of the headquarters: { render() }. */
+  lotDecor: [],
   /** Click handlers: (button) => true when handled. */
   click: [],
   /** Change handlers: (event) => true when handled. */

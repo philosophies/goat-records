@@ -60,6 +60,10 @@ const context = vm.createContext({
   URL,
 });
 require("./load-interface.cjs")(context);
+function click(data) {
+  listeners.click({ target: { closest: () => ({ dataset: data }) } });
+}
+click({ tab: "studio" });
 el("artist").value = a.id;
 el("booth").value = "0";
 el("budget").value = "4000";
@@ -67,9 +71,6 @@ checked = ["video", "star"];
 listeners.change({ target: { name: "albumAddon", id: "" } });
 assert.match(el("albumQuote").innerHTML, /24,000/);
 assert.match(el("albumQuote").innerHTML, /7 production weeks/);
-function click(data) {
-  listeners.click({ target: { closest: () => ({ dataset: data }) } });
-}
 click({ tab: "road" });
 assert.match(el("content").innerHTML, /Book a new tour/);
 el("tour-album").value = p.id;
