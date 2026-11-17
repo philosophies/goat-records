@@ -42,6 +42,14 @@ Add new public functions to the engine API through the system object; `LabelGame
 
 Album form controls that should refresh the quote carry a `data-album-field` attribute.
 
+Two more points serve the lot screen: `GoatUI.pauses` (`{ reason() }`; any non-empty text holds the live clock and is shown as the pause reason) and `GoatUI.lotDecor` (`{ render() }`; drawn on the street in front of the building). A banner with a button is shown as a card over the lot and holds the clock; one without a button sits in the side ticker.
+
+Page globals for feature scripts: `GoatLot.say(text, key, facilityId)` shows a speech bubble over an artist (`"a" + id`) or staff member (`"s" + role`); `GoatClock` has `speed`, `setSpeed(n)` and `day()`; `openPanel(id)` and `closePanel()` open and close menu screens; `paintHTML(id, html)` rewrites a region only when it changed.
+
+## Live clock
+
+`src/ui/clock.js` decides each tick with `clockState(state, ui)`. Time holds for a finished run, an event, an album decision or result, a chart milestone, an unseen rank-up, an open menu or building popover, a banner with a button, and any `GoatUI.pauses` reason. Each tick runs one Next week step. A chosen speed resumes by itself once nothing is waiting; Pause stays paused.
+
 ## Checks
 
 `node run-checks.cjs` runs every suite in `tests/`. Interface harnesses load scripts in `index.html` order through `tests/load-interface.cjs`, so new interface files are picked up automatically.
