@@ -7,6 +7,10 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+# A release published on the website can also fire the tag event; run one at a time.
+concurrency:
+  group: publish-releases
+  cancel-in-progress: false
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -37,7 +41,7 @@ jobs:
             fi
             # Releases published from the GitHub website get the package, and changelog notes if left blank.
             if ! gh release view "$version" --json assets --jq '.assets[].name' | grep -qx "Goat-Records-$version.zip"; then
-              gh release upload "$version" "$zip"
+              gh release upload "$version" "$zip" --clobber
             fi
             if [ -z "$(gh release view "$version" --json body --jq '.body' | tr -d '[:space:]')" ]; then
               gh release edit "$version" --notes-file packages/notes.md
