@@ -36,6 +36,7 @@ function ready(seed = 18, addOns = []) {
   const s = G.create(seed);
   s.cash = 500000;
   s.fame = 200;
+  s.rank = 4;
   G.sign(s, s.candidates[0].id, 3);
   const a = s.artists[0];
   a.age = "Adult";
@@ -74,8 +75,9 @@ test("Six rooms progress monotonically in equipment, crew, build cost and upkeep
     for (const k of ["equipment", "team", "cost", "upkeep"]) assert.ok(G.BOOTHS[i][k] > G.BOOTHS[i - 1][k]);
   const s = G.create(2);
   s.cash = 100000;
-  assert.throws(() => G.build(s, 5), /tier/);
+  assert.throws(() => G.build(s, 5), /label rank/);
   s.fame = 200;
+  s.rank = 4;
   G.build(s, 5);
   assert.equal(G.upkeep(s), 900);
 });

@@ -23,6 +23,7 @@ function prepared(seed = 1) {
   const s = G.create(seed);
   s.cash = 1000000;
   s.fame = 200;
+  s.rank = 4;
   G.sign(s, s.candidates[0].id, 3);
   const a = s.artists[0];
   a.age = "Adult";

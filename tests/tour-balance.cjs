@@ -4,6 +4,7 @@ function fixture(seed, scale, mode, profile = "typical") {
   const s = G.create(seed);
   s.cash = 1000000;
   s.fame = 200;
+  s.rank = 4;
   G.sign(s, s.candidates[0].id, 5);
   G.sign(s, s.candidates[0].id, 5);
   for (const a of s.artists) {

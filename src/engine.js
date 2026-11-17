@@ -2,6 +2,8 @@
   "use strict";
   const isNode = typeof module !== "undefined" && module.exports;
   const D = isNode ? require("./data/core.js") : root.SideAData;
+  const LD = isNode ? require("./data/label.js") : root.SideAData;
+  const Systems = isNode ? require("./systems/label.js") : root.SideASystems;
   const {
     GENRES,
     ROLES,
@@ -111,6 +113,7 @@
         name: "Inspiration at recording · " + p.inspirationAtStart + "/100",
         value: inspirationInfo({ inspiration: p.inspirationAtStart }).bonus,
       });
+    parts.push(...L.stageParts(s, p, d.stage));
     return {
       name: o.name,
       role: o.role,
@@ -215,6 +218,7 @@
     return p;
   }
   const clamp = (v, a = 0, b = 100) => Math.max(a, Math.min(b, v));
+  const L = Systems.createLabelSystems({ clamp, log, pay, requireAction, busy }, { ...D, ...LD });
   function rng(s) {
     s.seed = (Math.imul(s.seed, 1664525) + 1013904223) >>> 0;
     return s.seed / 4294967296;
@@ -224,10 +228,10 @@
     s.news = s.news.slice(0, 60);
   }
   function tier(s) {
-    return s.fame >= 200 ? 4 : s.fame >= 90 ? 3 : s.fame >= 30 ? 2 : 1;
+    return L.tier(s);
   }
   function slots(s) {
-    return [0, 2, 3, 4, 6][tier(s)];
+    return L.slots(s);
   }
   function candidate(s) {
     const names = [
@@ -309,7 +313,7 @@
   }
   function sign(s, id, term = 3) {
     requireAction(s);
-    if (s.artists.length >= slots(s)) throw Error("Roster full. Earn label fame to unlock more slots.");
+    if (s.artists.length >= slots(s)) throw Error("Roster full. Raise your label rank to unlock more slots.");
     const a = s.candidates.find((x) => x.id === Number(id));
     if (!a) throw Error("Candidate unavailable.");
     if (s.reputation < 30) throw Error("This artist needs label reputation of at least 30.");
@@ -356,7 +360,7 @@
     requireAction(s);
     id = Number(id);
     if (!BOOTHS[id] || s.booths.some((x) => x.id === id)) throw Error("Booth unavailable.");
-    if (tier(s) < BOOTHS[id].labelTier) throw Error("Raise the label fame tier to unlock this room.");
+    if (tier(s) < BOOTHS[id].labelTier) throw Error("Raise your label rank to unlock this room.");
     pay(s, BOOTHS[id].cost);
     s.booths.push({ id, hits: 0, prestige: 0 });
     log(s, `${BOOTHS[id].name} opened.`);
@@ -380,6 +384,7 @@
     a.trainingSessions++;
     a.lastTrainingWeek = s.week;
     log(s, `${a.name}: craft +${info.gain}, career XP +1. Next development in 3 weeks.`);
+    L.afterTraining(s);
   }
   function releaseArtist(s, id) {
     requireAction(s);
@@ -390,7 +395,7 @@
     s.reputation = clamp(s.reputation - penalty);
     log(s, `${a.name} left the roster. Reputation -${penalty}.`);
   }
-  function record(s, { artistId, boothId, genre, audience, budget = 4000, title, addOns = [] }) {
+  function record(s, { artistId, boothId, genre, audience, budget = 4000, title, addOns = [], themes = [] }) {
     requireAction(s);
     const a = artist(s, artistId),
       b = s.booths.find((x) => x.id === Number(boothId));
@@ -405,6 +410,7 @@
       addOns.some((id) => !ALBUM_ADDONS.some((x) => x.id === id))
     )
       throw Error("Invalid album plan.");
+    L.validateThemes(s, themes);
     if (!a.contract.remaining) throw Error("Contract complete. Renew before starting another album.");
     if (busy(s, a.id)) throw Error("This artist is already recording or touring.");
     if (s.albums.some((x) => !x.released && x.booth === b.id)) throw Error("That booth is occupied.");
@@ -430,6 +436,8 @@
       baseBudget: budget,
       budget: total,
       addOns: [...addOns],
+      themes: [...themes],
+      recordWeek: s.week,
       expectation,
       released: false,
       age: 0,
@@ -447,6 +455,7 @@
     p.distributionFees = 0;
     initializeProject(p, a);
     s.albums.push(p);
+    L.onRecord(s, p);
     a.energy -= 30;
     log(
       s,
@@ -462,7 +471,8 @@
     return Math.round(
       wages * factor +
         s.staff.reduce((n, r) => n + (s.employees[r]?.wage ?? ROLES[r].wage), 0) +
-        s.booths.reduce((n, b) => n + BOOTHS[b.id].upkeep, 0),
+        s.booths.reduce((n, b) => n + BOOTHS[b.id].upkeep, 0) +
+        L.hqUpkeep(s),
     );
   }
   function finishAlbum(s, p) {
@@ -528,6 +538,7 @@
         value:
           i === plan.target && s.staff.includes(plan.role) ? Math.round(staffBonus(s, plan.role) / 2) : 0,
       });
+      r.parts.push(...L.launchParts(s, p, i));
       r.parts.push({ name: "Release-day variation", value: Math.floor(rng(s) * 13) - 6 });
       r.score = clamp(r.parts.reduce((n, c) => n + c.value, 0));
     }
@@ -544,6 +555,7 @@
       b.prestige = clamp(b.prestige + 12);
       s.fame += 8;
     }
+    L.onRelease(s, p);
     log(s, `${p.title} released: ${p.quality}/100${p.hit ? " · HIT! Booth prestige +12." : ""}`);
   }
   function makeEvent(s) {
@@ -775,6 +787,7 @@
         s,
         "Annual awards entries close at the end of this operating year. Submit one eligible album per genre.",
       );
+    const hqIncome = L.weekly(s);
     if (s.week % 4 === 0) {
       s.trend = GENRES[Math.floor(rng(s) * 6)];
       log(s, `Market update: ${s.trend} is trending. New rival releases have entered the chart.`);
@@ -796,6 +809,7 @@
       overhead: weeklyOverhead,
       closingCash: s.cash,
       cashChange: s.cash - opening,
+      hqIncome,
       albumIncome: s.albums
         .filter((p) => p.lastSalesWeek === s.week)
         .reduce((n, p) => n + (p.lastNetIncome || 0), 0),
@@ -944,6 +958,7 @@
     s.managementRevision = 3;
     initializeRoad(s);
     initializeIndustry(s);
+    L.init(s);
     return s;
   }
   function paidScout(s, index) {
@@ -995,10 +1010,11 @@
     log(s, `${role} employment ended. Severance $${fee}.`);
   }
   function trainingInfo(s, a) {
-    const cap = Math.max(
-      a.talent,
-      Math.min(a.potential ?? 85, 64 + tier(s) * 4 + level(a) * 2 + careerTier(a) * 2),
-    );
+    const hq = L.trainingAdjust(s, {}),
+      cap = Math.max(
+        a.talent,
+        Math.min(a.potential ?? 85, 64 + tier(s) * 4 + level(a) * 2 + careerTier(a) * 2 + hq.ceilingBonus),
+      );
     const gain = Math.min(
       cap - a.talent,
       (a.talent < 65 ? 3 : a.talent < 80 ? 2 : 1) + (staffSkill(s, "Artist Development") >= 65 ? 1 : 0),
@@ -1006,7 +1022,9 @@
     return {
       cap,
       gain,
-      cost: 400 + a.talent * 6 + (a.trainingSessions || 0) * 120 + level(a) * 75,
+      cost: Math.round(
+        (400 + a.talent * 6 + (a.trainingSessions || 0) * 120 + level(a) * 75) * (1 - hq.discount),
+      ),
       wait: Math.max(0, (a.lastTrainingWeek ?? -99) + 3 - s.week),
     };
   }
@@ -1732,6 +1750,7 @@
       s.reputation = clamp(s.reputation + ((t.quality ?? 80) < 40 ? -4 : (t.quality ?? 80) >= 80 ? 3 : 1));
     }
     log(s, `${t.title} tour ${t.status}: ${reason}. Tour net $${t.net}.`);
+    L.afterTour(s, t, completed);
   }
   function cancelTour(s, id) {
     requireAction(s);
@@ -3256,6 +3275,38 @@
   }
 
   const api = {
+    THEMES: LD.THEMES,
+    FIT: LD.FIT,
+    FACILITIES: LD.FACILITIES,
+    SYNERGIES: LD.SYNERGIES,
+    RANKS: LD.RANKS,
+    HQ: LD.HQ,
+    PALETTE: LD.PALETTE,
+    ARTIST_SPRITE: LD.ARTIST_SPRITE,
+    GENRE_COLORS: LD.GENRE_COLORS,
+    rank: L.rank,
+    rankInfo: L.rankInfo,
+    rankStatus: L.rankStatus,
+    checkRank: L.checkRank,
+    acknowledgeRankUp: L.acknowledgeRankUp,
+    themeSlots: L.themeSlots,
+    comboFit: L.comboFit,
+    comboInfo: L.comboInfo,
+    fitOf: L.fitOf,
+    discoverTheme: L.discoverTheme,
+    lotSize: L.lotSize,
+    facilityAt: L.facilityAt,
+    builtFacility: L.builtFacility,
+    activeSynergies: L.activeSynergies,
+    hqBonuses: L.hqBonuses,
+    hqUpkeep: L.hqUpkeep,
+    hqIncome: L.hqIncome,
+    upgradeCost: L.upgradeCost,
+    buildFacility: L.buildFacility,
+    upgradeFacility: L.upgradeFacility,
+    moveFacility: L.moveFacility,
+    demolishFacility: L.demolishFacility,
+    validLabelSave: L.validSave,
     tourInteractionBudget,
     tourChoiceGap,
     advanceTourToNextActivity,

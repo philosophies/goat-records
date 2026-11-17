@@ -31,15 +31,17 @@ const next = (s) => {
   G.advance(s);
 };
 test("Seeded candidate generation is reproducible", () => assert.deepEqual(G.create(42), G.create(42)));
-test("Roster capacity is enforced and expands at fame tiers", () => {
+test("Roster capacity is enforced and expands with label rank, not fame alone", () => {
   let s = G.create(4);
   G.sign(s, s.candidates[0].id);
   G.sign(s, s.candidates[0].id);
   assert.throws(() => G.sign(s, s.candidates[0].id), /Roster full/);
   s.fame = 30;
+  assert.throws(() => G.sign(s, s.candidates[0].id), /Roster full/);
+  s.rank = 2;
   G.sign(s, s.candidates[0].id);
   assert.equal(s.artists.length, 3);
-  s.fame = 200;
+  s.rank = 4;
   assert.equal(G.slots(s), 6);
 });
 test("Insufficient funds cannot mutate a signing", () => {
