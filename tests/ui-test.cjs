@@ -31,6 +31,7 @@ const context = vm.createContext({
   Blob,
   URL,
 });
+vm.runInContext(fs.readFileSync(__dirname + "/../src/ui/label-ui.js", "utf8"), context);
 vm.runInContext(fs.readFileSync(__dirname + "/../src/app.js", "utf8"), context);
 assert.match(element("content").innerHTML, /Your first discovery/);
 function click(data) {
@@ -49,6 +50,7 @@ element("genre").value = "Pop";
 element("audience").value = "Adult";
 element("budget").value = 4000;
 element("title").value = "<script>alert(1)</script>";
+element("theme1").value = "Summer";
 listeners.submit({ target: { id: "albumForm" }, preventDefault() {} });
 assert.equal(JSON.parse(stored).albums.length, 1);
 for (let i = 0; i < 20 && !JSON.parse(stored).albums[0].released; i++) {
@@ -79,8 +81,37 @@ click({ tab: "staff" });
 assert.match(element("content").innerHTML, /Public Relations/);
 click({ tab: "journal" });
 assert.match(element("content").innerHTML, /Industry wire/);
+click({ tab: "hq" });
+assert.match(element("content").innerHTML, /Bedroom Label/);
+assert.match(element("content").innerHTML, /Pick a tile/);
+click({ action: "hqTile", x: "0", y: "0" });
+assert.match(element("content").innerHTML, /Build on tile 1, 1/);
+const cashBeforeBuild = JSON.parse(stored).cash;
+click({ action: "buildFacility", fac: "writers", x: "0", y: "0" });
+assert.equal(JSON.parse(stored).hq.facilities[0].id, "writers");
+assert.equal(JSON.parse(stored).cash, cashBeforeBuild - 4000);
+assert.match(element("content").innerHTML, /Upgrade to level 2/);
+click({ action: "hqMove", fac: "writers" });
+assert.match(element("content").innerHTML, /Move here/);
+click({ action: "hqTile", x: "2", y: "1" });
+assert.deepEqual([JSON.parse(stored).hq.facilities[0].x, JSON.parse(stored).hq.facilities[0].y], [2, 1]);
+click({ tab: "studio" });
+assert.match(element("content").innerHTML, /Album theme/);
+assert.match(element("content").innerHTML, /Combo notebook/);
+assert.match(
+  element("content").innerHTML,
+  /<td class="fit-/,
+  "a recorded combo shows its fit in the notebook",
+);
 assert.equal(vm.runInContext("validSave(JSON.parse(JSON.stringify(state)))", context), true);
 assert.equal(vm.runInContext("validSave({version:1})", context), false);
+assert.equal(
+  vm.runInContext(
+    "(() => { const c = JSON.parse(JSON.stringify(state)); c.hq.facilities[0].level = 9; return validSave(c); })()",
+    context,
+  ),
+  false,
+);
 console.log(
-  "PASS interface harness: initial render, tabs, signing, album form, week progression, event resolution, escaping, save round-trip and invalid-save rejection.",
+  "PASS interface harness: initial render, tabs, signing, album form, week progression, event resolution, escaping, headquarters build and move, themes and combo notebook, save round-trip and invalid-save rejection.",
 );

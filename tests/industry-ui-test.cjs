@@ -55,6 +55,7 @@ const ctx = vm.createContext({
   Blob,
   URL,
 });
+vm.runInContext(fs.readFileSync(__dirname + "/../src/ui/label-ui.js", "utf8"), ctx);
 vm.runInContext(fs.readFileSync(__dirname + "/../src/app.js", "utf8"), ctx);
 function click(dataset) {
   listeners.click({ target: { closest: () => ({ dataset }) } });

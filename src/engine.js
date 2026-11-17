@@ -374,7 +374,7 @@
     if (info.wait) throw Error(`Development available in ${info.wait} week(s).`);
     if (info.gain <= 0)
       throw Error(
-        "Development ceiling reached. Earn artist levels and label fame, or scout higher potential.",
+        "Development ceiling reached. Earn artist levels, raise your label rank, or scout higher potential.",
       );
     if (a.energy < 30) throw Error("Artist needs rest.");
     pay(s, info.cost);

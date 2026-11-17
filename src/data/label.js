@@ -47,7 +47,7 @@
     trainingDiscovery: 0.2,
   };
 
-  // Shared pixel palette. Facility maps use "a" for their own accent colour.
+  // Shared pixel palette. Facility maps use "a" for their own accent color.
   const PALETTE = {
     k: "#18171f",
     w: "#efe9da",
@@ -65,8 +65,8 @@
       id: "writers",
       name: "Writers' Room",
       rank: 1,
-      cost: 6000,
-      upkeep: 90,
+      cost: 4000,
+      upkeep: 50,
       accent: "#c9e86a",
       stages: { 1: 2 },
       discovery: 0.1,
@@ -88,8 +88,8 @@
       id: "vocal",
       name: "Vocal Booth",
       rank: 1,
-      cost: 7000,
-      upkeep: 110,
+      cost: 5000,
+      upkeep: 60,
       accent: "#7fb8e8",
       stages: { 2: 2 },
       text: "Performance +2 per level.",
@@ -110,8 +110,8 @@
       id: "lounge",
       name: "Artist Lounge",
       rank: 1,
-      cost: 5000,
-      upkeep: 70,
+      cost: 3000,
+      upkeep: 40,
       accent: "#e88f6a",
       morale: 2,
       inspiration: 2,
@@ -154,8 +154,8 @@
     {
       id: "merch",
       name: "Merch Shop",
-      rank: 2,
-      cost: 8000,
+      rank: 1,
+      cost: 5000,
       upkeep: 60,
       accent: "#e8c86a",
       income: { base: 60, fame: 1.2 },
@@ -287,7 +287,7 @@
     },
   ];
 
-  // Neighbouring facilities (sharing a wall) unlock one bonus per pairing.
+  // Neighboring facilities (sharing a wall) unlock one bonus per pairing.
   const SYNERGIES = [
     { pair: ["writers", "lounge"], name: "Late-night sessions", stages: { 1: 2 } },
     { pair: ["vocal", "mix"], name: "Tracking line", stages: { 2: 1, 3: 1 } },
@@ -364,7 +364,7 @@
     cash: "Cash on hand",
   };
 
-  // Pixel artist sprite. "a" is the genre colour, "s" skin.
+  // Pixel artist sprite. "a" is the genre color, "s" skin.
   const ARTIST_SPRITE = ["..kk..", ".kssk.", ".kssk.", "..kk..", ".kaak.", "kaaaak", ".kaak.", ".k..k."];
   const GENRE_COLORS = {
     Rap: "#e8c86a",

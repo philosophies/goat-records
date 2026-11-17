@@ -210,7 +210,7 @@
         return a && b && adjacent(a, b);
       });
     }
-    /** Combined effect of every facility and active neighbour bonus. */
+    /** Combined effect of every facility and active neighbor bonus. */
     function hqBonuses(s) {
       const out = {
         stages: Array.from({ length: STAGE_COUNT }, () => ({ value: 0, sources: [] })),

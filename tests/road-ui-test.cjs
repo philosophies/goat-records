@@ -59,6 +59,7 @@ const context = vm.createContext({
   Blob,
   URL,
 });
+vm.runInContext(fs.readFileSync(__dirname + "/../src/ui/label-ui.js", "utf8"), context);
 vm.runInContext(fs.readFileSync(__dirname + "/../src/app.js", "utf8"), context);
 el("artist").value = a.id;
 el("booth").value = "0";
