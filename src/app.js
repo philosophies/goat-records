@@ -102,6 +102,7 @@ function productionPanels() {
           })
           .join("")}</div>`;
       }
+      if (!p.released) body += GoatUI.html("productionPanel", p);
       return `<div id="project-${p.id}" class="production-panel" ${key ? `data-reveal="${key}"` : ""}><div class="stage-steps" aria-label="Production progress">${G.STAGES.map((t, i) => `<span class="${i < d.stage ? "done" : i === d.stage ? "current" : ""}">${i < d.stage ? "✓" : i + 1} ${t.name}</span>`).join("")}</div>${body}${key ? '<button class="skip-reveal" data-action="skipReveal">Skip animation</button>' : ""}</div>`;
     })
     .join("");
@@ -212,7 +213,22 @@ function roomCards() {
 function studio() {
   const free = state.artists.filter((a) => !G.busy(state, a.id) && a.contract.remaining > 0),
     booths = state.booths.filter((b) => !state.albums.some((p) => !p.released && p.booth === b.id));
-  return `<div class="sectionhead"><h2>Your roster</h2><span class="muted">${state.artists.length} / ${G.slots(state)} signed</span></div>${state.artists.length ? `<div class="grid">${state.artists.map(artistCard).join("")}</div>` : '<div class="empty">Your first discovery is waiting. Open Scout artists to sign talent.</div>'}<h2>Start an album</h2><div class="card"><p>Five interactive stages take five weeks (six for Youth). Each selected package add-on adds one more week before release. Fees are paid up front. Room quality benefits every genre.</p><form id="albumForm" class="form"><label>Artist<select id="artist">${free.map((a) => `<option value="${a.id}">${esc(a.name)} · ${a.genre} · inspiration ${Math.round(G.inspirationInfo(a).value)}/100</option>`).join("")}</select></label><label>Recording room<select id="booth">${booths.map((b) => `<option value="${b.id}">${G.BOOTHS[b.id].name} · rank ${b.id + 1}</option>`).join("")}</select></label><label>Genre<select id="genre">${G.GENRES.map((g) => `<option ${free[0]?.genre === g ? "selected" : ""}>${g}</option>`).join("")}</select></label>${themeFields()}<label>Target audience<select id="audience">${["Youth", "Teen", "Adult"].map((g) => `<option ${free[0]?.audience === g ? "selected" : ""}>${g}</option>`).join("")}</select></label><label>Base production budget<select id="budget"><option value="4000">Lean · $4,000</option><option value="8000">Standard · $8,000</option><option value="12000">Premium · $12,000</option></select></label><label>Album title<input id="title" maxlength="45" placeholder="Name your next record"></label><fieldset class="album-addons"><legend>Album push & production add-ons · +1 week each</legend>${G.ALBUM_ADDONS.map((o) => `<label><input type="checkbox" name="albumAddon" value="${o.id}"><span><b>${o.name} · ${money(o.cost)}</b><small>${o.description}</small></span></label>`).join("")}</fieldset><div id="albumQuote" class="plan-quote form-full" aria-live="polite">Choose your album package.</div><button id="beginAlbum" class="primary" ${disable(blocked() || !free.length || !booths.length || state.cash < 4000 || !G.inspirationInfo(free[0] || {}).canRecord)}>Begin recording →</button></form></div>${comboNotebook()}<h2>Ranked recording rooms</h2><p class="muted">Stronger equipment and production teams raise ratings across all genres. Successful recordings still grow each room’s prestige. Extra rooms support simultaneous projects; higher ranks cost more to build and run.</p>${roomCards()}`;
+  return `<div class="sectionhead"><h2>Your roster</h2><span class="muted">${state.artists.length} / ${G.slots(state)} signed</span></div>${state.artists.length ? `<div class="grid">${state.artists.map(artistCard).join("")}</div>` : '<div class="empty">Your first discovery is waiting. Open Scout artists to sign talent.</div>'}<h2>Start an album</h2><div class="card"><p>Five interactive stages take five weeks (six for Youth). Each selected package add-on adds one more week before release. Fees are paid up front. Room quality benefits every genre.</p><form id="albumForm" class="form"><label>Artist<select id="artist">${free.map((a) => `<option value="${a.id}">${esc(a.name)} · ${a.genre} · inspiration ${Math.round(G.inspirationInfo(a).value)}/100</option>`).join("")}</select></label><label>Recording room<select id="booth">${booths.map((b) => `<option value="${b.id}">${G.BOOTHS[b.id].name} · rank ${b.id + 1}</option>`).join("")}</select></label><label>Genre<select id="genre">${G.GENRES.map((g) => `<option ${free[0]?.genre === g ? "selected" : ""}>${g}</option>`).join("")}</select></label>${GoatUI.albumForm.map((x) => x.fields?.() || "").join("")}<label>Target audience<select id="audience">${["Youth", "Teen", "Adult"].map((g) => `<option ${free[0]?.audience === g ? "selected" : ""}>${g}</option>`).join("")}</select></label><label>Base production budget<select id="budget"><option value="4000">Lean · $4,000</option><option value="8000">Standard · $8,000</option><option value="12000">Premium · $12,000</option></select></label><label>Album title<input id="title" maxlength="45" placeholder="Name your next record"></label><fieldset class="album-addons"><legend>Album push & production add-ons · +1 week each</legend>${G.ALBUM_ADDONS.map((o) => `<label><input type="checkbox" name="albumAddon" value="${o.id}"><span><b>${o.name} · ${money(o.cost)}</b><small>${o.description}</small></span></label>`).join("")}</fieldset><div id="albumQuote" class="plan-quote form-full" aria-live="polite">Choose your album package.</div><button id="beginAlbum" class="primary" ${disable(blocked() || !free.length || !booths.length || state.cash < 4000 || !G.inspirationInfo(free[0] || {}).canRecord)}>Begin recording →</button></form></div>${GoatUI.html("studioSections")}<h2>Ranked recording rooms</h2><p class="muted">Stronger equipment and production teams raise ratings across all genres. Successful recordings still grow each room’s prestige. Extra rooms support simultaneous projects; higher ranks cost more to build and run.</p>${roomCards()}`;
+}
+/** The album plan as entered in the studio form, including fields added by feature scripts. */
+function readAlbumPlan() {
+  return Object.assign(
+    {
+      artistId: $("artist").value,
+      boothId: $("booth").value,
+      genre: $("genre").value,
+      audience: $("audience").value,
+      budget: $("budget").value,
+      title: $("title").value,
+      addOns: selectedAddons(),
+    },
+    ...GoatUI.albumForm.map((x) => x.read?.() || {}),
+  );
 }
 function selectedAddons() {
   return [...document.querySelectorAll('input[name="albumAddon"]:checked')].map((e) => e.value);
@@ -227,11 +243,15 @@ function updateAlbumQuote() {
   }
   const inspiration = G.inspirationInfo(a);
   const selected = selectedAddons(),
+    plan = readAlbumPlan(),
     base = Number($("budget").value) || 4000,
-    total = base + selected.reduce((n, id) => n + G.ALBUM_ADDONS.find((o) => o.id === id).cost, 0),
+    total =
+      base +
+      selected.reduce((n, id) => n + G.ALBUM_ADDONS.find((o) => o.id === id).cost, 0) +
+      G.planCost(state, plan),
     e = G.albumExpectation(state, a, total);
   $("albumQuote").innerHTML =
-    `<b>${money(total)} upfront · ${(a.age === "Youth" ? 6 : 5) + selected.length} production weeks</b>${comboQuote($("genre").value, selectedThemes())}<p>Expected label album revenue: <strong>${money(e.target)}</strong>. Artist value ${money(e.artistValue)}${e.previousTitle ? "; previous release " + esc(e.previousTitle) + " has earned " + money(e.previousRevenue) : "; no previous release"}. Target locks when recording starts. Tour revenue is assessed separately.</p>`;
+    `<b>${money(total)} upfront · ${(a.age === "Youth" ? 6 : 5) + selected.length} production weeks</b>${GoatUI.albumForm.map((x) => x.quote?.(plan) || "").join("")}<p>Expected label album revenue: <strong>${money(e.target)}</strong>. Artist value ${money(e.artistValue)}${e.previousTitle ? "; previous release " + esc(e.previousTitle) + " has earned " + money(e.previousRevenue) : "; no previous release"}. Target locks when recording starts. Tour revenue is assessed separately.</p>`;
   $("albumQuote").innerHTML +=
     inspirationMeter(a) +
     `<p class="muted">Locks at recording start: ${inspiration.bonus >= 0 ? "+" : ""}${inspiration.bonus} to every stage. Decent 60+, great 80+, classic 90+ final quality; inspiration improves the odds, while craft, team, choices and variation still determine the result.</p>`;
@@ -375,7 +395,7 @@ function inspirationMeter(a) {
 function artistCard(a) {
   const t = G.trainingInfo(state, a),
     expired = !a.contract.remaining;
-  return `<article class="card"><div class="avatar"><span class="monogram">${esc(a.name[0])}</span><div><span class="tag">${esc(a.genre)}</span><h3>${esc(a.name)}</h3></div></div><p>${a.age} artist · ${G.CAREER_NAMES[G.careerTier(a)]} · Level ${G.level(a)}/10 · ${a.audience} audience</p><div class="metrics"><span>Craft <b>${a.talent}</b></span><span>Potential <b>${a.potential}</b></span><span>Fans <b>${Math.round(a.fans)}</b></span><span>Trust <b>${a.trust}</b></span><span>Artist fame <b>${Math.round(a.fame)}</b></span><span>Reputation <b>${a.reputation}</b></span><span>Energy <b>${Math.round(a.energy)}</b></span><span>Morale <b>${Math.round(a.morale)}</b></span><span>Momentum <b>${Math.round(a.momentum)}</b></span><span>Career XP <b>${a.xp || 0}${G.level(a) < 10 ? " / " + G.CAREER_XP[G.level(a)] : " · MAX"}</b></span></div>${G.onTour(state, a.id) ? `<p class="touring-status">ON TOUR · ${esc(G.onTour(state, a.id).title)} · recording unavailable</p>` : ""}${inspirationMeter(a)}<div class="contract-summary"><b>Market value ${money(G.artistValue(a))}</b><p>${expired ? "CONTRACT COMPLETE · renew to make another album" : `${a.contract.remaining} / ${a.contract.term} albums remaining · ${Math.round(a.contract.royalty * 100)}% royalty`}<br>${expired && !G.onTour(state, a.id) ? "No roster salary until renewed" : money(a.wage) + "/week"} · development ceiling ${t.cap}</p></div>${expired ? `<label>New album commitment<select id="renew-${a.id}">${termOptions(a)}</select></label><button data-action="renew" data-id="${a.id}" ${disable(blocked() || G.busy(state, a.id))}>Renew contract</button>` : ""}<p class="muted">${t.wait ? `Development returns in ${t.wait} week(s).` : t.gain > 0 ? `Next development: craft +${t.gain}, XP +1. Three-week cooldown.` : a.talent >= a.potential ? "At lifetime potential. Focus on releases and fan growth." : "At the current development ceiling. Raise artist level or label rank to grow further."}</p><div class="actions"><button data-action="train" data-id="${a.id}" ${disable(blocked() || expired || G.busy(state, a.id) || a.energy < 30 || t.wait > 0 || t.gain <= 0 || state.cash < t.cost)}>Develop · ${money(t.cost)}</button><button data-action="leave" data-id="${a.id}" ${disable(blocked() || G.busy(state, a.id))}>${expired ? "Release completed contract" : "End contract (reputation −3)"}</button></div></article>`;
+  return `<article class="card"><div class="avatar"><span class="monogram">${esc(a.name[0])}</span><div><span class="tag">${esc(a.genre)}</span><h3>${esc(a.name)}</h3></div></div><p>${a.age} artist · ${G.CAREER_NAMES[G.careerTier(a)]} · Level ${G.level(a)}/10 · ${a.audience} audience</p><div class="metrics"><span>Craft <b>${a.talent}</b></span><span>Potential <b>${a.potential}</b></span><span>Fans <b>${Math.round(a.fans)}</b></span><span>Trust <b>${a.trust}</b></span><span>Artist fame <b>${Math.round(a.fame)}</b></span><span>Reputation <b>${a.reputation}</b></span><span>Energy <b>${Math.round(a.energy)}</b></span><span>Morale <b>${Math.round(a.morale)}</b></span><span>Momentum <b>${Math.round(a.momentum)}</b></span><span>Career XP <b>${a.xp || 0}${G.level(a) < 10 ? " / " + G.CAREER_XP[G.level(a)] : " · MAX"}</b></span></div>${G.onTour(state, a.id) ? `<p class="touring-status">ON TOUR · ${esc(G.onTour(state, a.id).title)} · recording unavailable</p>` : ""}${inspirationMeter(a)}<div class="contract-summary"><b>Market value ${money(G.artistValue(a))}</b><p>${expired ? "CONTRACT COMPLETE · renew to make another album" : `${a.contract.remaining} / ${a.contract.term} albums remaining · ${Math.round(a.contract.royalty * 100)}% royalty`}<br>${expired && !G.onTour(state, a.id) ? "No roster salary until renewed" : money(a.wage) + "/week"} · development ceiling ${t.cap}</p></div>${GoatUI.html("artistCard", a)}${expired ? `<label>New album commitment<select id="renew-${a.id}">${termOptions(a)}</select></label><button data-action="renew" data-id="${a.id}" ${disable(blocked() || G.busy(state, a.id))}>Renew contract</button>` : ""}<p class="muted">${t.wait ? `Development returns in ${t.wait} week(s).` : t.gain > 0 ? `Next development: craft +${t.gain}, XP +1. Three-week cooldown.` : a.talent >= a.potential ? "At lifetime potential. Focus on releases and fan growth." : "At the current development ceiling. Raise artist level or label rank to grow further."}</p><div class="actions"><button data-action="train" data-id="${a.id}" ${disable(blocked() || expired || G.busy(state, a.id) || a.energy < 30 || t.wait > 0 || t.gain <= 0 || state.cash < t.cost)}>Develop · ${money(t.cost)}</button><button data-action="leave" data-id="${a.id}" ${disable(blocked() || G.busy(state, a.id))}>${expired ? "Release completed contract" : "End contract (reputation −3)"}</button></div></article>`;
 }
 function scouting() {
   return `<h2>Tomorrow’s headline acts</h2><p class="muted">Pay for a new search whenever you need fresh prospects. Higher budgets improve the pool’s craft, potential and existing fan reach. Artist advances are paid separately. Lists stay until you scout again.</p><div class="grid search-budgets">${G.SCOUT_BUDGETS.map((b, i) => `<article class="card"><span class="tag">${b.count} PROSPECTS</span><h3>${b.name}</h3><p>Craft ${b.min}–${b.max} · potential roughly ${b.potential}–${Math.min(100, b.potential + 8)} · established fans ${b.fans}–${b.fans + b.fanRange - 1}</p><button data-action="scout" data-id="${i}" ${disable(blocked() || state.cash < b.cost)}>Scout · ${money(b.cost)}</button></article>`).join("")}</div>${state.scoutReport ? `<p class="muted">Last search: ${state.scoutReport.name}, week ${state.scoutReport.week}.</p>` : ""}<h2>Available artists</h2><p class="muted">Reputation below 30 blocks signing. Royalties are deducted from each album’s gross revenue. A completed contract keeps its roster slot until renewed or released.</p><div class="grid">${
@@ -498,7 +518,7 @@ function catalog() {
                   .map((b) => `Campaign ×${b.mult} · weeks ${b.start}–${b.until}<br>`)
                   .join(
                     "",
-                  )}Chart ${p.chart.rank ? "#" + p.chart.rank : "off chart"} · peak ${p.chart.best ? "#" + p.chart.best : "—"}</p>${p.production ? `<details class="catalog-ratings"><summary>Production & release ratings</summary>${p.production.results.map((r) => `<p>${esc(r.area)} <b>${r.score}/100</b><br><small>${esc(r.choice)}</small></p>`).join("")}${(p.launchRatings || []).map((r) => `<p>${esc(r.name)} <b>${r.score}/100</b></p>`).join("")}<p>Release multiplier ×${p.launchMultiplier.toFixed(2)}</p></details>` : ""}`
+                  )}Chart ${p.chart.rank ? "#" + p.chart.rank : "off chart"} · peak ${p.chart.best ? "#" + p.chart.best : "—"}</p>${p.production ? `<details class="catalog-ratings"><summary>Production & release ratings</summary>${p.production.results.map((r) => `<p>${esc(r.area)} <b>${r.score}/100</b><br><small>${esc(r.choice)}</small></p>`).join("")}${(p.launchRatings || []).map((r) => `<p>${esc(r.name)} <b>${r.score}/100</b></p>`).join("")}<p>Release multiplier ×${p.launchMultiplier.toFixed(2)}</p></details>` : ""}${GoatUI.html("catalogCard", p)}`
               : `<p>${p.expectation && !p.expectation.legacy ? "Expected label revenue " + money(p.expectation.target) + " · " : ""}${p.production ? `${p.production.stage}/5 production decisions · ${p.production.releaseReady ? "Ready for final review" : p.production.cooldown ? `${p.production.cooldown} week(s) to next step` : "Decision ready above"}` : `${p.remaining} weeks until release`}</p>`
           }</article>${p.released ? "</details>" : ""}`,
       )
@@ -518,6 +538,24 @@ function activityHub() {
     .join(
       "",
     )}${tours.map((t) => `<button class="activity-card ready" data-action="openRoad"><span class="tag">TOUR · DAY ${t.day}/${t.plannedDays}</span><b>${esc(t.artistName)} / ${esc(t.title)}</b><small>Quality ${Math.round(t.quality)}/100 · net ${money(t.net)}<br>${state.event ? "Resolve current event first" : G.productionBlock(state) ? "Complete the album decision before advancing" : "Advance to the next scheduled activity"} · Open tour →</small><div class="progress"><span style="width:${Math.min(100, (t.day / t.plannedDays) * 100)}%"></span></div></button>`).join("")}${!projects.length && !tours.length && !state.event ? '<div class="empty">No active projects. Start an album in The studio or book a tour in The road.</div>' : ""}</div>`;
+}
+const BUILT_IN_SCREENS = [
+  { id: "studio", label: "The studio", order: 10, render: () => studio() },
+  { id: "scout", label: "Scout artists", order: 20, render: () => scouting() },
+  { id: "staff", label: "Your team", order: 30, render: () => staff() },
+  { id: "catalog", label: "The catalog", order: 40, render: () => catalog() },
+  { id: "charts", label: "The charts", order: 50, render: () => charts() },
+  { id: "road", label: "The road", order: 60, render: () => road() },
+  { id: "awards", label: "Annual awards", order: 70, render: () => annualAwards() },
+  { id: "finance", label: "Finances", order: 80, render: () => finance() },
+  { id: "journal", label: "Industry wire", order: 90, render: () => journal() },
+];
+/** Built-in screens plus screens registered by feature scripts, in menu order. */
+function menuScreens() {
+  const ids = new Set(GoatUI.panels.map((p) => p.id));
+  return [...BUILT_IN_SCREENS.filter((x) => !ids.has(x.id)), ...GoatUI.panels].sort(
+    (a, b) => (a.order ?? 50) - (b.order ?? 50),
+  );
 }
 function render() {
   const s = state;
@@ -548,19 +586,14 @@ function render() {
   $("event").innerHTML = s.event
     ? `<div class="event"><span class="tag">INDUSTRY MOMENT · TIME IS PAUSED</span><h2>${esc(s.event.title)}</h2><p>${esc(s.event.body)}</p><div class="options">${s.event.options.map((o, i) => `<button data-action="choose" data-id="${i}" ${disable(!G.eventOptionAvailable(s, o))}>${esc(o.label)}<small>${esc(o.hint)}${o.extension && s.albums.find((p) => p.id === s.event.album)?.salesWeeks >= 18 ? " Extension cap reached." : ""}${s.staff.includes("Public Relations") && o.trust < 0 ? " PR staff reduces the immediate trust loss." : ""}</small></button>`).join("")}</div></div>`
     : "";
-  $("content").innerHTML = {
-    studio,
-    hq: headquarters,
-    scout: scouting,
-    staff,
-    catalog,
-    charts,
-    road,
-    journal,
-    awards: annualAwards,
-    finance,
-  }[tab]();
-  $("milestones").innerHTML = rankBanner() + milestoneBanner();
+  const screens = menuScreens();
+  if (!screens.some((x) => x.id === tab)) tab = "studio";
+  $("menu").innerHTML = screens
+    .map((x) => `<button data-tab="${x.id}" class="${x.id === tab ? "active" : ""}">${esc(x.label)}</button>`)
+    .join("");
+  $("content").innerHTML = screens.find((x) => x.id === tab).render();
+  $("hud").innerHTML = GoatUI.html("hud");
+  $("milestones").innerHTML = GoatUI.html("banners") + milestoneBanner();
   $("activities").innerHTML = activityHub();
   $("production").innerHTML = productionPanels();
   animateRatings();
@@ -592,7 +625,7 @@ document.addEventListener("click", (e) => {
     render();
     return;
   }
-  if (b.dataset.action && hqClick(b)) return;
+  if (b.dataset.action && GoatUI.click.some((fn) => fn(b))) return;
   let id = Number(b.dataset.id);
   if (b.dataset.action)
     act(() => {
@@ -679,20 +712,10 @@ document.addEventListener("submit", (e) => {
   }
   if (e.target.id !== "albumForm") return;
   e.preventDefault();
-  act(() =>
-    G.record(state, {
-      artistId: $("artist").value,
-      boothId: $("booth").value,
-      genre: $("genre").value,
-      audience: $("audience").value,
-      budget: $("budget").value,
-      title: $("title").value,
-      addOns: selectedAddons(),
-      themes: selectedThemes(),
-    }),
-  );
+  act(() => G.record(state, readAlbumPlan()));
 });
 document.addEventListener("change", (e) => {
+  if (GoatUI.change.some((fn) => fn(e))) return;
   if (e.target.id === "chartFilter") {
     chartFilter = e.target.value;
     chartPage = 0;
@@ -724,7 +747,8 @@ document.addEventListener("change", (e) => {
   }
   if (
     e.target.name === "albumAddon" ||
-    ["artist", "budget", "genre", "theme1", "theme2"].includes(e.target.id)
+    ["artist", "budget", "genre"].includes(e.target.id) ||
+    e.target.dataset?.albumField !== undefined
   )
     updateAlbumQuote();
   if (e.target.id.startsWith("tour-"))
@@ -822,7 +846,7 @@ function validSave(s) {
         (!p.released || Number.isFinite(p.quality)),
     ) &&
     s.news.every((n) => typeof n === "string") &&
-    G.validLabelSave(s) &&
+    G.validSystemsSave(s) &&
     (!s.event ||
       (typeof s.event.title === "string" &&
         typeof s.event.body === "string" &&

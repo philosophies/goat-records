@@ -31,8 +31,7 @@ const context = vm.createContext({
   Blob,
   URL,
 });
-vm.runInContext(fs.readFileSync(__dirname + "/../src/ui/label-ui.js", "utf8"), context);
-vm.runInContext(fs.readFileSync(__dirname + "/../src/app.js", "utf8"), context);
+require("./load-interface.cjs")(context);
 assert.match(element("content").innerHTML, /Your first discovery/);
 function click(data) {
   listeners.click({ target: { closest: () => ({ dataset: data }) } });

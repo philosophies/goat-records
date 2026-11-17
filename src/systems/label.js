@@ -166,8 +166,9 @@
       if (!quiet) log(s, `New album theme discovered (${source}): ${t}.`);
       return t;
     }
-    function onRecord(s, p) {
-      if (!p.themes?.length) return;
+    function onRecord(s, p, plan = {}) {
+      p.themes = [...(plan.themes ?? [])];
+      if (!p.themes.length) return;
       p.comboKey = comboKey(p.genre, p.themes);
       s.combos[p.comboKey] ??= {
         genre: p.genre,
@@ -377,9 +378,12 @@
       }
       return parts;
     }
-    function trainingAdjust(s, info) {
+    function trainingAdjust(s) {
       const bonus = hqBonuses(s);
-      return { ...info, ceilingBonus: bonus.ceiling, discount: bonus.trainingDiscount };
+      return { ceilingBonus: bonus.ceiling, discount: bonus.trainingDiscount };
+    }
+    function validatePlan(s, plan) {
+      validateThemes(s, plan.themes ?? []);
     }
     function afterTraining(s) {
       if (discoveryRoll(s) < FIT.trainingDiscovery) discoverTheme(s, "development session");
@@ -457,6 +461,8 @@
       moveFacility,
       demolishFacility,
       weekly,
+      upkeep: hqUpkeep,
+      validatePlan,
       stageParts,
       launchParts,
       trainingAdjust,
@@ -467,6 +473,6 @@
     };
   }
 
-  root.GoatSystems = Object.assign(root.GoatSystems || {}, { createLabelSystems });
-  if (typeof module !== "undefined" && module.exports) module.exports = { createLabelSystems };
+  root.GoatSystems = Object.assign(root.GoatSystems || {}, { label: createLabelSystems });
+  if (typeof module !== "undefined" && module.exports) module.exports = { create: createLabelSystems };
 })(typeof globalThis !== "undefined" ? globalThis : this);

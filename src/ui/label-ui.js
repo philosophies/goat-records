@@ -247,9 +247,9 @@ function themeFields() {
       .sort()
       .map((t) => `<option>${esc(t)}</option>`)
       .join("");
-  return `<label>Album theme<select id="theme1">${opts(false)}</select></label>${
+  return `<label>Album theme<select id="theme1" data-album-field>${opts(false)}</select></label>${
     G.themeSlots(state) > 1
-      ? `<label>Second theme (optional)<select id="theme2">${opts(true)}</select></label>`
+      ? `<label>Second theme (optional)<select id="theme2" data-album-field>${opts(true)}</select></label>`
       : ""
   }`;
 }
@@ -287,3 +287,13 @@ function comboNotebook() {
       : ""
   }`;
 }
+
+GoatUI.registerPanel({ id: "hq", label: "Headquarters", order: 15, render: headquarters });
+GoatUI.albumForm.push({
+  fields: themeFields,
+  read: () => ({ themes: selectedThemes() }),
+  quote: (plan) => comboQuote(plan.genre, plan.themes || []),
+});
+GoatUI.studioSections.push({ render: comboNotebook });
+GoatUI.banners.push({ render: rankBanner });
+GoatUI.click.push(hqClick);
