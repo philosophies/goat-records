@@ -571,18 +571,14 @@ function render() {
   $("date").textContent =
     `YEAR ${String(1 + Math.floor((s.week - 1) / 52)).padStart(2, "0")} / WEEK ${1 + ((s.week - 1) % 52)}${s.tours.some((t) => t.status === "active") ? " / DAY " + Math.min(7, s.event?.type === "tourDay" ? s.tourDayInWeek : s.tourDayInWeek + 1) : ""} · ${G.rankInfo(s).name}`;
   $("trend").textContent = `Trending: ${s.trend} · Weekly overhead: ${money(G.upkeep(s))}`;
-  $("continueCareer").hidden = !(s.finished && s.cash >= 0 && s.week >= 53);
+  $("continueCareer").hidden = !G.canContinueCareer(s);
   $("advance").disabled = blocked() || G.productionBlock(s);
   $("advance").textContent = G.productionBlock(s)
     ? "Album decision required ↑"
     : state.tours.some((t) => t.status === "active")
       ? "Advance to next activity →"
       : "Advance one week →";
-  $("goal").textContent = s.finished
-    ? s.outcome
-    : s.careerMode
-      ? "Career mode · grow the label, protect artists, and finish the tours you book. " + rankLine()
-      : `Breakout Label goal: survive year one · Fame ${s.fame}/180 · Awards ${s.awards}/1 · Releases ${s.albums.filter((p) => p.released).length}/6. ${rankLine()}`;
+  $("goal").textContent = s.finished ? s.outcome : G.campaignGoalText(s) + " " + rankLine();
   $("event").innerHTML = s.event
     ? `<div class="event"><span class="tag">INDUSTRY MOMENT · TIME IS PAUSED</span><h2>${esc(s.event.title)}</h2><p>${esc(s.event.body)}</p><div class="options">${s.event.options.map((o, i) => `<button data-action="choose" data-id="${i}" ${disable(!G.eventOptionAvailable(s, o))}>${esc(o.label)}<small>${esc(o.hint)}${o.extension && s.albums.find((p) => p.id === s.event.album)?.salesWeeks >= 18 ? " Extension cap reached." : ""}${s.staff.includes("Public Relations") && o.trust < 0 ? " PR staff reduces the immediate trust loss." : ""}</small></button>`).join("")}</div></div>`
     : "";
