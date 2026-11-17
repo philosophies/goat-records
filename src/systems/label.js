@@ -397,7 +397,11 @@
       s.hq ??= { facilities: [], lastIncome: { shops: 0, residual: 0, total: 0 } };
       s.rankUps ??= [];
       if (!Number.isInteger(s.rank)) s.rank = s.fame >= 200 ? 4 : s.fame >= 90 ? 3 : s.fame >= 30 ? 2 : 1;
-      s.labelRevision = 1;
+      // Earlier versions listed the player's label as "Side A" in award results.
+      for (const program of Object.values(s.awardPrograms || {}))
+        for (const r of program?.results || [])
+          for (const e of r.entries || []) if (e.owned && e.label === "Side A") e.label = D.LABEL_NAME;
+      s.labelRevision = 2;
       return s;
     }
     /** Rejects malformed label data in an imported save. Missing fields are allowed (older saves). */
@@ -463,6 +467,6 @@
     };
   }
 
-  root.SideASystems = Object.assign(root.SideASystems || {}, { createLabelSystems });
+  root.GoatSystems = Object.assign(root.GoatSystems || {}, { createLabelSystems });
   if (typeof module !== "undefined" && module.exports) module.exports = { createLabelSystems };
 })(typeof globalThis !== "undefined" ? globalThis : this);

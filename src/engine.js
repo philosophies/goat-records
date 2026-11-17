@@ -1,9 +1,9 @@
 (function (root) {
   "use strict";
   const isNode = typeof module !== "undefined" && module.exports;
-  const D = isNode ? require("./data/core.js") : root.SideAData;
-  const LD = isNode ? require("./data/label.js") : root.SideAData;
-  const Systems = isNode ? require("./systems/label.js") : root.SideASystems;
+  const D = isNode ? require("./data/core.js") : root.GoatData;
+  const LD = isNode ? require("./data/label.js") : root.GoatData;
+  const Systems = isNode ? require("./systems/label.js") : root.GoatSystems;
   const {
     GENRES,
     ROLES,
@@ -292,7 +292,7 @@
     };
     scout(s);
     initializeManagement(s);
-    log(s, "Welcome to Side A Records. Sign an artist, start an album, then advance weeks.");
+    log(s, "Welcome to Goat Records. Sign an artist, start an album, then advance weeks.");
     return s;
   }
   function requireAction(s) {
@@ -1139,7 +1139,7 @@
           id: p.id,
           title: p.title,
           artistName: p.artistName,
-          label: "Side A",
+          label: LD.LABEL_NAME,
           genre: p.genre,
           units: p.lastUnits,
           owned: true,
@@ -2187,7 +2187,7 @@
         id: p.id,
         title: p.title,
         artistName: p.artistName,
-        label: "Side A",
+        label: LD.LABEL_NAME,
         genre: p.genre,
         units,
         owned: true,
@@ -2540,7 +2540,7 @@
           id: p.id,
           title: p.title,
           artist: p.artistName,
-          label: "Side A",
+          label: LD.LABEL_NAME,
           owned: true,
           ...awardScore(s, p, true),
         });

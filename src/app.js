@@ -773,7 +773,7 @@ $("export").onclick = () => {
   let url = URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], { type: "application/json" })),
     a = document.createElement("a");
   a.href = url;
-  a.download = "side-a-week-" + state.week + ".json";
+  a.download = "goat-records-week-" + state.week + ".json";
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 };
@@ -837,7 +837,7 @@ $("import").onchange = async (e) => {
   try {
     if (f.size > 2e6) throw Error("Save file too large.");
     let parsed = JSON.parse(await f.text());
-    if (!validSave(parsed)) throw Error("This is not a supported Side A save.");
+    if (!validSave(parsed)) throw Error("This is not a supported Goat Records save.");
     G.migrate(parsed);
     if (!validProductionSave(parsed) || !G.validManagementSave(parsed) || !G.validRoadSave(parsed))
       throw Error("Album production data is invalid.");

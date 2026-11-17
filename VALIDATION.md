@@ -8,6 +8,9 @@ The source reorganization and the move of balance tables into `src/data/core.js`
 
 ### Browser check
 
+After the rename, a save exported with the old name loads and its earlier award results list the label as Goat Records. The page title, header, chart rows and export file name use the new name.
+
+
 Chrome at 1366 px and 420 px wide: signing, building a Writers' Room and Artist Lounge (pairing lit), choosing a theme and starting an album, rank-up banner, a rank-4 lot with eight facilities and five active pairings, combo notebook, and the phone layout. No console errors. Screens are in `production/qa/evidence/`.
 
 ### Balance sample

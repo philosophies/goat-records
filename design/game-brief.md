@@ -1,6 +1,6 @@
-# Side A: Label Empire — game brief
+# Goat Records — game brief
 
-Working title only; naming has not been cleared. A single-player record-label management game about turning talent into a lasting catalog while deciding what success costs. The requested balance is business management plus personal and industry drama. Artist age groups and target listener groups both include Youth, Teen and Adult.
+Renamed from Side A: Label Empire in 0.9. The name has not been checked for trademarks. A single-player record-label management game about turning talent into a lasting catalog while deciding what success costs. The requested balance is business management plus personal and industry drama. Artist age groups and target listener groups both include Youth, Teen and Adult.
 
 ## Identity and core decisions
 

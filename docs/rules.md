@@ -4,7 +4,7 @@ Detailed rules for every system. See README.md for a short overview.
 
 ## Label ranks
 
-Six ranks: Bedroom Label, Indie Imprint, Rising Label, Major Contender, Powerhouse and Label Empire. Each rank lists goals for label fame, albums released, facilities built, best chart peak, awards won and cash on hand. Promotion happens at the weekly settlement once every goal is met. A rank is never lost.
+Six ranks: Bedroom Label, Indie Imprint, Rising Label, Major Contender, Powerhouse and Greatest of All Time. Each rank lists goals for label fame, albums released, facilities built, best chart peak, awards won and cash on hand. Promotion happens at the weekly settlement once every goal is met. A rank is never lost.
 
 | Rank | Roster | Lot | Themes per album | Goals for this rank |
 | --- | ---: | ---: | ---: | --- |
@@ -13,9 +13,9 @@ Six ranks: Bedroom Label, Indie Imprint, Rising Label, Major Contender, Powerhou
 | 3 Rising Label | 4 | 4×3 | 2 | 90 fame, 5 albums, 3 facilities, Top 40 peak, $20,000 |
 | 4 Major Contender | 6 | 5×3 | 2 | 200 fame, 9 albums, 5 facilities, Top 10 peak, 1 award |
 | 5 Powerhouse | 7 | 5×4 | 2 | 400 fame, 14 albums, 7 facilities, #1 peak, 3 awards, $100,000 |
-| 6 Label Empire | 8 | 6×4 | 2 | 700 fame, 20 albums, 9 facilities, 5 awards, $250,000 |
+| 6 Greatest of All Time | 8 | 6×4 | 2 | 700 fame, 20 albums, 9 facilities, 5 awards, $250,000 |
 
-Each rank-up from Indie Imprint onward grants two new album themes (three at Label Empire). Ranks 2, 3 and 4 also unlock the room tiers that used to come from fame alone.
+Each rank-up from Indie Imprint onward grants two new album themes (three at Greatest of All Time). Ranks 2, 3 and 4 also unlock the room tiers that used to come from fame alone.
 
 ## Album themes and combos
 

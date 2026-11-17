@@ -345,7 +345,7 @@
       req: { fame: 400, releases: 14, facilities: 7, chartPeak: 1, awards: 3, cash: 100000 },
     },
     {
-      name: "Label Empire",
+      name: "Greatest of All Time",
       tier: 4,
       slots: 8,
       lot: [6, 4],
@@ -375,7 +375,11 @@
     Rock: "#6aa8e8",
   };
 
+  // The player's label as it appears in charts and award lists.
+  const LABEL_NAME = "Goat Records";
+
   const data = {
+    LABEL_NAME,
     THEMES,
     FIT,
     PALETTE,
@@ -387,6 +391,6 @@
     ARTIST_SPRITE,
     GENRE_COLORS,
   };
-  root.SideAData = Object.assign(root.SideAData || {}, data);
+  root.GoatData = Object.assign(root.GoatData || {}, data);
   if (typeof module !== "undefined" && module.exports) module.exports = data;
 })(typeof globalThis !== "undefined" ? globalThis : this);

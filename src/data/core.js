@@ -365,6 +365,6 @@
     CAREER_XP,
     CAREER_NAMES,
   };
-  root.SideAData = Object.assign(root.SideAData || {}, data);
-  if (typeof module !== "undefined" && module.exports) module.exports = root.SideAData;
+  root.GoatData = Object.assign(root.GoatData || {}, data);
+  if (typeof module !== "undefined" && module.exports) module.exports = root.GoatData;
 })(typeof globalThis !== "undefined" ? globalThis : this);

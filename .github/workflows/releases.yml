@@ -23,12 +23,12 @@ jobs:
         run: |
           mkdir -p packages
           for version in $(git tag --list 'v*' --sort=version:refname); do
-            git archive --format=zip --prefix=Label-Empire/ --output="packages/Label-Empire-$version.zip" "$version"
+            git archive --format=zip --prefix=Goat-Records/ --output="packages/Goat-Records-$version.zip" "$version"
             if ! gh release view "$version" >/dev/null 2>&1; then
               {
                 awk -v v="## $version" '$0==v{on=1;next} on&&/^## /{exit} on' CHANGELOG.md
                 printf '\nDownload and extract the ZIP, then open Start Game.cmd. README.md and VALIDATION.md are inside the package.\n'
               } > packages/notes.md
-              gh release create "$version" "packages/Label-Empire-$version.zip" --verify-tag --title "Label Empire $version" --notes-file packages/notes.md
+              gh release create "$version" "packages/Goat-Records-$version.zip" --verify-tag --title "Goat Records $version" --notes-file packages/notes.md
             fi
           done

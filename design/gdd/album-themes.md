@@ -10,7 +10,7 @@ Every album pairs its genre with one theme (two from Rising Label). Each genre +
 
 ## Rules
 
-- 24 themes; six starter themes are known. The rest are found through development sessions (20%), completed tours (guaranteed), the Writers' Room (10% per level weekly, +5% with Deep crates) and rank-ups (2, or 3 at Label Empire).
+- 24 themes; six starter themes are known. The rest are found through development sessions (20%), completed tours (guaranteed), the Writers' Room (10% per level weekly, +5% with Deep crates) and rank-ups (2, or 3 at Greatest of All Time).
 - Fit is Poor, Fair, Good or Great per genre, defined in `src/data/label.js`.
 - A combo's fit is hidden until it is recorded once. The combo notebook then shows it.
 - Combo level = 1 + earlier releases of that exact combo, maximum 5.

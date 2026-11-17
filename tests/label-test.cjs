@@ -327,4 +327,26 @@ test("Imported saves with broken label data are rejected", () => {
   }
 });
 
+test("Older saves list the player's label as Goat Records in past award results", () => {
+  const s = G.create(23);
+  s.awardPrograms[1] = {
+    year: 1,
+    entries: {},
+    results: [
+      {
+        genre: "Pop",
+        entries: [
+          { id: 1, label: "Side A", owned: true },
+          { id: 2, label: "Goldline" },
+        ],
+      },
+    ],
+  };
+  s.labelRevision = 1;
+  G.migrate(s);
+  const [own, rival] = s.awardPrograms[1].results[0].entries;
+  assert.equal(own.label, "Goat Records");
+  assert.equal(rival.label, "Goldline");
+});
+
 console.log(`${count} label rank, theme and headquarters tests passed.`);
