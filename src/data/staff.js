@@ -6,7 +6,6 @@
   // Label departments. Each has a head (an executive) and junior staff.
   //   head      the head's title
   //   phase     the company phase that opens the department
-  //   role      the 1.x staff role whose effect this department carries (task T13)
   //   capacity  projects a quarter = the head (1) + junior staff
   const DEPARTMENTS = [
     {
@@ -14,7 +13,7 @@
       name: "A&R",
       head: "Head of A&R",
       phase: 1,
-      role: "A&R",
+
       text: "Scouting reach and accuracy, the signing pipeline.",
     },
     {
@@ -22,7 +21,7 @@
       name: "Marketing",
       head: "Chief Marketing Officer",
       phase: 2,
-      role: "Marketing",
+
       text: "Release campaigns, ads and brand deals.",
     },
     {
@@ -30,7 +29,7 @@
       name: "Promotion",
       head: "Head of Promotion",
       phase: 2,
-      role: "Public Relations",
+
       text: "Radio, playlists and chart pushes.",
     },
     {
@@ -38,7 +37,7 @@
       name: "Live",
       head: "Head of Touring",
       phase: 3,
-      role: null,
+
       text: "Tours, festivals and the venue.",
     },
     {
@@ -46,7 +45,7 @@
       name: "Business Affairs",
       head: "General Counsel",
       phase: 3,
-      role: null,
+
       text: "Contracts, lawsuits, sync and publishing deals.",
     },
     {
@@ -54,7 +53,7 @@
       name: "Finance",
       head: "Chief Financial Officer",
       phase: 3,
-      role: "VP",
+
       text: "Budgets, the IPO and the board's trust in your numbers.",
     },
     {
@@ -62,10 +61,21 @@
       name: "Creative",
       head: "Creative Director",
       phase: 4,
-      role: "Artist Development",
+
       text: "Visual identity, videos and handling controversy.",
     },
   ];
+
+  // The 1.x staff role whose effect each department head carries in CEO runs.
+  // Producer also comes from an artist's team producer once teams exist (T14).
+  const ROLE_DEPARTMENT = {
+    Producer: "ar",
+    "A&R": "ar",
+    Marketing: "marketing",
+    "Public Relations": "promotion",
+    VP: "finance",
+    "Artist Development": "creative",
+  };
 
   // Executives found by a recruitment drive, by the company's reach.
   //   skill  range of the candidates' skill (0–100)
@@ -126,7 +136,7 @@
     "Thorne",
   ];
 
-  const data = { DEPARTMENTS, EXEC_POOL, EXEC_PAY, DEPT_STAFF, EXEC_FIRST, EXEC_LAST };
+  const data = { DEPARTMENTS, ROLE_DEPARTMENT, EXEC_POOL, EXEC_PAY, DEPT_STAFF, EXEC_FIRST, EXEC_LAST };
   root.GoatData = Object.assign(root.GoatData || {}, data);
   if (typeof module !== "undefined" && module.exports) module.exports = data;
 })(typeof globalThis !== "undefined" ? globalThis : this);

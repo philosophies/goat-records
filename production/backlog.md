@@ -154,7 +154,7 @@ Do:
 - CEO runs only.
   Done when: tests cover hiring, capacity, salaries at settlement and firing costs.
 
-### [ ] T13 · Departments drive the existing role effects
+### [x] T13 · Departments drive the existing role effects
 
 Depends on: T12
 Files: `src/systems/staff.js`, `src/engine.js` (only where the six 1.x roles are read), `tests/staff-test.cjs`
