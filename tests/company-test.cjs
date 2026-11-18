@@ -29,6 +29,7 @@ test("A CEO run starts in the home studio with $2,000", () => {
     buildings: [{ id: "apartment", floors: [{ type: "room", room: 0, level: 1 }] }],
     departments: Object.fromEntries(G.DEPARTMENTS.map((d) => [d.id, { head: null, staff: 0, pool: [] }])),
     nextExecId: 1,
+    team: { pool: [], candidates: {}, nextId: 1 },
   });
   assert.equal(s.cash, PHASES[0].startCash);
   assert.equal(s.cash, 2000);
