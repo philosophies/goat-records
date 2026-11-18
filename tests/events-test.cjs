@@ -236,4 +236,5 @@ function checkPack(kind, minimum) {
 }
 checkPack("opportunity", 14);
 checkPack("crisis", 16);
+checkPack("politics", 10);
 console.log("Company event conditions, effects, deadlines, saves, and seeded draws passed.");

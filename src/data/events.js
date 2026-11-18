@@ -7,6 +7,7 @@
   const gamble = (offer, chance, failure) => ({ ...offer, chance, failure });
   const opportunity = (...details) => card("opportunity", ...details);
   const crisis = (...details) => card("crisis", ...details);
+  const political = (...details) => card("politics", ...details);
   const artistReady = { artist: [{ field: "fame", min: 35 }] };
   const signedArtist = { artist: [] };
   const activeAlbum = { album: [] };
@@ -195,6 +196,68 @@
         choice("Hold stock through the slump", "Carry $3,000 in costs and lose 2 board confidence.", { cash: -3000, confidence: -2 }),
       ]),
   ];
+  const politics = [
+    political("director-pick", "A director presses for a signing", "A director wants the label to fund a development session for a prospect they champion.",
+      [2, 3, 4, 5, 6], { board: [] }, 3, 2, [
+        choice("Fund a trial session", "Spend $2,000 and gain 5 board confidence.", { confidence: 5 }, 2000),
+        choice("Offer a smaller showcase", "Spend $500 and gain 2 board confidence.", { confidence: 2 }, 500),
+        choice("Close the discussion", "Lose 5 board confidence.", { confidence: -5 }),
+      ]),
+    political("executive-feud", "Two executives clash", "A fight over who controls the next campaign has reached the board.",
+      [3, 4, 5, 6], { board: [], executive: [{ field: "ambition", min: 60 }] }, 2, 2, [
+        choice("Hire a mediator", "Spend $1,600 to gain 5 board confidence.", { confidence: 5 }, 1600),
+        choice("Settle it at the next meeting", "Gain 2 board confidence for intervening.", { confidence: 2 }),
+        choice("Stay out of the feud", "Lose 6 board confidence.", { confidence: -6 }),
+      ]),
+    political("artist-feud", "A roster feud goes public", "One of your artists posts their side of a dispute with a labelmate.",
+      [2, 3, 4, 5, 6], artistReady, 3, 1, [
+        choice("Mediate privately", "Spend $600 to restore 8 artist morale.", { morale: 8 }, 600),
+        gamble(choice("Turn it into publicity", "The feud could bring 6 fame or cost 8 morale and 4 confidence.", { fame: 6, morale: -4 }), 0.55, { morale: -8, confidence: -4 }),
+        choice("Let the posts stand", "Lose 2 label fame and 5 artist morale.", { fame: -2, morale: -5 }),
+      ]),
+    political("board-leak", "A board memo leaks", "A confidential memo about the label's strategy reaches a trade reporter.",
+      [2, 3, 4, 5, 6], { board: [] }, 3, 1, [
+        choice("Give a joint statement", "Spend $500 on the response and gain 3 board confidence.", { confidence: 3 }, 500),
+        choice("Brief the directors privately", "Lose 1 label fame while the board closes ranks.", { fame: -1, confidence: 1 }),
+        choice("Leave the leak unanswered", "Lose 2 fame and 5 board confidence.", { fame: -2, confidence: -5 }),
+      ]),
+    political("takeover-rumor", "The trade press reports a takeover", "A trade reporter claims a rival is preparing an offer and asks whether the board has been informed.",
+      majorPhases, { board: [] }, 2, 2, [
+        choice("Commission an independent review", "Spend $4,000 and gain 6 board confidence.", { confidence: 6 }, 4000),
+        choice("Publish a holding statement", "Gain 2 board confidence while discussions continue.", { confidence: 2 }),
+        choice("Let investors guess", "Lose 7 board confidence.", { confidence: -7 }),
+      ]),
+    political("director-resignation", "A director prepares to resign", "A director tells the chair they plan to leave. Investors are waiting for an explanation.",
+      [3, 4, 5, 6], { board: [{ field: "confidence", max: 54 }] }, 3, 2, [
+        choice("Arrange a handover", "Spend $2,000 on the transition and gain 3 board confidence.", { confidence: 3 }, 2000),
+        choice("Announce an orderly transition", "Lose 2 board confidence.", { confidence: -2 }),
+        choice("Let the news break first", "Lose 8 board confidence and 2 label fame.", { confidence: -8, fame: -2 }),
+      ]),
+    political("activist-investor", "An investor challenges your strategy", "An investor is circulating an open letter about the company's costs.",
+      majorPhases, { board: [] }, 2, 2, [
+        choice("Publish an independent cost review", "Spend $3,000 and gain 6 board confidence.", { confidence: 6 }, 3000),
+        choice("Host a meeting with shareholders", "Gain 2 board confidence.", { confidence: 2 }),
+        choice("Ignore the campaign", "Lose 6 board confidence.", { confidence: -6 }),
+      ]),
+    political("staff-raise", "Staff ask for a raise", "An executive brings you a petition asking for better pay this quarter.",
+      [2, 3, 4, 5, 6], { board: [], executive: [] }, 3, 2, [
+        choice("Approve a one-time adjustment", "Spend $3,500 and gain 4 board confidence.", { confidence: 4 }, 3500),
+        choice("Pay a smaller retention bonus", "Spend $1,200 and gain 1 board confidence.", { confidence: 1 }, 1200),
+        choice("Defer the pay discussion", "Lose 4 board confidence.", { confidence: -4 }),
+      ]),
+    political("union-push", "Workers ask to bargain", "The studio crew presents a request for a meeting about overtime and scheduling.",
+      [3, 4, 5, 6], { board: [], album: [] }, 2, 2, [
+        choice("Agree to mediated talks", "Spend $2,400 and restore 4 artist morale.", { morale: 4 }, 2400),
+        choice("Make time for an open meeting", "Recording slips a week. Gain 2 board confidence.", { delayAlbum: 1, confidence: 2 }),
+        choice("Keep the recording calendar", "Lose 3 morale and 5 board confidence.", { morale: -3, confidence: -5 }),
+      ]),
+    political("credit-taking", "An executive takes the credit", "An executive claims to have discovered a breakout act. The artist says the credit belongs to their team.",
+      [2, 3, 4, 5, 6], { board: [], executive: [], ...artistReady }, 2, 2, [
+        choice("Correct the credits publicly", "The artist gains 7 morale and 2 fame.", { morale: 7, artistFame: 2 }),
+        choice("Ask the executive to share the credit", "Gain 4 artist morale and 2 board confidence.", { morale: 4, confidence: 2 }),
+        choice("Leave the claim up", "The artist loses 8 morale and the board loses 2 confidence.", { morale: -8, confidence: -2 }),
+      ]),
+  ];
 
   const data = {
     COMPANY_EVENT_INTERVAL: 13,
@@ -233,6 +296,7 @@
       },
       ...opportunities,
       ...crises,
+      ...politics,
     ],
   };
   root.GoatData = Object.assign(root.GoatData || {}, data);

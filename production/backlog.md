@@ -299,7 +299,7 @@ Files: `src/data/events.js`, `tests/events-test.cjs`
 Do: at least 16 crises (leak, arrest, lawsuit, sample clearance, poaching, payout cut, studio damage, artist walk-out, tax audit, bad review storm, tour cancellation, a manager stealing, a rival diss track, a contract dispute, burnout, a market slump).
 Done when: as T27.
 
-### [ ] T29 · Politics pack
+### [x] T29 · Politics pack
 
 Depends on: T26, T22
 Files: `src/data/events.js`, `tests/events-test.cjs`
