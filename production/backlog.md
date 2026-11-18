@@ -194,7 +194,7 @@ Files: `src/data/staff.js`, `src/systems/staff.js`, `tests/staff-test.cjs`
 Do: traits (ego, discipline, loyalty, work rate) and one main want (money, control, fame, family). Morale moves with wants met or ignored; low morale raises demand events (T27) and walk-outs at contract end.
 Done when: tests cover each want, morale bounds and the walk-out rule.
 
-### [ ] T17 · People panels
+### [x] T17 · People panels
 
 Depends on: T15, T16, T08
 Files: `src/ui/places.js`, `src/ui/staff.js` (new), `styles/ceo.css`, `tests/staff-ui-test.cjs` (new)

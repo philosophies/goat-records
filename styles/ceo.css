@@ -228,3 +228,98 @@ body.ceo-run .campaign-chip,
 body.ceo-run .company-chip {
   font-size: 12px;
 }
+
+/* People panels: artist teams, moods and departments. */
+.team-slots,
+.team-list,
+.dept-list,
+.traits {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+}
+.team-slot,
+.team-choice {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line, rgba(255, 255, 255, 0.1));
+}
+.team-choice {
+  grid-template-columns: 1fr auto auto;
+}
+.team-slot small,
+.team-choice small,
+.dept-row small {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+}
+.team-slot.open .tag {
+  opacity: 0.7;
+}
+.team-chooser {
+  border-color: var(--gold, #d4a93a);
+}
+.chem {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  white-space: nowrap;
+}
+.chem.good {
+  color: #7fd18b;
+}
+.chem.poor {
+  color: #e8876f;
+}
+.traits {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.traits li {
+  display: grid;
+  font-size: 12px;
+  color: var(--muted);
+}
+.traits b {
+  font-size: 15px;
+  color: var(--text, inherit);
+}
+.mood-card h3 small {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 400;
+}
+.mood-card.unhappy {
+  border-color: #c0573f;
+}
+.mood-card .warn {
+  color: #e8876f;
+}
+.dept-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+.dept-row {
+  width: 100%;
+  text-align: left;
+}
+.dept-row.locked {
+  opacity: 0.6;
+}
+@media (max-width: 760px) {
+  .team-slot,
+  .team-choice {
+    grid-template-columns: 1fr;
+  }
+  .traits {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
