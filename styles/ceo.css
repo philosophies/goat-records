@@ -1,0 +1,85 @@
+/* CEO runs (2.0): company phase chip and panel. */
+
+button.company-chip {
+  padding: 2px 8px;
+  background: transparent;
+  border: 1px solid #b08d3c;
+  border-radius: 0;
+  box-shadow: none;
+  color: #f3d25b;
+  cursor: pointer;
+}
+button.company-chip:hover,
+button.company-chip:focus-visible {
+  color: #fff1b8;
+  border-color: #fff1b8;
+}
+
+.phase-goals,
+.phase-ladder {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+}
+.phase-goals li {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 8px 9px;
+  border: 2px solid var(--frame);
+  margin-bottom: 4px;
+}
+.phase-goals li i {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: var(--pct);
+  background: #b08d3c;
+}
+.phase-goals li.met {
+  border-color: #b08d3c;
+}
+.phase-goals li.met i {
+  background: var(--lime);
+}
+.phase-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-left: 4px solid var(--frame);
+  opacity: 0.65;
+}
+.phase-step b {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  background: #18171f;
+  border: 2px solid var(--frame);
+}
+.phase-step span {
+  display: flex;
+  flex-direction: column;
+}
+.phase-step small {
+  color: var(--muted);
+}
+.phase-step.done,
+.phase-step.now,
+.phase-step.next {
+  opacity: 1;
+}
+.phase-step.done b {
+  border-color: var(--lime);
+}
+.phase-step.now {
+  border-left-color: #f3d25b;
+  background: rgba(176, 141, 60, 0.15);
+}
+.phase-step.now b {
+  border-color: #f3d25b;
+  color: #f3d25b;
+}
