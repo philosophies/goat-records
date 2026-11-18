@@ -520,7 +520,7 @@
       (n, a) => n + (a.contract?.remaining > 0 || busy(s, a.id) ? a.wage : 0),
       0,
     );
-    const factor = s.staff.includes("VP") ? 1 - (0.1 + staffSkill(s, "VP") * 0.0015) : 1;
+    const factor = hasRole(s, "VP") ? 1 - (0.1 + roleSkill(s, "VP") * 0.0015) : 1;
     return Math.round(
       wages * factor +
         s.staff.reduce((n, r) => n + (s.employees[r]?.wage ?? ROLES[r].wage), 0) +
@@ -588,8 +588,7 @@
       r.parts.push({ name: plan.name + " · strategy", value: i === plan.target ? 6 : -3 });
       r.parts.push({
         name: "Launch expertise · " + plan.role,
-        value:
-          i === plan.target && s.staff.includes(plan.role) ? Math.round(staffBonus(s, plan.role) / 2) : 0,
+        value: i === plan.target && hasRole(s, plan.role) ? Math.round(staffBonus(s, plan.role) / 2) : 0,
       });
       r.parts.push(...hooks.collect("launchParts", s, p, i));
       r.parts.push({ name: "Release-day variation", value: Math.floor(rng(s) * 13) - 6 });
@@ -726,8 +725,8 @@
       if (a && e[key])
         a[key] = clamp(
           a[key] +
-            (key === "trust" && e[key] < 0 && mitigate && s.staff.includes("Public Relations")
-              ? Math.ceil(e[key] * (1 - staffSkill(s, "Public Relations") * 0.005))
+            (key === "trust" && e[key] < 0 && mitigate && hasRole(s, "Public Relations")
+              ? Math.ceil(e[key] * (1 - roleSkill(s, "Public Relations") * 0.005))
               : e[key]),
           0,
           key === "fans" ? 1000 : 100,
@@ -804,7 +803,7 @@
         const gross = grossAlbumSales(s, p, a),
           royalty = Math.round(gross * p.royalty),
           feeRate =
-            (p.economyVersion >= 5 ? Math.max(0.04, 0.08 - staffSkill(s, "VP") / 2500) : 0) +
+            (p.economyVersion >= 5 ? Math.max(0.04, 0.08 - roleSkill(s, "VP") / 2500) : 0) +
             (p.extraDistribution || 0),
           distribution = Math.round(gross * feeRate),
           income = gross - royalty - distribution;
@@ -901,7 +900,19 @@
     return s.staff.includes(role) ? (s.employees?.[role]?.skill ?? 60) : 0;
   }
   function staffBonus(s, role) {
-    return s.staff.includes(role) ? Math.round(6 + staffSkill(s, role) / 10) : 0;
+    return hasRole(s, role) ? Math.round(6 + roleSkill(s, role) / 10) : 0;
+  }
+  /**
+   * Skill behind a 1.x role effect. Classic runs read the hired employee; CEO runs also read the
+   * department head that carries the role (ROLE_DEPARTMENT) and use the better of the two.
+   */
+  function roleSkill(s, role) {
+    const own = staffSkill(s, role);
+    return s.company ? Math.max(own, ...hooks.collect("roleSkill", s, role)) : own;
+  }
+  /** Whether a role effect applies: a hired employee, or in CEO runs a department head. */
+  function hasRole(s, role) {
+    return s.staff.includes(role) || (!!s.company && roleSkill(s, role) > 0);
   }
   function artistValue(a) {
     return (
@@ -922,7 +933,7 @@
     term = Number(term);
     if (![1, 3, 5].includes(term)) throw Error("Choose a 1, 3 or 5 album contract.");
     const value = artistValue(a),
-      discount = s.staff.includes("A&R") ? 1 - (0.1 + staffSkill(s, "A&R") / 400) : 1;
+      discount = hasRole(s, "A&R") ? 1 - (0.1 + roleSkill(s, "A&R") / 400) : 1;
     return {
       term,
       fee: Math.round((value * { 1: 0.45, 3: 0.85, 5: 1.2 }[term] * discount) / 50) * 50,
@@ -1115,7 +1126,7 @@
       );
     const gain = Math.min(
       cap - a.talent,
-      (a.talent < 65 ? 3 : a.talent < 80 ? 2 : 1) + (staffSkill(s, "Artist Development") >= 65 ? 1 : 0),
+      (a.talent < 65 ? 3 : a.talent < 80 ? 2 : 1) + (roleSkill(s, "Artist Development") >= 65 ? 1 : 0),
     );
     return {
       cap,
@@ -2245,7 +2256,7 @@
       1.8,
       p.boosts.filter((b) => b.start <= s.week && b.until >= s.week).reduce((n, b) => n * b.mult, 1),
     );
-    const marketing = s.staff.includes("Marketing") ? 1.1 + staffSkill(s, "Marketing") / 400 : 1;
+    const marketing = hasRole(s, "Marketing") ? 1.1 + roleSkill(s, "Marketing") / 400 : 1;
     if (p.economyVersion < 5)
       return Math.round(
         (p.quality * 20 + fans * 12) *
@@ -3490,6 +3501,8 @@
     fire,
     staffSkill,
     staffBonus,
+    roleSkill,
+    hasRole,
     artistValue,
     contractQuote,
     renew,

@@ -6,7 +6,8 @@
 
   /** @param {object} core engine helpers  @param {object} D data tables */
   function create(core, D) {
-    const { DEPARTMENTS, EXEC_POOL, EXEC_PAY, DEPT_STAFF, EXEC_FIRST, EXEC_LAST, PHASES } = D;
+    const { DEPARTMENTS, ROLE_DEPARTMENT, EXEC_POOL, EXEC_PAY, DEPT_STAFF, EXEC_FIRST, EXEC_LAST, PHASES } =
+      D;
     const { log, pay, requireAction, roll } = core;
     const deptById = Object.fromEntries(DEPARTMENTS.map((d) => [d.id, d]));
     const isCount = (n) => Number.isInteger(n) && n >= 0;
@@ -127,6 +128,11 @@
         0,
       );
     }
+    /** Skill a CEO run's department head lends to a 1.x role effect; 0 without a head. */
+    function headSkill(s, role) {
+      const id = ROLE_DEPARTMENT[role];
+      return (id && s.company?.departments?.[id]?.head?.skill) || 0;
+    }
     function validExec(x) {
       return (
         x &&
@@ -154,11 +160,13 @@
       init,
       validSave,
       upkeep: departmentPay,
+      roleSkill: headSkill,
       api: {
         DEPARTMENTS,
         EXEC_POOL,
         EXEC_PAY,
         DEPT_STAFF,
+        ROLE_DEPARTMENT,
         departmentOpen,
         recruitExecs,
         hireHead,

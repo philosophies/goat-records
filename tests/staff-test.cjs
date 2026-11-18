@@ -159,4 +159,92 @@ test("A CEO save from before departments gains them on load", () => {
   assert.equal(old.company.nextExecId, 1);
 });
 
+// A classic run with all six roles, recorded and released over three seeds. The hash was taken
+// from 1.1 code before role effects went through roleSkill; it must not change.
+function classicFingerprint(seed) {
+  const s = G.migrate(G.create(seed));
+  s.cash = 500000;
+  for (const r of ["Producer", "A&R", "Marketing", "Public Relations", "VP", "Artist Development"])
+    G.hire(s, r);
+  G.sign(s, s.candidates[0].id);
+  G.record(s, { artistId: s.artists[0].id, boothId: 0, genre: "Pop", audience: "Adult" });
+  const p = s.albums[0],
+    previews = [];
+  for (let guard = 0; guard < 120 && !p.released; guard++) {
+    while (s.event) G.choose(s, 2);
+    const d = p.production;
+    if (p.launchReview) p.launchReview = false;
+    else if (d.releaseReady) {
+      G.releaseAlbum(s, p.id, p.title);
+      p.launchReview = false;
+    } else if (!d.cooldown) {
+      if (!d.review) {
+        previews.push(G.stagePreview(s, p, guard % 3).parts.map((x) => x.value));
+        G.decideStage(s, p.id, guard % 3);
+      }
+      G.continueProduction(s, p.id);
+    }
+    if (!p.released) G.advance(s);
+  }
+  for (let i = 0; i < 20; i++) {
+    while (s.event) G.choose(s, s.event.options.length - 1);
+    G.advance(s);
+  }
+  return JSON.stringify({
+    results: p.production.results,
+    quality: p.quality,
+    previews,
+    upkeep: G.upkeep(s),
+    cash: s.cash,
+    prospects: JSON.stringify(s.candidates.map((c) => [c.fee, c.wage])),
+    fin: s.financeHistory.slice(-5),
+  });
+}
+
+test("Classic runs keep 1.1's stage scores, costs and sales with every role hired", () => {
+  const hash = require("node:crypto")
+    .createHash("sha256")
+    .update([3, 41, 77].map(classicFingerprint).join("|"))
+    .digest("hex");
+  assert.equal(hash, "4aae5a51678b23244fcdad1fba87e0191946cf781836e31cfc8712e961372640");
+});
+
+test("Each 1.x role is carried by one department head", () => {
+  assert.deepEqual(G.ROLE_DEPARTMENT, {
+    Producer: "ar",
+    "A&R": "ar",
+    Marketing: "marketing",
+    "Public Relations": "promotion",
+    VP: "finance",
+    "Artist Development": "creative",
+  });
+  for (const id of Object.values(G.ROLE_DEPARTMENT)) assert.ok(DEPARTMENTS.some((d) => d.id === id));
+});
+
+test("A CEO run with a Head of A&R gets the A&R and Producer bonuses", () => {
+  const s = ceo(31, 1),
+    a = s.candidates[0],
+    before = G.contractQuote(s, a);
+  assert.equal(G.hasRole(s, "A&R"), false);
+  assert.equal(G.staffBonus(s, "A&R"), 0);
+  const head = hire(s, "ar");
+  assert.equal(G.hasRole(s, "A&R"), true);
+  assert.equal(G.roleSkill(s, "A&R"), head.skill);
+  assert.equal(G.roleSkill(s, "Producer"), head.skill);
+  assert.equal(G.staffBonus(s, "A&R"), Math.round(6 + head.skill / 10));
+  assert.ok(G.contractQuote(s, a).fee < before.fee, "the A&R discount lowers the signing fee");
+  assert.equal(G.hasRole(s, "Marketing"), false, "other departments are still empty");
+  G.fireHead(s, "ar");
+  assert.equal(G.staffBonus(s, "A&R"), 0);
+});
+
+test("A role uses the better of a hired employee and the department head", () => {
+  const s = ceo(31, 3);
+  G.hire(s, "VP");
+  const employee = s.employees.VP.skill;
+  assert.equal(G.roleSkill(s, "VP"), employee);
+  const head = hire(s, "finance");
+  assert.equal(G.roleSkill(s, "VP"), Math.max(employee, head.skill));
+});
+
 console.log(`${count} staff tests passed.`);
