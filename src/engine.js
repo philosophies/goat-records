@@ -332,7 +332,7 @@
     scout(s);
     if (options.legacy) s.legacy = options.legacy;
     initializeManagement(s);
-    log(s, "Welcome to Goat Records. Sign an artist, start an album, then advance weeks.");
+    log(s, "Welcome to Goat Records. Sign an artist at the front desk, tap them to start an album, then advance weeks.");
     return s;
   }
   function requireAction(s) {
@@ -2665,7 +2665,7 @@
       year,
       artist: null,
       title: `Year ${year} · Silver Groove Awards ceremony`,
-      body: "Genre winners have been decided from eligible operating-year releases. Open Annual awards to inspect nominees, scores and results. Attendance does not change the judging.",
+      body: "Genre winners have been decided from eligible operating-year releases. Visit the trophy case in the lobby to inspect nominees, scores and results. Attendance does not change the judging.",
       options: [
         {
           label: "Attend the industry ceremony",

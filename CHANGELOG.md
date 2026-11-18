@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.1.0
+The menu bar is gone. Everything opens from a person or place on the lot. Tap an artist for their stats, contract, gigs, hot streak, albums, a new album and tour booking. Tap a staff member for their role and replacements. The lobby has a front desk for scouting and hiring and a trophy case for the awards; a new office holds campaign goals, finances and the discography; each recording room starts an album there; a + slot builds the next room; the roof sign shows rank, headquarters, pairings and the combo notebook. On the street, the billboard shows the charts and promotion, the newsstand the industry wire, and the tour bus the tours. Every recording location stands along the street, with its level and rent, and can start an album there. A roster in the side panel lists everyone, including artists on tour. The goal and "on fire" chips in the top bar open the office and the billboard.
+
+Location boost text now includes the bonus better locations start with. Saves from 1.0 load unchanged.
+
 ## v1.0.0
 The headquarters lot is now the main screen, with a live clock (pause, 1×, 2×, 4×) that stops for events, album decisions, milestones and open menus. A run lasts 20 years with a goal each year, a yearly review, a final score graded one to five stars, and New Game+ with legacy bonuses bought from that score. Albums can be recorded at ten locations that level up, reveal signature themes and suit some genres more than others. Idle artists can play paid gigs. A new Promotion screen adds hot streaks, lead singles and ad campaigns.
 

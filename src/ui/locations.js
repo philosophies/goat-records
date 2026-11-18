@@ -33,7 +33,7 @@ function locLevelPips(level) {
 }
 /** Stage boosts at a level, as text: "Identity +3, Songwriting +2". */
 function locBoostText(loc, level) {
-  const bonus = G.LOCATION_LEVELS.stageBonus[level - 1];
+  const bonus = G.LOCATION_LEVELS.stageBonus[level - 1] + (loc.rank - 1) * (G.LOCATION_LEVELS.rankBonus || 0);
   return Object.entries(loc.stages)
     .map(([i, v]) => `${LOC_STAGES[i]} ${locSigned(v + bonus)}`)
     .join(", ");
@@ -122,7 +122,7 @@ function locationsScreen() {
   const list = G.locationList(state),
     used = list.filter((l) => l.stats).length,
     recent = state.gigs.history.slice(0, 5);
-  return `<div class="sectionhead"><h2>Recording locations</h2><span class="muted">${used} of ${list.length} visited</span></div><p class="muted">Rent a location for an album on top of your own room. Each location boosts some production stages and suits some genres better than others. Every release there adds experience, up to level ${G.LOCATION_LEVELS.max}; higher levels raise the boosts and the rent. The first album at a location reveals its signature theme.</p><div class="grid location-grid">${list.map(locationCard).join("")}</div><h2>Paid gigs</h2><p class="muted">An idle artist under contract can play a gig from their card on The studio screen. Pay grows with fans, artist fame and craft, up to each venue's size. Gigs use energy and have a cooldown. ${state.gigs.played} gig${state.gigs.played === 1 ? "" : "s"} played, ${money(state.gigs.earned)} earned.</p>${gigTable()}${
+  return `<div class="sectionhead"><h2>Recording locations</h2><span class="muted">${used} of ${list.length} visited</span></div><p class="muted">Rent a location for an album on top of your own room. Each location boosts some production stages and suits some genres better than others. Every release there adds experience, up to level ${G.LOCATION_LEVELS.max}; higher levels raise the boosts and the rent. The first album at a location reveals its signature theme.</p><div class="grid location-grid">${list.map(locationCard).join("")}</div><h2>Paid gigs</h2><p class="muted">An idle artist under contract can play a gig from their own panel: tap them on the lot. Pay grows with fans, artist fame and craft, up to each venue's size. Gigs use energy and have a cooldown. ${state.gigs.played} gig${state.gigs.played === 1 ? "" : "s"} played, ${money(state.gigs.earned)} earned.</p>${gigTable()}${
     recent.length
       ? `<ul class="gig-history">${recent.map((h) => `<li>Week ${h.week} · ${esc(h.artistName)} · ${esc(G.GIGS.find((g) => g.id === h.gig)?.name || "")} · ${money(h.pay)}${h.theme ? " · found " + esc(h.theme) : ""}</li>`).join("")}</ul>`
       : ""

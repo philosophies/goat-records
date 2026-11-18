@@ -37,7 +37,7 @@ function campaignChip() {
   if (state.finished) return `<span class="campaign-chip">Run ${state.campaign.run} · final review</span>`;
   const g = G.currentGoal(state);
   if (!g) return `<span class="campaign-chip">Run ${state.campaign.run} · final year</span>`;
-  return `<span class="campaign-chip ${g.met ? "met" : ""}" title="Reward: ${esc(g.reward)}">Y${g.year} goal · ${esc(g.goal.name)} · ${esc(g.text)}${g.met ? " ✓" : ""}</span>`;
+  return `<button class="campaign-chip ${g.met ? "met" : ""}" data-tab="campaign" title="Reward: ${esc(g.reward)} · goals are kept in the office">Y${g.year} goal · ${esc(g.goal.name)} · ${esc(g.text)}${g.met ? " ✓" : ""}</button>`;
 }
 function yearlyReview(r) {
   const met = r.status === "met";

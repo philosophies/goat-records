@@ -12,7 +12,7 @@
   --frame: #0b0f24;
   --frame-hi: #6f80d8;
   --hud-h: 98px;
-  --menu-h: 64px;
+  --menu-h: 0px;
   --stage-h: clamp(470px, calc(100vh - var(--hud-h) - var(--menu-h)), 820px);
 }
 [hidden] {
@@ -393,52 +393,6 @@ main.stage {
   gap: 10px;
 }
 
-/* ---------- Menu bar ---------- */
-.menubar {
-  position: sticky;
-  bottom: 0;
-  z-index: 35;
-  display: flex;
-  gap: 6px;
-  padding: 7px 12px;
-  min-height: 64px;
-  /* Desktop: wrap onto a second row so every screen stays in view. */
-  flex-wrap: wrap;
-  background: linear-gradient(#2b3a85, #1d2763);
-  border-top: 3px solid var(--frame);
-  border-bottom: 3px solid var(--frame);
-  scrollbar-width: thin;
-}
-.menu-btn {
-  flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  min-width: 96px;
-  padding: 7px 10px;
-  font:
-    700 13px/1.1 Verdana,
-    sans-serif;
-  background: linear-gradient(#4256b8, #33449a);
-  border: 3px solid var(--frame);
-  box-shadow:
-    inset 0 0 0 2px #8696ea,
-    0 3px 0 var(--frame);
-  white-space: nowrap;
-}
-.menu-btn .pixel {
-  flex: none;
-}
-.menu-btn.active,
-.menu-btn.active:hover:not(:disabled) {
-  background: linear-gradient(#ffe57a, var(--gold));
-  color: #1d1a08;
-  box-shadow:
-    inset 0 0 0 2px #fff4c2,
-    0 3px 0 var(--frame);
-}
-
 /* ---------- Panels over the lot ---------- */
 .drawer {
   position: fixed;
@@ -593,7 +547,7 @@ footer {
 @media (max-width: 760px) {
   :root {
     --hud-h: 112px;
-    --menu-h: 58px;
+    --menu-h: 0px;
   }
   .hudbar {
     padding: 4px 8px 0;
@@ -686,16 +640,6 @@ footer {
     border-left: 0;
     border-top: 3px solid var(--frame);
     overflow: visible;
-  }
-  .menubar {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-  }
-  .menu-btn {
-    flex: 0 0 auto;
-    min-width: 0;
-    padding: 6px 9px;
-    font-size: 12px;
   }
   .drawer {
     width: 100%;

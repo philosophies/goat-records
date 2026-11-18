@@ -36,19 +36,20 @@ Add new public functions to the engine API through the system object; `LabelGame
 
 ## Interface
 
-- `src/ui/registry.js` — `GoatUI`, the plug-in points listed in the file: menu screens (`registerPanel`), album form fields, studio sections, artist and catalog card rows, production rows, status chips, banners, click and change handlers.
+- `src/ui/registry.js` — `GoatUI`, the plug-in points listed in the file: full screens (`registerPanel`), album form fields, studio sections, artist and catalog card rows, production rows, status chips, banners, click and change handlers.
+- `src/ui/places.js` — where every panel lives. `GoatPlaces.resolve(id)` maps an older screen id (`scout`, `finance`, `studio`…) to its place and section; `GoatPlaces.sheet(id)` builds the panel for a place (`desk`, `office`, `billboard`, `bus`…) or a person or room (`artist:<id>`, `staffer:<role>`, `room:<id>`, `location:<id>`). A registered screen no place shows is still opened on its own. It also draws the roster and the street.
 - `src/ui/<name>.js` — feature screens. They register with `GoatUI` and use the page helpers from `app.js` at render time (`G`, `state`, `$`, `esc`, `money`, `act`, `render`, `disable`, `blocked`).
-- `src/app.js` — page shell, built-in screens, saving and loading.
+- `src/app.js` — page shell, the built-in panel pieces (album form, tour form, room card, catalog list, team role), saving and loading.
 
 Album form controls that should refresh the quote carry a `data-album-field` attribute.
 
 Two more points serve the lot screen: `GoatUI.pauses` (`{ reason() }`; any non-empty text holds the live clock and is shown as the pause reason) and `GoatUI.lotDecor` (`{ render() }`; drawn on the street in front of the building). A banner with a button is shown as a card over the lot and holds the clock; one without a button sits in the side ticker.
 
-Page globals for feature scripts: `GoatLot.say(text, key, facilityId)` shows a speech bubble over an artist (`"a" + id`) or staff member (`"s" + role`); `GoatClock` has `speed`, `setSpeed(n)` and `day()`; `openPanel(id)` and `closePanel()` open and close menu screens; `paintHTML(id, html)` rewrites a region only when it changed.
+Page globals for feature scripts: `GoatLot.say(text, key, facilityId)` shows a speech bubble over an artist (`"a" + id`) or staff member (`"s" + role`); `GoatClock` has `speed`, `setSpeed(n)` and `day()`; `openPanel(id)` and `closePanel()` open and close a place's panel (any id `GoatPlaces` knows, or a button's `data-tab`); `paintHTML(id, html)` rewrites a region only when it changed.
 
 ## Live clock
 
-`src/ui/clock.js` decides each tick with `clockState(state, ui)`. Time holds for a finished run, an event, an album decision or result, a chart milestone, an unseen rank-up, an open menu or building popover, a banner with a button, and any `GoatUI.pauses` reason. Each tick runs one Next week step. A chosen speed resumes by itself once nothing is waiting; Pause stays paused.
+`src/ui/clock.js` decides each tick with `clockState(state, ui)`. Time holds for a finished run, an event, an album decision or result, a chart milestone, an unseen rank-up, an open panel or building popover, a banner with a button, and any `GoatUI.pauses` reason. Each tick runs one Next week step. A chosen speed resumes by itself once nothing is waiting; Pause stays paused.
 
 ## Checks
 

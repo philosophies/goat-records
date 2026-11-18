@@ -8,6 +8,10 @@ Label ranks, album themes and combos, headquarters facilities.
 
 The headquarters lot as the main screen with a live clock; a 20-year campaign with yearly goals and New Game+; recording locations and paid gigs; hot streaks, lead singles and ad campaigns.
 
+## 1.1 — no menus (done)
+
+Every screen opens from a person or place on the lot; recording locations line the street.
+
 ## Next
 
 1. **Fewer interruptions.** Batch minor events and offer a setting to auto-resolve with the safe choice.
