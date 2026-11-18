@@ -308,7 +308,7 @@ Done when: as T27.
 
 ## M8 Money and the IPO
 
-### [ ] T30 · Revenue streams by phase
+### [x] T30 · Revenue streams by phase
 
 Depends on: T02, T26
 Files: `src/data/company.js`, `src/systems/company.js`, `tests/company-test.cjs`

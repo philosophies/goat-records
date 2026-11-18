@@ -6,7 +6,10 @@
 
   /** @param {object} core engine helpers  @param {object} D data tables */
   function create(core, D) {
-    const { PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING, RENAME, LABEL_NAME, BUILDINGS } = D;
+    const {
+      PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING, RENAME, LABEL_NAME, BUILDINGS,
+      COMPANY_REVENUE, COMPANY_COSTS, FUNDING,
+    } = D;
     const { BOOTHS, FACILITIES, HQ } = D;
     const buildingById = Object.fromEntries(BUILDINGS.map((b) => [b.id, b])),
       facilityById = Object.fromEntries(FACILITIES.map((f) => [f.id, f]));
@@ -233,9 +236,42 @@
     function boardApproved(s) {
       return core.api().approvesPhase?.(s) ?? true;
     }
-    function weekly(s) {
+    function companyRevenue(s) {
+      if (!s.company) return {};
+      const catalog = s.albums.filter((album) => album.released);
+      const activity = {
+        studio: 1,
+        activeCatalog: catalog.filter((album) => album.age < album.salesWeeks).length,
+        roster: s.artists.filter((artist) => artist.contract?.remaining > 0).length,
+        hits: catalog.filter((album) => album.quality >= HIT_QUALITY).length,
+        catalog: catalog.length,
+      };
+      return Object.fromEntries(
+        COMPANY_REVENUE.filter((stream) => stream.phase <= s.company.phase)
+          .map(({ id, source, rate }) => [id, activity[source] * rate]),
+      );
+    }
+    function companyCosts(s) {
+      if (!s.company) return null;
+      const phaseIndex = s.company.phase - 1;
+      const loan = s.company.loan;
+      return {
+        rent: COMPANY_COSTS.rent[phaseIndex],
+        insurance: COMPANY_COSTS.insurance[phaseIndex],
+        // The board's existing loan payment already settles this amount as part of upkeep.
+        interest: loan ? Math.min(loan.payment, Math.round(loan.balance * FUNDING.loan.rate / 52)) : 0,
+      };
+    }
+    function companyUpkeep(s) {
+      const costs = companyCosts(s);
+      return costs ? costs.rent + costs.insurance : 0;
+    }
+    function weekly(s, revenues = companyRevenue(s)) {
+      if (!s.company) return 0;
+      const income = Object.values(revenues).reduce((total, value) => total + value, 0);
+      s.cash += income;
       const progress = phaseProgress(s);
-      if (!progress?.met || !boardApproved(s)) return 0;
+      if (!progress?.met || !boardApproved(s)) return income;
       const p = progress.next;
       s.company.phase = p.id;
       s.company.since = s.week;
@@ -248,12 +284,13 @@
         body: `The label has outgrown its last phase. Scouting now reaches ${REACH_SCOUTING[p.reach].name}.`,
         week: s.week,
       });
-      return 0;
+      return income;
     }
 
     return {
       init,
       validSave,
+      upkeep: companyUpkeep,
       weekly,
       api: {
         PHASES,
@@ -263,6 +300,9 @@
         companyPhase,
         phaseProgress,
         yearRevenue,
+        COMPANY_REVENUE,
+        companyRevenue,
+        companyCosts,
         boardApproved,
         scoutLimits,
         scoutLocked,

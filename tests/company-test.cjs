@@ -525,4 +525,51 @@ test("A classic run still reads its lot tiles", () => {
   assert.equal(G.facilitiesOf(s), s.hq.facilities);
 });
 
+test("Each company revenue stream opens in its specified phase", () => {
+  const s = ceo(74);
+  s.cash = 100000;
+  G.sign(s, s.candidates[0].id);
+  s.albums.push({ released: true, age: 1, salesWeeks: 12, quality: 79 });
+  const streamIds = [
+    ["beats", "downloads"],
+    ["streams", "merch"],
+    ["distribution", "radio"],
+    ["sync", "brand"],
+    ["publishing", "catalog"],
+    [],
+  ];
+  for (const phase of G.PHASES) {
+    s.company.phase = phase.id;
+    const income = G.companyRevenue(s);
+    assert.deepEqual(Object.keys(income), streamIds.slice(0, phase.id).flat());
+    for (const id of Object.keys(income)) assert.ok(income[id] > 0, id);
+  }
+  s.albums[0].age = s.albums[0].salesWeeks;
+  assert.equal(G.companyRevenue(s).streams, 0);
+  assert.ok(G.companyRevenue(s).catalog > 0);
+});
+
+test("Weekly settlement itemizes company income and growing costs without charging interest twice", () => {
+  const s = ceo(75);
+  s.cash = 100000;
+  s.company.phase = 4;
+  G.takeFunding(s, "loan");
+  const costs = G.companyCosts(s);
+  const overhead = G.upkeep(s);
+  const income = G.companyRevenue(s);
+  const totalIncome = Object.values(income).reduce((sum, value) => sum + value, 0);
+  assert.ok(costs.rent > 0 && costs.insurance > 0 && costs.interest > 0);
+  G.advance(s);
+  const row = s.financeHistory.at(-1);
+  assert.deepEqual(row.companyRevenue, income);
+  assert.deepEqual(row.companyCosts, costs);
+  assert.equal(row.otherIncome, totalIncome);
+  assert.equal(row.cashChange, totalIncome - overhead);
+
+  const classic = G.create(76);
+  G.advance(classic);
+  assert.equal(classic.financeHistory.at(-1).companyRevenue, undefined);
+  assert.equal(classic.financeHistory.at(-1).companyCosts, undefined);
+});
+
 console.log(`${count} company tests passed.`);

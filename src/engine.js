@@ -792,6 +792,7 @@
     if (productionBlock(s))
       throw Error("Complete the ready album decision or release review before advancing.");
     const opening = s.cash,
+      companyCosts = api.companyCosts?.(s),
       weeklyOverhead = upkeep(s);
     s.week++;
     E?.expire(s);
@@ -869,7 +870,9 @@
         s,
         "Annual awards entries close at the end of this operating year. Submit one eligible album per genre.",
       );
-    const income = Object.fromEntries(SYS.map((x) => [x.name, x.weekly?.(s) || 0])),
+    const companyRevenue = s.company ? api.companyRevenue?.(s) : null;
+    const income = Object.fromEntries(SYS.map((x) =>
+      [x.name, x.weekly?.(s, x.name === "company" ? companyRevenue : undefined) || 0])),
       hqIncome = income.label || 0,
       otherIncome = Object.values(income).reduce((n, v) => n + v, 0) - hqIncome;
     if (s.week % 4 === 0) {
@@ -915,6 +918,7 @@
       cashChange: s.cash - opening,
       hqIncome,
       otherIncome,
+      ...(companyRevenue ? { companyRevenue, companyCosts } : {}),
       albumIncome: s.albums
         .filter((p) => p.lastSalesWeek === s.week)
         .reduce((n, p) => n + (p.lastNetIncome || 0), 0),

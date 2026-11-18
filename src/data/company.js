@@ -85,6 +85,23 @@
   // The label's own name: its length limits, and the fame a rename costs while fans catch up.
   // Naming a new run is free.
   const RENAME = { minLength: 1, maxLength: 32, fame: 15 };
+  // Weekly company income by release and roster activity. Every rate is in dollars.
+  const COMPANY_REVENUE = [
+    { id: "beats", name: "Beats for hire", phase: 1, source: "studio", rate: 110 },
+    { id: "downloads", name: "Local downloads", phase: 1, source: "activeCatalog", rate: 25 },
+    { id: "streams", name: "Streaming", phase: 2, source: "activeCatalog", rate: 90 },
+    { id: "merch", name: "Merchandise", phase: 2, source: "roster", rate: 65 },
+    { id: "distribution", name: "Distribution", phase: 3, source: "activeCatalog", rate: 240 },
+    { id: "radio", name: "Radio", phase: 3, source: "hits", rate: 80 },
+    { id: "sync", name: "Sync licensing", phase: 4, source: "hits", rate: 300 },
+    { id: "brand", name: "Brand partnerships", phase: 4, source: "roster", rate: 360 },
+    { id: "publishing", name: "Publishing", phase: 5, source: "catalog", rate: 180 },
+    { id: "catalog", name: "Catalog royalties", phase: 5, source: "catalog", rate: 140 },
+  ];
+  const COMPANY_COSTS = {
+    rent: [0, 45, 130, 320, 650, 1100],
+    insurance: [0, 15, 55, 140, 320, 600],
+  };
 
   // Buildings along the street (CEO runs). Each is bought once and built up floor by floor.
   //   phase      the company phase that unlocks it
@@ -188,7 +205,10 @@
     },
   ];
 
-  const data = { PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING, RENAME, BUILDINGS };
+  const data = {
+    PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING, RENAME, BUILDINGS,
+    COMPANY_REVENUE, COMPANY_COSTS,
+  };
   root.GoatData = Object.assign(root.GoatData || {}, data);
   if (typeof module !== "undefined" && module.exports) module.exports = data;
 })(typeof globalThis !== "undefined" ? globalThis : this);

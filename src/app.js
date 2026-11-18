@@ -529,7 +529,7 @@ function finance() {
     .reverse()
     .map(
       (w) =>
-        `<div class="line">Week ${w.week} · opening ${money(w.openingCash)} · overhead ${money(w.overhead)} · label album receipts ${money(w.albumIncome)}${w.hqIncome ? " · headquarters takings " + money(w.hqIncome) : ""} · closing ${money(w.closingCash)} · change ${money(w.cashChange)}</div>`,
+        `<div class="line">Week ${w.week} · opening ${money(w.openingCash)} · overhead ${money(w.overhead)} · label album receipts ${money(w.albumIncome)}${w.hqIncome ? " · headquarters takings " + money(w.hqIncome) : ""} · closing ${money(w.closingCash)} · change ${money(w.cashChange)}${w.companyRevenue ? `<small>${G.COMPANY_REVENUE.filter(({ id }) => Object.hasOwn(w.companyRevenue, id)).map(({ id, name }) => `${esc(name)} ${money(w.companyRevenue[id])}`).join(" · ")}</small>` : ""}${w.companyCosts ? `<small>Included in overhead: rent ${money(w.companyCosts.rent)} · insurance ${money(w.companyCosts.insurance)} · loan interest ${money(w.companyCosts.interest)}</small>` : ""}</div>`,
     )
     .join("")}</div>`;
 }
