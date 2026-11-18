@@ -239,7 +239,7 @@ Files: `src/systems/board.js`, `src/engine.js` (spending entry points), `tests/b
 Do: track spending against the period budget. Over budget: the action still works but costs confidence, scaled by the overage. Low freedom: big signings, risky themes and new genres raise an approval request (an Inbox decision) before they happen.
 Done when: tests cover under, at and over budget, and each approval case for each freedom level.
 
-### [ ] T22 · Lobbying and promises
+### [x] T22 · Lobbying and promises
 
 Depends on: T20
 Files: `src/systems/board.js`, `tests/board-test.cjs`

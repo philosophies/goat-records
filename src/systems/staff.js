@@ -93,6 +93,20 @@
       log(s, `${c.name} joins as ${info.head}.`);
       return d.head;
     }
+    /** Hires a ready-made head (for example a director's pick) without a search. */
+    function appointHead(s, id, overrides = {}) {
+      requireAction(s);
+      requireCeo(s);
+      const info = requireOpen(s, id),
+        d = s.company.departments[id];
+      if (d.head) throw Error(`${info.name} already has a head. Let them go first.`);
+      const c = { ...candidate(s, id), ...overrides };
+      c.salary = salaryFor(c.skill);
+      pay(s, c.salary * EXEC_PAY.signWeeks);
+      d.head = { ...c, hiredWeek: s.week };
+      log(s, `${c.name} joins as ${info.head}.`);
+      return d.head;
+    }
     function fireHead(s, id) {
       requireAction(s);
       requireCeo(s);
@@ -577,6 +591,7 @@
         departmentOpen,
         recruitExecs,
         hireHead,
+        appointHead,
         fireHead,
         addStaff,
         removeStaff,
