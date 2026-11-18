@@ -57,7 +57,7 @@ Files: `src/ui/company.js` (new), `index.html`, `styles/ceo.css` (new), `tests/c
 Do: a top-bar chip "Phase 1 · Home studio · 2/4 goals" through `GoatUI.hud`, opening a panel with the goals checklist (`GoatUI.registerPanel`). The phase-up notification shows as a card. Only in CEO runs.
 Done when: the harness shows the chip and panel in a CEO run, and nothing in a 1.1 run.
 
-### [ ] T39 · Name the company
+### [x] T39 · Name the company
 
 Depends on: T01
 Files: `src/data/company.js`, `src/systems/company.js`, `src/engine.js` (the three chart entries that use `LD.LABEL_NAME`), `src/ui/lot.js` (roof sign), `src/ui/company.js`, `src/app.js` (new label dialog), `tests/company-test.cjs`, `tests/company-ui-test.cjs`

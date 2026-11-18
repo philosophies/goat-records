@@ -62,7 +62,7 @@ Tone: glossy, dramatic, a little soap opera. Marble lobbies, gold records, board
 
 Advancing needs goals (fame, revenue, hits, catalog, staff) and, once a board exists, its vote. The board's seat count in the table applies only after outside money: a label that never raises money has no board at any phase, keeps full creative freedom and grows only on what it earns. Raising money is faster, and costs you control.
 
-**The company's name.** A new run asks for the label's name (1–32 characters, Goat Records by default). It appears on the roof sign, the charts, award results, news and the final review. You can rename the company from the office at any time; renaming costs a little fame for a year while fans catch up, and past chart entries show the new name.
+**The company's name.** A new run asks for the label's name (1–32 characters, Goat Records by default). It appears on the roof sign, the charts, award results, news and the final review. You can rename the company from the office at any time; renaming costs 15 fame while fans catch up (naming a new run is free), and past chart entries show the new name.
 
 ### 3.3 The board and the periodic review
 

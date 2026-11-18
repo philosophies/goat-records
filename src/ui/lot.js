@@ -98,7 +98,7 @@ function lotBuilding() {
 }
 function lotRoof() {
   const st = G.rankStatus(state);
-  return `<button class="roof-sign" data-tab="label" aria-label="Goat Records: rank, headquarters and themes"><b>GOAT RECORDS</b><span class="roof-stars" aria-label="Label rank ${st.rank} of ${G.RANKS.length}">${"★".repeat(st.rank)}<i>${"★".repeat(G.RANKS.length - st.rank)}</i></span><small>${esc(st.name)}</small></button>`;
+  return `<button class="roof-sign" data-tab="label" aria-label="${esc(G.labelName(state))}: rank, headquarters and themes"><b>${esc(G.labelName(state).toUpperCase())}</b><span class="roof-stars" aria-label="Label rank ${st.rank} of ${G.RANKS.length}">${"★".repeat(st.rank)}<i>${"★".repeat(G.RANKS.length - st.rank)}</i></span><small>${esc(st.name)}</small></button>`;
 }
 function lotGround() {
   return `<div class="street">${GoatUI.html("lotDecor")}</div>`;

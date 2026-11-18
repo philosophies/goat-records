@@ -82,7 +82,11 @@
     world: { name: "the world", budget: 2, talentMax: 100, potentialMax: 100 },
   };
 
-  const data = { PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING };
+  // The label's own name: its length limits, and the fame a rename costs while fans catch up.
+  // Naming a new run is free.
+  const RENAME = { minLength: 1, maxLength: 32, fame: 15 };
+
+  const data = { PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING, RENAME };
   root.GoatData = Object.assign(root.GoatData || {}, data);
   if (typeof module !== "undefined" && module.exports) module.exports = data;
 })(typeof globalThis !== "undefined" ? globalThis : this);

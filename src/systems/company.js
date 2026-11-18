@@ -6,7 +6,7 @@
 
   /** @param {object} core engine helpers  @param {object} D data tables */
   function create(core, D) {
-    const { PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING } = D;
+    const { PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING, RENAME, LABEL_NAME } = D;
     const { log } = core;
     const isCount = (n) => Number.isInteger(n) && n >= 0;
 
@@ -26,7 +26,44 @@
       }
       return s;
     }
+    /** The label's own name: the player's choice, or the default. Works in every run. */
+    function labelName(s) {
+      return s.labelName || LABEL_NAME;
+    }
+    /** A cleaned name, or throws with the reason it cannot be used. */
+    function cleanName(name) {
+      if (typeof name !== "string") throw Error("The label needs a name.");
+      const clean = name
+        .replace(/[\u0000-\u001f\u007f]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (clean.length < RENAME.minLength) throw Error("The label needs a name.");
+      if (clean.length > RENAME.maxLength) throw Error(`Keep the name to ${RENAME.maxLength} characters.`);
+      return clean;
+    }
+    /** Renames the label. Costs RENAME.fame, unless `free` (naming a new run). */
+    function renameLabel(s, name, free = false) {
+      core.requireAction(s);
+      const clean = cleanName(name),
+        old = labelName(s);
+      if (clean === old) throw Error(`The label is already called ${old}.`);
+      const cost = free ? 0 : Math.min(RENAME.fame, s.fame);
+      s.fame -= cost;
+      s.labelName = clean;
+      log(
+        s,
+        free
+          ? `The label is named ${clean}.`
+          : `${old} is now ${clean}.${cost ? ` Fans need time to catch up: −${cost} fame.` : ""}`,
+      );
+      return clean;
+    }
     function validSave(s) {
+      if (s.labelName !== undefined) {
+        if (typeof s.labelName !== "string") return false;
+        const n = s.labelName.trim().length;
+        if (n < RENAME.minLength || n > RENAME.maxLength) return false;
+      }
       if (s.company === undefined) return true;
       const c = s.company;
       if (!c || typeof c !== "object" || Array.isArray(c)) return false;
@@ -90,7 +127,7 @@
       s.company.phase = p.id;
       s.company.since = s.week;
       s.company.history.push({ phase: p.id, week: s.week });
-      log(s, `Goat Records grows into phase ${p.id}: ${p.name}.`);
+      log(s, `${labelName(s)} grows into phase ${p.id}: ${p.name}.`);
       s.notifications.push({
         id: s.nextId++,
         kind: "phase",
@@ -116,6 +153,9 @@
         boardApproved,
         scoutLimits,
         scoutLocked,
+        RENAME,
+        labelName,
+        renameLabel,
       },
     };
   }

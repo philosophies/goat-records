@@ -6,36 +6,36 @@ Detailed rules for every system. See README.md for a short overview.
 
 There are no menus. Everything opens from a person or place on the lot, in a panel beside it; time stops while the panel is open. The roster in the side panel lists every artist and staff member, including artists away on tour.
 
-| Tap | Opens |
-| --- | --- |
+| Tap                                     | Opens                                                                                                                    |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | An artist (on the lot or in the roster) | Their stats, contract, inspiration, gigs and hot streak; record an album; book a tour; their albums with singles and ads |
-| A staff member | Their role, skill and wage, a recruitment drive and replacements |
-| Roof sign | Label rank and its goals, headquarters overview, pairings, combo notebook |
-| Front desk (lobby) | Scouting and hiring |
-| Trophy case (lobby) | Annual award entries and results |
-| Office | Campaign goals and final review, finances, discography |
-| A recording room | Its equipment and record; start an album there |
-| + Room | Build another recording room |
-| A facility tile | Build, upgrade, move or close it |
-| Billboard | Top 300 chart and promotion |
-| Newsstand | Industry wire and label news |
-| Tour bus | Active tours, booking and tour history |
-| Out of town sign | Every recording location and the gig table |
-| A recording location | Its level, boosts, genre fit and theme; record an album there |
-| Goal or "on fire" chip | The office or the billboard |
+| A staff member                          | Their role, skill and wage, a recruitment drive and replacements                                                         |
+| Roof sign                               | Label rank and its goals, headquarters overview, pairings, combo notebook                                                |
+| Front desk (lobby)                      | Scouting and hiring                                                                                                      |
+| Trophy case (lobby)                     | Annual award entries and results                                                                                         |
+| Office                                  | Campaign goals and final review, finances, discography, the label's name                                                 |
+| A recording room                        | Its equipment and record; start an album there                                                                           |
+| + Room                                  | Build another recording room                                                                                             |
+| A facility tile                         | Build, upgrade, move or close it                                                                                         |
+| Billboard                               | Top 300 chart and promotion                                                                                              |
+| Newsstand                               | Industry wire and label news                                                                                             |
+| Tour bus                                | Active tours, booking and tour history                                                                                   |
+| Out of town sign                        | Every recording location and the gig table                                                                               |
+| A recording location                    | Its level, boosts, genre fit and theme; record an album there                                                            |
+| Goal or "on fire" chip                  | The office or the billboard                                                                                              |
 
 ## Label ranks
 
 Six ranks: Bedroom Label, Indie Imprint, Rising Label, Major Contender, Powerhouse and Greatest of All Time. Each rank lists goals for label fame, albums released, facilities built, best chart peak, awards won and cash on hand. Promotion happens at the weekly settlement once every goal is met. A rank is never lost.
 
-| Rank | Roster | Lot | Themes per album | Goals for this rank |
-| --- | ---: | ---: | ---: | --- |
-| 1 Bedroom Label | 2 | 3×2 | 1 | Start |
-| 2 Indie Imprint | 3 | 4×2 | 1 | 30 fame, 2 albums, 1 facility |
-| 3 Rising Label | 4 | 4×3 | 2 | 90 fame, 5 albums, 3 facilities, Top 40 peak, $20,000 |
-| 4 Major Contender | 6 | 5×3 | 2 | 200 fame, 9 albums, 5 facilities, Top 10 peak, 1 award |
-| 5 Powerhouse | 7 | 5×4 | 2 | 400 fame, 14 albums, 7 facilities, #1 peak, 3 awards, $100,000 |
-| 6 Greatest of All Time | 8 | 6×4 | 2 | 700 fame, 20 albums, 9 facilities, 5 awards, $250,000 |
+| Rank                   | Roster | Lot | Themes per album | Goals for this rank                                            |
+| ---------------------- | -----: | --: | ---------------: | -------------------------------------------------------------- |
+| 1 Bedroom Label        |      2 | 3×2 |                1 | Start                                                          |
+| 2 Indie Imprint        |      3 | 4×2 |                1 | 30 fame, 2 albums, 1 facility                                  |
+| 3 Rising Label         |      4 | 4×3 |                2 | 90 fame, 5 albums, 3 facilities, Top 40 peak, $20,000          |
+| 4 Major Contender      |      6 | 5×3 |                2 | 200 fame, 9 albums, 5 facilities, Top 10 peak, 1 award         |
+| 5 Powerhouse           |      7 | 5×4 |                2 | 400 fame, 14 albums, 7 facilities, #1 peak, 3 awards, $100,000 |
+| 6 Greatest of All Time |      8 | 6×4 |                2 | 700 fame, 20 albums, 9 facilities, 5 awards, $250,000          |
 
 Each rank-up from Indie Imprint onward grants two new album themes (three at Greatest of All Time). Ranks 2, 3 and 4 also unlock the room tiers that used to come from fame alone.
 
@@ -47,34 +47,36 @@ Each theme fits each genre as Poor, Fair, Good or Great. The fit is hidden until
 
 Releasing a combo levels it up, to a maximum of level 5. Each level above 1 adds one point to every stage. Repeating a combo within 26 weeks of an earlier release costs 4 Reach per recent release, up to 8. Albums without a theme still record but get no theme bonus.
 
+The label is called Goat Records until you rename it in the office. A rename costs 15 fame while fans catch up; the new name shows on the roof sign, the charts, award results and the news.
+
 ## Headquarters
 
 Facilities are built on a tile lot that grows with rank. One of each facility can be built, and each can be upgraded to level 3; an upgrade costs the build price × the current level. Upkeep is paid weekly per level. Moving a facility costs $500, and moving onto a built tile swaps the two. Closing a facility refunds nothing.
 
-| Facility | Rank | Build | Upkeep / level | Effect per level |
-| --- | ---: | ---: | ---: | --- |
-| Writers' Room | 1 | $4,000 | $50 | Songwriting +2; 10% weekly theme discovery |
-| Vocal Booth | 1 | $5,000 | $60 | Performance +2 |
-| Artist Lounge | 1 | $3,000 | $40 | Idle artists +2 morale, +2 inspiration weekly |
-| Merch Shop | 1 | $5,000 | $60 | $60 + $1.20 per label fame weekly |
-| Mix Suite | 2 | $9,000 | $140 | Sound +2 |
-| Rehearsal Hall | 2 | $10,000 | $120 | Idle artists +4 energy weekly |
-| Radio Room | 3 | $14,000 | $180 | Reach +2, Market impact +2 |
-| Listening Bar | 3 | $18,000 | $150 | $100 + $1.50 per label fame weekly |
-| Master Archive | 4 | $25,000 | $220 | $0.50 per quality point weekly from the best 30 albums whose run has ended |
-| Talent Academy | 5 | $30,000 | $260 | Development ceiling +3, development fees −15% |
+| Facility       | Rank |   Build | Upkeep / level | Effect per level                                                           |
+| -------------- | ---: | ------: | -------------: | -------------------------------------------------------------------------- |
+| Writers' Room  |    1 |  $4,000 |            $50 | Songwriting +2; 10% weekly theme discovery                                 |
+| Vocal Booth    |    1 |  $5,000 |            $60 | Performance +2                                                             |
+| Artist Lounge  |    1 |  $3,000 |            $40 | Idle artists +2 morale, +2 inspiration weekly                              |
+| Merch Shop     |    1 |  $5,000 |            $60 | $60 + $1.20 per label fame weekly                                          |
+| Mix Suite      |    2 |  $9,000 |           $140 | Sound +2                                                                   |
+| Rehearsal Hall |    2 | $10,000 |           $120 | Idle artists +4 energy weekly                                              |
+| Radio Room     |    3 | $14,000 |           $180 | Reach +2, Market impact +2                                                 |
+| Listening Bar  |    3 | $18,000 |           $150 | $100 + $1.50 per label fame weekly                                         |
+| Master Archive |    4 | $25,000 |           $220 | $0.50 per quality point weekly from the best 30 albums whose run has ended |
+| Talent Academy |    5 | $30,000 |           $260 | Development ceiling +3, development fees −15%                              |
 
 Facilities that share a wall form a pairing. Each pairing applies once, whatever the facility levels.
 
-| Pairing | Facilities | Bonus |
-| --- | --- | --- |
-| Late-night sessions | Writers' Room + Artist Lounge | Songwriting +2 |
-| Tracking line | Vocal Booth + Mix Suite | Performance +1, Sound +1 |
-| Broadcast ready | Mix Suite + Radio Room | Reach +2 |
-| Warm-up route | Rehearsal Hall + Vocal Booth | Performance +2 |
-| Fan district | Merch Shop + Listening Bar | Shop and bar takings +30% |
-| Deep crates | Master Archive + Writers' Room | Theme discovery +5% |
-| Practice pipeline | Talent Academy + Rehearsal Hall | Development fees −10% |
+| Pairing             | Facilities                      | Bonus                     |
+| ------------------- | ------------------------------- | ------------------------- |
+| Late-night sessions | Writers' Room + Artist Lounge   | Songwriting +2            |
+| Tracking line       | Vocal Booth + Mix Suite         | Performance +1, Sound +1  |
+| Broadcast ready     | Mix Suite + Radio Room          | Reach +2                  |
+| Warm-up route       | Rehearsal Hall + Vocal Booth    | Performance +2            |
+| Fan district        | Merch Shop + Listening Bar      | Shop and bar takings +30% |
+| Deep crates         | Master Archive + Writers' Room  | Theme discovery +5%       |
+| Practice pipeline   | Talent Academy + Rehearsal Hall | Development fees −10%     |
 
 Stage bonuses are added when a stage decision is made, so building mid-album helps the stages still to come. Weekly takings are paid at the settlement and listed in Finances. Shop and bar takings count label fame only up to 400.
 
@@ -82,18 +84,18 @@ Stage bonuses are added when a stage decision is made, so building mid-album hel
 
 - Every year has one goal, and play continues whether it was met or missed. The ladder:
 
-| Year | Goal | Reward | Year | Goal | Reward |
-| ---: | --- | --- | ---: | --- | --- |
-| 1 | Reach Indie Imprint | $8,000 | 11 | A #1 album | +40 fame |
-| 2 | A Top 40 album | 1 theme | 12 | Win 4 awards in total | 2 themes |
-| 3 | Breakout Label: 300 fame and 12 releases, cash remaining | $15,000 | 13 | $150,000 on hand | +40 fame |
-| 4 | Release 10 albums | +20 fame | 14 | Reach Powerhouse | $60,000 |
-| 5 | Win an annual award | $15,000 | 15 | An award this year | 2 themes |
-| 6 | Reach Rising Label | 1 theme | 16 | Release 35 albums | $75,000 |
-| 7 | A Top 10 album | $20,000 | 17 | Three #1 albums | +60 fame |
-| 8 | Two hit albums this year | +30 fame | 18 | Win 8 awards in total | 2 themes |
-| 9 | Build 6 facilities | 2 themes | 19 | 900 label fame | $100,000 |
-| 10 | Reach Major Contender | $40,000 | 20 | Greatest of All Time rank | +100 fame |
+| Year | Goal                                                     | Reward   | Year | Goal                      | Reward    |
+| ---: | -------------------------------------------------------- | -------- | ---: | ------------------------- | --------- |
+|    1 | Reach Indie Imprint                                      | $8,000   |   11 | A #1 album                | +40 fame  |
+|    2 | A Top 40 album                                           | 1 theme  |   12 | Win 4 awards in total     | 2 themes  |
+|    3 | Breakout Label: 300 fame and 12 releases, cash remaining | $15,000  |   13 | $150,000 on hand          | +40 fame  |
+|    4 | Release 10 albums                                        | +20 fame |   14 | Reach Powerhouse          | $60,000   |
+|    5 | Win an annual award                                      | $15,000  |   15 | An award this year        | 2 themes  |
+|    6 | Reach Rising Label                                       | 1 theme  |   16 | Release 35 albums         | $75,000   |
+|    7 | A Top 10 album                                           | $20,000  |   17 | Three #1 albums           | +60 fame  |
+|    8 | Two hit albums this year                                 | +30 fame |   18 | Win 8 awards in total     | 2 themes  |
+|    9 | Build 6 facilities                                       | 2 themes |   19 | 900 label fame            | $100,000  |
+|   10 | Reach Major Contender                                    | $40,000  |   20 | Greatest of All Time rank | +100 fame |
 
 - A theme reward pays $5,000 per theme instead once every theme is known.
 - Cash below $0 at a weekly settlement starts a four-week grace period. A warning card pauses the clock; get back above $0 before the fifth settlement or the label folds and the run ends. A run that reaches the end of year 20 while in the red still completes.
@@ -268,14 +270,14 @@ Saves from 0.8 and earlier open at the rank their fame had already earned (30 / 
 
 Rooms benefit every genre. Equipment and resident production-team stats replace genre affinity; hit prestige remains. Room upkeep is part of weekly label overhead.
 
-| Rank / room | Equipment | Team | Build | Weekly upkeep | Rank tier |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| 1 / The Living Room | 20 | 15 | Free initial room | $100 | 1 |
-| 2 / Neon Vault | 40 | 35 | $9,000 | $175 | 1 |
-| 3 / Voltage Chapel | 55 | 50 | $15,000 | $250 | 2 |
-| 4 / Skyline Sound | 70 | 65 | $24,000 | $375 | 2 |
-| 5 / Platinum Works | 85 | 80 | $40,000 | $550 | 3 |
-| 6 / Legend Hall | 100 | 95 | $65,000 | $800 | 4 |
+| Rank / room         | Equipment | Team |             Build | Weekly upkeep | Rank tier |
+| ------------------- | --------: | ---: | ----------------: | ------------: | --------: |
+| 1 / The Living Room |        20 |   15 | Free initial room |          $100 |         1 |
+| 2 / Neon Vault      |        40 |   35 |            $9,000 |          $175 |         1 |
+| 3 / Voltage Chapel  |        55 |   50 |           $15,000 |          $250 |         2 |
+| 4 / Skyline Sound   |        70 |   65 |           $24,000 |          $375 |         2 |
+| 5 / Platinum Works  |        85 |   80 |           $40,000 |          $550 |         3 |
+| 6 / Legend Hall     |       100 |   95 |           $65,000 |          $800 |         4 |
 
 Existing owned rooms remain owned. The new rank's stats and upkeep apply prospectively; no extra building fee is charged during migration.
 
@@ -283,11 +285,11 @@ Existing owned rooms remain owned. The new rank's stats and upkeep apply prospec
 
 Base production remains $4,000 / $8,000 / $12,000. Optional add-ons are paid with the base budget when recording begins. Each adds exactly one production week, including the Star Producer session. The five interactive stages remain; extra work happens before final release review.
 
-| Add-on | Cost | Effects |
-| --- | ---: | --- |
-| Music video | $5,000 | Reach +6, market reception +8, sales multiplier +12% |
-| Press run | $2,000 | Identity +2, Reach +4, critics +5, market reception +3 |
-| Live appearances | $3,000 | Performance +3, Reach +5, launch attention +10, launch energy -8 |
+| Add-on                |    Cost | Effects                                                               |
+| --------------------- | ------: | --------------------------------------------------------------------- |
+| Music video           |  $5,000 | Reach +6, market reception +8, sales multiplier +12%                  |
+| Press run             |  $2,000 | Identity +2, Reach +4, critics +5, market reception +3                |
+| Live appearances      |  $3,000 | Performance +3, Reach +5, launch attention +10, launch energy -8      |
 | Star Producer session | $15,000 | First four production areas +10, Reach +2, critics +6; one album only |
 
 All four add-ons plus the lean base cost $29,000 and take nine weeks for Teen/Adult artists, ten for Youth. A Star Producer is not a permanent employee and does not give free bonuses to later projects. Ratings still clamp at 100.
@@ -303,10 +305,10 @@ Assessment occurs on the advance after the earning window closes, allowing week-
 A recent album (within 26 weeks of release) qualifies with a Top 10 peak, $10,000 gross sales, or at least two earning weeks and 250 units in the last earning week. Each album can launch one tour. The headliner and any labelmate must be idle. Album contracts count albums; touring does not consume an album commitment.
 
 | Territory | Show weeks | Solo setup | Solo weekly tour operations |
-| --- | ---: | ---: | ---: |
-| Regional | 4 | $4,500 | $800 |
-| National | 8 | $14,000 | $2,200 |
-| World | 12 | $35,000 | $5,000 |
+| --------- | ---------: | ---------: | --------------------------: |
+| Regional  |          4 |     $4,500 |                        $800 |
+| National  |          8 |    $14,000 |                      $2,200 |
+| World     |         12 |    $35,000 |                      $5,000 |
 
 Booking requires setup cash plus one week of tour operations. Setup is charged immediately, so tour net starts negative. Ticket revenue ramps as show weeks pass, with demand based on artist popularity and album quality. Forecasts are estimates: weekly variation, fatigue, events and early endings can change the result.
 
@@ -328,13 +330,13 @@ The side panel lists the roster and active work, linking to pending events, albu
 
 Every artist has 0–100 inspiration. New and migrated artists start at 60. Each confirmed album release resets that artist to 0. Inspiration recovers by 10 per label week while not recording, or 5 while touring. Recording pauses recovery; seven tour days still count as one label week. Development sessions do not refill inspiration.
 
-| Inspiration | Recording readiness | Stage contribution |
-| --- | --- | ---: |
-| 0–24 | Cannot start an album | — |
-| 25–49 | Minimum inspiration; rushing risks weaker results | −10 |
-| 50–74 | Better odds of a decent album | 0 |
-| 75–89 | Better odds of a great album | +6 |
-| 90–100 | Best odds of a classic album | +12 |
+| Inspiration | Recording readiness                               | Stage contribution |
+| ----------- | ------------------------------------------------- | -----------------: |
+| 0–24        | Cannot start an album                             |                  — |
+| 25–49       | Minimum inspiration; rushing risks weaker results |                −10 |
+| 50–74       | Better odds of a decent album                     |                  0 |
+| 75–89       | Better odds of a great album                      |                 +6 |
+| 90–100      | Best odds of a classic album                      |                +12 |
 
 Inspiration locks when recording begins and contributes visibly to all five stage calculations, including reshuffles. It changes the outcome distribution, not a guaranteed quality result: craft, expertise, room, choices, morale and variation still matter. Reference quality bands are decent 60+, great 80+, classic 90+. The existing hit threshold remains 75. From a release reset, idle artists need 3 weeks to start, 5 for the decent tier, 8 for great and 9 for classic. Tours double those recovery times.
 
