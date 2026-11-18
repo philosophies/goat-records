@@ -323,3 +323,139 @@ body.ceo-run .company-chip {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* The boardroom and the review scene. */
+.meter {
+  display: block;
+  height: 8px;
+  margin: 6px 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.meter i {
+  display: block;
+  height: 100%;
+  width: var(--pct);
+  background: var(--gold, #d4a93a);
+  transition: width 0.6s ease;
+}
+.meter.low i {
+  background: #c0573f;
+}
+.meter.high i {
+  background: #6fbf73;
+}
+.board-terms {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0;
+  display: grid;
+  gap: 6px;
+}
+.board-terms li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 14px;
+}
+.board-terms span {
+  color: var(--muted);
+}
+.directors {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+}
+.director-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+.director-head small {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+}
+.director .score {
+  font-size: 22px;
+  font-weight: 700;
+}
+.reasons {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0;
+  font-size: 13px;
+}
+.reasons li {
+  display: flex;
+  justify-content: space-between;
+}
+.reasons .up b {
+  color: #7fd18b;
+}
+.reasons .down b {
+  color: #e8876f;
+}
+.lobby {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+.lobby label {
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.fund-list {
+  list-style: none;
+  padding: 0;
+}
+.fund-offer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line, rgba(255, 255, 255, 0.1));
+}
+.fund-offer small {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+}
+.board-scene .scene-scores {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+  display: grid;
+  gap: 6px;
+}
+.scene-score {
+  display: grid;
+  grid-template-columns: auto 1fr 120px auto;
+  gap: 8px;
+  align-items: center;
+}
+.board-scene .fresh {
+  animation: scene-in 0.5s ease both;
+}
+@keyframes scene-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .board-scene .fresh,
+  .meter i {
+    animation: none;
+    transition: none;
+  }
+}

@@ -318,7 +318,19 @@
         wasOnProbation = b.probation,
         voteDue = c < REVIEW.voteBelow || (wasOnProbation && c < REVIEW.voteOnProbationBelow),
         vote = voteDue ? holdVote(s) : null,
-        record = { week: s.week, confidence: c, probation: false, vote, promises };
+        record = {
+          week: s.week,
+          confidence: c,
+          probation: false,
+          vote,
+          promises,
+          directors: b.directors.map((d) => ({
+            id: d.id,
+            name: d.name,
+            type: d.type,
+            satisfaction: d.satisfaction,
+          })),
+        };
       if (vote?.passed) {
         b.reviews.push(record);
         fire(s, c);
@@ -333,16 +345,9 @@
       Object.assign(record, { probation: b.probation, budget: b.budget, freedom: b.freedom, perks: b.perks });
       b.reviews.push(record);
       if (b.reviews.length > 12) b.reviews.shift();
+      b.scene = true;
       setTargets(s);
       b.nextReview = s.week + reviewInterval(s);
-      const freedom = REVIEW.freedom.find((f) => f.id === b.freedom).name;
-      s.notifications.push({
-        id: s.nextId++,
-        kind: "board",
-        title: vote ? "You survived a no-confidence vote" : b.probation ? "On probation" : "Board review",
-        body: `Confidence ${c}/100. Budget $${b.budget.toLocaleString("en-US")} for the next period, ${freedom.toLowerCase()} creative freedom${b.perks.length ? ", perks: " + b.perks.map((id) => REVIEW.perks.find((p) => p.id === id).name.toLowerCase()).join(", ") : ""}.${vote ? ` ${vote.against} of ${vote.seats} voted against you${vote.protectedByShares ? "; your majority stake saved you" : ""}.` : ""}`,
-        week: s.week,
-      });
       log(s, `Board review: confidence ${c}/100${b.probation ? ", on probation" : ""}.`);
       return record;
     }
@@ -542,6 +547,11 @@
       log(s, `${d.name} appreciated the favor. Relationship ${d.relationship}.`);
       return d.relationship;
     }
+    /** Marks the latest review as seen, which lets the clock run again. */
+    function ackReview(s) {
+      const b = board(s);
+      if (b) b.scene = false;
+    }
     function onScandal(s) {
       const b = board(s);
       if (b) b.scandals = (b.scandals || 0) + 1;
@@ -670,6 +680,7 @@
         APPROVAL,
         overspendPoints,
         LOBBY,
+        ackReview,
         meetDirector,
         promiseOptions,
         makePromise,
