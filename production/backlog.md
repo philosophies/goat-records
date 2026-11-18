@@ -203,7 +203,7 @@ Done when: the harness assigns a producer through clicks and shows the chemistry
 
 ## M5 The board
 
-### [ ] T18 · Funding and the board's seats
+### [x] T18 · Funding and the board's seats
 
 Depends on: T02
 Files: `src/data/board.js` (new), `src/systems/board.js` (new), `src/engine.js`, `index.html`, `tests/board-test.cjs` (new)

@@ -113,8 +113,8 @@ function calendarItems() {
     text: "Annual awards and the year's goal are settled.",
     tab: "awards",
   });
-  if (state.board?.nextReview)
-    out.push({ week: state.board.nextReview, kind: "Board", text: "Board review.", tab: "board" });
+  if (state.company?.board?.nextReview)
+    out.push({ week: state.company.board.nextReview, kind: "Board", text: "Board review.", tab: "board" });
   for (const p of state.albums.filter((x) => !x.released))
     out.push({
       week: null,
@@ -196,7 +196,9 @@ function phoneWallet() {
       ["Revenue, last 52 weeks", money(G.yearRevenue(state))],
       [
         "Budget left this period",
-        state.board?.budgetLeft !== undefined ? money(state.board.budgetLeft) : "— (no board)",
+        state.company?.board?.budgetLeft !== undefined
+          ? money(state.company.board.budgetLeft)
+          : "— (no board)",
       ],
       ["Debt", state.cash < 0 ? money(-state.cash) : "None"],
       [

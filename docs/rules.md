@@ -389,3 +389,12 @@ A member's effect is skill × role weight × chemistry. Chemistry runs from 0.6 
 - Family time: met unless they have worked 8 weeks in a row; 2 idle weeks reset the count.
 
 A met want adds 1 morale a week. An ignored one costs 3 + ego × 0.02 − loyalty × 0.015 (at least 1). Below 40 morale an artist is unhappy. With no albums left on their contract, an artist below 35 morale walks out at the next settlement and will not re-sign; loyalty of 75 or more lowers that line to 20.
+
+**Funding and the board.** A CEO run starts owning all of itself, with no board.
+
+- Bank loan, any phase, one at a time: $5,000 in phase 1 up to $1,200,000 in phase 6, repaid weekly over two years at 12% a year. It can be repaid early. A loan brings no shares and no board.
+- Angel, phase 2 only and only once: 10% or 20% of the company for one board seat.
+- Venture rounds (Series A, B, C), one in each of phases 3, 4 and 5: 15% or 30% for up to two seats, never more than the phase's board size (3, 5, 7).
+- Rounds are priced at the larger of a phase floor ($60,000 in phase 2 up to $6,000,000 in phase 6) and a year of revenue × 1.5–4 by phase. Each round shrinks your share of what is left.
+
+The board appears with the first angel or venture money. Each director is the Accountant, the Visionary, the Artist's Friend, the Old Guard or the Investor, with their own agenda and patience.
