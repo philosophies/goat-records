@@ -143,7 +143,7 @@ Do:
 
 ## M4 People
 
-### [ ] T12 · Departments and executives
+### [x] T12 · Departments and executives
 
 Depends on: T01
 Files: `src/data/staff.js` (new), `src/systems/staff.js` (new), `src/engine.js`, `index.html`, `tests/staff-test.cjs` (new)

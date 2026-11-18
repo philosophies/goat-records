@@ -3,7 +3,7 @@
   const isNode = typeof module !== "undefined" && module.exports;
   // Game systems live in src/systems/<name>.js with tables in src/data/<name>.js.
   // Each is optional: a missing file is skipped. In the browser they load as script tags first.
-  const SYSTEM_NAMES = ["label", "campaign", "locations", "promotion", "company"];
+  const SYSTEM_NAMES = ["label", "campaign", "locations", "promotion", "company", "staff"];
   function optionalRequire(path) {
     try {
       return require(path);
