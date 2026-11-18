@@ -581,9 +581,11 @@ test("Spending under the budget is tracked and costs nothing", () => {
   assert.equal(s.company.board.budgetLeft, 10000 - DRIVE);
   assert.equal(G.overspendPoints(s), 0);
   const cash = s.cash;
+  const operatingIncome = Object.values(G.companyRevenue(s)).reduce((sum, amount) => sum + amount, 0);
+  const weeklyCosts = G.upkeep(s);
   settle(s);
   assert.equal(s.company.board.spent, DRIVE, "weekly costs are not budget spending");
-  assert.ok(s.cash < cash);
+  assert.equal(s.cash, cash - weeklyCosts + operatingIncome);
 });
 
 test("Spending exactly to the budget needs no approval and costs no confidence", () => {

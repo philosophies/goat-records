@@ -79,9 +79,9 @@
       { id: "high", name: "High", below: Infinity },
     ],
     perks: [
-      { id: "car", name: "Company car", min: 55, weekly: 300 },
-      { id: "penthouse", name: "Penthouse office", min: 70, weekly: 1500 },
-      { id: "jet", name: "Private jet", min: 85, weekly: 6000 },
+      { id: "car", name: "Company car", min: 55, weekly: 90 },
+      { id: "penthouse", name: "Penthouse office", min: 70, weekly: 175 },
+      { id: "jet", name: "Private jet", min: 85, weekly: 400 },
     ],
     probationBelow: 35,
     voteBelow: 10,

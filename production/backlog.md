@@ -351,7 +351,7 @@ Files: `src/systems/campaign.js`, `src/data/campaign.js`, `tests/campaign-test.c
 Do: CEO runs score company value, ownership share, hits, awards, artists developed and kept-the-chair (design 3.11). "Fired" and "Folded" endings each have their own final review text. Being fired is game over: the final review, then a new label, with legacy points as after any ended run. Legacy points and New Game+ work for CEO runs.
 Done when: tests cover each ending's score and New Game+ carry-over.
 
-### [ ] T35 · CEO balance sample
+### [x] T35 · CEO balance sample
 
 Depends on: T34, T27, T28, T29
 Files: `tests/ceo-balance.cjs` (new), `CEO-BALANCE.json` (generated)

@@ -34,7 +34,7 @@
       reach: "region",
       boardSeats: 3,
       buildings: ["studio", "office"],
-      goals: { fame: 200, revenue: 150000, releases: 8, hits: 1 },
+      goals: { fame: 180, revenue: 70000, releases: 8, hits: 1 },
     },
     {
       id: 4,
@@ -42,7 +42,7 @@
       reach: "country",
       boardSeats: 5,
       buildings: ["hq", "venue"],
-      goals: { fame: 600, revenue: 750000, releases: 18, hits: 4 },
+      goals: { fame: 440, revenue: 225000, releases: 18, hits: 2 },
     },
     {
       id: 5,
@@ -50,7 +50,7 @@
       reach: "world",
       boardSeats: 7,
       buildings: ["media", "warehouse"],
-      goals: { fame: 1500, revenue: 3000000, releases: 35, hits: 10 },
+      goals: { fame: 1000, revenue: 650000, releases: 35, hits: 5 },
     },
     {
       id: 6,
@@ -87,11 +87,11 @@
   const RENAME = { minLength: 1, maxLength: 32, fame: 15 };
   // Weekly company income by release and roster activity. Every rate is in dollars.
   const COMPANY_REVENUE = [
-    { id: "beats", name: "Beats for hire", phase: 1, source: "studio", rate: 110 },
+    { id: "beats", name: "Beats for hire", phase: 1, source: "studio", rate: 240 },
     { id: "downloads", name: "Local downloads", phase: 1, source: "activeCatalog", rate: 25 },
     { id: "streams", name: "Streaming", phase: 2, source: "activeCatalog", rate: 90 },
-    { id: "merch", name: "Merchandise", phase: 2, source: "roster", rate: 65 },
-    { id: "distribution", name: "Distribution", phase: 3, source: "activeCatalog", rate: 240 },
+    { id: "merch", name: "Merchandise", phase: 2, source: "roster", rate: 160 },
+    { id: "distribution", name: "Distribution", phase: 3, source: "activeCatalog", rate: 400 },
     { id: "radio", name: "Radio", phase: 3, source: "hits", rate: 80 },
     { id: "sync", name: "Sync licensing", phase: 4, source: "hits", rate: 300 },
     { id: "brand", name: "Brand partnerships", phase: 4, source: "roster", rate: 360 },

@@ -1,5 +1,19 @@
 # Validation
 
+## Unreleased
+
+### CEO balance sample
+
+`node tests/ceo-balance.cjs` runs three policies with seeds 1–12. Each plays through year 20 or until dismissal or insolvency. [CEO-BALANCE.json](CEO-BALANCE.json) records each run's phase by year, ending, IPO year, score, and stars.
+
+| Policy | Fired | Folded | Listed by year 12 |
+| --- | ---: | ---: | ---: |
+| Careful | 0/12 | 3/12 | 4/12 |
+| Average | 1/12 | 1/12 | 2/12 |
+| Reckless | 5/12 | 5/12 | 3/12 |
+
+The careful policy builds board relationships, develops artists, and keeps a larger cash reserve. The reckless policy sells more equity and prioritizes risky decisions after losing its majority. Phase thresholds, early revenue, and board perk costs were tuned against these runs.
+
 ## v1.1.0 — November 17, 2026
 
 170 simulation checks in 14 suites and eight interface harnesses pass (`node run-checks.cjs`). The main harness now checks that there is no menu bar, that every place is on the ground floor, roof and street, the roster, an artist's panel holding only that artist's album form, a room's panel, older screen links opening their new place, and that a panel for a released artist does not open. The locations harness opens a location's panel, finds it preselected in the album form and booked once recording starts.
