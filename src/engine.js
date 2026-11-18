@@ -1089,6 +1089,7 @@
     initializeRoad(s);
     initializeIndustry(s);
     hooks.each("init", s);
+    hooks.each("afterInit", s);
     return s;
   }
   function paidScout(s, index) {
@@ -2085,7 +2086,7 @@
   // Labels no longer stop after year one; loading an older save resumes it (campaign system).
   // These remain for labels still marked finished at the old year-one checkpoint.
   function canContinueCareer(s) {
-    return s.finished && s.cash >= 0 && s.week >= 53 && !api.campaignOver?.(s);
+    return !s.company && s.finished && s.cash >= 0 && s.week >= 53 && !api.campaignOver?.(s);
   }
   function continueCareer(s) {
     if (!canContinueCareer(s)) throw Error("Complete the first year with cash remaining to continue.");

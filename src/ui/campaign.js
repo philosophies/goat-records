@@ -43,10 +43,20 @@ function yearlyReview(r) {
   const met = r.status === "met";
   return `<div class="chart-alert campaign-review ${met ? "goal-met" : "goal-missed"}" role="status"><div class="chart-award">Y${r.year}</div><div><span class="tag">YEAR ${r.year} REVIEW · ${r.goal ? (met ? "GOAL ACHIEVED" : "GOAL MISSED") : "NO GOAL"}</span><h2>${esc(r.goal || "Year complete")}</h2>${r.goal ? `<p>${esc(r.progress || "")}${met ? " · Reward: " + esc(r.reward) : ""}</p>` : ""}${campaignRows(r.rows)}<p>${r.next ? `Next goal: <b>${esc(r.next.name)}</b> · reward ${esc(r.next.reward)}` : "The run ends after this year's awards."}</p></div><button data-action="campaignAck">Continue</button></div>`;
 }
+function endingTitle(review) {
+  if (review.ending === "fired") return "FIRED";
+  if (review.ending === "folded") return "LABEL FOLDED";
+  return review.bankrupt ? "OUT OF CASH" : "CAMPAIGN COMPLETE";
+}
+function endingText(review) {
+  if (review.ending === "fired") return "<p>You lost the CEO chair. The label continues under new leadership.</p>";
+  if (review.ending === "folded") return "<p>The label ran out of cash and closed its doors.</p>";
+  return "";
+}
 function campaignBanner() {
   if (state.finished) {
     const f = G.finalReview(state);
-    return `<div class="chart-alert campaign-review" role="status"><div class="chart-award">★${f.score.stars}</div><div><span class="tag">RUN ${f.run} · ${f.bankrupt ? "OUT OF CASH" : "CAMPAIGN COMPLETE"}</span><h2>${f.score.total.toLocaleString("en-US")} points · ${campaignStars(f.score.stars)}</h2><p>${f.canNewGamePlus ? `${f.points} legacy points to spend on New Game+.` : "Start a new label to play again."}</p></div><div class="actions"><button data-tab="campaign">Final review →</button>${f.canNewGamePlus ? "" : '<button data-action="newLabel">Start a new label</button>'}</div></div>`;
+    return `<div class="chart-alert campaign-review" role="status"><div class="chart-award">★${f.score.stars}</div><div><span class="tag">RUN ${f.run} · ${endingTitle(f)}</span><h2>${f.score.total.toLocaleString("en-US")} points · ${campaignStars(f.score.stars)}</h2><p>${f.canNewGamePlus ? `${f.points} legacy points to spend on New Game+.` : "Start a new label to play again."}</p>${endingText(f)}</div><div class="actions"><button data-tab="campaign">Final review →</button>${f.canNewGamePlus ? "" : '<button data-action="newLabel">Start a new label</button>'}</div></div>`;
   }
   const r = state.campaign.reviews.find((x) => !x.seen);
   return r ? yearlyReview(r) : "";
@@ -94,7 +104,7 @@ function legacyPicker(f) {
 }
 function finalReviewCard() {
   const f = G.finalReview(state);
-  return `<section class="campaign-final"><span class="tag">RUN ${f.run} · FINAL REVIEW · ${f.bankrupt ? `OUT OF CASH IN YEAR ${G.operatingYear(state.week)}` : `${f.yearsPlayed} YEARS`}</span><h2>${campaignStars(f.score.stars)} ${f.score.total.toLocaleString("en-US")} points</h2><article class="calculation"><h3>Final score</h3>${campaignRows(f.score.rows)}<div class="rating-total"><span>TOTAL <small>stars at ${G.CAMPAIGN_STARS.slice(1).join(" / ")}</small></span><strong>${f.score.total}</strong><span>${f.score.stars}★</span></div></article>${campaignHighlights(f.highlights)}${legacyPicker(f)}</section>`;
+  return `<section class="campaign-final"><span class="tag">RUN ${f.run} · FINAL REVIEW · ${f.ending ? endingTitle(f) : f.bankrupt ? `OUT OF CASH IN YEAR ${G.operatingYear(state.week)}` : `${f.yearsPlayed} YEARS`}</span><h2>${campaignStars(f.score.stars)} ${f.score.total.toLocaleString("en-US")} points</h2>${endingText(f)}<article class="calculation"><h3>Final score</h3>${campaignRows(f.score.rows)}<div class="rating-total"><span>TOTAL <small>stars at ${G.CAMPAIGN_STARS.slice(1).join(" / ")}</small></span><strong>${f.score.total}</strong><span>${f.score.stars}★</span></div></article>${campaignHighlights(f.highlights)}${legacyPicker(f)}</section>`;
 }
 
 /* ---------------- Campaign screen ---------------- */
@@ -115,7 +125,7 @@ function campaignScreen() {
     ? `<p class="muted">Legacy bonuses this run: ${st.legacy.map((b) => esc(b.name)).join(", ")}.${st.bank ? ` ${st.bank} legacy points banked.` : ""}</p>`
     : "";
   const history = st.history.length
-    ? `<h3>Earlier runs</h3><ul class="campaign-history">${st.history.map((h) => `<li>Run ${h.run} · ${h.score.toLocaleString("en-US")} points · ${campaignStars(h.stars)} · ${h.bankrupt ? "out of cash" : h.years + " years"}</li>`).join("")}</ul>`
+    ? `<h3>Earlier runs</h3><ul class="campaign-history">${st.history.map((h) => `<li>Run ${h.run} · ${h.score.toLocaleString("en-US")} points · ${campaignStars(h.stars)} · ${h.ending === "fired" ? "fired" : h.bankrupt ? "out of cash" : h.years + " years"}</li>`).join("")}</ul>`
     : "";
   return `<div class="sectionhead"><h2>Campaign · run ${st.run}</h2><span class="muted">${st.met} of ${st.years} yearly goals met</span></div><p class="muted">Run the label for ${st.years} operating years. Each year has a goal; meeting it by the year's awards pays a reward. After year ${st.years} the run is scored and graded one to five stars, and the score buys legacy bonuses for the next run. A label that stays below $0 for four weeks folds and ends the run early.</p>${head}${legacy}<table class="campaign-goals"><thead><tr><th>Year</th><th>Goal</th><th>Reward</th><th>Result</th></tr></thead><tbody>${rows}</tbody></table>${history}`;
 }

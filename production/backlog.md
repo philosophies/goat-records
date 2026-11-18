@@ -344,7 +344,7 @@ Done when: tests cover a cash purchase, a debt purchase and a board veto.
 
 ## M9 Finish
 
-### [ ] T34 · Run ending and grade
+### [x] T34 · Run ending and grade
 
 Depends on: T32, T25
 Files: `src/systems/campaign.js`, `src/data/campaign.js`, `tests/campaign-test.cjs`
