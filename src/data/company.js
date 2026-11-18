@@ -62,8 +62,16 @@
     },
   ];
   const REACHES = ["local", "city", "region", "country", "world"];
+  // What each goal is called in the interface, and the quality an album needs to count as a hit.
+  const PHASE_GOALS = {
+    fame: "Label fame",
+    revenue: "Revenue, last 52 weeks",
+    releases: "Albums released",
+    hits: "Hit albums (quality 75+)",
+  };
+  const HIT_QUALITY = 75;
 
-  const data = { PHASES, REACHES };
+  const data = { PHASES, REACHES, PHASE_GOALS, HIT_QUALITY };
   root.GoatData = Object.assign(root.GoatData || {}, data);
   if (typeof module !== "undefined" && module.exports) module.exports = data;
 })(typeof globalThis !== "undefined" ? globalThis : this);
