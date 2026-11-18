@@ -714,6 +714,11 @@
     return { ...events[Math.floor(rng(s) * events.length)], artist: a.id };
   }
   function apply(s, a, e, mitigate = false) {
+    // In CEO runs the artist's publicist absorbs part of a trust loss.
+    if (a && e.trust < 0 && s.company) {
+      const share = hooks.product("trustLoss", s, a);
+      if (share !== 1) e = { ...e, trust: Math.ceil(e.trust * share) };
+    }
     if (a && e.artistMomentum) a.momentum = clamp((a.momentum || 0) + e.artistMomentum);
     if (a && e.morale) a.morale = clamp(a.morale + e.morale);
     if (e.labelFame) s.fame += e.labelFame;
@@ -1712,7 +1717,7 @@
             2.5,
             t.effects.filter((e) => (e.untilDay ?? e.until * 7) >= show).reduce((n, e) => n * e.mult, 1),
           ),
-          gate = tourTicketRevenue(r, m, t.demand, t.quality, show, boost);
+          gate = Math.round(tourTicketRevenue(r, m, t.demand, t.quality, show, boost) * (t.teamGate ?? 1));
         net += gate - Math.round(gate * 0.15);
       }
       if (breakEvenDay === null && net >= 0) breakEvenDay = day;
@@ -3309,6 +3314,11 @@
           t.effects.reduce((n, e) => n * e.mult, 1),
         );
         revenue = tourTicketRevenue(r, m, t.demand, t.quality, t.showDays, boost, 0.9 + rng(s) * 0.2);
+        if (s.company) {
+          // The tour manager's lift; the forecast reads it from the tour.
+          t.teamGate = hooks.product("tourGate", s, t);
+          revenue = Math.round(revenue * t.teamGate);
+        }
         const venueFee = Math.round(revenue * 0.15);
         s.cash += revenue - venueFee;
         t.revenue += revenue;
@@ -3317,7 +3327,7 @@
         for (const id of t.artists) {
           const a = s.artists.find((a) => a.id === id);
           if (!a) continue;
-          a.energy = clamp(a.energy - m.drain / 7);
+          a.energy = clamp(a.energy - (m.drain / 7) * (s.company ? hooks.product("tourDrain", s, t, a) : 1));
           a.fame = clamp(a.fame + (t.mode === "solo" ? 3 : 2) / 7);
           a.fans = clamp(a.fans + (t.mode === "solo" ? 4 : 2) / 7, 0, 1000);
           a.morale = clamp(a.morale + 0.12);
