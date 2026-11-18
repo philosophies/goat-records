@@ -292,7 +292,7 @@ Files: `src/data/events.js`, `tests/events-test.cjs`
 Do: at least 14 opportunities across phases (sync licensing, brand deals, festival slots, viral moments, catalog buys, distribution deals, a streaming exclusive, a remix contest, a documentary, a feature request from a star). Each choice has a tested effect.
 Done when: every event fires in a test that sets up its conditions, and every choice is checked.
 
-### [ ] T28 · Crises pack
+### [x] T28 · Crises pack
 
 Depends on: T26
 Files: `src/data/events.js`, `tests/events-test.cjs`

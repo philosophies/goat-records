@@ -6,6 +6,7 @@
   const choice = (label, hint, effects, cost = 0) => ({ label, hint, effects, cost });
   const gamble = (offer, chance, failure) => ({ ...offer, chance, failure });
   const opportunity = (...details) => card("opportunity", ...details);
+  const crisis = (...details) => card("crisis", ...details);
   const artistReady = { artist: [{ field: "fame", min: 35 }] };
   const signedArtist = { artist: [] };
   const activeAlbum = { album: [] };
@@ -96,6 +97,104 @@
         choice("Keep the track available", "The artist gains 1 morale.", { morale: 1 }),
       ]),
   ];
+  const crises = [
+    crisis("album-leak", "An unfinished album leaks", "A rough mix from the studio has reached listeners ahead of the release.",
+      [2, 3, 4, 5, 6], activeAlbum, 4, 1, [
+        choice("Rework the leaked tracks", "Spend $1,100 and add two recording weeks to protect the release.", { delayAlbum: 2, morale: 3 }, 1100),
+        choice("Own the leak publicly", "Gain 2 label fame. The artist loses 6 morale.", { fame: 2, morale: -6 }),
+        choice("Say nothing", "Lose 3 label fame and 8 artist morale.", { fame: -3, morale: -8 }),
+      ]),
+    crisis("artist-arrest", "An artist is arrested", "Your artist has been detained the night before a major appearance.",
+      [3, 4, 5, 6], artistReady, 2, 1, [
+        choice("Cover legal support", "Spend $5,000 to restore 10 morale. Board confidence falls by 3.", { morale: 10, confidence: -3 }, 5000),
+        choice("Refund the promoter", "The refund costs $2,000 and limits the loss to 2 artist fame.", { artistFame: -2 }, 2000),
+        choice("Leave the team to handle it", "Lose 6 artist fame and 10 morale.", { artistFame: -6, morale: -10 }),
+      ]),
+    crisis("civil-lawsuit", "A promoter files suit", "A promoter disputes its share of a sold-out appearance and demands compensation.",
+      [3, 4, 5, 6], signedArtist, 2, 2, [
+        choice("Settle out of court", "Spend $7,000 and gain 2 board confidence for containing the dispute.", { confidence: 2 }, 7000),
+        gamble(choice("Contest the claim", "Spend $2,000 on counsel. Losing costs another $12,000.", { confidence: 3 }, 2000), 0.55, { cash: -12000, confidence: -6 }),
+        choice("Let the response deadline pass", "The claim costs $16,000 and 8 board confidence.", { cash: -16000, confidence: -8 }),
+      ]),
+    crisis("sample-clearance", "A sample clearance falls through", "A rights holder has withdrawn clearance for a sample in the current album.",
+      [2, 3, 4, 5, 6], activeAlbum, 3, 2, [
+        choice("Pay for clearance", "Spend $3,400 and restore 3 artist morale.", { morale: 3 }, 3400),
+        choice("Replace the sample", "The edit adds one recording week.", { delayAlbum: 1 }),
+        choice("Wait for the rights holder", "The album loses two weeks and the artist loses 5 morale.", { delayAlbum: 2, morale: -5 }),
+      ]),
+    crisis("rival-poaching", "A rival courts your executive", "A rival is using a big signing bonus to lure one of your executives.",
+      [3, 4, 5, 6], { executive: [{ field: "loyalty", max: 50 }] }, 3, 2, [
+        choice("Fund a retention package", "Spend $6,000 to reassure the board and gain 4 confidence.", { confidence: 4 }, 6000),
+        choice("Brief the board about succession", "The board loses 2 confidence.", { confidence: -2 }),
+        choice("Let the rumor spread", "The board loses 7 confidence and the label loses 2 fame.", { confidence: -7, fame: -2 }),
+      ]),
+    crisis("stream-payout-cut", "Streaming payouts drop", "A platform is reducing its next payment and will take appeals this week.",
+      [2, 3, 4, 5, 6], artistReady, 3, 1, [
+        gamble(choice("Send Business Affairs to negotiate", "Spend $1,000 for a chance to recover $5,000.", { cash: 5000 }, 1000), 0.65, { cash: -2000 }),
+        choice("Take a one-time settlement", "The reduced settlement costs $1,500 in expected revenue.", { cash: -1500 }),
+        choice("Absorb the whole cut", "Lose $3,500 and 2 artist morale.", { cash: -3500, morale: -2 }),
+      ]),
+    crisis("studio-flood", "Water damages the studio", "A pipe burst in the control room. The engineer needs a decision before work can resume.",
+      [1, 2, 3, 4, 5, 6], activeAlbum, 2, 1, [
+        choice("Rent a replacement room", "Spend $2,000 to keep the schedule and restore 2 morale.", { morale: 2 }, 2000),
+        choice("Patch the room on a budget", "Spend $600 and lose one week to repairs.", { delayAlbum: 1 }, 600),
+        choice("Wait for the room to dry", "Lose three recording weeks and 4 artist morale.", { delayAlbum: 3, morale: -4 }),
+      ]),
+    crisis("artist-walkout", "An artist walks out of a session", "A frustrated artist leaves during rehearsal and asks their manager to speak for them.",
+      [1, 2, 3, 4, 5, 6], { artist: [{ field: "morale", max: 25 }], album: [] }, 4, 1, [
+        choice("Pay for mediation and restart", "Spend $900. The artist regains 14 morale.", { morale: 14 }, 900),
+        choice("Give them a week off", "The album loses a week. The artist recovers 7 morale.", { delayAlbum: 1, morale: 7 }),
+        choice("Leave the session on hold", "Two recording weeks are lost and morale falls by 6.", { delayAlbum: 2, morale: -6 }),
+      ]),
+    crisis("tax-audit", "The label is audited", "Auditors want receipts for a set of payments that the label's records fail to explain.",
+      [2, 3, 4, 5, 6], { label: [{ field: "cash", min: 2500 }] }, 2, 3, [
+        choice("Hire a forensic accountant", "Spend $2,500 and gain 3 board confidence.", { confidence: 3 }, 2500),
+        choice("Pay the adjustment", "Pay $4,000 to close the audit.", { cash: -4000 }),
+        choice("Miss the filing deadline", "Pay $7,000 and lose 7 board confidence.", { cash: -7000, confidence: -7 }),
+      ]),
+    crisis("review-storm", "Bad reviews pile up", "A wave of hostile coverage is turning an artist's press cycle into a drag on the whole label.",
+      [2, 3, 4, 5, 6], artistReady, 3, 1, [
+        choice("Book a direct interview", "Spend $700 to restore 5 morale and retain the artist's audience.", { morale: 5 }, 700),
+        choice("Cut the press schedule short", "Lose 2 artist fame but gain 3 morale.", { artistFame: -2, morale: 3 }),
+        choice("Ignore the coverage", "Lose 5 artist fame and 4 morale.", { artistFame: -5, morale: -4 }),
+      ]),
+    crisis("tour-cancellation", "A promoter cancels the shows", "A regional promoter has cancelled a booked run. Bookings and refunds still have to be handled.",
+      [3, 4, 5, 6], artistReady, 2, 2, [
+        gamble(choice("Secure a substitute venue", "Spend $2,500 for a chance to recover $6,000.", { cash: 6000, morale: 5 }, 2500), 0.6, { morale: -4 }),
+        choice("Return the deposits", "Refunds cost $3,200 and keep the artist's trust.", { cash: -3200, morale: 2 }),
+        choice("Let the promoter handle refunds", "Chargebacks cost $5,400 and the artist loses 8 morale.", { cash: -5400, morale: -8 }),
+      ]),
+    crisis("manager-theft", "Tour advances go missing", "The accounting team finds unrecorded withdrawals tied to an outside manager.",
+      [3, 4, 5, 6], signedArtist, 2, 3, [
+        gamble(choice("Investigate and recover funds", "Spend $1,600 for a chance to recover $8,000.", { cash: 8000, confidence: 3 }, 1600), 0.6, { confidence: -4 }),
+        choice("Negotiate repayment", "Recover $2,200 and lose 2 artist morale.", { cash: 2200, morale: -2 }),
+        choice("Write off the withdrawal", "Lose $4,800 and 4 board confidence.", { cash: -4800, confidence: -4 }),
+      ]),
+    crisis("rival-diss", "A rival releases a diss track", "A rising artist calls out your roster by name. Fans are waiting for a response.",
+      [2, 3, 4, 5, 6], artistReady, 3, 1, [
+        gamble(choice("Commission a response", "Spend $700 for a chance to gain 7 artist fame.", { artistFame: 7 }, 700), 0.65, { artistFame: -3, morale: -4 }),
+        choice("Defuse it with an interview", "Trade 1 artist fame for 4 morale.", { artistFame: -1, morale: 4 }),
+        choice("Stay quiet", "The artist loses 4 fame and 2 morale.", { artistFame: -4, morale: -2 }),
+      ]),
+    crisis("contract-dispute", "An artist disputes a contract", "The artist's lawyer wants an accounting of advances and a private settlement.",
+      [2, 3, 4, 5, 6], signedArtist, 3, 2, [
+        choice("Settle and explain the accounting", "Spend $3,000 to restore 10 artist morale.", { morale: 10 }, 3000),
+        choice("Negotiate with the lawyer", "Spend $900 to restore 3 artist morale.", { morale: 3 }, 900),
+        choice("Wait for a formal claim", "Lose $4,500 and 9 artist morale.", { cash: -4500, morale: -9 }),
+      ]),
+    crisis("artist-burnout", "An artist needs a break", "The artist is running on empty and asks for relief from the recording schedule.",
+      [1, 2, 3, 4, 5, 6], { artist: [{ field: "energy", max: 25 }], album: [] }, 4, 1, [
+        choice("Pause for recovery", "Delay recording by two weeks and restore 12 morale.", { delayAlbum: 2, morale: 12 }),
+        choice("Shorten the session days", "Delay recording one week and restore 5 morale.", { delayAlbum: 1, morale: 5 }),
+        choice("Keep the current schedule", "The artist loses 12 morale.", { morale: -12 }),
+      ]),
+    crisis("market-slump", "The market cools", "Advance orders are down across the market and distributors are slow to pay.",
+      [3, 4, 5, 6], { label: [{ field: "cash", max: 22000 }] }, 2, 2, [
+        choice("Accept a bridge loan", "Borrow $10,000 with $300 weekly payments. The board loses 3 confidence.", { loan: { amount: 10000, payment: 300 }, confidence: -3 }),
+        choice("Sell stock at a discount", "Collect $2,500 now and lose 2 label fame.", { cash: 2500, fame: -2 }),
+        choice("Hold stock through the slump", "Carry $3,000 in costs and lose 2 board confidence.", { cash: -3000, confidence: -2 }),
+      ]),
+  ];
 
   const data = {
     COMPANY_EVENT_INTERVAL: 13,
@@ -133,6 +232,7 @@
         ],
       },
       ...opportunities,
+      ...crises,
     ],
   };
   root.GoatData = Object.assign(root.GoatData || {}, data);
