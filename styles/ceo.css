@@ -83,3 +83,148 @@ button.company-chip:focus-visible {
   border-color: #f3d25b;
   color: #f3d25b;
 }
+
+/* ---------- The dynasty theme (CEO runs) ----------
+   Black, gold and deep purple. The street sits under a night sky; the skyline behind it lights up
+   as the company grows (data-phase on the scene). Text on dark keeps 4.5:1 contrast or better. */
+body.ceo-run {
+  --bg: #0f0c16;
+  --panel: #1d1729;
+  --line: #4a3a66;
+  --muted: #cfc6e2;
+  --frame: #07050b;
+  --frame-hi: #b08d3c;
+}
+body.ceo-run .hudbar {
+  background: linear-gradient(#1d1729, #15111f);
+  border-bottom-color: #b08d3c;
+}
+body.ceo-run #stats .stat {
+  background: #15111f;
+  border-color: #4a3a66;
+}
+body.ceo-run #stats .stat small {
+  color: #e2c776;
+}
+body.ceo-run .brand b {
+  color: #f3d25b;
+  letter-spacing: 3px;
+}
+
+.scene.street-scene {
+  --lit: 0.15;
+  background: linear-gradient(#0c0a1c 0%, #1f1538 45%, #3a2350 80%, #5a3360 100%);
+}
+.scene.street-scene[data-phase="2"] {
+  --lit: 0.3;
+}
+.scene.street-scene[data-phase="3"] {
+  --lit: 0.45;
+}
+.scene.street-scene[data-phase="4"] {
+  --lit: 0.6;
+  background: linear-gradient(#100c22 0%, #2a1a48 45%, #4a2c5e 80%, #7a4568 100%);
+}
+.scene.street-scene[data-phase="5"] {
+  --lit: 0.8;
+  background: linear-gradient(#140f2a 0%, #33205a 45%, #5c3870 80%, #9a5a70 100%);
+}
+.scene.street-scene[data-phase="6"] {
+  --lit: 1;
+  background: linear-gradient(#1a1232 0%, #3d2668 45%, #6e4280 80%, #c07a6a 100%);
+}
+/* The moon, and night clouds. */
+.scene.street-scene .sun {
+  background: #e9e4f5;
+  box-shadow:
+    0 0 0 5px rgba(233, 228, 245, 0.18),
+    0 0 0 12px rgba(233, 228, 245, 0.08);
+}
+.scene.street-scene .cloud {
+  opacity: 0.18;
+}
+/* The skyline: dark towers whose windows light up with the company. */
+.scene.street-scene .skyline {
+  opacity: 1;
+  background:
+    linear-gradient(#1a1430, #1a1430) 2% 100% / 70px 120px no-repeat,
+    linear-gradient(#1a1430, #1a1430) 9% 100% / 46px 170px no-repeat,
+    linear-gradient(#1a1430, #1a1430) 15% 100% / 90px 90px no-repeat,
+    linear-gradient(#1a1430, #1a1430) 82% 100% / 60px 150px no-repeat,
+    linear-gradient(#1a1430, #1a1430) 89% 100% / 84px 100px no-repeat,
+    linear-gradient(#1a1430, #1a1430) 97% 100% / 50px 180px no-repeat;
+}
+.scene.street-scene .skyline::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: var(--lit);
+  background:
+    repeating-linear-gradient(90deg, transparent 0 10px, #f3d25b 10px 13px) 2% 100% / 70px 110px no-repeat,
+    repeating-linear-gradient(90deg, transparent 0 9px, #f3d25b 9px 12px) 9% 100% / 46px 160px no-repeat,
+    repeating-linear-gradient(90deg, transparent 0 11px, #f3d25b 11px 14px) 82% 100% / 60px 140px no-repeat,
+    repeating-linear-gradient(90deg, transparent 0 10px, #f3d25b 10px 13px) 97% 100% / 50px 170px no-repeat;
+  mask: repeating-linear-gradient(transparent 0 9px, #000 9px 13px);
+}
+/* The ground becomes a city street with a gold curb. */
+.scene.street-scene::after {
+  background:
+    repeating-linear-gradient(90deg, #2b2733 0 40px, #f3d25b 40px 64px, #2b2733 64px 104px) 0 46px / 100% 3px
+      no-repeat,
+    #1e1b25;
+  border-top: 4px solid #b08d3c;
+}
+.scene.street-scene .town-spot {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f7f4ea;
+}
+.scene.street-scene .town-spot small {
+  color: #e9e1c9;
+}
+.scene.street-scene .town-gap {
+  border-left-color: rgba(243, 210, 91, 0.5);
+}
+
+/* Gold records: one disc on the first building's sign per hit album, up to six. */
+.gold-records {
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+  margin-top: 2px;
+}
+.gold-records i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #18171f 0 2px, #f3d25b 2px 4px, #b08d3c 4px);
+}
+
+/* Readable labels on the street: nothing below 12 px. */
+.street-scene .floor-hit .plate,
+.street-scene .building-sign small,
+.street-scene .town-plate,
+.street-scene .town-spot small,
+.street-scene .map-chip,
+.street-scene .plot-hit small,
+.street-scene .floor-hit .pips,
+.street-scene .on-air {
+  font-size: 12px;
+}
+.street-scene .building-sign {
+  font-size: 13px;
+}
+.street-scene .floor-hit .plate {
+  line-height: 1.35;
+}
+.street-scene .town-spot {
+  min-width: 76px;
+}
+.street-scene .floor-add,
+body.ceo-run .hud-rank,
+body.ceo-run .hud-rank .stars,
+body.ceo-run #stats .stat small,
+body.ceo-run #trend,
+body.ceo-run .campaign-chip,
+body.ceo-run .company-chip {
+  font-size: 12px;
+}
