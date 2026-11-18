@@ -276,9 +276,10 @@
       );
     }
     /** Creative freedom for a confidence, one step lower on probation. */
-    function freedomFor(c, probation) {
+    /** Creative freedom for a confidence: one step lower on probation, and one more with a co-CEO. */
+    function freedomFor(c, probation, coCeo = false) {
       const i = REVIEW.freedom.findIndex((f) => c < f.below);
-      return REVIEW.freedom[Math.max(0, i - (probation ? 1 : 0))].id;
+      return REVIEW.freedom[Math.max(0, i - (probation ? 1 : 0) - (coCeo ? 1 : 0))].id;
     }
     function perksFor(c) {
       return REVIEW.perks.filter((p) => c >= p.min).map((p) => p.id);
@@ -340,7 +341,7 @@
       b.budget = reviewBudget(s, c);
       b.budgetLeft = b.budget;
       b.spent = 0;
-      b.freedom = freedomFor(c, b.probation);
+      b.freedom = freedomFor(c, b.probation, !!s.company.coCeo);
       b.perks = perksFor(c);
       Object.assign(record, { probation: b.probation, budget: b.budget, freedom: b.freedom, perks: b.perks });
       b.reviews.push(record);

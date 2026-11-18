@@ -424,3 +424,5 @@ Confidence below 35 at a review means probation for the next period. A no-confid
 - Counter: win their board contacts back for $2,000 × phase and your week with the board; they lose 5 influence per contact.
 
 Every answer but placating ends a plot.
+
+A grab comes to a head 26 weeks after the gossip. With a board, it succeeds when the executive has courted more than half the seats and has more influence than you. Then they take the chair if they courted every seat and their influence beats yours by 25 or more: you are ousted and the run ends. Otherwise they become co-CEO, which costs one step of creative freedom now and at every review. A failed grab (or any grab with no board) sends them to a rival, and they try to take the least loyal artist, who goes with them if that loyalty is below 50.

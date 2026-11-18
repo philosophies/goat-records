@@ -901,4 +901,97 @@ test("Plots survive a save", () => {
   assert.equal(G.validSystemsSave(copy), false);
 });
 
+// ---- How a grab ends (T25) ----
+const { GRAB_END } = G;
+/** A plotting head with `contacts` of the board's seats courted and a given influence. */
+function headToHead(contacts, influence) {
+  const { s, x } = grabRun();
+  x.contacts = s.company.board.directors.slice(0, contacts).map((d) => d.id);
+  x.influence = influence;
+  x.plot = { since: s.week, due: s.week + 1 };
+  return { s, x };
+}
+
+test("A grab without enough of the board fails; they leave and try to take the least loyal artist", () => {
+  const { s, x } = headToHead(1, 100);
+  G.sign(s, s.candidates[0].id);
+  G.sign(s, s.candidates[0].id);
+  const [a, b] = s.artists;
+  G.artistMood(s, a);
+  G.artistMood(s, b);
+  a.persona.loyalty = 20;
+  b.persona.loyalty = 80;
+  assert.equal(G.grabResult(s, x), "failed", "1 of 3 seats is not a majority");
+  const o = G.resolveGrab(s, "ar");
+  assert.deepEqual([o.kind, o.artist, o.artistLeft], ["failed", a.name, true]);
+  assert.ok(!s.artists.includes(a), "the disloyal artist went with them");
+  assert.ok(s.artists.includes(b));
+  assert.equal(s.company.departments.ar.head, null);
+  assert.equal(s.finished, false);
+});
+
+test("A loyal artist stays when a failed plotter tries to take them", () => {
+  const { s, x } = headToHead(0, 100);
+  G.sign(s, s.candidates[0].id);
+  const a = s.artists[0];
+  G.artistMood(s, a);
+  a.persona.loyalty = GRAB_END.poachLoyalty;
+  const o = G.resolveGrab(s, "ar");
+  assert.deepEqual([o.kind, o.artist, o.artistLeft], ["failed", a.name, false]);
+  assert.ok(s.artists.includes(a));
+  assert.equal(x.name, o.exec);
+});
+
+test("Backing without more influence than you still fails", () => {
+  const { s, x } = headToHead(3, 10);
+  assert.ok(x.influence < G.ceoInfluence(s));
+  assert.equal(G.grabResult(s, x), "failed");
+});
+
+test("A majority and more influence makes them co-CEO, and your freedom splits", () => {
+  const { s, x } = headToHead(2, G.ceoInfluence(grabRun().s) + 5);
+  s.company.board.freedom = "high";
+  s.company.board.confidence = 80;
+  assert.equal(G.grabResult(s, x), "coCeo");
+  const o = G.resolveGrab(s, "ar");
+  assert.equal(o.kind, "coCeo");
+  assert.deepEqual(s.company.coCeo, { name: x.name, since: s.week });
+  assert.equal(s.company.board.freedom, "medium", "one step lower now");
+  assert.equal(s.finished, false);
+  for (const d of s.company.board.directors) {
+    d.relationship = 0;
+    d.relationship = 80 - G.satisfaction(s, d).value;
+  }
+  G.runReview(s);
+  assert.equal(s.company.board.freedom, "medium", "and at every review: 80 confidence would be high");
+});
+
+test("Every seat and far more influence takes the chair: the run ends", () => {
+  const { s, x } = headToHead(3, 100);
+  assert.ok(x.influence >= G.ceoInfluence(s) + GRAB_END.chairMargin);
+  const o = G.resolveGrab(s, "ar");
+  assert.equal(o.kind, "chair");
+  assert.equal(s.finished, true);
+  assert.equal(s.ousted, true);
+  assert.match(s.outcome, /^Ousted/);
+  assert.throws(() => G.advance(s), /season has ended/);
+});
+
+test("A grab comes to a head at the settlement in its due week, and the outcome is kept for the card", () => {
+  const { s, x } = headToHead(1, 50);
+  x.plot.due = s.week + 2;
+  settle(s);
+  assert.ok(x.plot, "not yet");
+  settle(s);
+  assert.equal(s.company.departments.ar.head, null);
+  assert.equal(s.company.grabOutcome.kind, "failed");
+  assert.equal(s.company.grabOutcome.seen, false);
+  G.ackGrab(s);
+  assert.equal(s.company.grabOutcome.seen, true);
+  const copy = roundTrip(s);
+  assert.equal(G.validSystemsSave(copy), true);
+  copy.company.grabOutcome.kind = "coup";
+  assert.equal(G.validSystemsSave(copy), false);
+});
+
 console.log(`${count} staff tests passed.`);

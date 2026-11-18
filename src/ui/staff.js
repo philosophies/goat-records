@@ -90,7 +90,7 @@ function departmentSheet(d) {
   const h = x.head,
     severance = h ? h.salary * G.EXEC_PAY.severanceWeeks : 0,
     head = h
-      ? `<article class="card exec-card"><span class="tag">${esc(d.head.toUpperCase())}</span><h3>${esc(h.name)}</h3><ul class="traits"><li><span>Skill</span><b>${h.skill}</b></li><li><span>Ambition</span><b>${h.ambition}</b></li><li><span>Loyalty</span><b>${h.loyalty}</b></li><li><span>Influence</span><b>${h.influence}</b></li></ul><p class="muted">${money(h.salary)}/week · since week ${h.hiredWeek}</p><button data-action="deptFire" data-dept="${d.id}" ${disable(blocked())}>Let go · ${money(severance)} severance</button></article>`
+      ? `<article class="card exec-card"><span class="tag">${esc((h.title || d.head).toUpperCase())}</span><h3>${esc(h.name)}</h3><ul class="traits"><li><span>Skill</span><b>${h.skill}</b></li><li><span>Ambition</span><b>${h.ambition}</b></li><li><span>Loyalty</span><b>${h.loyalty}</b></li><li><span>Influence</span><b>${Math.round(h.influence)}</b></li></ul><p class="muted">${money(h.salary)}/week · since week ${h.hiredWeek}${h.contacts?.length ? ` · close to ${h.contacts.length} director${h.contacts.length === 1 ? "" : "s"}` : ""}</p>${h.plot ? `<p class="warn">Rumoured to be plotting. It comes to a head around week ${h.plot.due}.</p>` : ""}${responseButtons(d, h)}<button data-action="deptFire" data-dept="${d.id}" ${disable(blocked())}>Let go · ${money(severance)} severance</button></article>`
       : `<div class="empty">No ${esc(d.head)} yet. Run a search to find one.</div>`,
     staffCard = h
       ? `<article class="card"><span class="tag">STAFF · CAPACITY ${G.capacity(state, d.id)}</span><h3>${x.staff} of ${G.maxStaff(state)} staff</h3><p class="muted">${money(G.DEPT_STAFF.salary)}/week each. Capacity is how many projects the department runs a quarter.</p><div class="actions"><button data-action="deptStaffAdd" data-dept="${d.id}" ${disable(blocked() || x.staff >= G.maxStaff(state) || state.cash < G.DEPT_STAFF.hireFee)}>Hire staff · ${money(G.DEPT_STAFF.hireFee)}</button><button data-action="deptStaffRemove" data-dept="${d.id}" ${disable(blocked() || !x.staff)}>Let one go</button></div></article>`
@@ -103,6 +103,28 @@ function departmentSheet(d) {
       )
       .join("");
   return `<p class="place-intro">${esc(d.text)}</p>${section("sec-head", head)}${staffCard ? section("sec-staff", staffCard) : ""}${section("sec-search", `<h2>Candidates</h2><div class="grid">${pool || '<div class="empty">No candidates on file.</div>'}</div><button data-action="deptRecruit" data-dept="${d.id}" ${disable(blocked() || state.cash < search)}>Run a search · ${money(search)}</button>${h ? '<p class="muted">Let the current head go before hiring another.</p>' : ""}`)}`;
+}
+/** Answers to an ambitious executive (design 3.4). */
+function responseButtons(d, h) {
+  const R = G.RESPONSES,
+    open = G.DEPARTMENTS.filter(
+      (x) => x.id !== d.id && G.departmentOpen(state, x.id) && !state.company.departments[x.id].head,
+    ),
+    calm = h.calmUntil && state.week < h.calmUntil,
+    counter = state.company.board && h.contacts?.length;
+  return `<div class="actions responses"><button data-action="execRespond" data-dept="${d.id}" data-kind="promote" ${disable(blocked())}>Promote · +${Math.round(R.promote.raise * 100)}% pay</button><button data-action="execRespond" data-dept="${d.id}" data-kind="placate" ${disable(blocked() || state.cash < h.salary * R.placate.bonusWeeks)}>Placate · ${money(h.salary * R.placate.bonusWeeks)}</button>${counter ? `<button data-action="execRespond" data-dept="${d.id}" data-kind="counter" ${disable(blocked())}>Counter · ${money(R.counter.costPerPhase * state.company.phase)}</button>` : ""}${open.length ? `<label>Sideline to<select id="sideline-${d.id}">${open.map((x) => `<option value="${x.id}">${esc(x.name)}</option>`).join("")}</select></label><button data-action="execRespond" data-dept="${d.id}" data-kind="sideline">Sideline</button>` : ""}</div>${calm ? `<p class="muted">Calm until week ${h.calmUntil}.</p>` : ""}`;
+}
+/** The card after a power grab ends. */
+function grabCard() {
+  const o = state.company?.grabOutcome;
+  if (!o || o.seen) return "";
+  const text =
+    o.kind === "chair"
+      ? `${esc(o.exec)} won the board over and took the CEO's chair. Your time at the top is over.`
+      : o.kind === "coCeo"
+        ? `${esc(o.exec)} won enough of the board to become co-CEO. Creative decisions are shared from now on: one step less freedom at every review.`
+        : `${esc(o.exec)}'s grab failed and they left for a rival.${o.artist ? (o.artistLeft ? ` ${esc(o.artist)} went with them.` : ` They tried to take ${esc(o.artist)}, who stayed loyal.`) : ""}`;
+  return `<div class="chart-alert grab-card" role="status"><div class="chart-award">${o.kind === "failed" ? "✓" : "!"}</div><div><span class="tag">WEEK ${o.week} · POWER GRAB</span><h2>${o.kind === "chair" ? "You have been ousted" : o.kind === "coCeo" ? "A co-CEO" : "The grab failed"}</h2><p>${text}</p></div><button data-action="grabAck">Continue</button></div>`;
 }
 function staffSheet(id) {
   if (!state.company?.departments) return null;
@@ -157,11 +179,21 @@ GoatUI.click.push((b) => {
     case "deptStaffAdd":
       act(() => G.addStaff(state, d.dept));
       return true;
+    case "execRespond":
+      act(() =>
+        G.respond(state, d.dept, d.kind, d.kind === "sideline" ? $("sideline-" + d.dept).value : undefined),
+      );
+      return true;
+    case "grabAck":
+      act(() => G.ackGrab(state));
+      return true;
     case "deptStaffRemove":
       act(() => G.removeStaff(state, d.dept));
       return true;
   }
   return false;
 });
+
+GoatUI.banners.push({ render: grabCard });
 
 const GoatStaff = { teamSection, departmentList, sheet: staffSheet };

@@ -265,7 +265,7 @@ Files: `src/data/staff.js`, `src/systems/staff.js`, `tests/staff-test.cjs`
 Do: the power grab chance from design 4, gossip two quarters ahead in the Inbox, and the five responses (promote, placate, sideline, fire, counter) with their effects.
 Done when: tests force a grab by seed and cover each response.
 
-### [ ] T25 · How a grab ends
+### [x] T25 · How a grab ends
 
 Depends on: T24
 Files: `src/systems/staff.js`, `src/systems/board.js`, `src/ui/staff.js`, `tests/staff-test.cjs`
