@@ -745,4 +745,160 @@ test("Personas survive a save and bad ones are rejected", () => {
   assert.equal(G.validSystemsSave(copy), false);
 });
 
+// ---- Power grabs (T24) ----
+const { GRAB, CEO_INFLUENCE, RESPONSES } = G;
+/** A phase-3 run with an angel board and a Head of A&R whose stats are set for the test. */
+function grabRun(seed = 31, stats = { ambition: 100, influence: 100, loyalty: 0 }) {
+  const s = ceo(seed, 2);
+  s.cash = 1e6;
+  G.takeFunding(s, "angel", 0);
+  s.company.phase = 3;
+  G.takeFunding(s, "venture", 0);
+  const x = hire(s, "ar");
+  Object.assign(x, stats);
+  return { s, x };
+}
+/** First seed whose first quarterly check starts a grab, or null. */
+function grabbingSeed(from, to) {
+  for (let seed = from; seed < to; seed++) {
+    const { s, x } = grabRun(seed);
+    G.grabQuarter(s);
+    if (x.plot) return seed;
+  }
+  return null;
+}
+
+test("Grab chance follows design 4 and your influence", () => {
+  const { s, x } = grabRun();
+  assert.equal(G.ceoInfluence(s), CEO_INFLUENCE.base + 3 * CEO_INFLUENCE.perPhase);
+  Object.assign(x, { ambition: 80, influence: 60, loyalty: 20 });
+  assert.equal(G.grabChance(s, x), ((80 + 60 - 20 - 90) / 200) * (1 - G.ceoInfluence(s) / 200));
+  Object.assign(x, { ambition: 40, influence: 20, loyalty: 60 });
+  assert.equal(G.grabChance(s, x), 0, "loyal and content: no grab");
+  Object.assign(x, { ambition: 100, influence: 100, loyalty: 0 });
+  const before = G.grabChance(s, x);
+  s.company.board.perks = ["car", "penthouse"];
+  assert.ok(G.grabChance(s, x) < before, "perks make you harder to topple");
+  x.calmUntil = s.week + 5;
+  assert.equal(G.grabChance(s, x), 0, "calm while promoted or placated");
+});
+
+test("A grab can be forced by seed, and the same seed always does the same thing", () => {
+  const seed = grabbingSeed(1, 60);
+  assert.notEqual(seed, null, "some seed starts a grab");
+  const a = grabRun(seed),
+    b = grabRun(seed);
+  G.grabQuarter(a.s);
+  G.grabQuarter(b.s);
+  assert.deepEqual(a.x.plot, b.x.plot);
+  assert.deepEqual(a.x.contacts, b.x.contacts);
+  assert.equal(grabbingSeed(1, 60), seed);
+  const calm = grabRun(seed, { ambition: 10, influence: 10, loyalty: 90 });
+  G.grabQuarter(calm.s);
+  assert.equal(calm.x.plot, undefined, "no drive, no grab, whatever the seed");
+});
+
+test("A grab starts as gossip in the Inbox, two quarters before it comes to a head", () => {
+  const seed = grabbingSeed(1, 60),
+    { s, x } = grabRun(seed);
+  s.notifications = [];
+  G.grabQuarter(s);
+  assert.equal(x.plot.due, s.week + GRAB.warnWeeks);
+  const n = s.notifications.at(-1);
+  assert.equal(n.kind, "gossip");
+  assert.match(n.title, new RegExp(x.name));
+  assert.equal(x.contacts.length, 1, "they start courting a director");
+  const influence = x.influence;
+  G.grabQuarter(s);
+  assert.equal(x.contacts.length, 2, "one more director a quarter");
+  assert.equal(x.influence, Math.min(100, influence + GRAB.perQuarter + 2 * GRAB.perContact));
+});
+
+test("The quarterly check runs at the settlement every 13 weeks", () => {
+  const { s, x } = grabRun(31, { ambition: 30, influence: 10, loyalty: 80 });
+  const influence = x.influence;
+  while (s.week % GRAB.quarter !== GRAB.quarter - 1) settle(s);
+  settle(s);
+  assert.equal(x.influence, influence + GRAB.perQuarter);
+});
+
+/** A run with a head already plotting and courting two directors. */
+function plotting() {
+  const { s, x } = grabRun();
+  x.contacts = s.company.board.directors.slice(0, 2).map((d) => d.id);
+  x.plot = { since: s.week, due: s.week + GRAB.warnWeeks };
+  return { s, x };
+}
+
+test("Promote: a title, a raise, less ambition, calm for a year, and the plot ends", () => {
+  const { s, x } = plotting(),
+    salary = x.salary;
+  G.respond(s, "ar", "promote");
+  assert.equal(x.salary, Math.round(salary * (1 + RESPONSES.promote.raise)));
+  assert.equal(x.title, "Senior Head of A&R");
+  assert.equal(x.ambition, 100 + RESPONSES.promote.ambition);
+  assert.equal(x.calmUntil, s.week + RESPONSES.promote.calmWeeks);
+  assert.equal(x.plot, undefined);
+  assert.equal(G.grabChance(s, x), 0);
+});
+
+test("Placate: a bonus buys a quarter and pushes the plot back", () => {
+  const { s, x } = plotting(),
+    cash = s.cash,
+    due = x.plot.due;
+  G.respond(s, "ar", "placate");
+  assert.equal(s.cash, cash - x.salary * RESPONSES.placate.bonusWeeks);
+  assert.equal(x.plot.due, due + RESPONSES.placate.calmWeeks, "the plot is delayed, not ended");
+  assert.equal(x.calmUntil, s.week + RESPONSES.placate.calmWeeks);
+});
+
+test("Sideline: moved to an open department, with less influence and less loyalty", () => {
+  const { s, x } = plotting();
+  x.loyalty = 40;
+  x.influence = 70;
+  assert.throws(() => G.respond(s, "ar", "sideline", "creative"), /not open yet/);
+  G.respond(s, "ar", "sideline", "live");
+  assert.equal(s.company.departments.ar.head, null);
+  assert.equal(s.company.departments.live.head, x);
+  assert.equal(x.influence, 70 + RESPONSES.sideline.influence);
+  assert.equal(x.loyalty, 40 + RESPONSES.sideline.loyalty);
+  assert.equal(x.plot, undefined);
+});
+
+test("Fire: severance, and the directors they courted think less of you", () => {
+  const { s, x } = plotting(),
+    [d1, d2, d3] = s.company.board.directors,
+    cash = s.cash;
+  G.respond(s, "ar", "fire");
+  assert.equal(s.cash, cash - x.salary * G.EXEC_PAY.severanceWeeks);
+  assert.equal(s.company.departments.ar.head, null);
+  assert.equal(d1.relationship, -RESPONSES.fire.contactPenalty);
+  assert.equal(d2.relationship, -RESPONSES.fire.contactPenalty);
+  assert.equal(d3.relationship, 0, "a director they never courted does not mind");
+});
+
+test("Counter: win their board contacts back, at the cost of your week", () => {
+  const { s, x } = plotting(),
+    cash = s.cash,
+    influence = x.influence;
+  G.respond(s, "ar", "counter");
+  assert.equal(s.cash, cash - RESPONSES.counter.costPerPhase * 3);
+  assert.deepEqual(x.contacts, []);
+  assert.equal(x.influence, influence - 2 * RESPONSES.counter.perContact);
+  assert.equal(x.plot, undefined);
+  assert.equal(s.company.board.meetingWeek, s.week);
+  assert.throws(() => G.respond(s, "ar", "counter"), /no board contacts/);
+  const busy = plotting();
+  busy.s.company.board.meetingWeek = busy.s.week;
+  assert.throws(() => G.respond(busy.s, "ar", "counter"), /this week's time/);
+});
+
+test("Plots survive a save", () => {
+  const { s } = plotting();
+  const copy = roundTrip(s);
+  assert.equal(G.validSystemsSave(copy), true);
+  copy.company.departments.ar.head.plot = { due: -3 };
+  assert.equal(G.validSystemsSave(copy), false);
+});
+
 console.log(`${count} staff tests passed.`);

@@ -185,6 +185,38 @@
   // their contract they walk out below `walkOut`, or below walkOut − loyalGrace if loyalty is at least `loyal`.
   const WALKOUT = { unhappy: 40, walkOut: 35, loyal: 75, loyalGrace: 15 };
 
+  // Power grabs (design 3.4 and 4). Checked every `quarter` weeks for each department head:
+  //   chance a quarter = max(0, (ambition + influence − loyalty − threshold) ÷ divisor) × (1 − your influence ÷ ceoDivisor)
+  // A grab starts as office gossip in the Inbox and comes to a head warnWeeks later. While plotting, an
+  // executive courts one more director a quarter. Influence grows by perQuarter a quarter, plus perContact
+  // for each director they have courted, up to 100.
+  const GRAB = {
+    quarter: 13,
+    threshold: 90,
+    divisor: 200,
+    ceoDivisor: 200,
+    warnWeeks: 26,
+    perQuarter: 2,
+    perContact: 1,
+  };
+  // Your own influence: base, plus perPhase for each phase, plus perPerk for each board perk; at most 100.
+  const CEO_INFLUENCE = { base: 20, perPhase: 5, perPerk: 10 };
+  // Your answers to an ambitious executive.
+  //   promote   a title and a raise (salary × (1 + raise)); ambition − ambition; calm for calmWeeks
+  //   placate   a bonus of bonusWeeks of salary; calm for calmWeeks, and a plot slips by as long
+  //   sideline  move them to head an open department; influence and loyalty fall
+  //   fire      the usual severance; each director they courted loses contactPenalty relationship with you
+  //   counter   win their board contacts first: costs your week and costPerPhase × phase; their influence
+  //             falls by perContact for each contact won back
+  // Any answer but placate ends a plot that has started.
+  const RESPONSES = {
+    promote: { name: "Promote", raise: 0.25, ambition: -15, calmWeeks: 52 },
+    placate: { name: "Placate", bonusWeeks: 8, calmWeeks: 13 },
+    sideline: { name: "Sideline", influence: -20, loyalty: -15 },
+    fire: { name: "Fire", contactPenalty: 6 },
+    counter: { name: "Counter", costPerPhase: 2000, perContact: 5 },
+  };
+
   const EXEC_FIRST = [
     "Avery",
     "Marcus",
@@ -233,6 +265,9 @@
     WANTS,
     WANT_MORALE,
     WALKOUT,
+    GRAB,
+    CEO_INFLUENCE,
+    RESPONSES,
     CHEMISTRY,
     EXEC_POOL,
     EXEC_PAY,

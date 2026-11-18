@@ -258,7 +258,7 @@ Do:
 
 ## M6 Politics
 
-### [ ] T24 · Power grabs
+### [x] T24 · Power grabs
 
 Depends on: T12, T20
 Files: `src/data/staff.js`, `src/systems/staff.js`, `tests/staff-test.cjs`
