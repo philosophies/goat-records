@@ -187,7 +187,7 @@ Files: `src/systems/staff.js`, `src/engine.js` (stage score and tour hooks), `te
 Do: apply `team effect = Σ skill × weight × chemistry` to the stage rows (the producer on Recording and Mix, the A&R rep on Songwriting), the publicist to fame and scandal defence, and the tour manager to tour profit and energy. Each shows as its own row in the stage calculation.
 Done when: tests show each role changes only its results; the rows appear in the stage breakdown.
 
-### [ ] T16 · Artist traits, wants and morale
+### [x] T16 · Artist traits, wants and morale
 
 Depends on: T14
 Files: `src/data/staff.js`, `src/systems/staff.js`, `tests/staff-test.cjs`

@@ -1097,6 +1097,7 @@
     const a = artist(s, id);
     if (busy(s, a.id) || a.contract.remaining > 0)
       throw Error("Renew once the current album commitment is complete.");
+    hooks.each("beforeRenew", s, a);
     const q = contractQuote(s, a, term);
     pay(s, q.fee);
     a.wage = q.wage;

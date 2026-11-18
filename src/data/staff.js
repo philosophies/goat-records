@@ -165,6 +165,26 @@
     max: 1.4,
   };
 
+  // Artist personality (design 3.5), fixed for each artist in a CEO run. Each trait is min–max.
+  const TRAITS = { ids: ["ego", "discipline", "loyalty", "workRate"], min: 15, max: 90 };
+  // Each artist has one main want. Morale moves every week by whether it is met.
+  //   money    met while a bonus paid in the last `window` weeks; a bonus costs `wageWeeks` of wage, at least `min`
+  //   control  met when the latest album's creative direction was the artist's own vision (`choice`)
+  //   fame     checked every `window` weeks: met if fame rose by `gain`, or is already at `star`
+  //   family   met unless the artist has worked `maxBusy` weeks in a row; `rest` idle weeks reset the count
+  const WANTS = {
+    money: { name: "Money", window: 26, wageWeeks: 8, min: 500 },
+    control: { name: "Creative control", choice: "Artist-led vision" },
+    fame: { name: "Fame", window: 13, gain: 3, star: 80 },
+    family: { name: "Family time", maxBusy: 8, rest: 2 },
+  };
+  // Weekly morale from wants: +met when met; when ignored, −(ignored + ego × egoWeight − loyalty × loyaltyWeight),
+  // at least −1. An artist with no record yet has nothing to judge control by and is left alone.
+  const WANT_MORALE = { met: 1, ignored: 3, egoWeight: 0.02, loyaltyWeight: 0.015 };
+  // Unhappy artists: below `unhappy` morale they start making demands (task T27). With no albums left on
+  // their contract they walk out below `walkOut`, or below walkOut − loyalGrace if loyalty is at least `loyal`.
+  const WALKOUT = { unhappy: 40, walkOut: 35, loyal: 75, loyalGrace: 15 };
+
   const EXEC_FIRST = [
     "Avery",
     "Marcus",
@@ -209,6 +229,10 @@
     TEAM_EFFECTS,
     TEAM_POOL,
     TEAM_STYLES,
+    TRAITS,
+    WANTS,
+    WANT_MORALE,
+    WALKOUT,
     CHEMISTRY,
     EXEC_POOL,
     EXEC_PAY,

@@ -588,4 +588,161 @@ test("The tour manager raises ticket revenue and saves energy on the road", () =
   assert.ok(b.energy > a.energy, "less energy drain");
 });
 
+// ---- Traits, wants and morale (T16) ----
+const { TRAITS, WANTS, WANT_MORALE, WALKOUT } = G;
+/** A CEO run with one signed artist whose main want is set for the test. */
+function moodRun(want, seed = 31) {
+  const s = teamRun(3, seed),
+    a = s.artists[0];
+  G.artistMood(s, a);
+  a.persona.want = want;
+  a.morale = 60;
+  return { s, a };
+}
+/** Settles a week with the artist idle and nothing else moving their morale. */
+function idleWeek(s, a) {
+  const before = a.morale;
+  settle(s);
+  return a.morale - before;
+}
+
+test("Every artist gets fixed traits and one main want", () => {
+  const s = teamRun(3),
+    a = s.artists[0],
+    mood = G.artistMood(s, a);
+  for (const id of TRAITS.ids) assert.ok(mood.traits[id] >= TRAITS.min && mood.traits[id] <= TRAITS.max);
+  assert.ok(Object.keys(WANTS).includes(mood.want));
+  for (let i = 0; i < 3; i++) settle(s);
+  assert.deepEqual(G.artistMood(s, a).traits, mood.traits, "traits do not change");
+  const wants = new Set();
+  for (let seed = 1; seed < 40; seed++) {
+    const x = teamRun(1, seed);
+    wants.add(G.artistMood(x, x.artists[0]).want);
+  }
+  assert.deepEqual([...wants].sort(), Object.keys(WANTS).sort(), "all four wants occur");
+  assert.equal(
+    G.create(31).artists.every((x) => !x.persona),
+    true,
+    "classic artists have no persona",
+  );
+});
+
+test("Money: a bonus meets the want for a while; without one morale falls", () => {
+  const { s, a } = moodRun("money"),
+    ignored = G.artistMood(s, a).weekly;
+  assert.equal(G.wantStatus(s, a), "ignored");
+  assert.ok(ignored < 0);
+  const cash = s.cash;
+  G.payBonus(s, a.id);
+  assert.equal(s.cash, cash - G.bonusCost(a));
+  assert.equal(G.wantStatus(s, a), "met");
+  a.persona.bonusWeek = s.week - WANTS.money.window;
+  assert.equal(G.wantStatus(s, a), "ignored", "the bonus wears off");
+});
+
+test("Creative control: met only when the latest album follows the artist's vision", () => {
+  const { s, a } = moodRun("control");
+  assert.equal(G.wantStatus(s, a), "neutral", "nothing to judge before a record");
+  G.record(s, { artistId: a.id, boothId: 0, genre: a.genre, audience: a.audience });
+  const p = s.albums.at(-1);
+  G.decideStage(s, p.id, 1);
+  assert.equal(p.production.results[0].choice, "Follow the current wave");
+  assert.equal(G.wantStatus(s, a), "ignored");
+  p.production.results[0].choice = WANTS.control.choice;
+  assert.equal(G.wantStatus(s, a), "met");
+});
+
+test("Fame: judged each quarter by how much the artist's fame rose", () => {
+  const { s, a } = moodRun("fame");
+  assert.equal(G.wantStatus(s, a), "met", "a fresh artist gets the benefit of the doubt");
+  a.persona.fameMark = a.fame;
+  for (let i = 0; i < WANTS.fame.window; i++) settle(s);
+  a.fame = Math.min(a.fame, WANTS.fame.star - 1);
+  a.persona.fameMark = a.fame;
+  for (let i = 0; i < WANTS.fame.window; i++) settle(s);
+  assert.equal(a.persona.fameMet, false);
+  assert.equal(G.wantStatus(s, a), "ignored");
+  a.fame = a.persona.fameMark + WANTS.fame.gain;
+  for (let i = 0; i < WANTS.fame.window; i++) settle(s);
+  assert.equal(G.wantStatus(s, a), "met");
+});
+
+test("Family time: too many busy weeks in a row, until they rest", () => {
+  const { s, a } = moodRun("family");
+  assert.equal(G.wantStatus(s, a), "met");
+  a.persona.busyWeeks = WANTS.family.maxBusy;
+  assert.equal(G.wantStatus(s, a), "ignored");
+  for (let i = 0; i < WANTS.family.rest; i++) settle(s);
+  assert.equal(a.persona.busyWeeks, 0);
+  assert.equal(G.wantStatus(s, a), "met");
+});
+
+test("Weekly morale follows the want, scaled by ego and loyalty", () => {
+  const { s, a } = moodRun("money");
+  Object.assign(a.persona, { ego: 90, loyalty: 15 });
+  const proud = G.artistMood(s, a).weekly;
+  Object.assign(a.persona, { ego: 15, loyalty: 90 });
+  const easy = G.artistMood(s, a).weekly;
+  assert.equal(
+    proud,
+    -Math.round(WANT_MORALE.ignored + 90 * WANT_MORALE.egoWeight - 15 * WANT_MORALE.loyaltyWeight),
+  );
+  assert.ok(proud < easy && easy <= -1);
+  G.payBonus(s, a.id);
+  assert.equal(G.artistMood(s, a).weekly, WANT_MORALE.met);
+});
+
+test("Morale stays between 0 and 100 however long a want is met or ignored", () => {
+  const met = moodRun("family");
+  met.a.morale = 99;
+  for (let i = 0; i < 6; i++) settle(met.s);
+  assert.equal(met.a.morale, 100);
+  const low = moodRun("money");
+  low.a.contract.remaining = 2;
+  low.a.morale = 3;
+  for (let i = 0; i < 6; i++) settle(low.s);
+  assert.ok(low.a.morale >= 0 && low.a.morale <= 100);
+});
+
+test("An unhappy artist walks out when their contract is complete", () => {
+  const { s, a } = moodRun("money");
+  a.persona.loyalty = 20;
+  a.contract.remaining = 1;
+  a.morale = 10;
+  settle(s);
+  assert.ok(s.artists.includes(a), "albums still owed: they stay, however unhappy");
+  assert.equal(G.artistMood(s, a).unhappy, true);
+  a.contract.remaining = 0;
+  a.morale = WALKOUT.walkOut + 10;
+  G.payBonus(s, a.id);
+  settle(s);
+  assert.ok(s.artists.includes(a), "happy enough: they stay to talk about a new deal");
+  a.morale = WALKOUT.walkOut - 5;
+  assert.throws(() => G.renew(s, a.id, 3), /will not re-sign/);
+  s.notifications = [];
+  settle(s);
+  assert.ok(!s.artists.includes(a), "walked out");
+  assert.equal(s.notifications.at(-1).kind, "walkout");
+});
+
+test("Loyal artists give the label more room before walking out", () => {
+  const { s, a } = moodRun("family");
+  a.contract.remaining = 0;
+  a.persona.loyalty = WALKOUT.loyal;
+  a.morale = WALKOUT.walkOut - 5;
+  assert.equal(G.walksOut(s, a), false);
+  a.morale = WALKOUT.walkOut - WALKOUT.loyalGrace - 1;
+  assert.equal(G.walksOut(s, a), true);
+});
+
+test("Personas survive a save and bad ones are rejected", () => {
+  const { s, a } = moodRun("fame");
+  const copy = roundTrip(s);
+  assert.equal(G.validSystemsSave(copy), true);
+  G.migrate(copy);
+  assert.deepEqual(copy.artists[0].persona, a.persona);
+  copy.artists[0].persona.want = "yacht";
+  assert.equal(G.validSystemsSave(copy), false);
+});
+
 console.log(`${count} staff tests passed.`);
