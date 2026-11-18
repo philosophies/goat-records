@@ -213,6 +213,8 @@
       if (d.relationship)
         reasons.push({ key: "relationship", name: "Your relationship", points: d.relationship });
       if (d.promises) reasons.push({ key: "promises", name: "Promises", points: d.promises });
+      if (board(s)?.eventConfidence)
+        reasons.push({ key: "events", name: "Company events", points: board(s).eventConfidence });
       const over = overspendPoints(s);
       if (over) reasons.push({ key: "overspend", name: "Over budget", points: over });
       reasons.sort((a, b) => Math.abs(b.points) - Math.abs(a.points));
@@ -616,6 +618,8 @@
         isCount(c.board.nextId) &&
         c.board.directors.every(validDirector) &&
         (c.board.scandals === undefined || isCount(c.board.scandals)) &&
+        (c.board.eventConfidence === undefined ||
+          (Number.isFinite(c.board.eventConfidence) && Math.abs(c.board.eventConfidence) <= 100)) &&
         (c.board.nextReview === undefined || isCount(c.board.nextReview)) &&
         (c.board.spent === undefined || isCount(c.board.spent)) &&
         (c.board.approvals === undefined || Array.isArray(c.board.approvals)) &&

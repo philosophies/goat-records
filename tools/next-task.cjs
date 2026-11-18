@@ -11,7 +11,7 @@ const fs = require("node:fs"),
   path = require("node:path");
 
 const root = path.join(__dirname, ".."),
-  read = (f) => fs.readFileSync(path.join(root, f), "utf8");
+  read = (f) => fs.readFileSync(path.join(root, f), "utf8").replace(/\r\n/g, "\n");
 
 /** Tasks from the backlog: { id, title, mark, deps, text }. */
 function tasks() {

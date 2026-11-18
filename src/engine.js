@@ -3,7 +3,7 @@
   const isNode = typeof module !== "undefined" && module.exports;
   // Game systems live in src/systems/<name>.js with tables in src/data/<name>.js.
   // Each is optional: a missing file is skipped. In the browser they load as script tags first.
-  const SYSTEM_NAMES = ["label", "campaign", "locations", "promotion", "company", "staff", "board"];
+  const SYSTEM_NAMES = ["label", "campaign", "locations", "promotion", "company", "staff", "board", "events"];
   function optionalRequire(path) {
     try {
       return require(path);
@@ -247,6 +247,7 @@
   const core = { clamp, log, pay, requireAction, busy, artist, roll, operatingYear, api: () => api };
   const SYS = SYSTEM_NAMES.filter((n) => factories[n]).map((n) => ({ name: n, ...factories[n](core, D) }));
   const L = SYS.find((x) => x.name === "label");
+  const E = SYS.find((x) => x.name === "events");
   // Hook helpers: every system may implement any hook; missing hooks are skipped.
   const hooks = {
     each: (name, ...args) => {
@@ -752,21 +753,32 @@
       throw Error(
         o.extension ? "Not enough cash or the 18-week extension limit was reached." : "Not enough cash.",
       );
-    if (o.cost) pay(s, o.cost);
-    const a = s.artists.find((a) => a.id === e.artist);
-    apply(s, a, o, true);
-    if (s.company) hooks.each("eventChoice", s, e, o);
-    if (e.type === "ceo") applyCEOChoice(s, e, o);
-    if (o.rosterMorale) for (const a of s.artists) a.morale = clamp(a.morale + o.rosterMorale);
-    if (e.type === "tourDay") applyDailyTourChoice(s, e, o);
-    else if (e.type === "tour") applyTourChoice(s, e, o);
-    if (e.album) {
-      const p = s.albums.find((p) => p.id === e.album);
-      if (o.extension) p.salesWeeks = Math.min(18, p.salesWeeks + o.extension);
-      if (o.mult) p.boosts.push({ start: s.week + 1, until: s.week + (o.boostWeeks || 3), mult: o.mult });
+    if (e.type === "companyEvent") {
+      try {
+        E.resolve(s, e, o);
+      } catch (error) {
+        // An over-budget choice opens an approval request. Return to the original decision afterward.
+        if (s.event?.type !== "approval") throw error;
+        s.eventQueue.unshift(e);
+        return;
+      }
+    } else {
+      if (o.cost) pay(s, o.cost);
+      const a = s.artists.find((a) => a.id === e.artist);
+      apply(s, a, o, true);
+      if (s.company) hooks.each("eventChoice", s, e, o);
+      if (e.type === "ceo") applyCEOChoice(s, e, o);
+      if (o.rosterMorale) for (const a of s.artists) a.morale = clamp(a.morale + o.rosterMorale);
+      if (e.type === "tourDay") applyDailyTourChoice(s, e, o);
+      else if (e.type === "tour") applyTourChoice(s, e, o);
+      if (e.album) {
+        const p = s.albums.find((p) => p.id === e.album);
+        if (o.extension) p.salesWeeks = Math.min(18, p.salesWeeks + o.extension);
+        if (o.mult) p.boosts.push({ start: s.week + 1, until: s.week + (o.boostWeeks || 3), mult: o.mult });
+      }
+      if (o.delay) s.effects.push({ ...o.delay, week: s.week + o.delay.after, artist: e.artist });
+      log(s, `${e.title}: ${o.label}.`);
     }
-    if (o.delay) s.effects.push({ ...o.delay, week: s.week + o.delay.after, artist: e.artist });
-    log(s, `${e.title}: ${o.label}.`);
     s.event = s.eventQueue.shift() || null;
     if (!s.event && s.pendingTourWeek) {
       s.pendingTourWeek = false;
@@ -782,6 +794,7 @@
     const opening = s.cash,
       weeklyOverhead = upkeep(s);
     s.week++;
+    E?.expire(s);
     s.tourDayInWeek = 0;
     s.cash -= weeklyOverhead;
     for (let a of s.artists) {
@@ -886,7 +899,8 @@
           `Cash is below $0. ${left} week${left === 1 ? "" : "s"} left to recover before the label folds.`,
         );
       }
-      if (s.week % 4 === 0) {
+      if (s.company && E) E.queue(s);
+      else if (s.week % 4 === 0) {
         const e = makeEvent(s);
         if (e) s.eventQueue.push(e);
       }
@@ -1517,6 +1531,7 @@
     }
   }
   function eventOptionAvailable(s, o, e = s.event) {
+    if (e?.type === "companyEvent") return E.available(s, o, e);
     const p = e?.album ? s.albums.find((p) => p.id === e.album) : null;
     return (!o.cost || s.cash >= o.cost) && (!o.extension || (p && p.salesWeeks < 18));
   }

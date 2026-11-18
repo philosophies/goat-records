@@ -274,7 +274,7 @@ Done when: tests cover each ending; the UI shows the outcome card.
 
 ## M7 Opportunities and crises
 
-### [ ] T26 · Event framework 2.0
+### [x] T26 · Event framework 2.0
 
 Depends on: T01
 Files: `src/data/events.js` (new), `src/systems/events.js` (new), `src/engine.js`, `index.html`, `tests/events-test.cjs` (new)
