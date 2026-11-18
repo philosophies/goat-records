@@ -1,0 +1,274 @@
+/* The street (CEO runs): buildings side by side, built up floor by floor, scrolling sideways. */
+
+.scene.street-scene .roof {
+  display: none;
+}
+.scene.street-scene .lot-wrap {
+  align-self: stretch;
+  width: 100%;
+  min-width: 0;
+}
+#lot.street-mode {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  cursor: grab;
+  touch-action: pan-x;
+  outline-offset: -3px;
+}
+#lot.street-mode:active {
+  cursor: grabbing;
+}
+.street-row {
+  --floor-h: clamp(54px, calc((var(--stage-h) - 260px) / 6), 84px);
+  display: flex;
+  align-items: flex-end;
+  gap: 26px;
+  width: max-content;
+  min-height: calc(var(--floor-h) * 5 + 60px);
+  padding: 12px 40px 0;
+}
+
+/* ---------- A building ---------- */
+.street-building {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 196px;
+  padding: 0 8px;
+  background: var(--wall);
+  border: 3px solid var(--trim);
+  border-bottom: 0;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.06);
+}
+.building-sign {
+  margin: -3px -11px 6px;
+  padding: 4px 6px;
+  background: var(--trim);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: #f7f4ea;
+  font:
+    700 11px/1.2 Verdana,
+    sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.building-sign small {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 0.8;
+}
+.floor-add {
+  height: 26px;
+  margin-bottom: 6px;
+  background: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0 6px, transparent 6px 12px);
+  border: 2px dashed rgba(255, 255, 255, 0.5);
+  border-radius: 0;
+  box-shadow: none;
+  color: #f7f4ea;
+  font:
+    700 11px/1 Verdana,
+    sans-serif;
+  cursor: pointer;
+}
+.building-door {
+  align-self: center;
+  width: 34px;
+  height: 22px;
+  margin-top: 6px;
+  background: #18171f;
+  border: 3px solid var(--trim);
+  border-bottom: 0;
+}
+
+/* ---------- Floors ---------- */
+.street-floor {
+  position: relative;
+  height: var(--floor-h);
+  margin-bottom: 6px;
+}
+.floor-hit {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background:
+    linear-gradient(to top, rgba(0, 0, 0, 0.35) 0 6px, transparent 6px),
+    linear-gradient(var(--accent), var(--accent));
+  background-blend-mode: normal, soft-light;
+  background-color: #f1e2bd;
+  border: 3px solid #18171f;
+  border-radius: 0;
+  box-shadow: none;
+  cursor: pointer;
+}
+.street-floor.room .floor-hit {
+  background: repeating-linear-gradient(90deg, #6b5aa8 0 14px, #5d4d96 14px 28px);
+}
+.floor-hit .plate {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  max-width: calc(100% - 8px);
+  padding: 0 4px;
+  overflow: hidden;
+  background: #18171f;
+  color: #f7f4ea;
+  font:
+    700 9px/1.5 Verdana,
+    sans-serif;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.floor-art {
+  margin-top: 8px;
+  opacity: 0.9;
+}
+.floor-hit .pips {
+  position: absolute;
+  right: 4px;
+  bottom: 7px;
+  color: #18171f;
+  font-size: 9px;
+}
+.street-floor .on-air {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+}
+.street-floor .desk.mixing {
+  position: absolute;
+  right: 12%;
+  bottom: 6px;
+  width: 40%;
+  height: 22%;
+}
+.floor-hit:hover,
+.floor-hit:focus-visible,
+.plot-hit:hover,
+.plot-hit:focus-visible,
+.building-sign:hover,
+.floor-add:hover {
+  outline: 3px solid #fff1b8;
+  outline-offset: -3px;
+}
+
+/* People stand on their floor, in front of it. */
+.floor-people {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 6px;
+  display: flex;
+  gap: 2px;
+  pointer-events: none;
+}
+.street-person {
+  pointer-events: auto;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  cursor: pointer;
+  filter: drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff);
+  animation: street-idle 2.4s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.4s);
+}
+.street-person.busy {
+  animation-duration: 0.9s;
+}
+@keyframes street-idle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+/* ---------- Plots ---------- */
+.street-building.plot {
+  height: calc(var(--floor-h) * 2.2);
+  padding: 0;
+  background:
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0 10px, transparent 10px 20px), #3a3f2c;
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.45);
+}
+.plot-hit {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: #f7f4ea;
+  cursor: pointer;
+}
+.plot-hit b {
+  font:
+    700 12px/1.2 Verdana,
+    sans-serif;
+}
+.plot-hit small {
+  font:
+    700 10px/1.2 Verdana,
+    sans-serif;
+  color: #f3d25b;
+}
+.street-building.plot.locked {
+  opacity: 0.55;
+}
+
+/* ---------- Minimap on the sidewalk ---------- */
+.street-map {
+  display: flex;
+  gap: 4px;
+  padding: 6px 8px;
+  overflow-x: auto;
+}
+.map-chip {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  background: #18171f;
+  border: 2px solid #505b3f;
+  border-radius: 0;
+  box-shadow: none;
+  color: #c8c4b4;
+  font:
+    700 10px/1.4 Verdana,
+    sans-serif;
+  cursor: pointer;
+}
+.map-chip.owned {
+  border-color: #b08d3c;
+  color: #f3d25b;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .street-person {
+    animation: none;
+  }
+}
+@media (max-width: 760px) {
+  .street-building {
+    width: 160px;
+  }
+  .street-row {
+    gap: 16px;
+    padding: 8px 16px 0;
+  }
+}
