@@ -468,4 +468,55 @@ test("Save checks guard the buildings", () => {
   );
 });
 
+test("Facility floors give their headquarters bonuses, upkeep and takings", () => {
+  const s = ceo(71);
+  s.cash = 10 ** 7;
+  const before = G.hqBonuses(s);
+  assert.equal(G.hqUpkeep(s), 0);
+  assert.equal(G.builtFacility(s, "writers"), null);
+  G.buildFloor(s, "apartment", "writers");
+  const writers = G.FACILITIES.find((f) => f.id === "writers");
+  assert.ok(G.builtFacility(s, "writers"), "the floor counts as the built facility");
+  assert.equal(G.hqUpkeep(s), writers.upkeep);
+  const after = G.hqBonuses(s);
+  for (const [i, v] of Object.entries(writers.stages || {})) {
+    assert.equal(after.stages[i].value, before.stages[i].value + v);
+    assert.ok(after.stages[i].sources.includes(writers.name));
+  }
+  G.upgradeFloor(s, "apartment", 1);
+  assert.equal(G.hqUpkeep(s), writers.upkeep * 2, "upkeep scales with the floor's level");
+});
+
+test("Floors above each other, or side by side next door, pair up", () => {
+  const syn = G.SYNERGIES[0],
+    [a, b] = syn.pair;
+  // Find buildings that take each half of the pair.
+  const holder = (id) =>
+    G.BUILDINGS.find((x) => x.floors.includes(id) && x.floors.includes(a) && x.floors.includes(b));
+  const both = holder(a);
+  assert.ok(both, "some building takes both halves of the first pairing");
+  const s = ceo(72);
+  s.cash = 10 ** 8;
+  s.company.phase = 6;
+  if (both.id !== "apartment") G.buyBuilding(s, both.id);
+  G.buildFloor(s, both.id, a);
+  G.buildFloor(s, both.id, b);
+  assert.ok(
+    G.activeSynergies(s).some((x) => x.name === syn.name),
+    `${a} under ${b} pairs up`,
+  );
+  assert.deepEqual(
+    G.facilitiesOf(s).map((f) => [f.id, f.building]),
+    [
+      [a, both.id],
+      [b, both.id],
+    ],
+  );
+});
+
+test("A classic run still reads its lot tiles", () => {
+  const s = G.create(73);
+  assert.equal(G.facilitiesOf(s), s.hq.facilities);
+});
+
 console.log(`${count} company tests passed.`);
