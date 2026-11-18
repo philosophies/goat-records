@@ -347,7 +347,10 @@
   }
   function pay(s, n) {
     if (s.cash < n) throw Error("Not enough cash.");
+    // CEO runs: the board may need to approve spending past the budget, and tracks what is spent.
+    if (s.company) hooks.each("beforeSpend", s, n);
     s.cash -= n;
+    if (s.company) hooks.each("onSpend", s, n);
   }
   function artist(s, id) {
     let a = s.artists.find((x) => x.id === Number(id));
@@ -364,6 +367,7 @@
     if (!a) throw Error("Candidate unavailable.");
     if (s.reputation < 30) throw Error("This artist needs label reputation of at least 30.");
     const q = contractQuote(s, a, term);
+    if (s.company) hooks.each("approveSigning", s, a, q);
     pay(s, q.fee);
     a.inspiration ??= 60;
     a.momentum ??= 25;
@@ -475,6 +479,7 @@
         addOns.reduce((n, id) => n + ALBUM_ADDONS.find((x) => x.id === id).cost, 0) +
         hooks.sum("planCost", s, plan),
       expectation = albumExpectation(s, a, total);
+    if (s.company) hooks.each("approvePlan", s, plan, a);
     pay(s, total);
     const p = {
       id: s.nextId++,
@@ -750,6 +755,7 @@
     if (o.cost) pay(s, o.cost);
     const a = s.artists.find((a) => a.id === e.artist);
     apply(s, a, o, true);
+    if (s.company) hooks.each("eventChoice", s, e, o);
     if (e.type === "ceo") applyCEOChoice(s, e, o);
     if (o.rosterMorale) for (const a of s.artists) a.morale = clamp(a.morale + o.rosterMorale);
     if (e.type === "tourDay") applyDailyTourChoice(s, e, o);

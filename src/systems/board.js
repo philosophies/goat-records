@@ -12,6 +12,8 @@
       MONEY_STEP,
       SEAT_WEIGHT,
       REVIEW,
+      OVERSPEND,
+      APPROVAL,
       BACKERS,
       VALUATION,
       FUNDING,
@@ -210,6 +212,8 @@
       if (d.relationship)
         reasons.push({ key: "relationship", name: "Your relationship", points: d.relationship });
       if (d.promises) reasons.push({ key: "promises", name: "Promises", points: d.promises });
+      const over = overspendPoints(s);
+      if (over) reasons.push({ key: "overspend", name: "Over budget", points: over });
       reasons.sort((a, b) => Math.abs(b.points) - Math.abs(a.points));
       const total = 50 + reasons.reduce((n, r) => n + r.points, 0);
       return { value: Math.round(clamp(total)), reasons };
@@ -321,6 +325,7 @@
       b.probation = c < REVIEW.probationBelow;
       b.budget = reviewBudget(s, c);
       b.budgetLeft = b.budget;
+      b.spent = 0;
       b.freedom = freedomFor(c, b.probation);
       b.perks = perksFor(c);
       Object.assign(record, { probation: b.probation, budget: b.budget, freedom: b.freedom, perks: b.perks });
@@ -344,6 +349,91 @@
       const b = board(s);
       if (!b) return true;
       return (b.confidence ?? confidence(s)) >= REVIEW.phaseVote;
+    }
+    // ---- Spending and approvals (T21) ----
+    /** Confidence points every director loses for spending past the budget (0 or negative). */
+    function overspendPoints(s) {
+      const b = board(s);
+      if (!b?.budget || !(b.spent > b.budget)) return 0;
+      const pct = ((b.spent - b.budget) / b.budget) * 100;
+      return -Math.round(Math.min(OVERSPEND.cap, pct / OVERSPEND.pctPerPoint) * 10) / 10;
+    }
+    function onSpend(s, n) {
+      const b = board(s);
+      if (!b?.budget) return;
+      b.spent = (b.spent || 0) + n;
+      b.budgetLeft = b.budget - b.spent;
+    }
+    function approved(s, kind, key) {
+      return (board(s)?.approvals || []).some((x) => x.kind === kind && x.key === key && x.week === s.week);
+    }
+    /** Throws after putting an approval request in the Inbox, unless the board approved it this week. */
+    function requireApproval(s, kind, key, text) {
+      if (approved(s, kind, key)) return;
+      const c = board(s).confidence ?? confidence(s);
+      s.event = {
+        id: s.nextId++,
+        type: "approval",
+        title: "The board must approve this",
+        body: `${text} Board confidence is ${c}; the board says yes at ${APPROVAL.grant} or more.`,
+        approval: { kind, key },
+        options: [
+          {
+            label: "Make the case",
+            hint: `Approved at ${APPROVAL.grant}+ confidence (now ${c}).`,
+            approve: true,
+          },
+          { label: "Drop it", hint: "Nothing happens." },
+        ],
+      };
+      throw Error(`Board approval needed: ${text} The request is in your Inbox.`);
+    }
+    function freedomOf(s) {
+      return board(s)?.freedom || "high";
+    }
+    function beforeSpend(s, n) {
+      const b = board(s);
+      if (!b?.budget || freedomOf(s) === "high") return;
+      if ((b.spent || 0) + n > b.budget)
+        requireApproval(
+          s,
+          "overBudget",
+          String(n),
+          `This $${n.toLocaleString("en-US")} payment goes past the period budget.`,
+        );
+    }
+    function approveSigning(s, a, q) {
+      const b = board(s);
+      if (!b?.budget || freedomOf(s) !== "low") return;
+      if (q.fee >= APPROVAL.bigSigning * b.budget)
+        requireApproval(
+          s,
+          "signing",
+          String(a.id),
+          `Signing ${a.name} for $${q.fee.toLocaleString("en-US")} is a big signing.`,
+        );
+    }
+    function approvePlan(s, plan, a) {
+      if (!board(s) || freedomOf(s) !== "low") return;
+      const risky = (plan.themes || []).filter((t) => APPROVAL.riskyThemes.includes(t)),
+        released = s.albums.filter((p) => p.released),
+        newGenre = released.length && !released.some((p) => p.genre === plan.genre);
+      for (const t of risky)
+        requireApproval(s, "theme", t, `${a.name}'s album leans on a risky theme: ${t}.`);
+      if (newGenre)
+        requireApproval(s, "genre", plan.genre, `${plan.genre} would be a new genre for the label.`);
+    }
+    function eventChoice(s, e, o) {
+      if (e.type !== "approval" || !o.approve) return;
+      const b = board(s),
+        c = b.confidence ?? confidence(s);
+      if (c >= APPROVAL.grant) {
+        b.approvals = [
+          ...(b.approvals || []).filter((x) => x.week === s.week),
+          { ...e.approval, week: s.week },
+        ];
+        log(s, "The board approved the request. Go ahead this week.");
+      } else log(s, `The board said no (confidence ${c}).`);
     }
     function onScandal(s) {
       const b = board(s);
@@ -407,6 +497,8 @@
         c.board.directors.every(validDirector) &&
         (c.board.scandals === undefined || isCount(c.board.scandals)) &&
         (c.board.nextReview === undefined || isCount(c.board.nextReview)) &&
+        (c.board.spent === undefined || isCount(c.board.spent)) &&
+        (c.board.approvals === undefined || Array.isArray(c.board.approvals)) &&
         (c.board.budget === undefined || (isCount(c.board.budget) && Number.isFinite(c.board.budgetLeft))) &&
         (c.board.freedom === undefined || REVIEW.freedom.some((f) => f.id === c.board.freedom)) &&
         (c.board.perks === undefined ||
@@ -432,6 +524,11 @@
         return 0;
       },
       onScandal,
+      onSpend,
+      beforeSpend,
+      approveSigning,
+      approvePlan,
+      eventChoice,
       api: {
         DIRECTORS,
         BACKERS,
@@ -460,6 +557,9 @@
         perkCost,
         reviewBudget,
         approvesPhase,
+        OVERSPEND,
+        APPROVAL,
+        overspendPoints,
       },
     };
   }
