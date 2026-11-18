@@ -119,7 +119,7 @@ Do:
 
 ## M3 The CEO phone
 
-### [ ] T10 · Phone shell and Inbox
+### [x] T10 · Phone shell and Inbox
 
 Depends on: T04
 Files: `src/ui/phone.js` (new), `styles/phone.css` (new), `index.html`, `tests/phone-ui-test.cjs` (new)

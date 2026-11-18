@@ -402,6 +402,7 @@ function renderStreet() {
   paintLot("lotTown", GoatPlaces.town());
   $("lotPopover").hidden = true;
   GoatStreet.input();
+  GoatPhone.paint();
   if (liveDom()) watchNews();
 }
 const GoatLot = {
@@ -409,6 +410,7 @@ const GoatLot = {
     if (state.company) return renderStreet();
     $("scene").classList?.toggle("street-scene", false);
     document.body?.classList.toggle("ceo-run", false);
+    GoatPhone.paint();
     $("lot").classList?.toggle("street-mode", false);
     paintLot("lotRoof", lotRoof());
     paintLot("lot", lotBuilding());

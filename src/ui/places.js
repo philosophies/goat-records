@@ -133,6 +133,8 @@ function placeSheet(id) {
   }
   const street = typeof GoatStreet !== "undefined" && GoatStreet.sheet(id);
   if (street) return street;
+  const phone = typeof GoatPhone !== "undefined" && GoatPhone.sheet(id);
+  if (phone) return phone;
   // A screen added by a feature script that no place shows yet.
   const panel = GoatUI.panels.find((p) => p.id === id);
   return panel && { title: () => panel.label, render: () => panel.render() };
