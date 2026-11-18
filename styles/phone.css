@@ -1,0 +1,95 @@
+/* The CEO phone (CEO runs): the corner button and its apps. */
+
+.phone-button {
+  position: fixed;
+  left: 16px;
+  top: calc(var(--hud-h) + 14px);
+  z-index: 40;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: #1d1729;
+  border: 3px solid #b08d3c;
+  border-radius: 0;
+  box-shadow: 0 4px 0 #07050b;
+  cursor: pointer;
+}
+.phone-button:hover,
+.phone-button:focus-visible {
+  border-color: #fff1b8;
+}
+.phone-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  min-width: 22px;
+  padding: 2px 5px;
+  background: #d9534f;
+  border: 2px solid #07050b;
+  color: #fff;
+  font:
+    700 12px/1.2 Verdana,
+    sans-serif;
+  text-align: center;
+}
+.phone-apps {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+.phone-app {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-height: 96px;
+  padding: 10px 6px;
+  background: #1d1729;
+  border: 2px solid #4a3a66;
+  border-radius: 0;
+  color: #f7f4ea;
+  font:
+    700 12px/1.2 Verdana,
+    sans-serif;
+  cursor: pointer;
+}
+.phone-app:hover,
+.phone-app:focus-visible {
+  border-color: #f3d25b;
+}
+.phone-back {
+  margin: 10px 0 6px;
+}
+.inbox {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.inbox-item {
+  display: grid;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 2px solid var(--frame);
+  background: rgba(255, 255, 255, 0.03);
+}
+.inbox-item p {
+  margin: 0;
+  color: var(--muted);
+}
+.inbox-item button {
+  justify-self: start;
+}
+@media (max-width: 760px) {
+  .phone-button {
+    left: auto;
+    top: auto;
+    right: 12px;
+    bottom: 12px;
+  }
+}
