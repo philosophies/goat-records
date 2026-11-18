@@ -16,7 +16,7 @@ Ground rules for every task:
 
 ## M1 Company phases
 
-### [ ] T01 · Company module and CEO flag
+### [x] T01 · Company module and CEO flag
 
 Depends on: none
 Files: `src/data/company.js` (new), `src/systems/company.js` (new), `src/engine.js`, `index.html`, `tests/company-test.cjs` (new)

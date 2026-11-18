@@ -3,7 +3,7 @@
   const isNode = typeof module !== "undefined" && module.exports;
   // Game systems live in src/systems/<name>.js with tables in src/data/<name>.js.
   // Each is optional: a missing file is skipped. In the browser they load as script tags first.
-  const SYSTEM_NAMES = ["label", "campaign", "locations", "promotion"];
+  const SYSTEM_NAMES = ["label", "campaign", "locations", "promotion", "company"];
   function optionalRequire(path) {
     try {
       return require(path);
@@ -331,6 +331,8 @@
     };
     scout(s);
     if (options.legacy) s.legacy = options.legacy;
+    // A CEO run (2.0) is opt-in until the cutover; the company system sets it up in its init hook.
+    if (options.ceo) s.ceoMode = true;
     initializeManagement(s);
     log(s, "Welcome to Goat Records. Sign an artist at the front desk, tap them to start an album, then advance weeks.");
     return s;
