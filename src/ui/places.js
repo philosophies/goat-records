@@ -93,7 +93,7 @@ const PLACES = {
   office: {
     title: () => "Office",
     render: () =>
-      `${state.company ? section("sec-company", panelHtml("company")) : ""}${section("sec-campaign", panelHtml("campaign"))}${section("sec-finance", finance())}${section("sec-catalog", catalog())}${section("sec-name", companyNameCard())}`,
+      `${state.company ? section("sec-company", panelHtml("company")) : ""}${state.company && typeof GoatBoard !== "undefined" ? section("sec-board", GoatBoard.summary()) : ""}${section("sec-campaign", panelHtml("campaign"))}${section("sec-finance", finance())}${section("sec-catalog", catalog())}${section("sec-name", companyNameCard())}`,
   },
   billboard: {
     title: () => "Billboard",

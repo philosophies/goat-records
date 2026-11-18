@@ -401,7 +401,7 @@ test("The review comes once a year and sets the next period", () => {
   settle(s);
   assert.equal(b.reviews.length, 1);
   assert.equal(b.nextReview, s.week + REVIEW.intervalWeeks);
-  assert.equal(s.notifications.at(-1).kind, "board");
+  assert.equal(b.scene, true, "the review waits to be shown");
   settle(s);
   assert.equal(b.reviews.length, 1, "not again until the next one is due");
   s.company.public = true;

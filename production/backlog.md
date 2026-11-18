@@ -246,7 +246,7 @@ Files: `src/systems/board.js`, `tests/board-test.cjs`
 Do: meet a director (a week of your time), promise a target (kept +trust, broken −2×) or trade a favor. Promises are checked at the next review.
 Done when: tests cover each action and the promise check.
 
-### [ ] T23 · The boardroom
+### [x] T23 · The boardroom
 
 Depends on: T20, T09
 Files: `src/ui/board.js` (new), `styles/ceo.css`, `tests/board-ui-test.cjs` (new)
