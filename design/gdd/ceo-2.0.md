@@ -4,7 +4,7 @@ Status: design for review. Nothing here is built yet. The work is split into tas
 
 ## 1. Overview
 
-You are the CEO of Goat Records. The run starts in a spare bedroom with a laptop, a borrowed mic and no money, signing whoever plays the local open mic. It can end with a public company, offices on three continents and a share price the world watches, or with the board voting you out of the company you built.
+You are the CEO of a record label you name yourself (Goat Records unless you change it). The run starts in a spare bedroom with a laptop, a borrowed mic and no money, signing whoever plays the local open mic. It can end with a public company, offices on three continents and a share price the world watches, or with the board voting you out of the company you built.
 
 Three loops sit on top of each other:
 
@@ -26,7 +26,13 @@ Tone: glossy, dramatic, a little soap opera. Marble lobbies, gold records, board
 
 ### 3.1 The screen
 
-- Landscape, 16:9 first, scaling down to 4.7" phones and up to 1440p monitors. One codebase for PC browsers and Android (installable web app; an Android wrapper can come later).
+- Landscape, 16:9 first, scaling down to 4.7" phones and up to 1440p monitors. One codebase for PC browsers and Android, shipped as an installable web app for now.
+- **Built for a later Play Store release.** The same files must be able to go inside an Android wrapper (a Trusted Web Activity or Capacitor) without changes:
+  - relative paths only, and no features that work only from `file://`
+  - touch first, with the Android back button closing the top panel (`popstate`)
+  - saves in browser storage with export and import, so a player can move a save between the web and the app
+  - no network calls during play
+  - icons and screenshots at Play Store sizes
 - **The street scrolls sideways.** The label owns buildings along one street. Drag or flick to scroll on touch; on PC use the mouse wheel, arrow keys or drag. A minimap strip at the bottom jumps to any building.
 - **Buildings grow up, not out.** Each building adds floors one at a time (stacked rooms, Tiny Tower style). The lot no longer widens with rank.
 - **Everything opens from the world.** People, rooms, buildings and street props open their panel, as in 1.1. There are no tabs.
@@ -54,10 +60,13 @@ Tone: glossy, dramatic, a little soap opera. Marble lobbies, gold records, board
 |   5 | Global label   | Second territory office                          | HQ, venue, media center, warehouse                             | World                | Publishing, global tours, catalog           | 7 seats                                |
 |   6 | Public company | IPO                                              | All, plus overseas offices (each a building on its own street) | World + acquisitions | All of the above + capital markets          | 9 seats, shareholders, analysts        |
 
-Advancing needs goals (fame, revenue, hits, catalog, staff) and, from phase 3, a board vote. Phases 1–2 can stay board-free if you never raise money: you keep full creative freedom, but grow only on what you earn. Raising money is faster, and costs you control.
+Advancing needs goals (fame, revenue, hits, catalog, staff) and, once a board exists, its vote. The board's seat count in the table applies only after outside money: a label that never raises money has no board at any phase, keeps full creative freedom and grows only on what it earns. Raising money is faster, and costs you control.
+
+**The company's name.** A new run asks for the label's name (1–32 characters, Goat Records by default). It appears on the roof sign, the charts, award results, news and the final review. You can rename the company from the office at any time; renaming costs a little fame for a year while fans catch up, and past chart entries show the new name.
 
 ### 3.3 The board and the periodic review
 
+- **The board exists only after you take outside money** (an angel, a venture round or the IPO). A bank loan adds no seats. With no board there are no reviews, and you cannot be fired.
 - **Board seats** belong to directors with an agenda. Each director has a priority, a patience value and a relationship with you.
   - The Accountant: profit and cash.
   - The Visionary: growth and market share.
@@ -76,7 +85,7 @@ Advancing needs goals (fame, revenue, hits, catalog, staff) and, from phase 3, a
 - **Losing the job.**
   - Confidence below 35 at a review puts you on probation for the next period.
   - Below 20 on probation, or below 10 at any review, triggers a no-confidence vote.
-  - A lost vote ends the run as "Fired", scored on everything you built.
+  - A lost vote ends the run: you are fired, and it is game over. The final review shows what you built; the next run is a new label, with legacy bonuses as after any ended run. A comeback route may come in a later version.
   - You can survive the vote with allies on the board, or by holding more than half the voting shares yourself.
 
 ### 3.4 Executives and power grabs
@@ -204,7 +213,7 @@ share price           = company value ÷ shares outstanding × market mood (0.8�
 - You own over 50% of the shares: a no-confidence vote cannot pass, but directors can resign, which drops the share price.
 - An executive's power grab and a review land in the same week: the grab resolves at the review.
 - An artist's team member quits mid-album: the stage uses the next best person in the pool, or none.
-- Leaving phase 1 without investors: the board never appears until you take outside money, then it starts at 3 seats.
+- Growing without investors: the board never appears. When you first take outside money, it starts with the seats that deal gives (an angel: 1) and grows toward the phase's seat count with later rounds.
 - Loading a 1.x save: see Migration.
 
 ## 6. Dependencies and reevaluation of 1.x systems
@@ -249,15 +258,19 @@ share price           = company value ÷ shares outstanding × market mood (0.8�
 - At least 40 opportunities, crises and politics events, each with tests for every choice's effects.
 - The street scrolls by touch, wheel, drag and keys; every building and floor opens its panel; the CEO phone works with keyboard.
 - An IPO is possible by year 12 with strong play; a scripted balance sample (like `CAMPAIGN-BALANCE.json`) shows how often careful, average and reckless policies get fired, go public or fold.
+- The player names the company at the start and can rename it; the new name shows everywhere the label appears.
+- The Android back button (browser history) closes the top panel; the game makes no network calls during play.
 - 1.x saves load (see Migration).
 
 ## Migration
 
 1.x saves convert at load. Rank sets the starting phase (Bedroom → 1, Indie Imprint → 2, Rising Label → 3, Major Contender → 4, Powerhouse and Greatest of All Time → 5). Facilities become floors in the matching buildings. The six 1.x staff become department heads. The board starts at its seat count with confidence 60. The converted run keeps its year, artists, catalog and history.
 
-## Open questions for the owner
+## Decisions
 
-1. Is "Fired" a final game over, or can you found a new label straight away (a fresh run with legacy bonuses)?
-2. Should the board appear only if you take outside money (recommended), or always from phase 3?
-3. Is the label still called Goat Records, or does the player name it?
-4. Android: is an installable web app enough, or should the plan include a Play Store build?
+| Date       | Question                    | Decision                                                                                                  |
+| ---------- | --------------------------- | --------------------------------------------------------------------------------------------------------- |
+| 2026-11-18 | Is being fired final?       | Yes, game over for now. A comeback route may come later.                                                  |
+| 2026-11-18 | When does the board appear? | Only after you take outside money.                                                                        |
+| 2026-11-18 | The label's name            | The player names the company at the start and can rename it later. The game is still called Goat Records. |
+| 2026-11-18 | Android                     | An installable web app now, designed so a Play Store build needs no rework.                               |

@@ -57,6 +57,18 @@ Files: `src/ui/company.js` (new), `index.html`, `styles/ceo.css` (new), `tests/c
 Do: a top-bar chip "Phase 1 · Home studio · 2/4 goals" through `GoatUI.hud`, opening a panel with the goals checklist (`GoatUI.registerPanel`). The phase-up notification shows as a card. Only in CEO runs.
 Done when: the harness shows the chip and panel in a CEO run, and nothing in a 1.1 run.
 
+### [ ] T39 · Name the company
+
+Depends on: T01
+Files: `src/data/company.js`, `src/systems/company.js`, `src/engine.js` (the three chart entries that use `LD.LABEL_NAME`), `src/ui/lot.js` (roof sign), `src/ui/company.js`, `src/app.js` (new label dialog), `tests/company-test.cjs`, `tests/company-ui-test.cjs`
+Do:
+
+- `s.labelName` (1–32 printable characters, trimmed). Add `labelName(s)`, which returns `s.labelName || LABEL_NAME`, and use it everywhere the label's own name is shown. Past chart entries marked `owned` show the current name.
+- In a CEO run, the New label flow asks for the name (default Goat Records). An office action renames the company; renaming costs `RENAME.fame` fame (data table) and is logged in the news.
+- Classic runs keep "Goat Records" unless renamed, and their saves are unchanged.
+- `validSave` checks the name's length and type when present.
+  Done when: tests cover a default name, a custom name on the charts and in the news, rename with its cost, invalid names (empty, too long, not a string) rejected, and a classic run unchanged. The harness names a label in the new label flow.
+
 ## M2 The street and buildings
 
 ### [ ] T05 · Buildings and floors data
@@ -214,10 +226,11 @@ Depends on: T19
 Files: `src/systems/board.js`, `src/systems/company.js` (`boardApproved`), `tests/board-test.cjs`
 Do:
 
+- Reviews happen only while a board exists, which needs outside money (T18). A label with no board has no reviews and cannot be fired.
 - A yearly review (twice yearly after the IPO) sets budget, perks and creative freedom using design 4.
-- Probation and the no-confidence vote follow design 3.3; a lost vote ends the run with outcome "Fired".
-- Phase 3+ advancement needs a board vote.
-  Done when: tests cover each confidence band, probation, both vote results, the >50% ownership protection and the fired ending.
+- Probation and the no-confidence vote follow design 3.3. A lost vote is game over: the run ends with outcome "Fired" (`s.finished`, a `fired` flag) and goes to the final review.
+- With a board, phase advancement needs its vote.
+  Done when: tests cover each confidence band, probation, both vote results, the >50% ownership protection, the fired ending (no further weeks can be played) and that a label without a board never gets a review.
 
 ### [ ] T21 · Budget and creative freedom in play
 
@@ -335,7 +348,7 @@ Done when: tests cover a cash purchase, a debt purchase and a board veto.
 
 Depends on: T32, T25
 Files: `src/systems/campaign.js`, `src/data/campaign.js`, `tests/campaign-test.cjs`
-Do: CEO runs score company value, ownership share, hits, awards, artists developed and kept-the-chair (design 3.11). "Fired" and "Folded" endings each have their own final review text. Legacy points and New Game+ work for CEO runs.
+Do: CEO runs score company value, ownership share, hits, awards, artists developed and kept-the-chair (design 3.11). "Fired" and "Folded" endings each have their own final review text. Being fired is game over: the final review, then a new label, with legacy points as after any ended run. Legacy points and New Game+ work for CEO runs.
 Done when: tests cover each ending's score and New Game+ carry-over.
 
 ### [ ] T35 · CEO balance sample
@@ -359,9 +372,13 @@ Files: `src/engine.js`, `src/app.js`, all affected tests, `README.md`, `docs/rul
 Do: new runs default to CEO mode (classic stays available from the New label dialog). Update tests that assumed 1.1 defaults. Rewrite README and rules for 2.0.
 Done when: all checks pass and a full browser play-test (desktop and phone) is noted in `VALIDATION.md` under "Unreleased". Do not add a version heading; the owner releases 2.0.
 
-### [ ] T38 · Installable on Android and PC
+### [ ] T38 · Installable now, Play Store ready later
 
 Depends on: T07
-Files: `manifest.webmanifest` (new), `sw.js` (new), `icons/` (new), `index.html`
-Do: a web app manifest (landscape, standalone, theme colors) and a service worker that caches the game files for offline play. Original icons at 192 and 512 px.
-Done when: Chrome's Lighthouse "installable" check passes when served locally; the game still opens from the ZIP via `index.html` (the service worker only registers over http/https).
+Files: `manifest.webmanifest` (new), `sw.js` (new), `icons/` (new), `index.html`, `src/app.js`, `docs/android.md` (new)
+Do:
+
+- A web app manifest (landscape, standalone, theme colors) and a service worker that caches the game files for offline play. Original icons at 192 and 512 px, plus a 512 px Play Store icon and a 1024 × 500 feature graphic.
+- Opening a panel pushes a history entry, so the Android back button (and the browser back button) closes the top panel instead of leaving the game.
+- Check for anything that would break inside a wrapper: absolute paths, network calls during play, features only available from `file://`. `docs/android.md` lists the steps a later Play Store build takes (a Trusted Web Activity or Capacitor) and what is already in place.
+  Done when: Chrome's Lighthouse "installable" check passes when served locally; back closes the top panel in the harness; the game still opens from the ZIP via `index.html` (the service worker only registers over http/https).
