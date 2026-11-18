@@ -82,7 +82,7 @@ Do:
 - API: `buyBuilding`, `buildFloor`, `upgradeFloor`, with clear errors for locked, cash and full.
   Done when: tests cover every error and a successful purchase and build; a CEO run starts with the apartment holding one bedroom booth.
 
-### [ ] T06 · Facilities live on floors
+### [x] T06 · Facilities live on floors
 
 Depends on: T05
 Files: `src/systems/label.js`, `src/systems/company.js`, `tests/company-test.cjs`

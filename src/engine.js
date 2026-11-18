@@ -3436,6 +3436,7 @@
     learnTheme: L.learnTheme,
     lotSize: L.lotSize,
     facilityAt: L.facilityAt,
+    facilitiesOf: L.facilitiesOf,
     builtFacility: L.builtFacility,
     activeSynergies: L.activeSynergies,
     hqBonuses: L.hqBonuses,

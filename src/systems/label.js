@@ -47,7 +47,7 @@
       return {
         fame: s.fame,
         releases: s.albums.filter((p) => p.released).length,
-        facilities: s.hq.facilities.length,
+        facilities: facilitiesOf(s).length,
         chartPeak: bestChartPeak(s),
         awards: s.awards,
         cash: s.cash,
@@ -197,11 +197,24 @@
     function lotSize(s) {
       return rankInfo(s).lot;
     }
+    /**
+     * Built facilities, whichever way the run stores them. Classic runs keep tiles on the lot. CEO runs
+     * keep floors in buildings: x is the building's place on the street, y the floor, so a floor
+     * directly above or the same floor next door counts as a neighbor for pairings.
+     */
+    function facilitiesOf(s) {
+      if (!s.company?.buildings) return s.hq.facilities;
+      return s.company.buildings.flatMap((b, x) =>
+        b.floors
+          .map((f, y) => ({ id: f.type, level: f.level, x, y, building: b.id, builtWeek: f.builtWeek ?? 0 }))
+          .filter((f) => byId[f.id]),
+      );
+    }
     function facilityAt(s, x, y) {
-      return s.hq.facilities.find((f) => f.x === x && f.y === y) || null;
+      return facilitiesOf(s).find((f) => f.x === x && f.y === y) || null;
     }
     function builtFacility(s, id) {
-      return s.hq.facilities.find((f) => f.id === id) || null;
+      return facilitiesOf(s).find((f) => f.id === id) || null;
     }
     function insideLot(s, x, y) {
       const [w, h] = lotSize(s);
@@ -237,7 +250,7 @@
           out.stages[i].sources.push(name);
         }
       };
-      for (const f of s.hq.facilities) {
+      for (const f of facilitiesOf(s)) {
         const def = byId[f.id],
           n = f.level;
         addStages(def.stages, n, def.name);
@@ -260,13 +273,13 @@
       return out;
     }
     function hqUpkeep(s) {
-      return s.hq.facilities.reduce((n, f) => n + byId[f.id].upkeep * f.level, 0);
+      return facilitiesOf(s).reduce((n, f) => n + byId[f.id].upkeep * f.level, 0);
     }
     /** Weekly shop and bar takings plus archive residuals, before upkeep. */
     function hqIncome(s) {
       const bonus = hqBonuses(s);
       let shops = 0;
-      for (const f of s.hq.facilities) {
+      for (const f of facilitiesOf(s)) {
         const inc = byId[f.id].income;
         if (inc) shops += (inc.base + Math.min(s.fame, HQ.incomeFameCap ?? Infinity) * inc.fame) * f.level;
       }
@@ -457,6 +470,7 @@
       onRelease,
       lotSize,
       facilityAt,
+      facilitiesOf,
       builtFacility,
       activeSynergies,
       hqBonuses,
