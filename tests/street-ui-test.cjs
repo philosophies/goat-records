@@ -92,6 +92,39 @@ click({ tab: "artist:" + rec.id });
 assert.equal(element("drawerTitle").textContent, rec.name);
 click({ action: "streetJump", id: "storefront" });
 
+// Panels: buy a plot, build floors, open and upgrade a facility floor, all by clicks.
+click({ tab: "buy:studio" });
+assert.equal(element("drawerTitle").textContent, "Studio building");
+assert.match(html("content"), /FOR SALE[\s\S]*Up to 5 floors[\s\S]*Buy · \$60,000/);
+click({ action: "buildingBuy", building: "studio" });
+assert.ok(saved().company.buildings.some((b) => b.id === "studio"));
+assert.equal(element("drawerTitle").textContent, "Studio building", "buying opens the building's panel");
+assert.match(html("content"), /0 of 5 floors[\s\S]*Build a floor/);
+click({ tab: "buildfloor:studio" });
+assert.match(html("content"), /Floor 1 of 5/);
+assert.match(
+  html("content"),
+  /Vocal Booth[\s\S]*data-action="floorBuild" data-building="studio" data-type="vocal"/,
+);
+assert.doesNotMatch(
+  html("content"),
+  /data-type="writers"/,
+  "a facility built elsewhere is not offered again",
+);
+click({ action: "floorBuild", building: "studio", type: "vocal" });
+assert.equal(saved().company.buildings.find((b) => b.id === "studio").floors[0].type, "vocal");
+assert.match(html("content"), /Floor 1 · Vocal Booth · level 1/);
+click({ tab: "floor:studio:0" });
+assert.equal(element("drawerTitle").textContent, "Vocal Booth");
+assert.match(html("content"), /FLOOR 1 · STUDIO BUILDING · LEVEL 1 \/ 3/);
+click({ action: "floorUpgrade", building: "studio", index: "0" });
+assert.equal(saved().company.buildings.find((b) => b.id === "studio").floors[0].level, 2);
+click({ tab: "buy:hq" });
+assert.match(html("content"), /OPENS AT PHASE 4[\s\S]*Reach phase 4, National label/);
+assert.match(html("content"), /data-action="buildingBuy" data-building="hq" disabled/);
+click({ tab: "floor:studio:9" });
+assert.equal(element("drawer").hidden, true, "a missing floor opens nothing");
+
 console.log(
-  "PASS street interface harness: buildings and floors replace the lot in CEO runs, plots for sale and locked, minimap, people on their floors, classic lot untouched",
+  "PASS street interface harness: building, floor, build and buy panels with their actions, buildings and floors replace the lot in CEO runs, plots, minimap, people on their floors, classic lot untouched",
 );

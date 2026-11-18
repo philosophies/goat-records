@@ -99,7 +99,7 @@ Do:
 - The street scrolls horizontally: drag, wheel, arrow keys and a minimap of buttons that jump to each building. Keep the 1.1 street props (billboard, newsstand, bus, locations) on the street.
   Done when: the harness shows every owned building and its floors; minimap buttons exist for each; a 1.1 run still draws the old lot.
 
-### [ ] T08 · Floor and building panels
+### [x] T08 · Floor and building panels
 
 Depends on: T06, T07
 Files: `src/ui/street.js`, `src/ui/places.js`, `tests/street-ui-test.cjs`

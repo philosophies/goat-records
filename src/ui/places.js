@@ -131,6 +131,8 @@ function placeSheet(id) {
     const l = G.locationList(state).find((x) => x.id === key);
     return l && { title: () => l.name, render: () => locationSheet(l) };
   }
+  const street = typeof GoatStreet !== "undefined" && GoatStreet.sheet(id);
+  if (street) return street;
   // A screen added by a feature script that no place shows yet.
   const panel = GoatUI.panels.find((p) => p.id === id);
   return panel && { title: () => panel.label, render: () => panel.render() };
