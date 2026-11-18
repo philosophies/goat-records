@@ -52,7 +52,7 @@ run(
   `state = G.create(91, { ceo: true }); state.cash = 200000; G.sign(state, state.candidates[0].id); save(); render();`,
 );
 const artistId = saved().artists[0].id;
-click({ tab: "artist:" + artistId });
+click({ tab: "artist:" + artistId + "~sec-team" });
 let page = html("content");
 assert.match(page, /Team and mood/);
 assert.match(page, /WANTS [A-Z ]+ · /, "the mood card names the want");
@@ -120,7 +120,7 @@ assert.equal(s.artists[0].persona.bonusWeek, s.week);
 assert.ok(s.cash < cash);
 
 // Departments at the front desk and in their own panel.
-click({ tab: "desk" });
+click({ tab: "desk~sec-team" });
 page = html("content");
 assert.match(page, /Departments[\s\S]*data-tab="dept:ar"[\s\S]*No head yet/);
 assert.match(page, /data-tab="dept:marketing"[\s\S]*Opens at phase 2/);

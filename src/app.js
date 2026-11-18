@@ -12,6 +12,7 @@ let state,
   panelOpen = false,
   modalHidden = false,
   modalKey = "",
+  modalProject = null,
   audioContext,
   sound = false,
   saveOK = true,
@@ -81,8 +82,8 @@ function paintHTML(id, html) {
 const disable = (condition) => (condition ? "disabled" : "");
 const blocked = () => state.finished || !!state.event;
 const clampRating = (n) => Math.max(0, Math.min(100, n));
-function calculation(r, key) {
-  return `<article class="calculation"><h3>${esc(r.area || r.name)}</h3>${r.choice ? `<p>${esc(r.choice)} · Trend when chosen: ${esc(r.trend)}</p>` : ""}<div class="formula">${r.parts.map((c, i) => `<div class="component" style="--delay:${i * 130}ms"><span>${esc(c.name)}</span><b>${c.value >= 0 ? "+" : ""}${c.value}</b></div>`).join("")}</div><div class="rating-total"><span>RATING <small>(clamped to 0–100)</small></span><strong data-count="${r.score}">${r.score}</strong><span>/100</span></div><div class="rating-track"><span style="--rating:${r.score}%;--delay:${r.parts.length * 130}ms"></span></div></article>`;
+function calculation(r) {
+  return `<article class="calculation"><h3>${esc(r.area || r.name)}</h3>${r.choice ? `<p>${esc(r.choice)} · Trend when chosen: ${esc(r.trend)}</p>` : ""}<div class="formula">${r.parts.map((c, i) => `<div class="component" style="--delay:${i * 130}ms"><span>${esc(c.name)}</span><b>${c.value >= 0 ? "+" : ""}${c.value}</b></div>`).join("")}</div><div class="rating-total"><span>RATING <small>(clamped to 0–100)</small></span><strong>${r.score}</strong><span>/100</span></div><div class="rating-track"><span style="--rating:${r.score}%;--delay:${r.parts.length * 130}ms"></span></div></article>`;
 }
 /** True while an album waits out studio weeks with no decision for the player. */
 function inStudioWaiting(p) {
@@ -93,77 +94,41 @@ function inStudioWaiting(p) {
 function productionPanels(waiting = false) {
   // Once the run is over, unfinished albums no longer take decisions.
   if (state.finished) return "";
-  return state.albums
-    .filter((p) => (!p.released || p.launchReview) && inStudioWaiting(p) === waiting)
+  const projects = state.albums.filter((p) => (!p.released || p.launchReview) && inStudioWaiting(p) === waiting);
+  const visible = waiting ? projects : [projects.find((p) => p.id === modalProject) || projects[0]].filter(Boolean);
+  return visible
     .map((p) => {
       const d = p.production;
       if (!d) return "";
       const a = state.artists.find((a) => a.id === p.artist),
         locked = blocked();
-      let body = "",
-        key = "";
+      let body = "";
       if (p.released) {
-        key = `launch-${p.id}`;
-        body = `<span class="tag">RELEASE-DAY RESULTS</span><h2>${esc(p.title)}</h2><p>Your five stage ratings averaged <strong>${p.quality}/100</strong>${p.hit ? " · HIT RECORD" : ""}. Release-day reception sets a <strong>×${p.launchMultiplier.toFixed(2)}</strong> sales multiplier. Catalog revenue starts when you advance the week. The artist’s inspiration has reset to 0; allow recovery before the next album.</p><div class="grid">${p.launchRatings.map((r) => calculation(r, key)).join("")}</div><button data-action="ackLaunch" data-id="${p.id}" data-reveal-lock class="primary" ${disable(locked)}>Continue to the label →</button>`;
+        body = `<span class="tag">RELEASE-DAY RESULTS</span><h2>${esc(p.title)}</h2><p>Your five stage ratings averaged <strong>${p.quality}/100</strong>${p.hit ? " · HIT RECORD" : ""}. Release-day reception sets a <strong>×${p.launchMultiplier.toFixed(2)}</strong> sales multiplier. Catalog revenue starts when you advance the week. The artist’s inspiration has reset to 0; allow recovery before the next album.</p><details class="decision-details"><summary>Reception breakdown</summary><div class="grid">${p.launchRatings.map((r) => calculation(r)).join("")}</div></details><button data-action="ackLaunch" data-id="${p.id}" class="primary" ${disable(locked)}>Continue to the label →</button>`;
       } else if (d.review) {
         const r = d.results[d.lastResult];
-        key = `${p.id}-${d.stage}-${d.rerollsUsed}`;
-        body = `<span class="tag">${d.reshuffleReview ? "RESHUFFLE RESULT" : "STAGE " + d.stage + " OF 5 · CALCULATING"}</span><h2>${esc(p.title)} / ${esc(r.name)}</h2>${d.reshuffleReview ? `<p>${esc(r.area)}: ${d.lastChange.before} → ${d.lastChange.after}. ${d.rerollLimit - d.rerollsUsed} reshuffles left.</p>` : ""}${calculation(r, key)}<button class="primary" data-action="${d.reshuffleReview ? "ackShuffle" : "continue"}" data-id="${p.id}" data-reveal-lock ${disable(locked)}>${d.reshuffleReview ? "Return to release review" : "Accept result & schedule next step"} →</button>`;
+        body = `<span class="tag">${d.reshuffleReview ? "RESHUFFLE RESULT" : "STAGE " + d.stage + " OF 5 · RESULT"}</span><h2>${esc(p.title)} / ${esc(r.name)}</h2>${d.reshuffleReview ? `<p>${esc(r.area)}: ${d.lastChange.before} → ${d.lastChange.after}. ${d.rerollLimit - d.rerollsUsed} reshuffles left.</p>` : ""}<p class="decision-score"><strong>${r.score}/100</strong></p><details class="decision-details"><summary>How this was scored</summary>${calculation(r)}</details><button class="primary" data-action="${d.reshuffleReview ? "ackShuffle" : "continue"}" data-id="${p.id}" ${disable(locked)}>${d.reshuffleReview ? "Return to release review" : "Accept result & schedule next step"} →</button>`;
       } else if (d.releaseReady) {
-        body = `<span class="tag">FINAL ALBUM REVIEW · LEVEL ${d.artistLevel} ARTIST</span><h2>Ready for the world?</h2><p>${esc(p.artistName)} · Five stages complete. Final quality is the rounded average of these ratings; it determines hit and award eligibility.</p><div class="area-ratings">${d.results.map((r) => `<div><small>${esc(r.area)}</small><b>${r.score}</b></div>`).join("")}<div class="overall"><small>ALBUM QUALITY</small><b>${G.albumQuality(p)}</b></div></div><label class="release-name">Final album title<input id="release-title-${p.id}" maxlength="45" value="${esc(p.title)}"></label><div class="reshuffle-controls"><label>Area to reshuffle<select id="reshuffle-${p.id}">${d.results.map((r, i) => `<option value="${i}">${esc(r.area)} · ${r.score}/100</option>`).join("")}</select></label><button data-action="reshuffle" data-id="${p.id}" ${disable(locked || d.rerollsUsed >= d.rerollLimit)}>Reshuffle area · ${d.rerollLimit - d.rerollsUsed}/${d.rerollLimit} left</button></div><label class="release-name">Release-day strategy<select id="release-plan-${p.id}">${G.RELEASE_PLANS.map((r) => `<option value="${r.id}" ${r.id === (p.releaseStrategy || "fans") ? "selected" : ""}>${r.name} · ${r.role}${state.staff.includes(r.role) ? " HIRED" : ""}</option>`).join("")}</select></label><p class="muted">Press targets Critics, fan parties target Fan response, and wide distribution targets Market impact. The targeted rating gains +6, plus a skill-based bonus with that plan’s specialist hired; the other ratings each lose 3.</p><p class="muted">Artist level ${d.artistLevel} locks in ${d.rerollLimit} attempt(s) for this album. Only the selected area’s random variation is rerolled (−12 to +12); its other contributions stay fixed. The result can be worse. Naming is saved before reshuffling.</p><button class="primary" data-action="release" data-id="${p.id}" ${disable(locked)}>Confirm title & release album →</button>`;
+        body = `<span class="tag">FINAL ALBUM REVIEW · LEVEL ${d.artistLevel} ARTIST</span><h2>Ready for the world?</h2><div class="area-ratings">${d.results.map((r) => `<div><small>${esc(r.area)}</small><b>${r.score}</b></div>`).join("")}<div class="overall"><small>ALBUM QUALITY</small><b>${G.albumQuality(p)}</b></div></div><label class="release-name">Final album title<input id="release-title-${p.id}" maxlength="45" value="${esc(p.title)}"></label><details class="decision-details"><summary>Reshuffle a stage · ${d.rerollLimit - d.rerollsUsed} left</summary><div class="reshuffle-controls"><label>Area to reshuffle<select id="reshuffle-${p.id}">${d.results.map((r, i) => `<option value="${i}">${esc(r.area)} · ${r.score}/100</option>`).join("")}</select></label><button data-action="reshuffle" data-id="${p.id}" ${disable(locked || d.rerollsUsed >= d.rerollLimit)}>Reshuffle area · ${d.rerollLimit - d.rerollsUsed}/${d.rerollLimit} left</button></div></details><label class="release-name">Release-day strategy<select id="release-plan-${p.id}">${G.RELEASE_PLANS.map((r) => `<option value="${r.id}" ${r.id === (p.releaseStrategy || "fans") ? "selected" : ""}>${r.name} · ${r.role}${state.staff.includes(r.role) ? " HIRED" : ""}</option>`).join("")}</select></label><details class="decision-details"><summary>Release strategy effects</summary><p>Press helps Critics, fan parties help Fan response, and wide distribution helps Market impact. The target gets +6 plus a hired specialist’s bonus. The other two ratings lose 3 each.</p></details><button class="primary" data-action="release" data-id="${p.id}" ${disable(locked)}>Confirm title & release album →</button>`;
       } else if (d.cooldown > 0) {
         body = `<span class="tag">IN THE STUDIO · ${d.stage}/5 DECISIONS COMPLETE</span><h2>${esc(p.title)}</h2><p>${d.cooldown} week(s) until ${d.stage === 5 ? "final release review" : G.STAGES[d.stage].name}. Advance time when the rest of the label is ready.</p>`;
       } else {
         const stage = G.STAGES[d.stage];
-        body = `<span class="tag">STAGE ${d.stage + 1} OF 5 · ${esc(stage.area)}</span><h2>${esc(p.title)} / ${stage.name}</h2><p>${stage.question}</p><p class="muted">${Number.isFinite(p.inspirationAtStart) ? `Inspiration locked ${p.inspirationAtStart}/100 · ` : ""}${p.duration} planned weeks · ${money(p.budget)} total production & push · expectation ${money(p.expectation.target)}${p.addOns.length ? " · " + p.addOns.map((id) => G.ALBUM_ADDONS.find((o) => o.id === id).name).join(" / ") : ""}</p><div class="production-context"><span>${esc(a.name)} · Level ${G.level(a)}</span><span>Craft ${a.talent} · Trust ${a.trust} · Morale ${Math.round(a.morale)} · Energy ${Math.round(a.energy)}</span><span>Label fame ${state.fame} · Reputation ${state.reputation} · Booth prestige ${state.booths.find((b) => b.id === p.booth).prestige}</span><span>Current trend: ${state.trend} · Album: ${p.genre} / ${p.audience}</span></div><div class="options">${stage.options
-          .map((o, i) => {
-            const preview = G.stagePreview(state, p, i),
-              base = preview.parts.reduce((n, c) => n + c.value, 0);
-            return `<button data-action="stage" data-id="${p.id}" data-option="${i}" ${disable(locked)}><strong>${o.name}</strong><small>${o.text}</small><span class="expert ${preview.hired ? "hired" : ""}">${o.role}: ${preview.hired ? "HIRED · +" + preview.bonus : "not hired · +0"}</span><div class="preview-parts">${preview.parts.map((c) => `<span>${esc(c.name)} <b>${c.value >= 0 ? "+" : ""}${c.value}</b></span>`).join("")}</div><small>Expected rating: ${clampRating(base - 8)}–${clampRating(base + 8)} /100<br>Session variation: −8 to +8. No extra fee.</small></button>`;
-          })
-          .join("")}</div>`;
+        const previews = stage.options.map((option, i) => ({ option, ...G.stagePreview(state, p, i) }));
+        const options = previews.map(({ option, parts }, i) => {
+          const base = parts.reduce((total, row) => total + row.value, 0);
+          return `<button data-action="stage" data-id="${p.id}" data-option="${i}" ${disable(locked)}><strong>${esc(option.name)}</strong><small>${esc(option.text)}</small><span class="stage-estimate">${clampRating(base - 8)}–${clampRating(base + 8)} / 100</span></button>`;
+        }).join("");
+        const details = previews.map(({ option, parts }) =>
+          `<div><b>${esc(option.name)}</b><div class="preview-parts">${parts.map((row) => `<span>${esc(row.name)} <b>${row.value >= 0 ? "+" : ""}${row.value}</b></span>`).join("")}</div></div>`,
+        ).join("");
+        body = `<span class="tag">STAGE ${d.stage + 1} OF 5 · ${esc(stage.area)}</span><h2>${esc(p.title)} / ${esc(stage.name)}</h2><p>${esc(stage.question)}</p><div class="options stage-options">${options}</div><details class="decision-details"><summary>Rating breakdown</summary>${details}<p>${esc(a.name)} · ${esc(p.genre)} / ${esc(p.audience)} · Trend: ${esc(state.trend)}</p></details>`;
       }
-      if (!p.released) body += GoatUI.html("productionPanel", p);
-      return `<div id="project-${p.id}" class="production-panel" ${key ? `data-reveal="${key}"` : ""}><div class="stage-steps" aria-label="Production progress">${G.STAGES.map((t, i) => `<span class="${i < d.stage ? "done" : i === d.stage ? "current" : ""}">${i < d.stage ? "✓" : i + 1} ${t.name}</span>`).join("")}</div>${body}${key ? '<button class="skip-reveal" data-action="skipReveal">Skip animation</button>' : ""}</div>`;
+      const promotion = !p.released && GoatUI.html("productionPanel", p);
+      if (promotion) body += `<details class="decision-details"><summary>Singles and promotion</summary>${promotion}</details>`;
+      return `<div id="project-${p.id}" class="production-panel"><div class="stage-steps" aria-label="Production progress">${G.STAGES.map((t, i) => `<span class="${i < d.stage ? "done" : i === d.stage ? "current" : ""}">${i < d.stage ? "✓" : i + 1} ${t.name}</span>`).join("")}</div>${body}</div>`;
     })
     .join("");
-}
-let revealFrame = 0,
-  finishReveal = () => {};
-const revealed = new Set();
-function animateRatings() {
-  const panels = [...document.querySelectorAll("[data-reveal]")];
-  const pending = panels.filter((p) => !revealed.has(p.dataset.reveal));
-  revealFrame++;
-  for (const p of panels) if (revealed.has(p.dataset.reveal)) p.classList.add("reveal-complete");
-  if (!pending.length) return;
-  for (const p of pending) revealed.add(p.dataset.reveal);
-  if (typeof requestAnimationFrame !== "function") return;
-  const nodes = pending.flatMap((p) => [...p.querySelectorAll("[data-count]")]),
-    locks = pending.flatMap((p) => [...p.querySelectorAll("[data-reveal-lock]")]),
-    frame = revealFrame,
-    start = performance.now(),
-    reduced = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let done = false;
-  for (const b of locks) b.disabled = true;
-  finishReveal = () => {
-    done = true;
-    for (const n of nodes) n.textContent = n.dataset.count;
-    for (const b of locks) b.disabled = blocked();
-    for (const p of pending) p.classList.add("reveal-complete");
-  };
-  if (reduced) {
-    finishReveal();
-    return;
-  }
-  function tick(now) {
-    if (done || frame !== revealFrame) return;
-    const t = Math.min(1, (now - start) / 1800);
-    for (const n of nodes) n.textContent = Math.round(Number(n.dataset.count) * (1 - Math.pow(1 - t, 3)));
-    if (t < 1) requestAnimationFrame(tick);
-    else finishReveal();
-  }
-  requestAnimationFrame(tick);
 }
 function validProductionSave(s) {
   return (
@@ -250,7 +215,7 @@ function albumFormCard({ artistId, boothId } = {}) {
     );
   if (!free.length)
     return `<div class="empty">${state.artists.length ? "No artist is free to record. Finish recording or touring, or renew a completed contract." : '<button data-tab="desk">Sign your first artist at the front desk</button>'}</div>`;
-  return `<div class="card"><p>Five interactive stages take five weeks (six for Youth). Each selected package add-on adds one more week before release. Fees are paid up front. Room quality benefits every genre.</p><form id="albumForm" class="form"><label>Artist<select id="artist">${free.map((a) => `<option value="${a.id}">${esc(a.name)} · ${a.genre} · inspiration ${Math.round(G.inspirationInfo(a).value)}/100</option>`).join("")}</select></label><label>Recording room<select id="booth">${booths.map((b) => `<option value="${b.id}">${G.BOOTHS[b.id].name} · rank ${b.id + 1}</option>`).join("")}</select></label><label>Genre<select id="genre">${G.GENRES.map((g) => `<option ${free[0]?.genre === g ? "selected" : ""}>${g}</option>`).join("")}</select></label>${GoatUI.albumForm.map((x) => x.fields?.() || "").join("")}<label>Target audience<select id="audience">${["Youth", "Teen", "Adult"].map((g) => `<option ${free[0]?.audience === g ? "selected" : ""}>${g}</option>`).join("")}</select></label><label>Base production budget<select id="budget"><option value="4000">Lean · $4,000</option><option value="8000">Standard · $8,000</option><option value="12000">Premium · $12,000</option></select></label><label>Album title<input id="title" maxlength="45" placeholder="Name your next record"></label><fieldset class="album-addons"><legend>Album push & production add-ons · +1 week each</legend>${G.ALBUM_ADDONS.map((o) => `<label><input type="checkbox" name="albumAddon" value="${o.id}"><span><b>${o.name} · ${money(o.cost)}</b><small>${o.description}</small></span></label>`).join("")}</fieldset><div id="albumQuote" class="plan-quote form-full" aria-live="polite">Choose your album package.</div><button id="beginAlbum" class="primary" ${disable(blocked() || !free.length || !booths.length || state.cash < 4000 || !G.inspirationInfo(free[0] || {}).canRecord)}>Begin recording →</button></form></div>`;
+  return `<div class="card"><form id="albumForm" class="form"><label>Artist<select id="artist">${free.map((a) => `<option value="${a.id}">${esc(a.name)} · ${a.genre} · inspiration ${Math.round(G.inspirationInfo(a).value)}/100</option>`).join("")}</select></label><label>Recording room<select id="booth">${booths.map((b) => `<option value="${b.id}">${G.BOOTHS[b.id].name} · rank ${b.id + 1}</option>`).join("")}</select></label><label>Genre<select id="genre">${G.GENRES.map((g) => `<option ${free[0]?.genre === g ? "selected" : ""}>${g}</option>`).join("")}</select></label>${GoatUI.albumForm.map((x) => x.fields?.() || "").join("")}<label>Target audience<select id="audience">${["Youth", "Teen", "Adult"].map((g) => `<option ${free[0]?.audience === g ? "selected" : ""}>${g}</option>`).join("")}</select></label><label>Base production budget<select id="budget"><option value="4000">Lean · $4,000</option><option value="8000">Standard · $8,000</option><option value="12000">Premium · $12,000</option></select></label><label>Album title<input id="title" maxlength="45" placeholder="Name your next record"></label><details class="form-full decision-details"><summary>Production add-ons · +1 week each</summary><fieldset class="album-addons" aria-label="Production add-ons">${G.ALBUM_ADDONS.map((o) => `<label><input type="checkbox" name="albumAddon" value="${o.id}"><span><b>${o.name} · ${money(o.cost)}</b><small>${o.description}</small></span></label>`).join("")}</fieldset></details><div id="albumQuote" class="plan-quote form-full" aria-live="polite">Choose your album package.</div><button id="beginAlbum" class="primary" ${disable(blocked() || !free.length || !booths.length || state.cash < 4000 || !G.inspirationInfo(free[0] || {}).canRecord)}>Begin recording →</button></form></div>`;
 }
 /** The album plan as entered in the album form, including fields added by feature scripts. */
 function readAlbumPlan() {
@@ -443,7 +408,7 @@ function artistCard(a) {
   return `<article class="card"><div class="avatar"><span class="monogram">${esc(a.name[0])}</span><div><span class="tag">${esc(a.genre)}</span><h3>${esc(a.name)}</h3></div></div><p>${a.age} artist · ${G.CAREER_NAMES[G.careerTier(a)]} · Level ${G.level(a)}/10 · ${a.audience} audience</p><div class="metrics"><span>Craft <b>${a.talent}</b></span><span>Potential <b>${a.potential}</b></span><span>Fans <b>${Math.round(a.fans)}</b></span><span>Trust <b>${a.trust}</b></span><span>Artist fame <b>${Math.round(a.fame)}</b></span><span>Reputation <b>${a.reputation}</b></span><span>Energy <b>${Math.round(a.energy)}</b></span><span>Morale <b>${Math.round(a.morale)}</b></span><span>Momentum <b>${Math.round(a.momentum)}</b></span><span>Career XP <b>${a.xp || 0}${G.level(a) < 10 ? " / " + G.CAREER_XP[G.level(a)] : " · MAX"}</b></span></div>${G.onTour(state, a.id) ? `<p class="touring-status">ON TOUR · ${esc(G.onTour(state, a.id).title)} · recording unavailable</p>` : ""}${inspirationMeter(a)}<div class="contract-summary"><b>Market value ${money(G.artistValue(a))}</b><p>${expired ? "CONTRACT COMPLETE · renew to make another album" : `${a.contract.remaining} / ${a.contract.term} albums remaining · ${Math.round(a.contract.royalty * 100)}% royalty`}<br>${expired && !G.onTour(state, a.id) ? "No roster salary until renewed" : money(a.wage) + "/week"} · development ceiling ${t.cap}</p></div>${GoatUI.html("artistCard", a)}${expired ? `<label>New album commitment<select id="renew-${a.id}">${termOptions(a)}</select></label><button data-action="renew" data-id="${a.id}" ${disable(blocked() || G.busy(state, a.id))}>Renew contract</button>` : ""}<p class="muted">${t.wait ? `Development returns in ${t.wait} week(s).` : t.gain > 0 ? `Next development: craft +${t.gain}, XP +1. Three-week cooldown.` : a.talent >= a.potential ? "At lifetime potential. Focus on releases and fan growth." : "At the current development ceiling. Raise artist level or label rank to grow further."}</p><div class="actions"><button data-action="train" data-id="${a.id}" ${disable(blocked() || expired || G.busy(state, a.id) || a.energy < 30 || t.wait > 0 || t.gain <= 0 || state.cash < t.cost)}>Develop · ${money(t.cost)}</button><button data-action="leave" data-id="${a.id}" ${disable(blocked() || G.busy(state, a.id))}>${expired ? "Release completed contract" : "End contract (reputation −3)"}</button></div></article>`;
 }
 function scouting() {
-  return `<h2>Tomorrow’s headline acts</h2><p class="muted">Pay for a new search whenever you need fresh prospects. Higher budgets improve the pool’s craft, potential and existing fan reach. Artist advances are paid separately. Lists stay until you scout again.</p><div class="grid search-budgets">${G.SCOUT_BUDGETS.map((b, i) => `<article class="card"><span class="tag">${b.count} PROSPECTS</span><h3>${b.name}</h3><p>Craft ${b.min}–${b.max} · potential roughly ${b.potential}–${Math.min(100, b.potential + 8)} · established fans ${b.fans}–${b.fans + b.fanRange - 1}</p>${G.scoutLocked(state, i) ? `<p class="muted">${esc(G.scoutLocked(state, i))}</p>` : ""}<button data-action="scout" data-id="${i}" ${disable(blocked() || state.cash < b.cost || !!G.scoutLocked(state, i))}>Scout · ${money(b.cost)}</button></article>`).join("")}</div>${state.scoutReport ? `<p class="muted">Last search: ${state.scoutReport.name}, week ${state.scoutReport.week}.</p>` : ""}<h2>Available artists</h2><p class="muted">Reputation below 30 blocks signing. Royalties are deducted from each album’s gross revenue. A completed contract keeps its roster slot until renewed or released.</p><div class="grid">${
+  return `<details class="decision-details"${state.candidates.length ? "" : " open"}><summary>Find new prospects</summary><div class="grid search-budgets">${G.SCOUT_BUDGETS.map((b, i) => `<article class="card"><span class="tag">${b.count} PROSPECTS</span><h3>${b.name}</h3><p>Craft ${b.min}–${b.max} · potential roughly ${b.potential}–${Math.min(100, b.potential + 8)} · established fans ${b.fans}–${b.fans + b.fanRange - 1}</p>${G.scoutLocked(state, i) ? `<p class="muted">${esc(G.scoutLocked(state, i))}</p>` : ""}<button data-action="scout" data-id="${i}" ${disable(blocked() || state.cash < b.cost || !!G.scoutLocked(state, i))}>Scout · ${money(b.cost)}</button></article>`).join("")}</div></details>${state.scoutReport ? `<p class="muted">Last search: ${state.scoutReport.name}, week ${state.scoutReport.week}.</p>` : ""}<h2>Available artists</h2><div class="grid">${
     state.candidates
       .map((a) => {
         const q = G.contractQuote(state, a, 1);
@@ -470,15 +435,16 @@ let chartPage = 0,
   wireCompany = "all",
   awardViewYear = null;
 function charts() {
+  const pageSize = 15;
   const c = state.charts,
     source = c.previewEntries || c.entries,
     rows = source.filter(
       (e) => (chartFilter !== "own" || e.owned) && (chartGenre === "all" || e.genre === chartGenre),
     ),
-    pages = Math.max(1, Math.ceil(rows.length / 50));
+    pages = Math.max(1, Math.ceil(rows.length / pageSize));
   chartPage = Math.min(chartPage, pages - 1);
-  const visible = rows.slice(chartPage * 50, chartPage * 50 + 50);
-  return `<h2>Industry Top 300</h2><p class="muted">${c.rivals.length} rival albums compete for 300 published positions. Twenty rival releases enter every four weeks. Official ranks use settled weekly units; a new release gets a provisional debut estimate immediately, without sales or rewards being fabricated.</p>${c.previewEntries ? '<p class="plan-quote">Provisional release-day estimates are included. Official ranks, chart weeks and milestones settle when this label week closes.</p>' : ""}<div class="chart-controls"><label>Show<select id="chartFilter"><option value="all" ${chartFilter === "all" ? "selected" : ""}>All labels</option><option value="own" ${chartFilter === "own" ? "selected" : ""}>My albums</option></select></label><label>Genre<select id="chartGenre"><option value="all">All genres</option>${G.GENRES.map((g) => `<option ${g === chartGenre ? "selected" : ""}>${g}</option>`).join("")}</select></label><span>Week ${c.week} · ${rows.length} matches · page ${chartPage + 1}/${pages}</span><button data-action="chartPage" data-id="${chartPage - 1}" ${disable(chartPage === 0)}>Previous 50</button><button data-action="chartPage" data-id="${chartPage + 1}" ${disable(chartPage + 1 >= pages)}>Next 50</button></div><div class="chart-table"><div class="chart-row chart-heading"><span>RANK</span><span>ALBUM / ARTIST</span><span>LABEL</span><span>UNITS</span></div>${visible.map((e) => `<div class="chart-row ${e.owned ? "owned" : ""}"><b class="chart-rank">#${e.rank}</b><div><b>${esc(e.title)}</b>${e.projected ? '<span class="tag">PROVISIONAL</span>' : ""}<small>${esc(e.artistName)} · ${esc(e.genre)}</small></div><span>${e.owned ? "YOUR LABEL" : esc(e.label)}</span><b>${e.units.toLocaleString()}${e.projected ? " est." : ""}</b></div>`).join("")}</div><h2>Your chart records</h2><div class="grid">${
+  const visible = rows.slice(chartPage * pageSize, (chartPage + 1) * pageSize);
+  return `<h2>Industry Top 300</h2><p class="muted">${c.rivals.length} rival albums compete for 300 published positions. Twenty rival releases enter every four weeks. Official ranks use settled weekly units; a new release gets a provisional debut estimate immediately, without sales or rewards being fabricated.</p>${c.previewEntries ? '<p class="plan-quote">Provisional release-day estimates are included. Official ranks, chart weeks and milestones settle when this label week closes.</p>' : ""}<div class="chart-controls"><label>Show<select id="chartFilter"><option value="all" ${chartFilter === "all" ? "selected" : ""}>All labels</option><option value="own" ${chartFilter === "own" ? "selected" : ""}>My albums</option></select></label><label>Genre<select id="chartGenre"><option value="all">All genres</option>${G.GENRES.map((g) => `<option ${g === chartGenre ? "selected" : ""}>${g}</option>`).join("")}</select></label><span>Week ${c.week} · ${rows.length} matches · page ${chartPage + 1}/${pages}</span><button data-action="chartPage" data-id="${chartPage - 1}" ${disable(chartPage === 0)}>Previous</button><button data-action="chartPage" data-id="${chartPage + 1}" ${disable(chartPage + 1 >= pages)}>Next</button></div><div class="chart-table"><div class="chart-row chart-heading"><span>RANK</span><span>ALBUM / ARTIST</span><span>LABEL</span><span>UNITS</span></div>${visible.map((e) => `<div class="chart-row ${e.owned ? "owned" : ""}"><b class="chart-rank">#${e.rank}</b><div><b>${esc(e.title)}</b>${e.projected ? '<span class="tag">PROVISIONAL</span>' : ""}<small>${esc(e.artistName)} · ${esc(e.genre)}</small></div><span>${e.owned ? "YOUR LABEL" : esc(e.label)}</span><b>${e.units.toLocaleString()}${e.projected ? " est." : ""}</b></div>`).join("")}</div><h2>Your chart records</h2><div class="grid">${
     state.albums
       .filter((p) => p.released)
       .map(
@@ -517,7 +483,7 @@ function annualAwards() {
     )
     .join("")}</select></label>${
     program.results
-      ? `<div class="award-results">${program.results.map((r) => `<section class="card"><span class="tag">${r.genre} · ALBUM OF THE YEAR</span><h3>${esc(r.entries.find((e) => e.id === r.winner)?.title || "No eligible release")}</h3>${r.entries.map((e, i) => `<details ${e.owned ? "open" : ""}><summary>#${i + 1} · ${esc(e.title)} · ${esc(e.owned ? G.labelName(state) : e.label)} · ${e.score}/100 ${e.owned ? "— YOUR ENTRY" : ""}</summary>${calculation({ name: e.title, parts: e.parts, score: e.score }, "award")}</details>`).join("")}</section>`).join("")}</div>`
+      ? `<div class="award-results">${program.results.map((r) => `<section class="card"><span class="tag">${r.genre} · ALBUM OF THE YEAR</span><h3>${esc(r.entries.find((e) => e.id === r.winner)?.title || "No eligible release")}</h3>${r.entries.map((e, i) => `<details ${e.owned ? "open" : ""}><summary>#${i + 1} · ${esc(e.title)} · ${esc(e.owned ? G.labelName(state) : e.label)} · ${e.score}/100 ${e.owned ? "— YOUR ENTRY" : ""}</summary>${calculation({ name: e.title, parts: e.parts, score: e.score })}</details>`).join("")}</section>`).join("")}</div>`
       : `<p class="plan-quote">Year ${year} entries close after week ${year * 52}. Winners receive $8,000 per genre plus label fame and artist career recognition. Attendance spending cannot buy a win.</p><div class="grid">${G.GENRES.map(
           (g) => {
             const eligible = G.awardEligible(state, year, g);
@@ -607,7 +573,7 @@ function activityHub() {
         waiting = inStudioWaiting(p);
       return waiting
         ? ""
-        : `<button class="activity-card ready" data-action="showModal"><span class="tag">ALBUM · ACTION READY</span><b>${esc(p.title)}</b><small>${esc(p.artistName)} · ${p.launchReview ? "Release results" : d.review ? "Review stage results" : d.releaseReady ? "Final review & release" : G.STAGES[d.stage].name} →</small><div class="progress"><span style="width:${d.stage * 20}%"></span></div></button>`;
+        : `<button class="activity-card ready" data-action="showModal" data-project="${p.id}"><span class="tag">ALBUM · ACTION READY</span><b>${esc(p.title)}</b><small>${esc(p.artistName)} · ${p.launchReview ? "Release results" : d.review ? "Review stage results" : d.releaseReady ? "Final review & release" : G.STAGES[d.stage].name} →</small><div class="progress"><span style="width:${d.stage * 20}%"></span></div></button>`;
     })
     .join(
       "",
@@ -616,7 +582,7 @@ function activityHub() {
 /** The latest label news lines for the side ticker. */
 function newsFeed() {
   return `<span class="tag">LABEL NEWS</span>${state.news
-    .slice(0, 6)
+    .slice(0, 3)
     .map((n) => `<div class="line">${esc(n)}</div>`)
     .join("")}`;
 }
@@ -641,7 +607,8 @@ function showPanel(id) {
   hqView.moving = null;
   render();
   $("content").scrollTop = 0;
-  if (sheetSection) document.getElementById(sheetSection)?.scrollIntoView?.({ block: "start" });
+  if (sheetSection && sheetSection === "sec-record" && tab.startsWith("room:"))
+    document.getElementById(sheetSection)?.scrollIntoView?.({ block: "start" });
 }
 function openPanel(id) {
   if (panelHistory && GoatPlaces.sheet(GoatPlaces.resolve(id).id)) {
@@ -729,9 +696,10 @@ function render() {
     // A banner with a button (an action or a screen to open) is shown as a card over the lot.
     inputBanners = banners.filter((h) => /data-(action|tab)=/.test(h));
   paintHTML("notices", banners.filter((h) => !inputBanners.includes(h)).join(""));
-  paintHTML("milestones", inputBanners.join("") + milestoneBanner());
+  const production = s.event ? "" : productionPanels();
+  paintHTML("milestones", s.event || production ? "" : inputBanners[0] || milestoneBanner());
   paintHTML("activities", activityHub());
-  paintHTML("production", productionPanels());
+  paintHTML("production", production);
   paintHTML("studioQueue", productionPanels(true));
   paintHTML("feed", newsFeed());
   const key = [
@@ -748,11 +716,11 @@ function render() {
   if (key !== modalKey) {
     modalKey = key;
     modalHidden = false;
+    $("modal").scrollTop = 0;
   }
   $("modal").hidden = !key || modalHidden;
   GoatLot.render();
   measureShell();
-  animateRatings();
   updateAlbumQuote();
   updateTourQuote(true);
   animateTourMoney();
@@ -775,14 +743,11 @@ document.addEventListener("click", (e) => {
     render();
     return;
   }
-  if (b.dataset.action === "skipReveal") {
-    finishReveal();
-    return;
-  }
   if (b.dataset.tab) {
     // A screen opened from a card over the lot sets the card aside so the screen is usable.
     if (b.closest?.("#modal")) modalHidden = true;
     openPanel(b.dataset.tab);
+    if (b.dataset.tab.includes("~")) $("content").querySelector?.('.sheet-tabs [aria-pressed="true"]')?.focus();
     return;
   }
   if (b.dataset.action === "closePanel") {
@@ -790,7 +755,9 @@ document.addEventListener("click", (e) => {
     return;
   }
   if (b.dataset.action === "showModal") {
+    modalProject = b.dataset.project === undefined ? null : Number(b.dataset.project);
     modalHidden = false;
+    $("modal").scrollTop = 0;
     render();
     return;
   }
@@ -982,6 +949,7 @@ function resetView() {
   panelOpen = false;
   clearPanelHistory();
   modalHidden = false;
+  modalProject = null;
   hqView.selected = null;
   hqView.moving = null;
   GoatClock.reset();

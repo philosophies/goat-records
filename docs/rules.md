@@ -6,6 +6,8 @@ New labels start in CEO mode. Choose Classic in the New label dialog for the ori
 
 There are no menus. Everything opens from a person or place on the lot, in a panel beside it; time stops while the panel is open. The roster in the side panel lists every artist and staff member, including artists away on tour.
 
+Use the section buttons at the top of a busy panel to switch views. Find recording locations under **Out of town → Studios**, and start an album from an artist’s **Record** section or a studio. Production shows one decision at a time. Open **Rating breakdown** to see what goes into each estimate.
+
 | Tap                                     | Opens                                                                                                                    |
 | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | An artist (on the lot or in the roster) | Their stats, contract, inspiration, gigs and hot streak; record an album; book a tour; their albums with singles and ads |

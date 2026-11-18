@@ -50,13 +50,15 @@ for (const place of ["desk", "trophies", "office", "room:0", "newroom"])
     place + " is on the ground floor",
   );
 assert.match(element("lotRoof").innerHTML, /data-tab="label"/);
-for (const place of ["billboard", "newsstand", "bus", "street", "location:barn"])
+for (const place of ["billboard", "newsstand", "bus", "street"])
   assert.match(element("lotTown").innerHTML, new RegExp(`data-tab="${place}"`), place + " is on the street");
+click({ tab: "street" });
 assert.match(
-  element("lotTown").innerHTML,
-  /Hillside Mansion[\s\S]*Rank 4/,
+  element("content").innerHTML,
+  /Hillside Mansion[\s\S]*Locked · rank 4/,
   "locked locations show their rank",
 );
+click({ action: "closePanel" });
 assert.match(element("roster").innerHTML, /data-tab="desk"[\s\S]*Find artists/);
 assert.match(
   element("clockReason").textContent,
@@ -73,9 +75,13 @@ assert.equal(element("drawer").hidden, false);
 assert.equal(element("drawerTitle").textContent, "Front desk");
 assert.match(
   element("content").innerHTML,
-  /Tomorrow[\s\S]*Your team/,
-  "scouting and hiring share the front desk",
+  /desk~sec-team[\s\S]*id="sec-scout"[\s\S]*Available artists/,
+  "scouting opens first and staffing has its own section",
 );
+assert.doesNotMatch(element("content").innerHTML, /id="sec-team"/);
+click({ tab: "desk~sec-team" });
+assert.match(element("content").innerHTML, /id="sec-team"[\s\S]*Recruitment budget/);
+assert.doesNotMatch(element("content").innerHTML, /id="sec-scout"/);
 assert.match(element("clockReason").textContent, /panel open/, "an open panel holds the clock");
 click({ action: "closePanel" });
 assert.equal(element("drawer").hidden, true);
@@ -84,7 +90,7 @@ assert.equal(vm.runInContext("GoatClock.speed", context), 2);
 assert.equal(prefs["goat-records-clock-speed"], "2", "the chosen speed is remembered");
 assert.match(element("clockReason").textContent, /2× · time is running/);
 click({ tab: "scout" });
-assert.match(element("content").innerHTML, /Tomorrow/);
+assert.match(element("content").innerHTML, /Available artists/);
 assert.equal(vm.runInContext("GoatClock.current().held", context), true, "the chosen speed waits while held");
 const original = JSON.parse(stored);
 click({ action: "sign", id: original.candidates[0].id });
@@ -96,7 +102,9 @@ assert.match(
 );
 click({ tab: "artist:" + signed.id });
 assert.equal(element("drawerTitle").textContent, signed.name);
-assert.match(element("content").innerHTML, /Record an album[\s\S]*id="albumForm"[\s\S]*Touring[\s\S]*Albums/);
+assert.doesNotMatch(element("content").innerHTML, /id="albumForm"/);
+click({ tab: "artist:" + signed.id + "~sec-record" });
+assert.match(element("content").innerHTML, /Record an album[\s\S]*id="albumForm"/);
 assert.equal(
   (
     element("content")
@@ -176,7 +184,7 @@ assert.equal(element("drawerTitle").textContent, "The Living Room");
 assert.match(element("content").innerHTML, /Start an album here[\s\S]*Album theme/);
 click({ tab: "studio" });
 assert.equal(element("drawerTitle").textContent, "The Living Room", "the old studio link opens a free room");
-click({ tab: "label" });
+click({ tab: "label~sec-notebook" });
 assert.match(element("content").innerHTML, /Combo notebook/);
 assert.match(
   element("content").innerHTML,

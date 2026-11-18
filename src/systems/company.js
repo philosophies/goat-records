@@ -97,7 +97,10 @@
       core.requireAction(s);
       const clean = cleanName(name),
         old = labelName(s);
-      if (clean === old) throw Error(`The label is already called ${old}.`);
+      if (clean === old) {
+        if (free) return clean;
+        throw Error(`The label is already called ${old}.`);
+      }
       const cost = free ? 0 : Math.min(RENAME.fame, s.fame);
       s.fame -= cost;
       s.labelName = clean;

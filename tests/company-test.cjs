@@ -20,7 +20,7 @@ test("A classic run has no company and keeps the 1.1 start", () => {
 });
 
 test("New runs default to the CEO home studio with $2,000", () => {
-  const s = G.create(7);
+  const s = G.create(7, { labelName: "Goat Records" });
   assert.equal(s.ceoMode, true);
   assert.deepEqual(s.company, {
     phase: 1,

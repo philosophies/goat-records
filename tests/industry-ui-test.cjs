@@ -61,10 +61,10 @@ function click(dataset) {
 }
 click({ tab: "charts" });
 assert.match(el("content").innerHTML, /Industry Top 300/);
-assert.match(el("content").innerHTML, /page 1\/6/);
+assert.match(el("content").innerHTML, /page 1\/20/);
 click({ action: "chartPage", id: 1 });
-assert.match(el("content").innerHTML, /page 2\/6/);
-assert.match(el("content").innerHTML, /#51/);
+assert.match(el("content").innerHTML, /page 2\/20/);
+assert.match(el("content").innerHTML, /#16/);
 listeners.change({ target: { id: "chartFilter", value: "own" } });
 assert.match(el("content").innerHTML, /Annual Entry/);
 click({ tab: "journal" });

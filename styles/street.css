@@ -235,27 +235,11 @@
 
 /* ---------- Minimap on the sidewalk ---------- */
 .street-map {
-  display: flex;
-  gap: 4px;
   padding: 6px 8px;
-  overflow-x: auto;
 }
-.map-chip {
-  flex: 0 0 auto;
-  padding: 2px 8px;
-  background: #18171f;
-  border: 2px solid #505b3f;
-  border-radius: 0;
-  box-shadow: none;
-  color: #c8c4b4;
-  font:
-    700 10px/1.4 Verdana,
-    sans-serif;
-  cursor: pointer;
-}
-.map-chip.owned {
-  border-color: #b08d3c;
-  color: #f3d25b;
+.street-map select {
+  max-width: 100%;
+  padding: 4px 8px;
 }
 
 @media (prefers-reduced-motion: reduce) {
