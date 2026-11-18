@@ -90,6 +90,19 @@
     phaseVote: 50,
   };
 
+  // Spending against the period budget (design 3.3). Every payment counts; weekly costs do not.
+  //   overspend  past the budget, every director loses one point per pctPerPoint % of overage, up to cap
+  const OVERSPEND = { pctPerPoint: 2, cap: 30 };
+  // Approval requests. Low creative freedom: big signings (a fee of bigSigning × the budget or more),
+  // albums with a risky theme, and a genre the label has never released. Low and medium: any payment
+  // that would go past the budget. The board grants a request at `grant` confidence or more; an approval
+  // lasts for the rest of the week it was given.
+  const APPROVAL = {
+    bigSigning: 0.25,
+    riskyThemes: ["Rebellion", "Revenge", "Money", "Party"],
+    grant: 50,
+  };
+
   // Which archetypes each kind of money tends to bring, in order of likelihood.
   const BACKERS = {
     angel: ["visionary", "friend", "investor"],
@@ -118,7 +131,18 @@
     },
   };
 
-  const data = { DIRECTORS, METRICS, MONEY_STEP, SEAT_WEIGHT, REVIEW, BACKERS, VALUATION, FUNDING };
+  const data = {
+    DIRECTORS,
+    METRICS,
+    MONEY_STEP,
+    SEAT_WEIGHT,
+    REVIEW,
+    OVERSPEND,
+    APPROVAL,
+    BACKERS,
+    VALUATION,
+    FUNDING,
+  };
   root.GoatData = Object.assign(root.GoatData || {}, data);
   if (typeof module !== "undefined" && module.exports) module.exports = data;
 })(typeof globalThis !== "undefined" ? globalThis : this);

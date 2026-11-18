@@ -232,7 +232,7 @@ Do:
 - With a board, phase advancement needs its vote.
   Done when: tests cover each confidence band, probation, both vote results, the >50% ownership protection, the fired ending (no further weeks can be played) and that a label without a board never gets a review.
 
-### [ ] T21 · Budget and creative freedom in play
+### [x] T21 · Budget and creative freedom in play
 
 Depends on: T20
 Files: `src/systems/board.js`, `src/engine.js` (spending entry points), `tests/board-test.cjs`

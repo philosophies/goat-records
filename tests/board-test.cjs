@@ -562,4 +562,161 @@ test("Review state survives a save and bad values are rejected", () => {
   );
 });
 
+// ---- Budget and creative freedom in play (T21) ----
+const { OVERSPEND, APPROVAL } = G;
+/** A board run with a given freedom and budget, confidence held at `mood`. */
+function budgetRun(freedom, budget = 10000, mood = 60) {
+  const s = reviewRun();
+  setMood(s, mood);
+  Object.assign(s.company.board, { freedom, budget, budgetLeft: budget, spent: 0, confidence: mood });
+  return s;
+}
+const drive = (s) => G.recruitExecs(s, "ar"); // $600 × phase 2 = $1,200
+const DRIVE = 1200;
+
+test("Spending under the budget is tracked and costs nothing", () => {
+  const s = budgetRun("high");
+  drive(s);
+  assert.equal(s.company.board.spent, DRIVE);
+  assert.equal(s.company.board.budgetLeft, 10000 - DRIVE);
+  assert.equal(G.overspendPoints(s), 0);
+  const cash = s.cash;
+  settle(s);
+  assert.equal(s.company.board.spent, DRIVE, "weekly costs are not budget spending");
+  assert.ok(s.cash < cash);
+});
+
+test("Spending exactly to the budget needs no approval and costs no confidence", () => {
+  for (const freedom of ["low", "medium", "high"]) {
+    const s = budgetRun(freedom, DRIVE);
+    drive(s);
+    assert.equal(s.company.board.budgetLeft, 0);
+    assert.equal(G.overspendPoints(s), 0, freedom);
+    assert.equal(s.event, null);
+  }
+});
+
+test("Over budget the action still works with high freedom but costs confidence by the overage", () => {
+  const s = budgetRun("high", 5000),
+    before = G.confidence(s);
+  for (let i = 0; i < 5; i++) drive(s);
+  assert.equal(s.company.board.spent, 6000);
+  const expected = -Math.min(OVERSPEND.cap, ((1000 / 5000) * 100) / OVERSPEND.pctPerPoint);
+  assert.equal(G.overspendPoints(s), expected);
+  assert.equal(G.confidence(s), before + expected);
+  assert.ok(G.satisfaction(s, s.company.board.directors[0]).reasons.some((r) => r.key === "overspend"));
+  for (let i = 0; i < 40; i++) drive(s);
+  assert.equal(G.overspendPoints(s), -OVERSPEND.cap, "capped");
+  G.runReview(s);
+  assert.equal(s.company.board.spent, 0, "a new period starts the count again");
+});
+
+test("Medium and low freedom ask before going past the budget; the board decides", () => {
+  for (const freedom of ["medium", "low"]) {
+    const s = budgetRun(freedom, DRIVE);
+    drive(s);
+    assert.throws(() => drive(s), /Board approval needed/);
+    assert.equal(s.event.type, "approval");
+    assert.equal(s.company.board.spent, DRIVE, "nothing spent yet");
+    G.choose(s, 0);
+    assert.equal(s.event, null);
+    drive(s);
+    assert.equal(s.company.board.spent, 2 * DRIVE, "approved for this week");
+  }
+  const refused = budgetRun("medium", DRIVE, APPROVAL.grant - 5);
+  drive(refused);
+  assert.throws(() => drive(refused), /Board approval needed/);
+  G.choose(refused, 0);
+  assert.throws(() => drive(refused), /Board approval needed/, "a refused request stays refused");
+  G.choose(refused, 1);
+  assert.equal(refused.event, null, "dropping it clears the request");
+});
+
+test("Approvals last only for the week they were given", () => {
+  const s = budgetRun("medium", DRIVE);
+  drive(s);
+  assert.throws(() => drive(s), /approval/);
+  G.choose(s, 0);
+  settle(s);
+  assert.throws(() => drive(s), /approval/);
+});
+
+test("Low freedom: a big signing needs approval; medium and high do not", () => {
+  const big = (freedom) => {
+    const s = budgetRun(freedom, 1e6);
+    s.reputation = 80;
+    const c = s.candidates[0],
+      fee = G.contractQuote(s, c).fee;
+    s.company.board.budget = Math.ceil(fee / APPROVAL.bigSigning);
+    s.company.board.budgetLeft = s.company.board.budget;
+    return { s, c };
+  };
+  for (const freedom of ["medium", "high"]) {
+    const { s, c } = big(freedom);
+    G.sign(s, c.id);
+    assert.ok(
+      s.artists.some((a) => a.id === c.id),
+      freedom,
+    );
+  }
+  const { s, c } = big("low");
+  assert.throws(() => G.sign(s, c.id), /big signing/);
+  assert.ok(!s.artists.some((a) => a.id === c.id));
+  G.choose(s, 0);
+  G.sign(s, c.id);
+  assert.ok(s.artists.some((a) => a.id === c.id));
+});
+
+/** A signed artist ready to record, with one album already released in `genre`. */
+function studio(freedom, released = "Pop") {
+  const s = budgetRun(freedom, 1e6, 70);
+  s.reputation = 80;
+  G.sign(s, s.candidates[0].id);
+  const a = s.artists[0];
+  Object.assign(a, { energy: 100, inspiration: 90 });
+  s.albums.push({ id: 900, artist: a.id, genre: released, released: true, title: "Old" });
+  return { s, a };
+}
+const plan = (a, genre, themes = []) => ({ artistId: a.id, boothId: 0, genre, audience: a.audience, themes });
+
+test("Low freedom: a risky theme needs approval; medium and high do not", () => {
+  const theme = APPROVAL.riskyThemes[0];
+  for (const freedom of ["medium", "high"]) {
+    const { s, a } = studio(freedom);
+    s.themes = [...new Set([...(s.themes || []), theme])];
+    G.record(s, plan(a, "Pop", [theme]));
+    assert.equal(s.albums.filter((p) => !p.released).length, 1, freedom);
+  }
+  const { s, a } = studio("low");
+  s.themes = [...new Set([...(s.themes || []), theme])];
+  assert.throws(() => G.record(s, plan(a, "Pop", [theme])), new RegExp(`risky theme: ${theme}`));
+  G.choose(s, 0);
+  G.record(s, plan(a, "Pop", [theme]));
+  assert.equal(s.albums.filter((p) => !p.released).length, 1);
+});
+
+test("Low freedom: a genre the label has never released needs approval; medium and high do not", () => {
+  for (const freedom of ["medium", "high"]) {
+    const { s, a } = studio(freedom, "Pop");
+    G.record(s, plan(a, "Country"));
+    assert.equal(s.albums.filter((p) => !p.released).length, 1, freedom);
+  }
+  const known = studio("low", "Pop");
+  G.record(known.s, plan(known.a, "Pop"));
+  assert.equal(known.s.event, null, "a genre the label knows is fine");
+  const { s, a } = studio("low", "Pop");
+  assert.throws(() => G.record(s, plan(a, "Country")), /new genre/);
+  G.choose(s, 0);
+  G.record(s, plan(a, "Country"));
+  assert.equal(s.albums.filter((p) => !p.released).length, 1);
+});
+
+test("Without a board nothing needs approval and nothing is tracked", () => {
+  const s = ceo(2);
+  s.cash = 1e5;
+  G.recruitExecs(s, "ar");
+  assert.equal(s.event, null);
+  assert.equal(G.board(s), null);
+});
+
 console.log(`${count} board tests passed.`);
