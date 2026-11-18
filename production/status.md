@@ -5,13 +5,14 @@ Updated at the end of every session. Newest entry first; keep the last ten.
 ## Now
 
 - Released: v1.1.0 (no menus; people and places on the lot).
-- Next: T05 (buildings and floors data) in `production/backlog.md`.
+- Next: T06 (facilities live on floors) in `production/backlog.md`.
 - Owner decisions (2026-11-18): being fired is game over for now; the board exists only after outside money; the player names and can rename the company (new task T39); a web app now, built for a later Play Store release (T38). Recorded in the design's Decisions table.
 
 ## Log
 
 | Date       | Task      | What changed                                                                                                                                                                                                                             | Left / questions                                          |
 | ---------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| 2026-11-18 | T05       | `BUILDINGS` (9, phase-gated, floor types, floor cost steps); `buyBuilding`, `buildFloor` (rooms join `s.booths`), `upgradeFloor`, `floorQuote`, `allFloors`; CEO start = apartment with the bedroom booth; save checks; 7 tests          | Facility floors give no bonus until T06                   |
 | 2026-11-18 | T39       | `labelName`/`renameLabel` (15 fame, 1–32 chars, free when naming a new run); name on chart and award entries, roof sign, label panel, news; rename card in the office (all runs); `#ceo` New label asks for a name; 4 tests + harness    | None                                                      |
 | 2026-11-18 | T04       | Phase chip in the top bar; Company panel (goals with progress, phase ladder) shown alone and at the top of the office in CEO runs; `styles/ceo.css`; harness `tests/company-ui-test.cjs`                                                 | Visual check in Chrome still to do (T09 covers the theme) |
 | 2026-11-18 | T03       | Scouting capped by phase reach (`REACH_SCOUTING`): budget, craft and potential limits, `reach` tag on prospects; locked paid searches name the phase that opens them; classic prospects verified identical to 1.1 over 30 seeds; 5 tests | None                                                      |
