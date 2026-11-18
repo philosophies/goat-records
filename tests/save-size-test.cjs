@@ -8,7 +8,7 @@ function test(name, fn) {
   count++;
 }
 function releasedAlbum() {
-  const s = G.create(31);
+  const s = G.create(31, { ceo: false });
   s.cash = 1e6;
   G.sign(s, s.candidates[0].id);
   const a = s.artists[0];
@@ -67,7 +67,7 @@ test("Recent or still-earning albums are left alone", () => {
 });
 
 test("Rival archive keeps this year, last year and charting albums only", () => {
-  const s = G.create(32);
+  const s = G.create(32, { ceo: false });
   s.week = 52 * 5 + 3;
   const year = Math.ceil(s.week / 52);
   s.rivalArchive = {
@@ -82,7 +82,7 @@ test("Rival archive keeps this year, last year and charting albums only", () => 
 });
 
 test("Award results older than three years keep scores without rows", () => {
-  const s = G.create(33);
+  const s = G.create(33, { ceo: false });
   s.week = 52 * 6 + 2;
   const entry = () => ({ id: 1, score: 80, parts: [{ name: "Quality", value: 80 }] });
   s.awardPrograms = {
@@ -96,7 +96,7 @@ test("Award results older than three years keep scores without rows", () => {
 });
 
 test("Chart history keeps the Top 40 and the label's own entries", () => {
-  const s = G.create(34);
+  const s = G.create(34, { ceo: false });
   s.charts.history = [
     {
       week: 1,

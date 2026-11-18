@@ -2,7 +2,7 @@ const vm = require("node:vm"),
   fs = require("node:fs"),
   assert = require("node:assert/strict"),
   G = require("../src/engine.js");
-const s = G.create(7);
+const s = G.create(7, { ceo: false });
 s.cash = 100000;
 G.sign(s, s.candidates[0].id);
 const a = s.artists[0];

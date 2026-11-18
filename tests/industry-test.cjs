@@ -20,7 +20,7 @@ function clear(s) {
   }
 }
 function prepared(seed = 1) {
-  const s = G.create(seed);
+  const s = G.create(seed, { ceo: false });
   s.cash = 1000000;
   s.fame = 200;
   s.rank = 4;
@@ -58,7 +58,7 @@ function day(s) {
   clear(s);
 }
 test("Top 300 is exactly 300 ranked entries from a larger rival market", () => {
-  const s = G.create(4);
+  const s = G.create(4, { ceo: false });
   assert.equal(s.charts.entries.length, 300);
   assert.equal(s.charts.rivals.length, 320);
   assert.equal(new Set(s.charts.entries.map((e) => e.id)).size, 300);
@@ -99,7 +99,7 @@ test("Weak releases can remain outside Top 300 and strong releases earn each mil
   assert.equal(g.s.notifications.length, n);
 });
 test("Industry wire listings correspond to rival company releases and refresh every four weeks", () => {
-  const s = G.create(5),
+  const s = G.create(5, { ceo: false }),
     before = s.industryListings.length;
   for (let i = 0; i < 3; i++) G.advance(s);
   assert.equal(s.charts.rivals.length, 320);
@@ -135,7 +135,7 @@ test("CEO distribution deals persist fees, boosts and relationships without chan
   assert.equal(p.total, p.gross - p.royalties - p.distributionFees);
 });
 test("Career XP has ten meaningful levels and new contracts respond to career recognition", () => {
-  const s = G.create(8),
+  const s = G.create(8, { ceo: false }),
     a = s.candidates[0];
   for (const [xp, level] of [
     [0, 1],
@@ -425,7 +425,7 @@ test("Free daily choices remain usable during a temporary negative cash balance"
   G.choose(f.s, i);
 });
 test("Royalty promises survive renewal and legacy rival recruits gain career data", () => {
-  const s = G.create(77);
+  const s = G.create(77, { ceo: false });
   s.cash = 1000000;
   G.sign(s, s.candidates[0].id, 1);
   const a = s.artists[0];

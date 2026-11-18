@@ -8,7 +8,7 @@ function test(name, fn) {
   count++;
 }
 function label(seed = 11) {
-  const s = G.create(seed);
+  const s = G.create(seed, { ceo: false });
   s.cash = 500000;
   G.sign(s, s.candidates[0].id);
   const a = s.artists[0];

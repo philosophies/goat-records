@@ -7,7 +7,7 @@ function test(name, fn) {
   console.log("PASS " + name);
 }
 function label(seed = 1) {
-  const s = G.create(seed);
+  const s = G.create(seed, { ceo: false });
   s.cash = 1000000;
   G.sign(s, s.candidates[0].id, 5);
   s.artists[0].age = "Adult";

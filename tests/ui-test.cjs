@@ -35,7 +35,7 @@ const context = vm.createContext({
   Blob,
   URL,
 });
-require("./load-interface.cjs")(context);
+require("./load-interface.cjs")(context, { classic: true });
 // The lot is the main screen. There is no menu: every panel opens from a person or place on it.
 assert.match(element("lot").innerHTML, /data-action="hqTile"/);
 assert.match(element("lot").innerHTML, /Living Room/);

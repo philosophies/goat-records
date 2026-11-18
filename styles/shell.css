@@ -482,6 +482,12 @@ main.stage {
 #loadSaveDialog::backdrop {
   background: rgba(8, 12, 32, 0.65);
 }
+#newLabelModeField,
+#newLabelField:where(:not([hidden])) {
+  display: block;
+  margin-top: 12px;
+}
+#newLabelModeField select,
 #newLabelField input {
   display: block;
   width: 100%;

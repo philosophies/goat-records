@@ -1,7 +1,7 @@
 const G = require("../src/engine.js"),
   fs = require("node:fs");
 function fixture(seed, scale, mode, profile = "typical") {
-  const s = G.create(seed);
+  const s = G.create(seed, { ceo: false });
   s.cash = 1000000;
   s.fame = 200;
   s.rank = 4;

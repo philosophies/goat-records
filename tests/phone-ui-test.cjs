@@ -29,13 +29,12 @@ const context = vm.createContext({
     addEventListener: (name, fn) => (listeners[name] = fn),
   },
   localStorage: { getItem: () => stored, setItem: (_, v) => (stored = v) },
-  location: { hash: "#ceo" },
   confirm: () => true,
   setTimeout,
   Blob,
   URL,
 });
-require("./load-interface.cjs")(context);
+require("./load-interface.cjs")(context, { classic: true });
 const run = (code) => vm.runInContext(code, context);
 const saved = () => JSON.parse(stored);
 function click(data) {
@@ -50,6 +49,7 @@ assert.equal(element("drawer").hidden, true, "the phone does not open in a class
 
 element("reset").onclick();
 assert.equal(element("newLabelDialog").open, true);
+assert.equal(element("newLabelMode").value, "ceo");
 element("cancelNewLabel").onclick();
 assert.equal(element("newLabelDialog").open, false);
 assert.equal(saved().company, undefined);
@@ -127,6 +127,13 @@ click({ action: "showModal" });
 click({ action: "choose", id: "3" });
 assert.equal(saved().event, null);
 assert.equal(saved().company.deferredEvents[0].dueWeek, 15);
+element("reset").onclick();
+element("newLabelMode").value = "classic";
+element("newLabelMode").onchange();
+assert.equal(element("newLabelField").hidden, true);
+element("newLabelForm").onsubmit({ preventDefault() {} });
+assert.equal(saved().classicMode, true);
+assert.equal(saved().company, undefined);
 
 console.log(
   "PASS phone interface harness: Calendar, Contacts with search, Wallet and Settings apps, corner button and badge, Inbox, classic runs without a phone",

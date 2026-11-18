@@ -365,7 +365,7 @@ Files: `src/systems/company.js`, `src/systems/staff.js`, `src/systems/board.js`,
 Do: the Migration section of the design: rank → phase, facilities → floors, 1.x staff → department heads, the board at confidence 60. Offer it on load as a choice: "Continue in classic mode" or "Convert to CEO mode". Keep the original as a backup.
 Done when: tests convert saves from 0.9, 1.0 and 1.1 fixtures and play 10 weeks without errors.
 
-### [ ] T37 · Cutover: CEO mode by default
+### [x] T37 · Cutover: CEO mode by default
 
 Depends on: T35, T36, T17, T23, T11
 Files: `src/engine.js`, `src/app.js`, all affected tests, `README.md`, `docs/rules.md`

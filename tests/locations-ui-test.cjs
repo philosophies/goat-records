@@ -30,7 +30,7 @@ const context = vm.createContext({
   Blob,
   URL,
 });
-require("./load-interface.cjs")(context);
+require("./load-interface.cjs")(context, { classic: true });
 const saved = () => JSON.parse(stored),
   html = () => element("content").innerHTML;
 function click(data) {

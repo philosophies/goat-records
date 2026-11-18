@@ -6,7 +6,7 @@ Plain browser JavaScript, no build step. `index.html` loads scripts in this orde
 
 - `src/engine.js` — core rules (artists, albums, charts, tours, awards, saves). Exposes `LabelGame` in the browser and `module.exports` in Node.
 - `src/data/<name>.js` — balance tables. Each file merges its tables into `GoatData`.
-- `src/systems/<name>.js` — optional game systems. Each file exports `create(core, data)` (and registers `GoatSystems[name]` in the browser). The engine loads the names listed in `SYSTEM_NAMES`; a missing file is skipped. `company` is the 2.0 system: it does nothing unless the run was created with `G.create(seed, { ceo: true })`.
+- `src/systems/<name>.js` — optional game systems. Each file exports `create(core, data)` (and registers that function as `GoatSystems[name]` in the browser). The engine loads the names listed in `SYSTEM_NAMES`. New runs use CEO systems by default. `G.create(seed, { ceo: false })` starts a classic run.
 
 `core` gives a system `clamp`, `log`, `pay`, `requireAction`, `busy`, `artist`, `operatingYear`, `roll(s, key)` (a separate seeded random stream per key, so a new system never changes existing seeded outcomes) and `api()` (the engine's public API, for calls at run time).
 

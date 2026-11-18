@@ -332,8 +332,9 @@
     };
     scout(s);
     if (options.legacy) s.legacy = options.legacy;
-    // A CEO run (2.0) is opt-in until the cutover; the company system sets it up in its init hook.
-    if (options.ceo) s.ceoMode = true;
+    // The company system sets up new CEO runs. Classic mode is an explicit choice.
+    if (options.ceo === false) s.classicMode = true;
+    else s.ceoMode = true;
     if (options.labelName) api.renameLabel(s, options.labelName, true);
     initializeManagement(s);
     log(

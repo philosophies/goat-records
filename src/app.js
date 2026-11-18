@@ -959,18 +959,21 @@ function resetView() {
   GoatClock.reset();
   GoatLot.reset();
 }
-// CEO runs (2.0) are a preview, opened with #ceo, until they become the default.
-const ceoPreview = () => typeof location !== "undefined" && location.hash === "#ceo";
-$("reset").onclick = () => {
-  const ceo = ceoPreview();
-  const input = $("newLabelName");
+function updateNewLabelMode() {
+  const ceo = $("newLabelMode").value === "ceo";
   $("newLabelField").hidden = !ceo;
-  input.required = ceo;
+  $("newLabelName").required = ceo;
+  $("newLabelName").setCustomValidity("");
+}
+$("newLabelMode").onchange = updateNewLabelMode;
+$("reset").onclick = () => {
+  const input = $("newLabelName");
+  $("newLabelMode").value = "ceo";
+  updateNewLabelMode();
   input.maxLength = G.RENAME.maxLength;
   input.value = G.labelName({});
-  input.setCustomValidity("");
   $("newLabelDialog").showModal();
-  if (ceo) input.select();
+  input.select();
   render();
 };
 $("cancelNewLabel").onclick = () => $("newLabelDialog").close();
@@ -978,7 +981,7 @@ $("newLabelDialog").onclose = render;
 $("newLabelName").oninput = () => $("newLabelName").setCustomValidity("");
 $("newLabelForm").onsubmit = (event) => {
   event.preventDefault();
-  const ceo = ceoPreview();
+  const ceo = $("newLabelMode").value === "ceo";
   const input = $("newLabelName");
   const name = input.value.trim();
   if (ceo && !name) {
@@ -987,7 +990,7 @@ $("newLabelForm").onsubmit = (event) => {
     return;
   }
   act(() => {
-    state = G.create(Date.now(), ceo ? { ceo: true, labelName: name } : {});
+    state = G.create(Date.now(), ceo ? { labelName: name } : { ceo: false });
     $("newLabelDialog").close();
     resetView();
   });

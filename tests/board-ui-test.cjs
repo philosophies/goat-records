@@ -134,7 +134,7 @@ assert.doesNotMatch(scene, /fresh/, "nothing animates");
 click({ action: "boardSceneDone" });
 
 // A classic run has no boardroom card.
-run(`state = G.create(5); save(); render();`);
+run(`state = G.create(5, { ceo: false }); save(); render();`);
 click({ tab: "office" });
 assert.doesNotMatch(html("content"), /BOARDROOM/);
 

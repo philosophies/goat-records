@@ -8,7 +8,7 @@ function test(name, fn) {
   count++;
 }
 function label(seed = 7) {
-  const s = G.create(seed);
+  const s = G.create(seed, { ceo: false });
   s.cash = 500000;
   G.sign(s, s.candidates[0].id);
   const a = s.artists[0];
@@ -44,7 +44,7 @@ function finish(s, p) {
 }
 
 test("New labels start as a Bedroom Label with six starter themes and an empty lot", () => {
-  const s = G.create(1);
+  const s = G.create(1, { ceo: false });
   assert.equal(G.rank(s), 1);
   assert.equal(G.rankInfo(s).name, "Bedroom Label");
   assert.deepEqual(G.lotSize(s), [3, 2]);
@@ -54,7 +54,7 @@ test("New labels start as a Bedroom Label with six starter themes and an empty l
 });
 
 test("Older saves keep the rank their fame had already earned", () => {
-  const s = G.create(2);
+  const s = G.create(2, { ceo: false });
   for (const k of ["rank", "themes", "themeLog", "combos", "hq", "rankUps", "discoverySeed", "labelRevision"])
     delete s[k];
   s.fame = 120;
@@ -85,7 +85,7 @@ test("Rank-ups need every requirement, happen at the weekly settlement and grant
 });
 
 test("Rank status reports each requirement, including chart peak where lower is better", () => {
-  const s = G.create(4);
+  const s = G.create(4, { ceo: false });
   s.rank = 2;
   s.albums.push({ id: 1, released: true, chart: { best: 55 } });
   let row = G.rankStatus(s).checks.find((c) => c.key === "chartPeak");
@@ -161,7 +161,7 @@ test("Repeating a combo builds experience but recent repeats cost Reach", () => 
 });
 
 test("Facilities respect rank, lot bounds, occupied tiles and one of each", () => {
-  const s = G.create(11);
+  const s = G.create(11, { ceo: false });
   s.cash = 500000;
   assert.throws(() => G.buildFacility(s, "mix", 0, 0), /rank 2/);
   assert.throws(() => G.buildFacility(s, "writers", 3, 0), /outside/);
@@ -175,7 +175,7 @@ test("Facilities respect rank, lot bounds, occupied tiles and one of each", () =
 });
 
 test("Facility upkeep joins weekly overhead and scales with level", () => {
-  const s = G.create(12);
+  const s = G.create(12, { ceo: false });
   s.cash = 500000;
   const base = G.upkeep(s);
   G.buildFacility(s, "writers", 0, 0);
@@ -185,7 +185,7 @@ test("Facility upkeep joins weekly overhead and scales with level", () => {
 });
 
 test("Upgrades cost build price × current level and stop at level 3", () => {
-  const s = G.create(13);
+  const s = G.create(13, { ceo: false });
   s.cash = 500000;
   G.buildFacility(s, "vocal", 1, 1);
   let cash = s.cash;
@@ -223,7 +223,7 @@ test("Neighboring facilities unlock their pairing; diagonals do not", () => {
 });
 
 test("Moving onto a built tile swaps the two facilities and costs the move fee", () => {
-  const s = G.create(16);
+  const s = G.create(16, { ceo: false });
   s.cash = 500000;
   G.buildFacility(s, "writers", 0, 0);
   G.buildFacility(s, "vocal", 2, 1);
@@ -235,7 +235,7 @@ test("Moving onto a built tile swaps the two facilities and costs the move fee",
 });
 
 test("Shops earn from label fame, the Fan district pairing adds 30%, and archives pay only after a run ends", () => {
-  const s = G.create(17);
+  const s = G.create(17, { ceo: false });
   s.cash = 500000;
   s.rank = 3;
   s.fame = 100;
@@ -295,7 +295,7 @@ test("The Artist Lounge restores morale and inspiration for idle artists only", 
 });
 
 test("Theme discovery uses its own random stream and stops when every theme is known", () => {
-  const s = G.create(19),
+  const s = G.create(19, { ceo: false }),
     seed = s.seed;
   const t = G.discoverTheme(s, "test");
   assert.ok(s.themes.includes(t));
@@ -306,7 +306,7 @@ test("Theme discovery uses its own random stream and stops when every theme is k
 });
 
 test("A Writers' Room finds new themes over time", () => {
-  const s = G.create(20);
+  const s = G.create(20, { ceo: false });
   s.cash = 500000;
   G.buildFacility(s, "writers", 0, 0);
   G.upgradeFacility(s, "writers");
@@ -332,7 +332,7 @@ test("The Talent Academy raises the development ceiling and lowers its fee", () 
 });
 
 test("Imported saves with broken label data are rejected", () => {
-  const s = G.create(22);
+  const s = G.create(22, { ceo: false });
   s.cash = 100000;
   G.buildFacility(s, "writers", 0, 0);
   assert.ok(G.validLabelSave(s));
@@ -351,7 +351,7 @@ test("Imported saves with broken label data are rejected", () => {
 });
 
 test("Older saves list the player's label as Goat Records in past award results", () => {
-  const s = G.create(23);
+  const s = G.create(23, { ceo: false });
   s.awardPrograms[1] = {
     year: 1,
     entries: {},

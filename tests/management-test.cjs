@@ -32,7 +32,7 @@ function step(s) {
   G.advance(s);
 }
 function ready(seed = 24, term = 3) {
-  const s = G.migrate(G.create(seed));
+  const s = G.migrate(G.create(seed, { ceo: false }));
   G.sign(s, s.candidates[0].id, term);
   const a = s.artists[0];
   a.talent = 90;
@@ -55,7 +55,7 @@ test("Paid scouting charges once, replaces the list, and improves statistical ou
     localFans = 0,
     nationalFans = 0;
   for (let seed = 1; seed <= 60; seed++) {
-    const s = G.create(seed),
+    const s = G.create(seed, { ceo: false }),
       copy = JSON.parse(JSON.stringify(s)),
       cash = s.cash,
       ids = s.candidates.map((a) => a.id);
@@ -75,7 +75,7 @@ test("Paid scouting charges once, replaces the list, and improves statistical ou
   assert.ok(nationalFans > localFans * 2);
 });
 test("Failed scouting and recruitment preserve cash, candidates and RNG state", () => {
-  const s = G.create(4);
+  const s = G.create(4, { ceo: false });
   s.cash = 0;
   const before = JSON.stringify(s);
   assert.throws(() => G.paidScout(s, 2), /cash/);
@@ -83,7 +83,7 @@ test("Failed scouting and recruitment preserve cash, candidates and RNG state", 
   assert.equal(JSON.stringify(s), before);
 });
 test("Recruitment refreshes one role and a chosen candidate controls expertise and salary", () => {
-  const s = G.create(8),
+  const s = G.create(8, { ceo: false }),
     oldProducer = s.staffCandidates.Producer.map((c) => c.id),
     marketing = JSON.stringify(s.staffCandidates.Marketing);
   G.recruitmentDrive(s, "Producer", 2);
@@ -105,7 +105,7 @@ test("Recruitment refreshes one role and a chosen candidate controls expertise a
   assert.equal(G.upkeep(s), 100);
 });
 test("Contract price and royalties vary by term; stat growth raises market value", () => {
-  const s = G.create(2),
+  const s = G.create(2, { ceo: false }),
     a = s.candidates[0],
     q1 = G.contractQuote(s, a, 1),
     q3 = G.contractQuote(s, a, 3),
@@ -155,7 +155,7 @@ test("Weekly income deducts contract royalties and continues after the artist le
   assert.equal(p.total, p.gross - p.royalties - p.distributionFees);
 });
 test("Development has a three-week cooldown, rising costs and a real growth ceiling", () => {
-  const s = G.create(7);
+  const s = G.create(7, { ceo: false });
   G.sign(s, s.candidates[0].id);
   const a = s.artists[0],
     t = G.trainingInfo(s, a),
@@ -257,7 +257,7 @@ test("An extension at the cap is rejected without charging or consuming the even
   G.choose(s, 2);
 });
 test("Legacy migration preserves existing cash, roster stats and catalog totals", () => {
-  const s = G.create(6);
+  const s = G.create(6, { ceo: false });
   G.sign(s, s.candidates[0].id);
   const a = s.artists[0];
   delete a.contract;

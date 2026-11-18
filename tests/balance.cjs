@@ -24,7 +24,7 @@ function buildHq(s) {
   }
 }
 function run(seed, national, hq = false) {
-  const s = G.create(seed);
+  const s = G.create(seed, { ceo: false });
   if (national) G.paidScout(s, 2);
   const c = s.candidates.toSorted((a, b) => b.talent - a.talent)[0];
   G.sign(s, c.id, 3);

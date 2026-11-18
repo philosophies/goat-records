@@ -31,7 +31,7 @@ test("CEO runs start with every department empty; classic runs have none", () =>
   for (const d of Object.values(s.company.departments))
     assert.deepEqual(d, { head: null, staff: 0, pool: [] });
   assert.equal(G.departmentPay(s), 0);
-  const classic = G.create(31);
+  const classic = G.create(31, { ceo: false });
   assert.equal(classic.company, undefined);
   assert.throws(() => G.recruitExecs(classic, "ar"), /CEO run/);
 });
@@ -162,7 +162,7 @@ test("A CEO save from before departments gains them on load", () => {
 // A classic run with all six roles, recorded and released over three seeds. The hash was taken
 // from 1.1 code before role effects went through roleSkill; it must not change.
 function classicFingerprint(seed) {
-  const s = G.migrate(G.create(seed));
+  const s = G.migrate(G.create(seed, { ceo: false }));
   s.cash = 500000;
   for (const r of ["Producer", "A&R", "Marketing", "Public Relations", "VP", "Artist Development"])
     G.hire(s, r);
@@ -267,7 +267,7 @@ test("Team slots open by phase", () => {
     ids(ceo(31, 4)),
     TEAM_ROLES.map((r) => r.id),
   );
-  assert.deepEqual(G.teamSlots(G.create(31)), [], "classic runs have no team slots");
+  assert.deepEqual(G.teamSlots(G.create(31, { ceo: false })), [], "classic runs have no team slots");
   const s = ceo(31, 1);
   assert.throws(() => G.recruitTeam(s, "publicist"), /phase 3/);
   assert.throws(() => G.recruitTeam(s, "drummer"), /Unknown team role/);
@@ -621,7 +621,7 @@ test("Every artist gets fixed traits and one main want", () => {
   }
   assert.deepEqual([...wants].sort(), Object.keys(WANTS).sort(), "all four wants occur");
   assert.equal(
-    G.create(31).artists.every((x) => !x.persona),
+    G.create(31, { ceo: false }).artists.every((x) => !x.persona),
     true,
     "classic artists have no persona",
   );

@@ -1,6 +1,6 @@
 # Game rules
 
-Detailed rules for every system. See README.md for a short overview.
+New labels start in CEO mode. Choose Classic in the New label dialog for the original rules. Earlier saves offer the choice of continuing in Classic or converting with a backup of the original.
 
 ## Getting around
 
@@ -49,7 +49,7 @@ Releasing a combo levels it up, to a maximum of level 5. Each level above 1 adds
 
 The label is called Goat Records until you rename it in the office. A rename costs 15 fame while fans catch up; the new name shows on the roof sign, the charts, award results and the news.
 
-## Headquarters
+## Classic headquarters
 
 Facilities are built on a tile lot that grows with rank. One of each facility can be built, and each can be upgraded to level 3; an upgrade costs the build price × the current level. Upkeep is paid weekly per level. Moving a facility costs $500, and moving onto a built tile swaps the two. Closing a facility refunds nothing.
 
@@ -364,9 +364,22 @@ Most ordinary choices schedule a review three days later. Two- or three-show pro
 
 The current pending decision remains available during upgrade and counts toward the current week’s budget. Save data retains the review schedule and used budget across reloads; a pre-0.8 local backup is retained on first upgrade. Tour accounting and quoted gate rates remain unchanged from v0.7.
 
-## CEO runs: departments, artist teams and wants (in development)
+## CEO runs
 
-CEO runs are the 2.0 mode. Everything below applies only to them.
+The company starts with $2,000, a home studio, and full ownership. The Company panel lists phase goals. Phases open new scouting territory, buildings and floors, departments, and weekly income. Rank still governs roster capacity, theme slots, and several classic recording and promotion unlocks.
+
+| Phase | Unlocks | New weekly income |
+| --- | --- | --- |
+| 1 Home studio | Apartment, local scouting, A&R | Beats and local downloads |
+| 2 Indie label | Storefront, city scouting, angel funding | Streams and merchandise |
+| 3 Regional label | Studio and office, regional scouting, venture funding | Distribution and radio |
+| 4 National label | Headquarters and venue, national scouting | Sync and brand partnerships |
+| 5 Global label | Media center and warehouse, worldwide scouting | Publishing and catalog royalties |
+| 6 Public company | IPO, overseas offices, acquisitions | Catalog purchases can add royalties |
+
+For phases 2–5, the goals are fame, revenue over the last 52 weeks, releases, and hits. Where an outside board exists, it must approve the phase change. Phases never go backward. The office shows weekly income by source and rent, insurance, and interest in the expense breakdown.
+
+**Phone and events.** The Inbox shows current and queued decisions. Once a quarter an eligible opportunity, crisis, or political problem can arrive. The label's phase, finances, roster, albums, staff, and board affect which offers can appear. A decision pauses the clock. Choose a response or defer to a later week. The choice card names the fallback that applies at expiry.
 
 **Departments.** A&R (phase 1), Marketing and Promotion (phase 2), Live, Business Affairs and Finance (phase 3), Creative (phase 4). A recruitment drive for a head costs $600 × phase and finds three candidates, with skill set by the company's reach (local 30–55 up to world 65–92). A head earns $150 + $9 per skill point a week, costs two weeks' salary to sign and two weeks' severance to let go. Each head can add junior staff ($600 to hire, $300 a week), up to 2 × phase per department. Capacity is the head plus their staff.
 
@@ -405,7 +418,7 @@ The board appears with the first angel or venture money. Each director is the Ac
 
 - Budget: the first is the larger of a phase floor ($30,000 in phase 2 up to $4,000,000 in phase 6) and 60% of a year's revenue. After that, last budget × (0.8 + 0.4 × confidence ÷ 100) × (1 + revenue growth), with growth kept between −50% and +100%.
 - Creative freedom: low below 40 confidence, medium below 70, high from 70. One step lower on probation.
-- Perks: a company car from 55 ($300 a week), a penthouse office from 70 ($1,500), a private jet from 85 ($6,000).
+- Perks: a company car from 55 ($90 a week), a penthouse office from 70 ($175), a private jet from 85 ($400).
 
 Confidence below 35 at a review means probation for the next period. A no-confidence vote follows below 10 at any review, or below 20 while on probation. Each director under 25 satisfaction votes against you; the vote passes with more than half the seats, unless you own more than half the company. A lost vote is game over: you are fired. With a board, moving up a phase also needs 50 confidence.
 
@@ -426,3 +439,11 @@ Confidence below 35 at a review means probation for the next period. A no-confid
 Every answer but placating ends a plot.
 
 A grab comes to a head 26 weeks after the gossip. With a board, it succeeds when the executive has courted more than half the seats and has more influence than you. Then they take the chair if they courted every seat and their influence beats yours by 25 or more: you are ousted and the run ends. Otherwise they become co-CEO, which costs one step of creative freedom now and at every review. A failed grab (or any grab with no board) sends them to a rival, and they try to take the least loyal artist, who goes with them if that loyalty is below 50.
+
+**Company value and IPO.** The Wallet shows your share of 10,000 shares. Company value combines a year of revenue times a phase, growth, and hit-rate multiple, plus catalog value and cash, minus debt. In phase 5, an IPO requires three consecutive profitable years, a CFO with at least 60 skill, and board confidence of at least 60. The IPO sells 25% of the company. Its price reflects valuation and scandal history. In phase 6, analysts publish half-year revenue targets. Their results move market mood, share price, and board confidence. Board reviews also move to 26-week intervals.
+
+**Acquisitions.** In phase 6, buy a rival's catalog or a small label from the Company panel. The catalog pays weekly royalties, and a small label sends an artist into a free roster slot. Pay the price in cash or finance it with 35% down. A majority board vote is required when a deal exceeds your remaining budget.
+
+**Final review.** A CEO run ends after 20 years, dismissal, or bankruptcy. Company value, your equity, hits, awards, artists developed, and whether you held the chair contribute to the grade. Any CEO ending allows a CEO New Game+ run with earned legacy points.
+
+**Classic conversion.** Earlier labels can stay in Classic or convert on load. Conversion keeps the year, cash, roster, records, and history, maps rank to company phase, moves rooms and facilities into buildings, and turns existing staff into department heads. Converted phases with board seats start at 60 confidence. Export the original from **Export classic backup**.

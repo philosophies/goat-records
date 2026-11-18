@@ -92,6 +92,13 @@
       <form id="newLabelForm">
         <h2 id="newLabelTitle">Start a new label?</h2>
         <p>This replaces your current run. Export your save first if you want to keep it.</p>
+        <label id="newLabelModeField" for="newLabelMode">
+          Game mode
+          <select id="newLabelMode">
+            <option value="ceo">CEO</option>
+            <option value="classic">Classic</option>
+          </select>
+        </label>
         <label id="newLabelField" for="newLabelName" hidden>
           Label name
           <input id="newLabelName" type="text" autocomplete="off" />

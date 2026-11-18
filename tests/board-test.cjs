@@ -28,8 +28,8 @@ test("A new CEO run owns all of itself, owes nothing and has no board", () => {
   assert.equal(s.company.loan, null);
   assert.equal(G.board(s), null);
   assert.equal(G.seats(s), 0);
-  assert.equal(G.create(41).company, undefined, "classic runs have no funding");
-  assert.deepEqual(G.fundingOffers(G.create(41)), []);
+  assert.equal(G.create(41, { ceo: false }).company, undefined, "classic runs have no funding");
+  assert.deepEqual(G.fundingOffers(G.create(41, { ceo: false })), []);
 });
 
 test("Offers open by phase: a loan always, an angel in phase 2, venture rounds in phases 3–5", () => {

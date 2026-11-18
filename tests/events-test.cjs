@@ -7,7 +7,7 @@ const events = G.systems.find(({ name }) => name === "events");
 const roundTrip = (s) => G.migrate(JSON.parse(JSON.stringify(s)));
 
 function label(seed = 7, ceo = true) {
-  const s = G.create(seed, ceo ? { ceo: true } : {});
+  const s = G.create(seed, { ceo });
   s.cash = 100000;
   G.sign(s, s.candidates[0].id);
   s.artists[0].morale = 60;

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### CEO browser playtest
+
+In Chromium at 1280 px and 420 px, started new CEO labels, took a bank loan in the boardroom, signed a one-album deal at the front desk, recorded in the home studio, and completed all five stages through release and review. At 420 px, advanced through the first sales settlement and reloaded the save with the released album and its Top 300 milestone intact. No browser console errors were logged.
+
 ### CEO balance sample
 
 `node tests/ceo-balance.cjs` runs three policies with seeds 1–12. Each plays through year 20 or until dismissal or insolvency. [CEO-BALANCE.json](CEO-BALANCE.json) records each run's phase by year, ending, IPO year, score, and stars.
