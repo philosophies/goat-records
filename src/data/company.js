@@ -134,6 +134,19 @@
       { id: "meridian-label", company: "meridian", kind: "label", price: 450000, revenue: 4500 },
     ],
   };
+  const CEO_MIGRATION = {
+    phaseByRank: [1, 2, 3, 4, 5, 5],
+    boardConfidence: 60,
+    departments: {
+      "A&R": "ar",
+      Producer: "business",
+      Marketing: "marketing",
+      "Public Relations": "promotion",
+      VP: "finance",
+      "Artist Development": "creative",
+    },
+    executive: { ambition: 35, loyalty: 70, influence: 20 },
+  };
 
   // Buildings along the street (CEO runs). Each is bought once and built up floor by floor.
   //   phase      the company phase that unlocks it
@@ -239,7 +252,7 @@
 
   const data = {
     PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING, RENAME, BUILDINGS,
-    COMPANY_REVENUE, COMPANY_COSTS, COMPANY_VALUE, IPO, ACQUISITIONS,
+    COMPANY_REVENUE, COMPANY_COSTS, COMPANY_VALUE, IPO, ACQUISITIONS, CEO_MIGRATION,
   };
   root.GoatData = Object.assign(root.GoatData || {}, data);
   if (typeof module !== "undefined" && module.exports) module.exports = data;

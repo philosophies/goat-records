@@ -14,9 +14,12 @@ let state,
   modalKey = "",
   audioContext,
   sound = false,
-  saveOK = true;
+  saveOK = true,
+  startupSave,
+  pendingSave;
 try {
-  state = JSON.parse(localStorage.getItem("side-a-save-v1"));
+  startupSave = localStorage.getItem("side-a-save-v1");
+  state = JSON.parse(startupSave);
   if (state && !state.tourCadence && !localStorage.getItem("side-a-save-pre-v08"))
     localStorage.setItem("side-a-save-pre-v08", JSON.stringify(state));
   if (state && !state.tourTimingRevision && !localStorage.getItem("side-a-save-pre-v07"))
@@ -730,6 +733,7 @@ function render() {
   GoatClock.update(
     [
       $("newLabelDialog").open && "new label",
+      $("loadSaveDialog").open && "save choice",
       panelOpen && "panel open",
       (hqView.selected || hqView.moving) && "building",
       inputBanners.length && "label news",
@@ -933,7 +937,7 @@ $("advance").onclick = () => {
   advanceOnce();
 };
 document.addEventListener("keydown", (e) => {
-  if (e.key !== "Escape" || $("newLabelDialog").open) return;
+  if (e.key !== "Escape" || $("newLabelDialog").open || $("loadSaveDialog").open) return;
   if (hqView.selected || hqView.moving) {
     hqView.selected = null;
     hqView.moving = null;
@@ -1002,13 +1006,25 @@ $("testFunds").onclick = () =>
     }
     state.news.unshift(`W${state.week}: Testing grant +$100,000.`);
   });
-$("export").onclick = () => {
-  let url = URL.createObjectURL(new Blob([JSON.stringify(state)], { type: "application/json" })),
+function downloadSave(raw, filename) {
+  let url = URL.createObjectURL(new Blob([raw], { type: "application/json" })),
     a = document.createElement("a");
   a.href = url;
-  a.download = "goat-records-week-" + state.week + ".json";
+  a.download = filename;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+$("export").onclick = () => downloadSave(JSON.stringify(state), `goat-records-week-${state.week}.json`);
+function refreshClassicBackupButton() {
+  try {
+    $("exportClassicBackup").hidden = !localStorage.getItem("goat-records-classic-backup");
+  } catch {
+    $("exportClassicBackup").hidden = true;
+  }
+}
+$("exportClassicBackup").onclick = () => {
+  const raw = localStorage.getItem("goat-records-classic-backup");
+  if (raw) downloadSave(raw, "goat-records-classic-backup.json");
 };
 function validSave(s) {
   return (
@@ -1059,26 +1075,67 @@ function validSave(s) {
         typeof s.event.body === "string" &&
         (s.artists.some((a) => a.id === s.event.artist) ||
           (s.event.type === "album" && s.albums.some((p) => p.id === s.event.album)) ||
+          (s.company && s.event.type === "companyEvent") ||
+          (s.company?.board && s.event.type === "approval" &&
+            typeof s.event.approval?.kind === "string" && typeof s.event.approval?.key === "string") ||
           s.event.type === "awards") &&
         Array.isArray(s.event.options) &&
         s.event.options.every((o) => typeof o.label === "string" && typeof o.hint === "string")))
   );
 }
+function offerLoadedSave(parsed, raw, imported) {
+  pendingSave = { parsed, raw, imported };
+  const classic = !parsed.company;
+  $("loadSaveTitle").textContent = classic ? "Choose how to play this save" : "Load this CEO save?";
+  $("loadSaveText").textContent = classic
+    ? "Continue with the classic rules, or convert your label and keep a backup of the original save."
+    : "This replaces the run currently open in this browser.";
+  $("cancelLoadSave").hidden = !imported;
+  $("keepSaveMode").textContent = classic ? "Continue in classic mode" : "Load save";
+  $("convertSaveMode").hidden = !classic;
+  $("loadSaveDialog").showModal();
+  render();
+}
+function acceptLoadedSave(convert) {
+  if (!pendingSave) return;
+  act(() => {
+    const { parsed, raw } = pendingSave;
+    const next = convert ? G.convertClassicSave(parsed) : parsed;
+    if (convert) {
+      try {
+        localStorage.setItem("goat-records-classic-backup", raw);
+        refreshClassicBackupButton();
+      } catch {
+        downloadSave(raw, `goat-records-classic-week-${parsed.week}.json`);
+      }
+    } else if (!next.company) next.classicMode = true;
+    state = next;
+    $("loadSaveDialog").close();
+    resetView();
+  });
+}
+$("cancelLoadSave").onclick = () => $("loadSaveDialog").close();
+$("keepSaveMode").onclick = () => acceptLoadedSave(false);
+$("convertSaveMode").onclick = () => acceptLoadedSave(true);
+$("loadSaveDialog").oncancel = (event) => {
+  if (pendingSave && !pendingSave.imported) event.preventDefault();
+};
+$("loadSaveDialog").onclose = () => {
+  pendingSave = null;
+  render();
+};
 $("import").onchange = async (e) => {
   let f = e.target.files[0];
   if (!f) return;
   try {
     if (f.size > 20e6) throw Error("Save file too large.");
-    let parsed = JSON.parse(await f.text());
+    const raw = await f.text();
+    const parsed = JSON.parse(raw);
     if (!validSave(parsed)) throw Error("This is not a supported Goat Records save.");
     G.migrate(parsed);
     if (!validProductionSave(parsed) || !G.validManagementSave(parsed) || !G.validRoadSave(parsed))
       throw Error("Album production data is invalid.");
-    if (confirm("Replace your current label with this save?"))
-      act(() => {
-        state = parsed;
-        GoatLot.reset();
-      });
+    offerLoadedSave(parsed, raw, true);
   } catch (err) {
     $("message").textContent = err.message;
   }
@@ -1096,12 +1153,14 @@ if (!validSave(state)) {
   rejectedSave = state !== null;
   if (rejectedSave) keepRejectedSave();
   state = G.create();
+  startupSave = null;
 }
 G.migrate(state);
 if (!validProductionSave(state) || !G.validManagementSave(state) || !G.validRoadSave(state)) {
   rejectedSave = true;
   keepRejectedSave();
   state = G.migrate(G.create());
+  startupSave = null;
 }
 if (rejectedSave)
   state.news.unshift(
@@ -1116,6 +1175,11 @@ function measureShell() {
   if (menu?.offsetHeight) document.documentElement.style.setProperty("--menu-h", menu.offsetHeight + "px");
 }
 if (typeof window !== "undefined") window.addEventListener("resize", measureShell);
-save();
+refreshClassicBackupButton();
 GoatClock.init(state.week === 1 && !state.artists.length && !state.albums.length);
-render();
+if (startupSave && !state.company && !state.classicMode && typeof $("loadSaveDialog").showModal === "function")
+  offerLoadedSave(state, startupSave, false);
+else {
+  save();
+  render();
+}

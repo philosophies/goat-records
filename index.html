@@ -102,11 +102,21 @@
         </div>
       </form>
     </dialog>
+    <dialog id="loadSaveDialog" class="modal-card" aria-labelledby="loadSaveTitle">
+      <h2 id="loadSaveTitle">Load label</h2>
+      <p id="loadSaveText"></p>
+      <div class="new-label-actions">
+        <button id="cancelLoadSave" type="button">Cancel</button>
+        <button id="keepSaveMode" type="button">Continue in classic mode</button>
+        <button id="convertSaveMode" type="button" class="primary">Convert to CEO mode</button>
+      </div>
+    </dialog>
     <p id="message" class="toast" role="status" aria-live="polite"></p>
     <footer>
       <span>Tap a person or place to open it. Time stops while a panel is open.</span>
       <div>
         <button id="testFunds" hidden>Testing: +$100,000</button><button id="export">Export save</button
+        ><button id="exportClassicBackup" hidden>Export classic backup</button
         ><label class="filebutton"
           >Import save<input id="import" type="file" accept="application/json,.json" /></label
         ><button id="reset">New label</button>

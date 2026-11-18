@@ -8,7 +8,7 @@
   function create(core, D) {
     const {
       PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING, RENAME, LABEL_NAME, BUILDINGS,
-      COMPANY_REVENUE, COMPANY_COSTS, COMPANY_VALUE, FUNDING, VALUATION, IPO, ACQUISITIONS,
+      COMPANY_REVENUE, COMPANY_COSTS, COMPANY_VALUE, FUNDING, VALUATION, IPO, ACQUISITIONS, CEO_MIGRATION,
     } = D;
     const { BOOTHS, FACILITIES, HQ } = D;
     const buildingById = Object.fromEntries(BUILDINGS.map((b) => [b.id, b])),
@@ -41,6 +41,40 @@
         a.fee = q.fee;
         a.wage = q.wage;
       }
+      return s;
+    }
+    function convertedBuildings(s, phase) {
+      const buildings = new Map();
+      const floors = [
+        ...s.booths.map(({ id }) => ({ type: "room", room: id, level: 1 })),
+        ...s.hq.facilities.map(({ id, level }) => ({ type: id, level })),
+      ];
+      for (const floor of floors) {
+        const compatible = BUILDINGS.filter(({ id, floors, maxFloors }) =>
+          floors.includes(floor.type) && (buildings.get(id)?.floors.length || 0) < maxFloors);
+        const target = compatible.find((b) => b.phase <= phase && buildings.has(b.id)) ||
+          compatible.find((b) => b.phase <= phase) || compatible[0];
+        if (!target) throw Error("A classic room could not be mapped to a building.");
+        if (!buildings.has(target.id)) buildings.set(target.id, { id: target.id, floors: [] });
+        buildings.get(target.id).floors.push(floor);
+      }
+      return [...buildings.values()];
+    }
+    function convertClassicSave(source) {
+      if (source.company || source.ceoMode) throw Error("This save is already a CEO run.");
+      const game = core.api();
+      const s = game.migrate(JSON.parse(JSON.stringify(source)));
+      const phase = CEO_MIGRATION.phaseByRank[game.rank(s) - 1];
+      s.ceoMode = true;
+      delete s.classicMode;
+      s.company = {
+        phase, since: s.week, history: [{ phase, week: s.week }],
+        buildings: convertedBuildings(s, phase),
+      };
+      game.migrate(s);
+      game.convertClassicStaff(s, CEO_MIGRATION.departments, CEO_MIGRATION.executive);
+      if (PHASES[phase - 1].boardSeats) game.startConvertedBoard(s, CEO_MIGRATION.boardConfidence);
+      log(s, `The label moved to CEO mode in phase ${phase}.`);
       return s;
     }
     /** The label's own name: the player's choice, or the default. Works in every run. */
@@ -485,6 +519,7 @@
         yearRevenue,
         companyValuation,
         syncShares,
+        convertClassicSave,
         ipoRequirements,
         goPublic,
         acknowledgeIPO,

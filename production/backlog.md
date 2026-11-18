@@ -358,7 +358,7 @@ Files: `tests/ceo-balance.cjs` (new), `CEO-BALANCE.json` (generated)
 Do: script three policies (careful, average, reckless) through 20-year CEO runs, 12 seeds each. Record phase reached by year, fired, folded, IPO year, final grade. Tune data until careful rarely gets fired, reckless often does, and strong play can go public by year 12.
 Done when: the JSON is committed and the numbers are listed in `VALIDATION.md` under "Unreleased".
 
-### [ ] T36 · 1.x saves convert to CEO runs
+### [x] T36 · 1.x saves convert to CEO runs
 
 Depends on: T06, T13, T20
 Files: `src/systems/company.js`, `src/systems/staff.js`, `src/systems/board.js`, `tests/migration-2-test.cjs` (new)

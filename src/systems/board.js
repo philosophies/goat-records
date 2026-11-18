@@ -128,6 +128,21 @@
       b.nextReview = s.week + reviewInterval(s);
       boardWeek(s);
     }
+    function startConvertedBoard(s, initialConfidence) {
+      const b = s.company.board = {
+        directors: [], nextId: 1, since: s.week, budget: firstBudget(s), spent: 0,
+        freedom: "medium", perks: [], probation: false, reviews: [],
+        nextReview: s.week + reviewInterval(s),
+      };
+      b.budgetLeft = b.budget;
+      for (let index = 0; index < PHASES[phase(s) - 1].boardSeats; index++) {
+        const director = newDirector(s, "venture");
+        director.relationship = initialConfidence - director.satisfaction;
+        b.directors.push(director);
+      }
+      setTargets(s);
+      boardWeek(s);
+    }
     /** Takes the offer of a kind at a term (0 or 1 for equity deals). Returns what changed. */
     function takeFunding(s, kind, term = 0) {
       requireAction(s);
@@ -710,6 +725,7 @@
         fundingOffers,
         takeFunding,
         recordPublicRound,
+        startConvertedBoard,
         payAcquisition,
         loanPayment,
         repayLoan,
