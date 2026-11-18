@@ -79,7 +79,11 @@ const PLACES = {
   desk: {
     title: () => "Front desk",
     render: () =>
-      `<p class="place-intro">The front desk in the lobby. Scout new artists and hire the team here; tap a staff member on the lot to see them on their own.</p>${section("sec-scout", scouting())}${section("sec-team", `<h2>Your team</h2>${staff()}`)}`,
+      `<p class="place-intro">The front desk in the lobby. Scout new artists and hire the team here; tap a staff member on the lot to see them on their own.</p>${section("sec-scout", scouting())}${
+        state.company?.departments && typeof GoatStaff !== "undefined"
+          ? section("sec-team", GoatStaff.departmentList())
+          : section("sec-team", `<h2>Your team</h2>${staff()}`)
+      }`,
   },
   trophies: {
     title: () => "Trophy case",
@@ -131,6 +135,8 @@ function placeSheet(id) {
     const l = G.locationList(state).find((x) => x.id === key);
     return l && { title: () => l.name, render: () => locationSheet(l) };
   }
+  const people = typeof GoatStaff !== "undefined" && GoatStaff.sheet(id);
+  if (people) return people;
   const street = typeof GoatStreet !== "undefined" && GoatStreet.sheet(id);
   if (street) return street;
   const phone = typeof GoatPhone !== "undefined" && GoatPhone.sheet(id);
@@ -183,7 +189,7 @@ function tourSection(a) {
 }
 function artistSheet(a) {
   const albums = state.albums.filter((p) => p.artist === a.id);
-  return `<p class="place-intro">${pixelSvg(G.ARTIST_SPRITE, G.GENRE_COLORS[a.genre] || "#ccc", 22)} ${esc(artistStatus(a))} · ${esc(a.genre)} · Level ${G.level(a)}/10</p>${section("sec-artist", artistCard(a))}${recordSection(a)}${tourSection(a)}${section("sec-albums", `<h2>Albums</h2>${albums.length ? catalogList(albums) : '<div class="empty">No albums yet.</div>'}`)}`;
+  return `<p class="place-intro">${pixelSvg(G.ARTIST_SPRITE, G.GENRE_COLORS[a.genre] || "#ccc", 22)} ${esc(artistStatus(a))} · ${esc(a.genre)} · Level ${G.level(a)}/10</p>${section("sec-artist", artistCard(a))}${typeof GoatStaff !== "undefined" ? GoatStaff.teamSection(a) : ""}${recordSection(a)}${tourSection(a)}${section("sec-albums", `<h2>Albums</h2>${albums.length ? catalogList(albums) : '<div class="empty">No albums yet.</div>'}`)}`;
 }
 
 /* ---------------- Rooms ---------------- */
