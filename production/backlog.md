@@ -220,7 +220,7 @@ Files: `src/systems/board.js`, `tests/board-test.cjs`
 Do: implement director satisfaction and board confidence from design 4, with targets set at the last review. Show the reasons (what moved each director).
 Done when: tests check the formula on fixed inputs and that each agenda reacts to its metric.
 
-### [ ] T20 · The periodic review
+### [x] T20 · The periodic review
 
 Depends on: T19
 Files: `src/systems/board.js`, `src/systems/company.js` (`boardApproved`), `tests/board-test.cjs`

@@ -11,6 +11,7 @@
       METRICS,
       MONEY_STEP,
       SEAT_WEIGHT,
+      REVIEW,
       BACKERS,
       VALUATION,
       FUNDING,
@@ -136,7 +137,17 @@
       s.company.board ??= { directors: [], nextId: 1, since: s.week };
       const added = Array.from({ length: offer.seats }, () => newDirector(s, kind));
       s.company.board.directors.push(...added);
-      if (fresh) setTargets(s);
+      if (fresh) {
+        setTargets(s);
+        const b = s.company.board;
+        b.budget = firstBudget(s);
+        b.budgetLeft = b.budget;
+        b.freedom = "medium";
+        b.perks = [];
+        b.probation = false;
+        b.reviews = [];
+        b.nextReview = s.week + reviewInterval(s);
+      }
       boardWeek(s);
       s.company.rounds.push({
         kind,
@@ -240,6 +251,100 @@
       for (const d of b.directors) d.satisfaction = satisfaction(s, d, values).value;
       b.confidence = confidence(s, values);
     }
+    // ---- The periodic review (design 3.3) ----
+    function reviewInterval(s) {
+      return s.company.public ? REVIEW.publicInterval : REVIEW.intervalWeeks;
+    }
+    function firstBudget(s) {
+      const B = REVIEW.budget;
+      return Math.round(Math.max(B.floor[phase(s) - 1], core.api().yearRevenue(s) * B.revenueShare));
+    }
+    /** Next period's budget from the last one, confidence and revenue growth (design 4). */
+    function reviewBudget(s, c) {
+      const b = board(s),
+        [lo, hi] = REVIEW.budget.growth,
+        target = b.targets?.growth || 0,
+        growth = target > 0 ? Math.max(lo, Math.min(hi, core.api().yearRevenue(s) / target - 1)) : 0;
+      return Math.max(
+        REVIEW.budget.floor[phase(s) - 1],
+        Math.round(b.budget * (0.8 + (0.4 * c) / 100) * (1 + growth)),
+      );
+    }
+    /** Creative freedom for a confidence, one step lower on probation. */
+    function freedomFor(c, probation) {
+      const i = REVIEW.freedom.findIndex((f) => c < f.below);
+      return REVIEW.freedom[Math.max(0, i - (probation ? 1 : 0))].id;
+    }
+    function perksFor(c) {
+      return REVIEW.perks.filter((p) => c >= p.min).map((p) => p.id);
+    }
+    function perkCost(s) {
+      const perks = board(s)?.perks || [];
+      return REVIEW.perks.filter((p) => perks.includes(p.id)).reduce((n, p) => n + p.weekly, 0);
+    }
+    /** A no-confidence vote: who votes to remove you, and whether it passes. */
+    function holdVote(s) {
+      const b = board(s),
+        against = b.directors.filter((d) => satisfaction(s, d).value < REVIEW.removeBelow).length,
+        majority = against > b.directors.length / 2,
+        protectedByShares = s.company.ownership > 0.5;
+      return {
+        against,
+        seats: b.directors.length,
+        passed: majority && !protectedByShares,
+        protectedByShares,
+      };
+    }
+    function fire(s, c) {
+      s.finished = true;
+      s.bankrupt = false;
+      s.fired = true;
+      s.company.fired = true;
+      s.outcome = `Fired. The board lost confidence (${c}/100) and voted you out of ${core.api().labelName(s)}.`;
+      log(s, s.outcome);
+    }
+    /** Runs the review now: confidence, any vote, then next period's budget, perks and freedom. */
+    function runReview(s) {
+      const b = board(s);
+      if (!b) throw Error("There is no board to review the label.");
+      boardWeek(s);
+      const c = b.confidence,
+        wasOnProbation = b.probation,
+        voteDue = c < REVIEW.voteBelow || (wasOnProbation && c < REVIEW.voteOnProbationBelow),
+        vote = voteDue ? holdVote(s) : null,
+        record = { week: s.week, confidence: c, probation: false, vote };
+      if (vote?.passed) {
+        b.reviews.push(record);
+        fire(s, c);
+        return record;
+      }
+      b.probation = c < REVIEW.probationBelow;
+      b.budget = reviewBudget(s, c);
+      b.budgetLeft = b.budget;
+      b.freedom = freedomFor(c, b.probation);
+      b.perks = perksFor(c);
+      Object.assign(record, { probation: b.probation, budget: b.budget, freedom: b.freedom, perks: b.perks });
+      b.reviews.push(record);
+      if (b.reviews.length > 12) b.reviews.shift();
+      setTargets(s);
+      b.nextReview = s.week + reviewInterval(s);
+      const freedom = REVIEW.freedom.find((f) => f.id === b.freedom).name;
+      s.notifications.push({
+        id: s.nextId++,
+        kind: "board",
+        title: vote ? "You survived a no-confidence vote" : b.probation ? "On probation" : "Board review",
+        body: `Confidence ${c}/100. Budget $${b.budget.toLocaleString("en-US")} for the next period, ${freedom.toLowerCase()} creative freedom${b.perks.length ? ", perks: " + b.perks.map((id) => REVIEW.perks.find((p) => p.id === id).name.toLowerCase()).join(", ") : ""}.${vote ? ` ${vote.against} of ${vote.seats} voted against you${vote.protectedByShares ? "; your majority stake saved you" : ""}.` : ""}`,
+        week: s.week,
+      });
+      log(s, `Board review: confidence ${c}/100${b.probation ? ", on probation" : ""}.`);
+      return record;
+    }
+    /** Whether the board backs moving up a phase. Always yes with no board. */
+    function approvesPhase(s) {
+      const b = board(s);
+      if (!b) return true;
+      return (b.confidence ?? confidence(s)) >= REVIEW.phaseVote;
+    }
     function onScandal(s) {
       const b = board(s);
       if (b) b.scandals = (b.scandals || 0) + 1;
@@ -301,6 +406,12 @@
         isCount(c.board.nextId) &&
         c.board.directors.every(validDirector) &&
         (c.board.scandals === undefined || isCount(c.board.scandals)) &&
+        (c.board.nextReview === undefined || isCount(c.board.nextReview)) &&
+        (c.board.budget === undefined || (isCount(c.board.budget) && Number.isFinite(c.board.budgetLeft))) &&
+        (c.board.freedom === undefined || REVIEW.freedom.some((f) => f.id === c.board.freedom)) &&
+        (c.board.perks === undefined ||
+          (Array.isArray(c.board.perks) &&
+            c.board.perks.every((id) => REVIEW.perks.some((p) => p.id === id)))) &&
         (c.board.targets === undefined ||
           (!!c.board.targets && Object.keys(METRICS).every((k) => Number.isFinite(c.board.targets[k])))) &&
         (c.board.confidence === undefined ||
@@ -312,10 +423,12 @@
     return {
       init,
       validSave,
-      upkeep: loanPayment,
+      upkeep: (s) => loanPayment(s) + perkCost(s),
       weekly: (s) => {
         loanWeek(s);
         boardWeek(s);
+        const b = board(s);
+        if (b && !s.finished && s.week >= b.nextReview) runReview(s);
         return 0;
       },
       onScandal,
@@ -339,6 +452,14 @@
         confidence,
         boardReport,
         setTargets,
+        REVIEW,
+        runReview,
+        holdVote,
+        freedomFor,
+        perksFor,
+        perkCost,
+        reviewBudget,
+        approvesPhase,
       },
     };
   }

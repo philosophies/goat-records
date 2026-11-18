@@ -229,9 +229,9 @@
       return floor;
     }
 
-    /** Whether the board lets the label move up. Always true until the board exists (T20). */
+    /** Whether the board lets the label move up. Always true with no board. */
     function boardApproved(s) {
-      return true;
+      return core.api().approvesPhase?.(s) ?? true;
     }
     function weekly(s) {
       const progress = phaseProgress(s);
