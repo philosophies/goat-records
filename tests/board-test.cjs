@@ -192,4 +192,158 @@ test("Funding survives a save, bad funding data is rejected, older CEO saves gai
   assert.deepEqual(old.company.rounds, []);
 });
 
+// ---- Board confidence (T19) ----
+const { METRICS, MONEY_STEP } = G;
+/** A phase-3 board with one director of each listed type and fixed targets. */
+function seatedBoard(types, targets) {
+  const s = ceo(3);
+  s.company.board = {
+    directors: types.map((type, i) => ({
+      id: i + 1,
+      type,
+      name: "D" + i,
+      patience: 1,
+      relationship: 0,
+      satisfaction: 50,
+      since: 1,
+    })),
+    nextId: types.length + 1,
+    since: 1,
+    scandals: 0,
+    targets,
+  };
+  return s;
+}
+const TARGETS = {
+  profit: 1000,
+  growth: 100000,
+  cash: 50000,
+  welfare: 70,
+  reputation: 60,
+  scandals: 0,
+  valuation: 400000,
+};
+
+test("Metric points follow the step for money, percent and plain metrics, capped", () => {
+  const s = seatedBoard(["accountant"], TARGETS),
+    unit = MONEY_STEP[2];
+  assert.equal(G.metricPoints(s, "profit", 1000 + unit, 1000), 1 / METRICS.profit.step);
+  assert.equal(G.metricPoints(s, "cash", 50000 - 10 * unit, 50000), -10 / METRICS.cash.step);
+  assert.ok(Math.abs(G.metricPoints(s, "growth", 120000, 100000) - 20 / METRICS.growth.step) < 1e-9);
+  assert.equal(G.metricPoints(s, "welfare", 80, 70), 10 / METRICS.welfare.step);
+  assert.equal(G.metricPoints(s, "scandals", 2, 0), 2 / METRICS.scandals.step);
+  assert.equal(G.metricPoints(s, "scandals", 10, 0), METRICS.scandals.cap, "capped");
+  assert.equal(G.metricPoints(s, "growth", 9e9, 100000), METRICS.growth.cap);
+  assert.equal(G.metricPoints(s, "growth", 5000, 0), 0, "no target, no percent change");
+});
+
+test("Satisfaction is 50 + Σ points × agenda weight + relationship + promises, on fixed inputs", () => {
+  const s = seatedBoard(["accountant"], TARGETS),
+    d = s.company.board.directors[0],
+    unit = MONEY_STEP[2],
+    values = { ...TARGETS, profit: 1000 + 3 * unit, cash: 50000 + 10 * unit, growth: 108000 };
+  // profit +6 × 1, cash +2 × 0.8, growth +2 × 0.2
+  const expected = 50 + 6 * 1 + 2 * 0.8 + 2 * 0.2;
+  assert.equal(G.satisfaction(s, d, values).value, Math.round(expected));
+  d.relationship = 5;
+  d.promises = -4;
+  assert.equal(G.satisfaction(s, d, values).value, Math.round(expected + 1));
+  const reasons = G.satisfaction(s, d, values).reasons;
+  assert.deepEqual(
+    reasons.map((r) => [r.key, r.points]),
+    [
+      ["profit", 6],
+      ["relationship", 5],
+      ["promises", -4],
+      ["cash", 1.6],
+      ["growth", 0.4],
+    ],
+    "reasons, largest first",
+  );
+  d.relationship = -30;
+  assert.equal(
+    G.satisfaction(s, d, { ...values, profit: -9e9, cash: -9e9, growth: 0 }).value,
+    0,
+    "never below 0",
+  );
+  d.relationship = 30;
+  assert.equal(
+    G.satisfaction(s, d, { ...values, profit: 9e9, cash: 9e9, growth: 9e9 }).value,
+    100,
+    "never above 100",
+  );
+});
+
+test("Each agenda reacts to its own metric", () => {
+  const types = G.DIRECTORS.map((d) => d.id),
+    s = seatedBoard(types, TARGETS),
+    base = (d, values) => G.satisfaction(s, d, values).value,
+    find = (type) => s.company.board.directors.find((d) => d.type === type),
+    step = MONEY_STEP[2];
+  const cases = [
+    ["accountant", { profit: TARGETS.profit + 5 * step }],
+    ["visionary", { growth: TARGETS.growth * 1.2 }],
+    ["friend", { welfare: TARGETS.welfare + 10 }],
+    ["oldGuard", { scandals: 0, reputation: TARGETS.reputation + 10 }],
+    ["investor", { valuation: TARGETS.valuation * 1.2 }],
+  ];
+  for (const [type, change] of cases) {
+    const d = find(type),
+      before = base(d, TARGETS),
+      after = base(d, { ...TARGETS, ...change });
+    assert.ok(after > before, `${type} likes ${Object.keys(change).join(", ")}`);
+    for (const other of types.filter((t) => t !== type)) {
+      const o = find(other),
+        agenda = G.DIRECTORS.find((x) => x.id === other).agenda;
+      if (!Object.keys(change).some((k) => agenda[k]))
+        assert.equal(base(o, { ...TARGETS, ...change }), base(o, TARGETS), `${other} ignores it`);
+    }
+  }
+  const guard = find("oldGuard");
+  assert.ok(base(guard, { ...TARGETS, scandals: 2 }) < base(guard, TARGETS), "the Old Guard hates scandals");
+  assert.equal(base(find("friend"), { ...TARGETS, scandals: 2 }), base(find("friend"), TARGETS));
+});
+
+test("Confidence is the seat-weighted average of satisfaction", () => {
+  const s = seatedBoard(["accountant", "friend", "visionary"], TARGETS),
+    values = { ...TARGETS, profit: TARGETS.profit + 10 * MONEY_STEP[2], welfare: 50 },
+    each = s.company.board.directors.map((d) => G.satisfaction(s, d, values).value);
+  assert.equal(G.confidence(s, values), Math.round(each.reduce((n, x) => n + x, 0) / each.length));
+  assert.equal(G.confidence(ceo(3)), null, "no board, no confidence");
+});
+
+test("The board reports each director's satisfaction with its reasons", () => {
+  const s = ceo(2);
+  s.cash = 50000;
+  G.takeFunding(s, "angel", 0);
+  const report = G.boardReport(s);
+  assert.equal(report.directors.length, 1);
+  assert.equal(report.confidence, 50, "at the targets the board starts at 50");
+  assert.deepEqual(report.targets, G.metricValues(s));
+  s.reputation += 30;
+  s.artists.forEach((a) => (a.morale = 100));
+  s.cash += 5e5;
+  const later = G.boardReport(s).directors[0];
+  assert.ok(later.reasons.length > 0);
+  assert.ok(later.reasons.every((r) => typeof r.name === "string" && Number.isFinite(r.points)));
+});
+
+test("Scandals count toward the Old Guard and the week stores satisfaction and confidence", () => {
+  const s = ceo(2);
+  s.cash = 200000;
+  G.sign(s, s.candidates[0].id);
+  G.takeFunding(s, "angel", 0);
+  s.company.board.directors[0].type = "oldGuard";
+  const a = s.artists[0];
+  s.event = { id: 9001, title: "Scandal", artist: a.id, options: [{ label: "Ride it out", trust: -10 }] };
+  G.choose(s, 0);
+  assert.equal(s.company.board.scandals, 1);
+  settle(s);
+  const d = s.company.board.directors[0];
+  assert.equal(d.satisfaction, G.satisfaction(s, d).value);
+  assert.equal(s.company.board.confidence, G.confidence(s));
+  assert.ok(d.satisfaction < 50, "the scandal cost the Old Guard");
+  assert.equal(G.validSystemsSave(roundTrip(s)), true);
+});
+
 console.log(`${count} board tests passed.`);

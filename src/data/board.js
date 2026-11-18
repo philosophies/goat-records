@@ -29,6 +29,32 @@
     },
     { id: "investor", name: "The Investor", agenda: { valuation: 1, growth: 0.6, profit: 0.4 }, patience: 1 },
   ];
+  // Board results (design 4): each metric turns its distance from the target set at the last review
+  // into satisfaction points, capped at ±cap. step is the distance worth one point:
+  //   money    step × the phase's MONEY_STEP dollars
+  //   percent  step percent of the target (for growth and valuation)
+  //   plain    step units (morale, reputation, scandals)
+  //   profit      average weekly cash change over the last `weeks` weeks
+  //   growth      revenue over the last 52 weeks
+  //   cash        cash in hand
+  //   welfare     average artist morale
+  //   reputation  label reputation
+  //   scandals    trust-losing events since the last review (target 0)
+  //   valuation   company value
+  const METRICS = {
+    profit: { name: "Weekly profit", kind: "money", step: 0.5, cap: 25, weeks: 13 },
+    growth: { name: "Revenue", kind: "percent", step: 4, cap: 25 },
+    cash: { name: "Cash", kind: "money", step: 5, cap: 20 },
+    welfare: { name: "Artist morale", kind: "plain", step: 2, cap: 20 },
+    reputation: { name: "Reputation", kind: "plain", step: 2, cap: 20 },
+    scandals: { name: "Scandals", kind: "plain", step: 0.2, cap: 25 },
+    valuation: { name: "Company value", kind: "percent", step: 4, cap: 25 },
+  };
+  // Dollars behind one "money" step, by phase.
+  const MONEY_STEP = [200, 800, 3000, 10000, 30000, 100000];
+  // Confidence = Σ satisfaction × seat weight ÷ Σ seat weight. Every seat counts the same for now.
+  const SEAT_WEIGHT = 1;
+
   // Which archetypes each kind of money tends to bring, in order of likelihood.
   const BACKERS = {
     angel: ["visionary", "friend", "investor"],
@@ -57,7 +83,7 @@
     },
   };
 
-  const data = { DIRECTORS, BACKERS, VALUATION, FUNDING };
+  const data = { DIRECTORS, METRICS, MONEY_STEP, SEAT_WEIGHT, BACKERS, VALUATION, FUNDING };
   root.GoatData = Object.assign(root.GoatData || {}, data);
   if (typeof module !== "undefined" && module.exports) module.exports = data;
 })(typeof globalThis !== "undefined" ? globalThis : this);

@@ -213,7 +213,7 @@ Do:
 - Taking money adds seats and dilutes `s.company.ownership`. A board appears only once outside money is taken.
   Done when: tests cover each offer, dilution, the seat count and "no board without investors".
 
-### [ ] T19 · Board confidence
+### [x] T19 · Board confidence
 
 Depends on: T18
 Files: `src/systems/board.js`, `tests/board-test.cjs`
