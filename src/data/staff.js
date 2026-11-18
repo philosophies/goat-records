@@ -99,6 +99,58 @@
   // Junior staff: a weekly salary each, a hiring fee, and at most perPhase × company phase per department.
   const DEPT_STAFF = { salary: 300, hireFee: 600, perPhase: 2 };
 
+  // The team around each artist (design 3.5). Each artist has one slot per role once its phase opens.
+  //   weight   how strongly the role's skill counts in the team effect (skill × weight × chemistry)
+  //   salary   weekly pay at skill 0; add TEAM_POOL.perSkill per skill point
+  const TEAM_ROLES = [
+    { id: "manager", name: "Manager", phase: 1, weight: 0.6, text: "Morale, wants and contract talks." },
+    { id: "producer", name: "Producer", phase: 1, weight: 1, text: "Album quality on Recording and Mix." },
+    { id: "ar", name: "A&R rep", phase: 2, weight: 0.8, text: "Songwriting and picking singles." },
+    { id: "publicist", name: "Publicist", phase: 3, weight: 0.8, text: "Fame and scandal defence." },
+    { id: "stylist", name: "Stylist", phase: 3, weight: 0.5, text: "Image, videos and launch hype." },
+    { id: "tour", name: "Tour manager", phase: 3, weight: 0.8, text: "Tour profit and artist energy." },
+    {
+      id: "business",
+      name: "Business manager",
+      phase: 4,
+      weight: 0.6,
+      text: "Deals, royalties and the artist's money.",
+    },
+  ];
+  // Hiring team members into the label's pool, by the company's reach.
+  //   sharedEffect  a member serving two artists works at this share of their effect for each
+  const TEAM_POOL = {
+    size: 3,
+    recruitCost: 250, // per drive, × the company phase
+    skill: {
+      local: [25, 50],
+      city: [32, 58],
+      region: [40, 68],
+      country: [50, 78],
+      world: [60, 90],
+    },
+    salary: 80,
+    perSkill: 5,
+    signWeeks: 2,
+    maxArtists: 2,
+    sharedEffect: 0.6,
+  };
+  // How a member styles their work; shown on their card. Chemistry with an artist also depends on the pair.
+  const TEAM_STYLES = ["Calm", "Driven", "Blunt", "Playful", "Meticulous", "Old-school"];
+  // Chemistry = base + genre fit + personality + history, clamped to min–max.
+  //   personality  the pair's fit spreads from −personality to +personality, fixed for a run
+  //   history      perAlbum for each album released together, up to historyMax
+  const CHEMISTRY = {
+    base: 1,
+    genreMatch: 0.2,
+    genreMiss: -0.15,
+    personality: 0.2,
+    perAlbum: 0.05,
+    historyMax: 0.2,
+    min: 0.6,
+    max: 1.4,
+  };
+
   const EXEC_FIRST = [
     "Avery",
     "Marcus",
@@ -136,7 +188,19 @@
     "Thorne",
   ];
 
-  const data = { DEPARTMENTS, ROLE_DEPARTMENT, EXEC_POOL, EXEC_PAY, DEPT_STAFF, EXEC_FIRST, EXEC_LAST };
+  const data = {
+    DEPARTMENTS,
+    ROLE_DEPARTMENT,
+    TEAM_ROLES,
+    TEAM_POOL,
+    TEAM_STYLES,
+    CHEMISTRY,
+    EXEC_POOL,
+    EXEC_PAY,
+    DEPT_STAFF,
+    EXEC_FIRST,
+    EXEC_LAST,
+  };
   root.GoatData = Object.assign(root.GoatData || {}, data);
   if (typeof module !== "undefined" && module.exports) module.exports = data;
 })(typeof globalThis !== "undefined" ? globalThis : this);

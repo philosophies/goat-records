@@ -247,4 +247,167 @@ test("A role uses the better of a hired employee and the department head", () =>
   assert.equal(G.roleSkill(s, "VP"), Math.max(employee, head.skill));
 });
 
+// ---- Artist teams (T14) ----
+const { TEAM_ROLES, TEAM_POOL, CHEMISTRY } = G;
+function teamRun(phase = 1, seed = 31) {
+  const s = ceo(seed, phase);
+  G.sign(s, s.candidates[0].id);
+  return s;
+}
+function hireMember(s, role, pick = 0) {
+  return G.hireTeam(s, role, G.recruitTeam(s, role)[pick].id);
+}
+
+test("Team slots open by phase", () => {
+  const ids = (s) => G.teamSlots(s).map((r) => r.id);
+  assert.deepEqual(ids(ceo(31, 1)), ["manager", "producer"]);
+  assert.deepEqual(ids(ceo(31, 2)), ["manager", "producer", "ar"]);
+  assert.deepEqual(ids(ceo(31, 3)), ["manager", "producer", "ar", "publicist", "stylist", "tour"]);
+  assert.deepEqual(
+    ids(ceo(31, 4)),
+    TEAM_ROLES.map((r) => r.id),
+  );
+  assert.deepEqual(G.teamSlots(G.create(31)), [], "classic runs have no team slots");
+  const s = ceo(31, 1);
+  assert.throws(() => G.recruitTeam(s, "publicist"), /phase 3/);
+  assert.throws(() => G.recruitTeam(s, "drummer"), /Unknown team role/);
+});
+
+test("Hiring puts a member in the pool at a cost and adds their salary to weekly costs", () => {
+  const s = teamRun(),
+    before = s.cash,
+    list = G.recruitTeam(s, "producer");
+  assert.equal(list.length, TEAM_POOL.size);
+  assert.equal(s.cash, before - TEAM_POOL.recruitCost);
+  const [lo, hi] = TEAM_POOL.skill.local;
+  for (const c of list) {
+    assert.ok(c.skill >= lo && c.skill <= hi);
+    assert.equal(c.salary, TEAM_POOL.salary + c.skill * TEAM_POOL.perSkill);
+    assert.ok(c.genres.length >= 1 && c.genres.length <= 2);
+  }
+  const upkeep = G.upkeep(s),
+    cash = s.cash,
+    m = G.hireTeam(s, "producer", list[0].id);
+  assert.equal(s.cash, cash - m.salary * TEAM_POOL.signWeeks);
+  assert.equal(G.upkeep(s) - upkeep, m.salary);
+  assert.equal(s.company.team.pool.length, 1);
+  assert.equal(s.company.team.candidates.producer.length, TEAM_POOL.size - 1);
+});
+
+test("Each artist has one member per role; assigning replaces the old one", () => {
+  const s = teamRun(),
+    a = s.artists[0],
+    first = hireMember(s, "producer", 0),
+    second = hireMember(s, "producer", 0);
+  G.assignTeam(s, first.id, a.id);
+  assert.equal(G.teamMember(s, a.id, "producer").id, first.id);
+  G.assignTeam(s, second.id, a.id);
+  assert.equal(G.teamMember(s, a.id, "producer").id, second.id);
+  assert.deepEqual(first.artists, []);
+  const slots = G.artistTeam(s, a.id);
+  assert.deepEqual(
+    slots.map((x) => x.role.id),
+    ["manager", "producer"],
+  );
+  assert.equal(slots[0].member, null);
+  assert.equal(slots[1].member.id, second.id);
+  assert.throws(() => G.assignTeam(s, second.id, a.id), /already works with/);
+});
+
+test("A member can serve two artists at the shared effect, never three", () => {
+  const s = teamRun();
+  // Two more artists without the roster cap, which is not what this test is about.
+  for (const c of s.candidates.slice(0, 2)) s.artists.push({ ...c, contract: { remaining: 1 } });
+  const [a, b, c] = s.artists,
+    m = hireMember(s, "manager");
+  G.assignTeam(s, m.id, a.id);
+  assert.equal(G.teamShare(m), 1);
+  G.assignTeam(s, m.id, b.id);
+  assert.equal(G.teamShare(m), TEAM_POOL.sharedEffect);
+  assert.equal(G.artistTeam(s, a.id)[0].share, TEAM_POOL.sharedEffect);
+  assert.throws(() => G.assignTeam(s, m.id, c.id), /already serves 2 artists/);
+  G.unassignTeam(s, m.id, b.id);
+  assert.equal(G.teamShare(m), 1);
+});
+
+test("Chemistry stays within its range and is the same before and after assigning", () => {
+  for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
+    const s = teamRun(4, seed),
+      a = s.artists[0];
+    for (const role of ["manager", "producer", "publicist"]) {
+      for (const c of G.recruitTeam(s, role)) {
+        const shown = G.chemistry(s, a, c);
+        assert.ok(shown.value >= CHEMISTRY.min && shown.value <= CHEMISTRY.max, `chemistry ${shown.value}`);
+        assert.equal(shown.parts.length, 3);
+      }
+      const m = G.hireTeam(s, role, s.company.team.candidates[role][0].id),
+        preview = G.chemistry(s, a, m).value;
+      assert.equal(G.assignTeam(s, m.id, a.id).value, preview);
+    }
+  }
+  const s = teamRun(),
+    a = s.artists[0],
+    m = hireMember(s, "producer");
+  m.genres = [a.genre];
+  const match = G.chemistry(s, a, m).value;
+  m.genres = [a.genre === "Pop" ? "Rock" : "Pop"];
+  assert.ok(match > G.chemistry(s, a, m).value, "genre fit raises chemistry");
+  const low = G.chemistry(s, a, m).value;
+  m.history[a.id] = 2;
+  assert.ok(G.chemistry(s, a, m).value > low || low === CHEMISTRY.max, "albums together raise chemistry");
+  m.history[a.id] = 99;
+  m.genres = [a.genre];
+  assert.ok(G.chemistry(s, a, m).value <= CHEMISTRY.max);
+});
+
+test("Team pools and chemistry are the same for the same seed", () => {
+  const build = (seed) => {
+    const s = teamRun(3, seed);
+    const list = ["manager", "producer", "tour"].map((r) => hireMember(s, r));
+    return list.map((m) => [m.name, m.skill, m.genres, m.style, G.chemistry(s, s.artists[0], m).value]);
+  };
+  assert.deepEqual(build(55), build(55));
+  assert.notDeepEqual(build(55), build(56));
+});
+
+test("Artists who leave drop off their team members, and teams survive a save", () => {
+  const s = teamRun(),
+    a = s.artists[0],
+    m = hireMember(s, "manager");
+  G.assignTeam(s, m.id, a.id);
+  const copy = roundTrip(s);
+  assert.equal(G.validSystemsSave(copy), true);
+  G.migrate(copy);
+  assert.deepEqual(copy.company.team, s.company.team);
+  s.artists = [];
+  settle(s);
+  assert.deepEqual(m.artists, []);
+  const bad = (f) => {
+    const x = roundTrip(copy);
+    f(x);
+    return G.validSystemsSave(x);
+  };
+  assert.equal(
+    bad((x) => (x.company.team.pool[0].role = "chef")),
+    false,
+  );
+  assert.equal(
+    bad((x) => (x.company.team.pool[0].artists = [1, 2, 3])),
+    false,
+  );
+  assert.equal(
+    bad((x) => (x.company.team.pool[0].genres = ["Polka"])),
+    false,
+  );
+  assert.equal(
+    bad((x) => (x.company.team.candidates.drummer = [])),
+    false,
+  );
+  const old = roundTrip(copy);
+  delete old.company.team;
+  assert.equal(G.validSystemsSave(old), true);
+  G.migrate(old);
+  assert.deepEqual(old.company.team, { pool: [], candidates: {}, nextId: 1 });
+});
+
 console.log(`${count} staff tests passed.`);

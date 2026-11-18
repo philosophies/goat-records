@@ -170,7 +170,7 @@ Do:
 - Read effects through one function, `roleSkill(s, role)`, that works for both run types.
   Done when: a 1.1 run's stage scores are identical (snapshot test over a seeded album); a CEO run with a Head of A&R gets the A&R bonus.
 
-### [ ] T14 · Artist team pool and chemistry
+### [x] T14 · Artist team pool and chemistry
 
 Depends on: T12
 Files: `src/data/staff.js`, `src/systems/staff.js`, `tests/staff-test.cjs`
