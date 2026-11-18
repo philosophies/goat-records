@@ -58,6 +58,7 @@ function promoActiveAdText(x) {
   const ad = G.ADS.find((a) => a.id === x.adId);
   return `${esc(ad.name)} · ${promoMult(x.mult)} · weeks ${x.start}–${x.until}${x.start > state.week ? " · starts next week" : ` · ${promoWeeks(x.until - state.week + 1)} left`}`;
 }
+const promoAdPicks = {};
 function promoAdRow(p) {
   if (!p.released) return "";
   const active = G.activeAd(state, p.id),
@@ -65,8 +66,10 @@ function promoAdRow(p) {
   if (active)
     return `<div class="promo-row ad active"><b>Ad running</b><small>${promoActiveAdText(active)}</small></div>`;
   if (!earning) return "";
+  // Default to the cheapest ad; a choice the player made stays selected across redraws.
   const rank = G.rank(state),
-    first = G.ADS.filter((a) => a.rank <= rank).at(-1);
+    open = G.ADS.filter((a) => a.rank <= rank),
+    first = open.find((a) => a.id === promoAdPicks[p.id]) || open[0];
   return `<div class="promo-row ad"><label>Ad campaign<select id="promo-ad-${p.id}" data-promo-ad="${p.id}">${G.ADS.map(
     (a) =>
       `<option value="${a.id}" ${a.rank > rank ? "disabled" : ""} ${a === first ? "selected" : ""}>${esc(a.name)} · ${a.rank > rank ? "rank " + a.rank : money(G.adCost(state, a))}</option>`,
@@ -152,6 +155,7 @@ function promoChange(e) {
   if (!id) return false;
   const p = state.albums.find((x) => x.id === Number(id)),
     out = $("promo-ad-quote-" + id);
+  if (p) promoAdPicks[p.id] = e.target.value;
   if (p && out) out.innerHTML = promoAdQuoteText(p, e.target.value);
   return true;
 }

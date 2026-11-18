@@ -147,6 +147,12 @@
   .campaign-review .formula {
     grid-template-columns: 1fr;
   }
+  .campaign-review > div:nth-child(2) {
+    flex: 1 1 100%;
+  }
+  .campaign-review .formula b {
+    white-space: nowrap;
+  }
   .campaign-goals td:nth-child(3),
   .campaign-goals th:nth-child(3) {
     display: none;

@@ -101,7 +101,7 @@ const next = p.saved();
 assert.equal(next.campaign.run, 2);
 assert.deepEqual(next.campaign.legacy, ["seed", "themes"]);
 assert.equal(next.week, 1);
-assert.match(p.html("content"), /Start an album/, "returns to the studio");
+assert.equal(p.html("content"), "", "a new run starts on the lot with menus closed");
 assert.match(p.html("hud"), /Y1 goal/);
 
 // An early bankruptcy offers no New Game+.

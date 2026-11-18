@@ -63,6 +63,7 @@
     }
     for (const p of s.albums) if (!p.released && !p.production) initializeProject(p, artist(s, p.artist));
     initializeManagement(s);
+    compactHistory(s);
     return s;
   }
   function project(s, id) {
@@ -827,7 +828,10 @@
     s.effects = s.effects.filter((x) => x.week > s.week);
     if (s.week % 52 === 1 && s.week > 1) {
       resolveAnnualAwards(s, operatingYear(s.week - 1));
+      // Promote first, so a rank earned at this settlement counts toward the year's goal.
+      L?.checkRank(s);
       hooks.each("yearEnd", s, operatingYear(s.week - 1));
+      compactHistory(s);
     }
     s.awardPrograms[operatingYear(s.week)] ??= { year: operatingYear(s.week), entries: {}, results: null };
     if (s.week % 52 === 49)
@@ -1254,13 +1258,15 @@
     if (advanceRivals) {
       c.history.push({
         week: s.week,
-        entries: c.entries.map((e) => ({
-          id: e.id,
-          rank: e.rank,
-          units: e.units,
-          title: e.title,
-          owned: e.owned,
-        })),
+        entries: c.entries
+          .filter((e) => e.rank <= 40 || e.owned)
+          .map((e) => ({
+            id: e.id,
+            rank: e.rank,
+            units: e.units,
+            title: e.title,
+            owned: e.owned,
+          })),
       });
       c.history = c.history.slice(-13);
     }
@@ -1814,7 +1820,7 @@
     requireAction(s);
     const t = s.tours.find((t) => t.id === Number(id) && t.status === "active");
     if (!t) throw Error("No active tour.");
-    endTour(s, t, "Label cancelled the remaining dates");
+    endTour(s, t, "Label canceled the remaining dates");
   }
   function tourEvent(s, t, fatigue = false) {
     const r = TOUR_SCALES.find((r) => r.id === t.scale),
@@ -1993,7 +1999,7 @@
     else if (o.cancelChance && rng(s) < o.cancelChance) {
       if (a) a.morale = clamp(a.morale - 8);
       s.reputation = clamp(s.reputation - 3);
-      endTour(s, t, "An avoidable disruption cancelled the remaining shows");
+      endTour(s, t, "An avoidable disruption canceled the remaining shows");
     }
   }
   // Labels no longer stop after year one; loading an older save resumes it (campaign system).
@@ -2664,6 +2670,35 @@
   }
   // The run ends once the campaign reports its last year done and every pending event is resolved.
   // Year one's Breakout Label target is now the campaign's first yearly goal.
+  /**
+   * Keeps long careers small enough for browser storage. Albums whose earning run ended more
+   * than a year ago keep their stage scores and ratings but drop the calculation rows; rival
+   * albums are archived only while they can still matter (this year, last year, or charting);
+   * award results older than three years keep scores without rows.
+   */
+  function compactHistory(s) {
+    const year = operatingYear(s.week);
+    for (const p of s.albums) {
+      if (!p.released || p.launchReview || p.age < p.salesWeeks) continue;
+      if (operatingYear(p.releaseWeek) >= year - 1) continue;
+      if (p.production) {
+        p.stageScores = p.production.results.map((r) => ({ area: r.area, choice: r.choice, score: r.score }));
+        delete p.production;
+      }
+      if (p.launchRatings?.some((r) => r.parts))
+        p.launchRatings = p.launchRatings.map((r) => ({ name: r.name, score: r.score }));
+      if (p.chart?.history?.length > 26) p.chart.history = p.chart.history.slice(-26);
+    }
+    if (s.charts?.history)
+      for (const h of s.charts.history) h.entries = h.entries.filter((e) => e.rank <= 40 || e.owned);
+    const charting = new Set((s.charts?.rivals || []).map((r) => r.id));
+    for (const [id, r] of Object.entries(s.rivalArchive || {}))
+      if (r.year < year - 1 && !charting.has(id)) delete s.rivalArchive[id];
+    for (const program of Object.values(s.awardPrograms || {}))
+      if (program.year < year - 3)
+        for (const r of program.results || []) for (const e of r.entries) if (e.parts?.length) e.parts = [];
+    return s;
+  }
   function finalizeRun(s) {
     if (s.finished || s.event || s.eventQueue.length) return;
     const outcome = api.campaignOutcome?.(s);
@@ -3376,6 +3411,7 @@
     demolishFacility: L.demolishFacility,
     validLabelSave: L.validSave,
     validSystemsSave: (s) => hooks.every("validSave", s),
+    compactHistory,
     planCost: (s, plan) => hooks.sum("planCost", s, plan),
     systems: SYS,
     roll,

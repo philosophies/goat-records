@@ -401,20 +401,21 @@ main.stage {
   display: flex;
   gap: 6px;
   padding: 7px 12px;
-  min-height: var(--menu-h);
-  overflow-x: auto;
+  min-height: 64px;
+  /* Desktop: wrap onto a second row so every screen stays in view. */
+  flex-wrap: wrap;
   background: linear-gradient(#2b3a85, #1d2763);
   border-top: 3px solid var(--frame);
   border-bottom: 3px solid var(--frame);
   scrollbar-width: thin;
 }
 .menu-btn {
-  flex: 1 0 auto;
+  flex: 1 1 auto;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 7px;
-  min-width: 108px;
+  min-width: 96px;
   padding: 7px 10px;
   font:
     700 13px/1.1 Verdana,
@@ -640,6 +641,9 @@ footer {
   .hud-date strong {
     font-size: 11px;
     letter-spacing: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .hudbar .brand small {
     display: inline;
@@ -682,6 +686,10 @@ footer {
     border-left: 0;
     border-top: 3px solid var(--frame);
     overflow: visible;
+  }
+  .menubar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
   }
   .menu-btn {
     flex: 0 0 auto;

@@ -46,7 +46,7 @@ function yearlyReview(r) {
 function campaignBanner() {
   if (state.finished) {
     const f = G.finalReview(state);
-    return `<div class="chart-alert campaign-review" role="status"><div class="chart-award">★${f.score.stars}</div><div><span class="tag">RUN ${f.run} · ${f.bankrupt ? "OUT OF CASH" : "CAMPAIGN COMPLETE"}</span><h2>${f.score.total.toLocaleString("en-US")} points · ${campaignStars(f.score.stars)}</h2><p>${f.canNewGamePlus ? `${f.points} legacy points to spend on New Game+.` : "Start a new label to play again."}</p></div><button data-tab="campaign">Final review →</button></div>`;
+    return `<div class="chart-alert campaign-review" role="status"><div class="chart-award">★${f.score.stars}</div><div><span class="tag">RUN ${f.run} · ${f.bankrupt ? "OUT OF CASH" : "CAMPAIGN COMPLETE"}</span><h2>${f.score.total.toLocaleString("en-US")} points · ${campaignStars(f.score.stars)}</h2><p>${f.canNewGamePlus ? `${f.points} legacy points to spend on New Game+.` : "Start a new label to play again."}</p></div><div class="actions"><button data-tab="campaign">Final review →</button>${f.canNewGamePlus ? "" : '<button data-action="newLabel">Start a new label</button>'}</div></div>`;
   }
   const r = state.campaign.reviews.find((x) => !x.seen);
   return r ? yearlyReview(r) : "";
@@ -131,7 +131,7 @@ function campaignClick(b) {
     act(() => {
       state = G.newGamePlus(state, [...campaignView.picks]);
       campaignView.picks.clear();
-      tab = "studio";
+      resetView();
     });
     return true;
   }

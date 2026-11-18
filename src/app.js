@@ -88,6 +88,8 @@ function inStudioWaiting(p) {
 }
 /** Album panels: decisions and results (shown over the lot), or albums still in the studio. */
 function productionPanels(waiting = false) {
+  // Once the run is over, unfinished albums no longer take decisions.
+  if (state.finished) return "";
   return state.albums
     .filter((p) => (!p.released || p.launchReview) && inStudioWaiting(p) === waiting)
     .map((p) => {
@@ -535,7 +537,7 @@ function catalog() {
                   .map((b) => `Campaign ×${b.mult} · weeks ${b.start}–${b.until}<br>`)
                   .join(
                     "",
-                  )}Chart ${p.chart.rank ? "#" + p.chart.rank : "off chart"} · peak ${p.chart.best ? "#" + p.chart.best : "—"}</p>${p.production ? `<details class="catalog-ratings"><summary>Production & release ratings</summary>${p.production.results.map((r) => `<p>${esc(r.area)} <b>${r.score}/100</b><br><small>${esc(r.choice)}</small></p>`).join("")}${(p.launchRatings || []).map((r) => `<p>${esc(r.name)} <b>${r.score}/100</b></p>`).join("")}<p>Release multiplier ×${p.launchMultiplier.toFixed(2)}</p></details>` : ""}${GoatUI.html("catalogCard", p)}`
+                  )}Chart ${p.chart.rank ? "#" + p.chart.rank : "off chart"} · peak ${p.chart.best ? "#" + p.chart.best : "—"}</p>${p.production ? `<details class="catalog-ratings"><summary>Production & release ratings</summary>${p.production.results.map((r) => `<p>${esc(r.area)} <b>${r.score}/100</b><br><small>${esc(r.choice)}</small></p>`).join("")}${(p.launchRatings || []).map((r) => `<p>${esc(r.name)} <b>${r.score}/100</b></p>`).join("")}<p>Release multiplier ×${p.launchMultiplier.toFixed(2)}</p></details>` : p.stageScores ? `<details class="catalog-ratings"><summary>Production & release ratings</summary>${p.stageScores.map((r) => `<p>${esc(r.area)} <b>${r.score}/100</b><br><small>${esc(r.choice)}</small></p>`).join("")}${(p.launchRatings || []).map((r) => `<p>${esc(r.name)} <b>${r.score}/100</b></p>`).join("")}</details>` : ""}${GoatUI.html("catalogCard", p)}`
               : `<p>${p.expectation && !p.expectation.legacy ? "Expected label revenue " + money(p.expectation.target) + " · " : ""}${p.production ? `${p.production.stage}/5 production decisions · ${p.production.releaseReady ? "Ready for final review" : p.production.cooldown ? `${p.production.cooldown} week(s) to next step` : "Decision ready above"}` : `${p.remaining} weeks until release`}</p>`
           }</article>${p.released ? "</details>" : ""}`,
       )
@@ -669,7 +671,7 @@ function render() {
     s.finished ? "finished:" + s.outcome : undefined,
     s.event?.title,
     ...s.albums
-      .filter((p) => (!p.released || p.launchReview) && !inStudioWaiting(p))
+      .filter((p) => !s.finished && (!p.released || p.launchReview) && !inStudioWaiting(p))
       .map((p) => `${p.id}.${p.production?.stage}.${p.production?.review}.${p.launchReview}`),
     ...s.notifications.map((n) => n.id),
     ...inputBanners,
@@ -714,6 +716,8 @@ document.addEventListener("click", (e) => {
     return;
   }
   if (b.dataset.tab) {
+    // A screen opened from a card over the lot sets the card aside so the screen is usable.
+    if (b.closest?.("#modal")) modalHidden = true;
     openPanel(b.dataset.tab);
     return;
   }
@@ -907,18 +911,25 @@ $("sound").onclick = () => {
   $("sound").textContent = sound ? "Sound on" : "Sound off";
   tone();
 };
+/** Returns the screen to the lot with the clock paused, for a fresh label or run. */
+function resetView() {
+  tab = "studio";
+  panelOpen = false;
+  modalHidden = false;
+  hqView.selected = null;
+  hqView.moving = null;
+  GoatClock.reset();
+  GoatLot.reset();
+}
 $("reset").onclick = () => {
   if (confirm("Start a new label? Export your save first if you want to keep this season."))
     act(() => {
       state = G.create();
-      tab = "studio";
-      panelOpen = false;
-      hqView.selected = null;
-      hqView.moving = null;
-      GoatClock.reset();
-      GoatLot.reset();
+      resetView();
     });
 };
+// The cash grant is a testing aid, shown only when the page is opened with #dev.
+$("testFunds").hidden = typeof location === "undefined" || location.hash !== "#dev";
 $("testFunds").onclick = () =>
   act(() => {
     const revive = state.finished && state.cash < 0;
@@ -930,7 +941,7 @@ $("testFunds").onclick = () =>
     state.news.unshift(`W${state.week}: Testing grant +$100,000.`);
   });
 $("export").onclick = () => {
-  let url = URL.createObjectURL(new Blob([JSON.stringify(state, null, 2)], { type: "application/json" })),
+  let url = URL.createObjectURL(new Blob([JSON.stringify(state)], { type: "application/json" })),
     a = document.createElement("a");
   a.href = url;
   a.download = "goat-records-week-" + state.week + ".json";
@@ -995,7 +1006,7 @@ $("import").onchange = async (e) => {
   let f = e.target.files[0];
   if (!f) return;
   try {
-    if (f.size > 2e6) throw Error("Save file too large.");
+    if (f.size > 20e6) throw Error("Save file too large.");
     let parsed = JSON.parse(await f.text());
     if (!validSave(parsed)) throw Error("This is not a supported Goat Records save.");
     G.migrate(parsed);
@@ -1011,10 +1022,29 @@ $("import").onchange = async (e) => {
   }
   e.target.value = "";
 };
-if (!validSave(state)) state = G.create();
+/** Keeps a copy of a stored save that fails the load checks, so a new label never overwrites it unseen. */
+function keepRejectedSave() {
+  try {
+    const raw = localStorage.getItem("side-a-save-v1");
+    if (raw) localStorage.setItem("side-a-save-rejected", raw);
+  } catch {}
+}
+let rejectedSave = false;
+if (!validSave(state)) {
+  rejectedSave = state !== null;
+  if (rejectedSave) keepRejectedSave();
+  state = G.create();
+}
 G.migrate(state);
-if (!validProductionSave(state) || !G.validManagementSave(state) || !G.validRoadSave(state))
+if (!validProductionSave(state) || !G.validManagementSave(state) || !G.validRoadSave(state)) {
+  rejectedSave = true;
+  keepRejectedSave();
   state = G.migrate(G.create());
+}
+if (rejectedSave)
+  state.news.unshift(
+    "Your stored save could not be loaded. A copy was kept in this browser; a new label has started.",
+  );
 /** Keeps panels and cards below the top bar, whose height changes with the window width. */
 function measureShell() {
   const bar = $("hudbar"),
