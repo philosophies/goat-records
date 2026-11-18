@@ -9,8 +9,10 @@
     const { DEPARTMENTS, ROLE_DEPARTMENT, EXEC_POOL, EXEC_PAY, DEPT_STAFF, EXEC_FIRST, EXEC_LAST, PHASES } =
       D;
     const { TEAM_ROLES, TEAM_EFFECTS, TEAM_POOL, TEAM_STYLES, CHEMISTRY, GENRES } = D;
+    const { TRAITS, WANTS, WANT_MORALE, WALKOUT } = D;
+    const WANT_IDS = Object.keys(WANTS);
     const teamRoleById = Object.fromEntries(TEAM_ROLES.map((r) => [r.id, r]));
-    const { log, pay, requireAction, roll } = core;
+    const { log, pay, requireAction, roll, busy, clamp } = core;
     const deptById = Object.fromEntries(DEPARTMENTS.map((d) => [d.id, d]));
     const isCount = (n) => Number.isInteger(n) && n >= 0;
     const between = (s, [lo, hi], stream = "staff") => lo + Math.floor(roll(s, stream) * (hi - lo + 1));
@@ -206,12 +208,15 @@
       s.company.team.pool = s.company.team.pool.filter((x) => x !== m);
       log(s, `${m.name} leaves the label.`);
     }
+    /** A fixed number for this run from a few ids; it does not use up random numbers. */
+    function fixedHash(s, ...ids) {
+      let h = s.company.team.salt;
+      for (const n of ids) h = Math.imul(h ^ (n + 0x9e3779b9), 2246822519) >>> 0;
+      return (h ^ (h >>> 15)) >>> 0;
+    }
     /** Fixed −1..1 personality fit for an artist and a team member in this run. */
     function pairFit(s, artistId, memberId) {
-      let h = s.company.team.salt;
-      for (const n of [artistId, memberId]) h = Math.imul(h ^ (n + 0x9e3779b9), 2246822519) >>> 0;
-      h ^= h >>> 15;
-      return (h % 2001) / 1000 - 1;
+      return (fixedHash(s, artistId, memberId) % 2001) / 1000 - 1;
     }
     /** Chemistry between an artist and a team member (CHEMISTRY.min–max), shown before assigning. */
     function chemistry(s, a, m) {
@@ -319,6 +324,122 @@
       const fx = TEAM_EFFECTS.tour;
       return 1 - Math.min(fx.drainMax, teamEffect(s, a, "tour") * fx.drain);
     }
+    // ---- Artist traits, wants and morale (design 3.5) ----
+    /** An artist's traits and main want, fixed for this run, plus the counters their want needs. */
+    function persona(s, a) {
+      if (a.persona) return a.persona;
+      const trait = (i) => TRAITS.min + (fixedHash(s, a.id, 100 + i) % (TRAITS.max - TRAITS.min + 1));
+      a.persona = {
+        ...Object.fromEntries(TRAITS.ids.map((id, i) => [id, trait(i)])),
+        want: WANT_IDS[fixedHash(s, a.id, 200) % WANT_IDS.length],
+        since: s.week,
+        bonusWeek: null,
+        fameMark: a.fame,
+        fameMet: true,
+        busyWeeks: 0,
+        idleWeeks: 0,
+        status: "neutral",
+      };
+      return a.persona;
+    }
+    function latestAlbum(s, a) {
+      return s.albums
+        .filter((p) => p.artist === a.id && p.production?.results?.length)
+        .reduce((best, p) => (!best || p.id > best.id ? p : best), null);
+    }
+    /** "met", "ignored" or "neutral" for an artist's main want this week. */
+    function wantStatus(s, a) {
+      const x = persona(s, a);
+      switch (x.want) {
+        case "money":
+          return x.bonusWeek !== null && s.week - x.bonusWeek < WANTS.money.window ? "met" : "ignored";
+        case "control": {
+          const p = latestAlbum(s, a);
+          return !p ? "neutral" : p.production.results[0].choice === WANTS.control.choice ? "met" : "ignored";
+        }
+        case "fame":
+          return x.fameMet ? "met" : "ignored";
+        case "family":
+          return x.busyWeeks < WANTS.family.maxBusy ? "met" : "ignored";
+      }
+      return "neutral";
+    }
+    /** This week's morale change from the artist's want. */
+    function wantMorale(s, a) {
+      const x = persona(s, a),
+        status = wantStatus(s, a),
+        M = WANT_MORALE;
+      if (status === "met") return M.met;
+      if (status === "ignored")
+        return -Math.max(1, Math.round(M.ignored + x.ego * M.egoWeight - x.loyalty * M.loyaltyWeight));
+      return 0;
+    }
+    /** Morale below which an artist with nothing left on their contract walks out. */
+    function walkOutLine(s, a) {
+      const x = persona(s, a);
+      return WALKOUT.walkOut - (x.loyalty >= WALKOUT.loyal ? WALKOUT.loyalGrace : 0);
+    }
+    function walksOut(s, a) {
+      return a.contract?.remaining === 0 && !busy(s, a.id) && (a.morale ?? 75) < walkOutLine(s, a);
+    }
+    function moodWeek(s) {
+      if (!s.company?.team) return;
+      for (const a of [...s.artists]) {
+        const x = persona(s, a);
+        if (busy(s, a.id)) {
+          x.busyWeeks++;
+          x.idleWeeks = 0;
+        } else if (++x.idleWeeks >= WANTS.family.rest) x.busyWeeks = 0;
+        if ((s.week - x.since) % WANTS.fame.window === 0 && s.week > x.since) {
+          x.fameMet = a.fame >= x.fameMark + WANTS.fame.gain || a.fame >= WANTS.fame.star;
+          x.fameMark = a.fame;
+        }
+        x.status = wantStatus(s, a);
+        a.morale = clamp((a.morale ?? 75) + wantMorale(s, a));
+        if (walksOut(s, a)) {
+          s.artists = s.artists.filter((y) => y !== a);
+          log(s, `${a.name} walked out at the end of their contract. Morale ${Math.round(a.morale)}.`);
+          s.notifications.push({
+            id: s.nextId++,
+            kind: "walkout",
+            title: `${a.name} walked out`,
+            body: `Their contract was complete and their morale had fallen to ${Math.round(a.morale)}. They wanted ${WANTS[x.want].name.toLowerCase()}.`,
+            week: s.week,
+          });
+        }
+      }
+    }
+    function bonusCost(a) {
+      return Math.max(WANTS.money.min, a.wage * WANTS.money.wageWeeks);
+    }
+    /** Pays an artist a bonus. It meets a money want for WANTS.money.window weeks. */
+    function payBonus(s, id) {
+      requireAction(s);
+      requireCeo(s);
+      const a = s.artists.find((x) => x.id === Number(id));
+      if (!a) throw Error("Artist not found.");
+      pay(s, bonusCost(a));
+      persona(s, a).bonusWeek = s.week;
+      persona(s, a).status = wantStatus(s, a);
+      log(s, `${a.name} received a bonus.`);
+    }
+    function checkRenew(s, a) {
+      if (s.company?.team && walksOut(s, a))
+        throw Error(`${a.name} will not re-sign while this unhappy. Meet what they want first.`);
+    }
+    /** Mood summary for panels and events. */
+    function artistMood(s, a) {
+      const x = persona(s, a);
+      return {
+        traits: Object.fromEntries(TRAITS.ids.map((id) => [id, x[id]])),
+        want: x.want,
+        wantName: WANTS[x.want].name,
+        status: wantStatus(s, a),
+        weekly: wantMorale(s, a),
+        unhappy: (a.morale ?? 75) < WALKOUT.unhappy,
+        walkOutBelow: walkOutLine(s, a),
+      };
+    }
     function teamPay(s) {
       return (s.company?.team?.pool || []).reduce((n, m) => n + m.salary, 0);
     }
@@ -380,7 +501,19 @@
       );
     }
     function validSave(s) {
-      return validDepartments(s) && validTeam(s);
+      return validDepartments(s) && validTeam(s) && (s.artists || []).every((a) => validPersona(a.persona));
+    }
+    function validPersona(x) {
+      if (x === undefined) return true;
+      return (
+        !!x &&
+        TRAITS.ids.every((id) => Number.isFinite(x[id]) && x[id] >= 0 && x[id] <= 100) &&
+        WANT_IDS.includes(x.want) &&
+        isCount(x.since) &&
+        (x.bonusWeek === null || isCount(x.bonusWeek)) &&
+        isCount(x.busyWeeks) &&
+        isCount(x.idleWeeks)
+      );
     }
     function validDepartments(s) {
       const deps = s.company?.departments;
@@ -397,7 +530,12 @@
     return {
       init: (s) => initTeam(init(s)),
       validSave,
-      weekly: pruneTeam,
+      weekly: (s) => {
+        pruneTeam(s);
+        moodWeek(s);
+        return 0;
+      },
+      beforeRenew: checkRenew,
       stageParts: teamStageParts,
       onRelease: teamRelease,
       trustLoss: trustLossShare,
@@ -425,6 +563,15 @@
         teamShare,
         teamEffect,
         TEAM_EFFECTS,
+        TRAITS,
+        WANTS,
+        WANT_MORALE,
+        WALKOUT,
+        artistMood,
+        wantStatus,
+        payBonus,
+        bonusCost,
+        walksOut,
         artistTeam,
         teamPay,
         departmentOpen,

@@ -363,3 +363,29 @@ Most ordinary choices schedule a review three days later. Two- or three-show pro
 **Advance to next activity** skips quiet tour days and stops at a scheduled review, a weekly settlement, the end of the last tour or a required album decision. It never silently chooses an option. The active ledger identifies the next review target, any show-number hold and remaining weekly tour-decision budget. Concurrent tours receive reviews in turn; each tour keeps daily receipts while another tour awaits its review.
 
 The current pending decision remains available during upgrade and counts toward the current week’s budget. Save data retains the review schedule and used budget across reloads; a pre-0.8 local backup is retained on first upgrade. Tour accounting and quoted gate rates remain unchanged from v0.7.
+
+## CEO runs: departments, artist teams and wants (in development)
+
+CEO runs are the 2.0 mode. Everything below applies only to them.
+
+**Departments.** A&R (phase 1), Marketing and Promotion (phase 2), Live, Business Affairs and Finance (phase 3), Creative (phase 4). A recruitment drive for a head costs $600 × phase and finds three candidates, with skill set by the company's reach (local 30–55 up to world 65–92). A head earns $150 + $9 per skill point a week, costs two weeks' salary to sign and two weeks' severance to let go. Each head can add junior staff ($600 to hire, $300 a week), up to 2 × phase per department. Capacity is the head plus their staff.
+
+Heads carry the old staff effects. A&R covers A&R and Producer, Marketing covers Marketing, Promotion covers Public Relations, Finance covers the VP and Creative covers Artist Development. A role uses the better of a hired employee and the head.
+
+**Artist teams.** Manager and producer (phase 1), A&R rep (phase 2), publicist, stylist and tour manager (phase 3), business manager (phase 4). A drive costs $250 × phase. Members earn $80 + $5 per skill point a week and cost two weeks' pay to sign. Each artist has one member per role. A member can serve two artists at 60% effect each.
+
+A member's effect is skill × role weight × chemistry. Chemistry runs from 0.6 to 1.4: +0.2 when they know the artist's genre (−0.15 when not), a fixed personality fit of up to ±0.2, and +0.05 per album released together (up to +0.2).
+
+- Producer: +0.1 stage points per effect point on Recording and Mix & master.
+- A&R rep: the same on Songwriting.
+- Publicist: +0.05 artist fame per effect point on release; absorbs 0.4% of an event's trust loss per effect point, up to half.
+- Tour manager: +0.2% ticket revenue per effect point; cuts 0.4% of tour energy drain per effect point, up to half.
+
+**Wants and morale.** Each artist has fixed traits (ego, discipline, loyalty, work rate, 15–90) and one main want:
+
+- Money: met for 26 weeks after a bonus (8 weeks of wage, at least $500).
+- Creative control: met when their latest album's creative direction was Artist-led vision.
+- Fame: checked every 13 weeks; met if fame rose by 3, or is 80 or more.
+- Family time: met unless they have worked 8 weeks in a row; 2 idle weeks reset the count.
+
+A met want adds 1 morale a week. An ignored one costs 3 + ego × 0.02 − loyalty × 0.015 (at least 1). Below 40 morale an artist is unhappy. With no albums left on their contract, an artist below 35 morale walks out at the next settlement and will not re-sign; loyalty of 75 or more lowers that line to 20.

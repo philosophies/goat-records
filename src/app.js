@@ -544,6 +544,7 @@ function milestoneBanner() {
       tour: ["$", "TOUR PROFITABILITY"],
       debt: ["!", "CASH WARNING"],
       phase: ["★", "COMPANY GROWTH"],
+      walkout: ["!", "ARTIST WALKED OUT"],
     },
     [icon, tag] = KINDS[n.kind] || ["#" + n.rank, "CHART MILESTONE"];
   return `<div class="chart-alert ${seen ? "seen" : ""}" role="status"><div class="chart-award">${icon}</div><div><span class="tag">WEEK ${n.week} · ${tag}</span><h2>${esc(n.title)}</h2><p>${esc(n.body)}</p></div><button data-action="ackMilestone" data-id="${n.id}">Continue${state.notifications.length > 1 ? " · " + state.notifications.length + " milestones" : ""}</button></div>`;
