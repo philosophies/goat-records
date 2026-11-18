@@ -6,6 +6,7 @@ Updated at the end of every session. Newest entry first; keep the last ten.
 
 - Released: v1.1.0 (no menus; people and places on the lot).
 - CEO update: All 39 backlog tasks are complete. The build is ready for review.
+- Review branch: `codex/cleaner-game-ui`. Start with [the handoff](handoff.md).
 - Owner decisions (2026-11-18): being fired is game over for now; the board exists only after outside money; the player names and can rename the company (new task T39); a web app now, built for a later Play Store release (T38). Recorded in the design's Decisions table.
 
 ## Log

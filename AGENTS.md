@@ -17,11 +17,12 @@ Goat Records is a record label management game in plain browser JavaScript. Open
 
 ## Each session
 
-1. Read `production/status.md` and the task. Read only the design sections the task names (`design/gdd/ceo-2.0.md`).
+1. Read [the handoff](production/handoff.md), `production/status.md`, and the task. Read the relevant design sections in `design/gdd/ceo-2.0.md`.
 2. Make the change and the tests the task lists.
 3. `node run-checks.cjs` until it passes.
 4. Mark the task `[x]` in `production/backlog.md` (`[~]` if unfinished, with a note). Add a row to the log in `production/status.md`: date, task, what changed, what is left, questions for the owner.
-5. Commit with a Conventional Commit message ending in the task id, e.g. `feat: board review sets the yearly budget (T20)`, then push the branch.
+5. Before pushing, update `production/handoff.md` with the current branch, next action, verification, and any blockers. Replace the checkpoint and keep it short.
+6. Commit with a Conventional Commit message ending in the task id when one exists, e.g. `feat: board review sets the yearly budget (T20)`, then push the branch.
 
 ## Map of the code
 
