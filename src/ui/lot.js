@@ -382,8 +382,31 @@ function paintLot(id, html) {
   lotCache[id] = html;
   $(id).innerHTML = html;
 }
+/** CEO runs draw the street instead of the classic lot. */
+function renderStreet() {
+  const lot = $("lot"),
+    left = lot.scrollLeft || 0;
+  $("scene").classList?.toggle("street-scene", true);
+  lot.classList?.toggle("street-mode", true);
+  if (lot.setAttribute) {
+    lot.setAttribute("tabindex", "0");
+    lot.setAttribute("aria-label", "The street. Drag, scroll or use the arrow keys to look along it.");
+  }
+  if (lotLife.people.size) GoatLot.reset();
+  paintLot("lotRoof", "");
+  paintLot("lot", GoatStreet.html());
+  lot.scrollLeft = left;
+  paintLot("lotGround", `<div class="street">${GoatStreet.minimap()}${GoatUI.html("lotDecor")}</div>`);
+  paintLot("lotTown", GoatPlaces.town());
+  $("lotPopover").hidden = true;
+  GoatStreet.input();
+  if (liveDom()) watchNews();
+}
 const GoatLot = {
   render() {
+    if (state.company) return renderStreet();
+    $("scene").classList?.toggle("street-scene", false);
+    $("lot").classList?.toggle("street-mode", false);
     paintLot("lotRoof", lotRoof());
     paintLot("lot", lotBuilding());
     paintLot("lotGround", lotGround());

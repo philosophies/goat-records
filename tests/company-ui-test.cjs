@@ -84,7 +84,7 @@ assert.match(html("content"), /COMPANY NAME[\s\S]*Goat Records/);
 element("labelNameInput").value = "Velvet Throne";
 click({ action: "renameLabel" });
 assert.equal(saved().labelName, "Velvet Throne");
-assert.match(html("lotRoof"), /<b>VELVET THRONE<\/b>/);
+assert.equal(element("brandName").textContent, "VELVET THRONE", "the top bar carries the name");
 click({ tab: "label" });
 assert.equal(element("drawerTitle").textContent, "Velvet Throne");
 element("labelNameInput").value = "";

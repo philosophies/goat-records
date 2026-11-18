@@ -89,7 +89,7 @@ Files: `src/systems/label.js`, `src/systems/company.js`, `tests/company-test.cjs
 Do: in CEO runs, facility bonuses (stage bonuses, takings, care) are read from floors instead of lot tiles. Write one adapter, `facilitiesOf(s)`, that returns the same shape `label.js` uses today for both run types, and use it everywhere tiles were read.
 Done when: a 1.1 run's facility numbers are identical before and after (snapshot test); a CEO run with a Vocal Booth floor gets the Vocal Booth bonus.
 
-### [ ] T07 · The side-scrolling street
+### [x] T07 · The side-scrolling street
 
 Depends on: T05
 Files: `src/ui/street.js` (new), `styles/street.css` (new), `index.html`, `src/ui/lot.js` (skip drawing the 1.1 lot in CEO runs), `tests/street-ui-test.cjs` (new)

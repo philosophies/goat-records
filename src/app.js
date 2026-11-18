@@ -675,6 +675,7 @@ function render() {
   $("content").innerHTML = html;
   paintHTML("roster", GoatPlaces.roster());
   paintHTML("hud", GoatUI.html("hud"));
+  $("brandName").textContent = G.labelName(state).toUpperCase();
   const banners = GoatUI.banners.map((b) => b.render() || "").filter(Boolean),
     // A banner with a button (an action or a screen to open) is shown as a card over the lot.
     inputBanners = banners.filter((h) => /data-(action|tab)=/.test(h));
