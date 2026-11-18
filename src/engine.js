@@ -334,7 +334,10 @@
     // A CEO run (2.0) is opt-in until the cutover; the company system sets it up in its init hook.
     if (options.ceo) s.ceoMode = true;
     initializeManagement(s);
-    log(s, "Welcome to Goat Records. Sign an artist at the front desk, tap them to start an album, then advance weeks.");
+    log(
+      s,
+      "Welcome to Goat Records. Sign an artist at the front desk, tap them to start an album, then advance weeks.",
+    );
     return s;
   }
   function requireAction(s) {
@@ -936,11 +939,19 @@
     };
   }
   function prospect(s, index = 0) {
+    // A CEO run only finds talent within its phase's reach (null in classic runs).
+    const lim = api.scoutLimits?.(s);
+    if (lim) index = Math.min(index, lim.budget);
     const b = SCOUT_BUDGETS[index],
       a = candidate(s);
     a.talent = b.min + Math.floor(rng(s) * (b.max - b.min + 1));
     a.fans = b.fans + Math.floor(rng(s) * b.fanRange);
     a.potential = Math.max(a.talent, Math.min(100, b.potential + Math.floor(rng(s) * 9)));
+    if (lim) {
+      a.talent = Math.min(a.talent, lim.talentMax);
+      a.potential = Math.max(a.talent, Math.min(a.potential, lim.potentialMax));
+      a.reach = lim.reach;
+    }
     a.fame = Math.round(a.fans / 5);
     a.reputation = 60 + Math.floor(rng(s) * 20);
     a.xp = 0;
@@ -1042,6 +1053,8 @@
     index = Number(index);
     const b = SCOUT_BUDGETS[index];
     if (!b) throw Error("Unknown scouting budget.");
+    const locked = api.scoutLocked?.(s, index);
+    if (locked) throw Error(locked);
     pay(s, b.cost);
     s.candidates = Array.from({ length: b.count }, () => prospect(s, index));
     s.scoutReport = { week: s.week, budget: b.cost, name: b.name };
