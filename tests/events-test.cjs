@@ -138,7 +138,9 @@ assert.ok(first.streams["company-events:choice"]);
 const approval = label();
 approval.company.phase = 2;
 G.takeFunding(approval, "angel", 0);
-G.advance(approval);
+approval.week++;
+system(0, 0, [COMPANY_EVENTS[0]]).queue(approval);
+approval.event = approval.eventQueue.shift();
 approval.company.board.confidence = 70;
 approval.company.board.budget = 1;
 const offer = approval.event;
@@ -176,4 +178,61 @@ G.advance(classic);
 assert.ok(classic.event);
 assert.notEqual(classic.event.type, "companyEvent");
 assert.equal(classic.streams?.["company-events:draw"], undefined);
+
+function checkPack(kind, minimum) {
+  const pack = COMPANY_EVENTS.filter((event) => event.kind === kind);
+  assert.ok(pack.length >= minimum);
+  assert.equal(new Set(COMPANY_EVENTS.map(({ id }) => id)).size, COMPANY_EVENTS.length);
+  const clamp = (n, min = 0, max = 100) => Math.min(max, Math.max(min, n));
+  for (const event of pack) {
+    assert.ok(event.choices.length >= 2 && event.choices.length <= 4, event.id);
+    assert.ok(!event.choices[event.expiryChoice].cost, event.id);
+    event.choices.forEach((choice, index) => {
+      for (const outcome of choice.chance === undefined ? [0] : [0, 0.999999]) {
+        const s = fixture();
+        s.company.phase = event.phases[0];
+        const artist = s.artists[0];
+        const album = s.albums[0];
+        const board = s.company.board;
+        const subjects = {
+          label: s, company: s.company, board, artist, album,
+          executive: Object.values(s.company.departments)[0].head,
+        };
+        artist.fame = 55;
+        for (const [subject, rules] of Object.entries(event.when || {})) {
+          for (const { field, equals, min, max } of rules) {
+            const target = subjects[subject];
+            if (equals !== undefined) target[field] = equals;
+            else if (!Number.isFinite(target[field]) || target[field] < min || target[field] > max)
+              target[field] = min ?? max;
+          }
+        }
+        const sys = system(0, outcome, [event]);
+        sys.queue(s);
+        assert.equal(s.eventQueue.length, 1, event.id);
+        const entry = s.eventQueue[0];
+        assert.equal(entry.kind, kind);
+        assert.equal(entry.dueWeek, s.week + event.deadlineWeeks);
+        const selected = entry.options[index];
+        assert.ok(sys.available(s, selected, entry), `${event.id}: ${selected.label}`);
+        const effects = (outcome >= choice.chance ? choice.failure : choice.effects) || {};
+        const expected = {
+          cash: s.cash - (choice.cost || 0) + (effects.cash || 0) + (effects.loan?.amount || 0),
+          fame: Math.max(0, s.fame + (effects.fame || 0)),
+          confidence: clamp(board.confidence + (effects.confidence || 0)),
+          morale: clamp(artist.morale + (effects.morale || 0)),
+          artistFame: clamp(artist.fame + (effects.artistFame || 0)),
+          cooldown: album.production.cooldown + (effects.delayAlbum || 0),
+          loan: effects.loan?.amount,
+        };
+        sys.resolve(s, entry, selected);
+        assert.deepEqual({
+          cash: s.cash, fame: s.fame, confidence: board.confidence, morale: artist.morale,
+          artistFame: artist.fame, cooldown: album.production.cooldown, loan: s.company.loan?.amount,
+        }, expected, `${event.id}: ${selected.label}, roll ${outcome}`);
+      }
+    });
+  }
+}
+checkPack("opportunity", 14);
 console.log("Company event conditions, effects, deadlines, saves, and seeded draws passed.");

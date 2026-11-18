@@ -285,7 +285,7 @@ Do:
 - In CEO runs it feeds the existing event queue; 1.1 events stay for 1.1 runs.
   Done when: tests cover the condition checks, the deadline expiry (worst choice applied), every effect type and determinism for a seed.
 
-### [ ] T27 · Opportunities pack
+### [x] T27 · Opportunities pack
 
 Depends on: T26, T16
 Files: `src/data/events.js`, `tests/events-test.cjs`
