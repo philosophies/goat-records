@@ -87,4 +87,107 @@ test("A CEO run plays weeks like any other run", () => {
   assert.equal(G.validSystemsSave(roundTrip(s)), true);
 });
 
+function ceo(seed = 21) {
+  const s = G.create(seed, { ceo: true });
+  s.cash = 100000;
+  return s;
+}
+function week(s) {
+  while (s.event) G.choose(s, s.event.options.length - 1);
+  G.advance(s);
+  while (s.event) G.choose(s, s.event.options.length - 1);
+}
+/** Meets phase 2's goals: fame, a year of revenue and three released albums. */
+function readyForPhase2(s) {
+  const g = PHASES[1].goals;
+  s.fame = g.fame + 50;
+  s.financeHistory = Array.from({ length: 52 }, (_, i) => ({
+    week: i + 1,
+    albumIncome: Math.ceil(g.revenue / 52) + 10,
+    hqIncome: 0,
+    otherIncome: 0,
+  }));
+  for (let i = 0; i < g.releases; i++)
+    s.albums.push({ id: 900 + i, released: true, quality: 60, age: 30, salesWeeks: 12, chart: {} });
+}
+
+test("Phase progress lists the next phase's goals with what the label has", () => {
+  const s = ceo();
+  const pr = G.phaseProgress(s);
+  assert.equal(pr.next.name, "Indie label");
+  assert.deepEqual(
+    pr.goals.map((g) => g.key),
+    ["fame", "revenue", "releases", "hits"],
+  );
+  assert.equal(pr.met, false);
+  assert.equal(pr.goals.find((g) => g.key === "hits").met, true, "phase 2 needs no hits");
+  assert.equal(G.phaseProgress(G.create(21)), null, "classic runs have no phase progress");
+});
+
+test("Revenue counts the last 52 weeks of income and ignores losses", () => {
+  const s = ceo();
+  s.financeHistory = [
+    { albumIncome: 1000, hqIncome: 200, otherIncome: 300 },
+    { albumIncome: -50, hqIncome: 0, otherIncome: 0 },
+  ];
+  assert.equal(G.yearRevenue(s), 1500);
+});
+
+test("Meeting every goal moves the label up one phase at the settlement", () => {
+  const s = ceo();
+  readyForPhase2(s);
+  assert.equal(G.phaseProgress(s).met, true);
+  const notes = s.notifications.length;
+  week(s);
+  assert.equal(s.company.phase, 2);
+  assert.equal(G.companyPhase(s).name, "Indie label");
+  assert.equal(s.company.history.at(-1).phase, 2);
+  assert.equal(s.company.since, s.company.history.at(-1).week);
+  assert.ok(s.company.since >= 1 && s.company.since <= s.week);
+  const n = s.notifications.slice(notes).find((x) => x.kind === "phase");
+  assert.ok(n, "a phase notification is raised");
+  assert.match(n.title, /Phase 2 · Indie label/);
+  assert.ok(s.news.some((x) => /phase 2: Indie label/.test(x)));
+  assert.equal(G.validSystemsSave(roundTrip(s)), true);
+});
+
+test("Missing one goal holds the label where it is", () => {
+  const s = ceo();
+  readyForPhase2(s);
+  s.fame = PHASES[1].goals.fame - 1;
+  week(s);
+  assert.equal(s.company.phase, 1);
+});
+
+test("A phase is never lost, and the label moves at most one phase a week", () => {
+  const s = ceo();
+  readyForPhase2(s);
+  s.fame = 10 ** 6;
+  for (let i = 0; i < 20; i++) s.albums.push({ id: 950 + i, released: true, quality: 90, chart: {} });
+  s.financeHistory.forEach((w) => (w.albumIncome = 10 ** 6));
+  week(s);
+  assert.equal(s.company.phase, 2, "one phase per settlement");
+  week(s);
+  assert.equal(s.company.phase, 3);
+  s.fame = 0;
+  s.financeHistory = [];
+  week(s);
+  assert.equal(s.company.phase, 3, "falling below the goals does not demote");
+});
+
+test("The last phase has no next goals", () => {
+  const s = ceo();
+  s.company.phase = PHASES.length;
+  assert.equal(G.phaseProgress(s), null);
+  week(s);
+  assert.equal(s.company.phase, PHASES.length);
+});
+
+test("A classic run never changes phase", () => {
+  const s = G.create(21);
+  readyForPhase2(s);
+  week(s);
+  assert.equal(s.company, undefined);
+});
+
 console.log(`${count} company tests passed.`);

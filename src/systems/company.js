@@ -6,7 +6,8 @@
 
   /** @param {object} core engine helpers  @param {object} D data tables */
   function create(core, D) {
-    const { PHASES, REACHES } = D;
+    const { PHASES, REACHES, PHASE_GOALS, HIT_QUALITY } = D;
+    const { log } = core;
     const isCount = (n) => Number.isInteger(n) && n >= 0;
 
     function init(s) {
@@ -27,8 +28,63 @@
     function companyPhase(s) {
       return s.company ? PHASES[s.company.phase - 1] : null;
     }
+    /** Income over the last 52 settled weeks: album sales plus every system's weekly income. */
+    function yearRevenue(s) {
+      return (s.financeHistory || []).reduce(
+        (n, w) =>
+          n +
+          Math.max(0, w.albumIncome || 0) +
+          Math.max(0, w.hqIncome || 0) +
+          Math.max(0, w.otherIncome || 0),
+        0,
+      );
+    }
+    function metric(s, key) {
+      const released = s.albums.filter((p) => p.released);
+      if (key === "fame") return s.fame;
+      if (key === "revenue") return yearRevenue(s);
+      if (key === "releases") return released.length;
+      if (key === "hits") return released.filter((p) => (p.quality || 0) >= HIT_QUALITY).length;
+      return 0;
+    }
+    /** Goals for the next phase: { next, goals: [{ key, name, have, need, met }], met } or null. */
+    function phaseProgress(s) {
+      if (!s.company || s.company.phase >= PHASES.length) return null;
+      const next = PHASES[s.company.phase],
+        goals = Object.entries(next.goals).map(([key, need]) => {
+          const have = metric(s, key);
+          return { key, name: PHASE_GOALS[key] || key, have, need, met: have >= need };
+        });
+      return { next, goals, met: goals.every((g) => g.met) };
+    }
+    /** Whether the board lets the label move up. Always true until the board exists (T20). */
+    function boardApproved(s) {
+      return true;
+    }
+    function weekly(s) {
+      const progress = phaseProgress(s);
+      if (!progress?.met || !boardApproved(s)) return 0;
+      const p = progress.next;
+      s.company.phase = p.id;
+      s.company.since = s.week;
+      s.company.history.push({ phase: p.id, week: s.week });
+      log(s, `Goat Records grows into phase ${p.id}: ${p.name}.`);
+      s.notifications.push({
+        id: s.nextId++,
+        kind: "phase",
+        title: `Phase ${p.id} · ${p.name}`,
+        body: `The label has outgrown its last phase. Scouting now reaches the ${p.reach === "world" ? "whole world" : p.reach}.`,
+        week: s.week,
+      });
+      return 0;
+    }
 
-    return { init, validSave, api: { PHASES, REACHES, companyPhase } };
+    return {
+      init,
+      validSave,
+      weekly,
+      api: { PHASES, REACHES, PHASE_GOALS, companyPhase, phaseProgress, yearRevenue, boardApproved },
+    };
   }
 
   root.GoatSystems = Object.assign(root.GoatSystems || {}, { company: create });

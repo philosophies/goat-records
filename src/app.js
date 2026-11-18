@@ -540,8 +540,12 @@ function milestoneBanner() {
   if (!n) return "";
   const seen = seenMilestones.has(n.id);
   seenMilestones.add(n.id);
-  const icon = n.kind === "tour" ? "$" : n.kind === "debt" ? "!" : "#" + n.rank,
-    tag = n.kind === "tour" ? "TOUR PROFITABILITY" : n.kind === "debt" ? "CASH WARNING" : "CHART MILESTONE";
+  const KINDS = {
+      tour: ["$", "TOUR PROFITABILITY"],
+      debt: ["!", "CASH WARNING"],
+      phase: ["★", "COMPANY GROWTH"],
+    },
+    [icon, tag] = KINDS[n.kind] || ["#" + n.rank, "CHART MILESTONE"];
   return `<div class="chart-alert ${seen ? "seen" : ""}" role="status"><div class="chart-award">${icon}</div><div><span class="tag">WEEK ${n.week} · ${tag}</span><h2>${esc(n.title)}</h2><p>${esc(n.body)}</p></div><button data-action="ackMilestone" data-id="${n.id}">Continue${state.notifications.length > 1 ? " · " + state.notifications.length + " milestones" : ""}</button></div>`;
 }
 

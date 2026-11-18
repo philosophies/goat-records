@@ -28,7 +28,7 @@ Do:
 - `validSave` accepts saves without `s.company` and checks the shape when present. API: `companyPhase(s)` returns the phase row or `null`.
   Done when: tests show a default run has no `s.company`; a CEO run starts in phase 1 with $2,000; the save round-trips through `validSave`; `node run-checks.cjs` passes.
 
-### [ ] T02 · Phase goals and advancement
+### [x] T02 · Phase goals and advancement
 
 Depends on: T01
 Files: `src/data/company.js`, `src/systems/company.js`, `tests/company-test.cjs`
