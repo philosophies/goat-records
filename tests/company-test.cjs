@@ -22,7 +22,12 @@ test("A classic run has no company and keeps the 1.1 start", () => {
 test("A CEO run starts in the home studio with $2,000", () => {
   const s = G.create(7, { ceo: true });
   assert.equal(s.ceoMode, true);
-  assert.deepEqual(s.company, { phase: 1, since: 1, history: [{ phase: 1, week: 1 }] });
+  assert.deepEqual(s.company, {
+    phase: 1,
+    since: 1,
+    history: [{ phase: 1, week: 1 }],
+    buildings: [{ id: "apartment", floors: [{ type: "room", room: 0, level: 1 }] }],
+  });
   assert.equal(s.cash, PHASES[0].startCash);
   assert.equal(s.cash, 2000);
   assert.equal(G.companyPhase(s).name, "Home studio");
@@ -331,6 +336,136 @@ test("Save checks reject a bad name", () => {
     copy.labelName = bad;
     assert.equal(G.validSystemsSave(copy), false, JSON.stringify(bad));
   }
+});
+
+test("A CEO run starts with the apartment, its bedroom booth as the first floor", () => {
+  const s = ceo(61);
+  assert.equal(s.company.buildings.length, 1);
+  assert.deepEqual(G.allFloors(s), [
+    { building: "apartment", index: 0, floor: { type: "room", room: 0, level: 1 } },
+  ]);
+  assert.deepEqual(
+    s.booths.map((b) => b.id),
+    [0],
+  );
+});
+
+test("Buildings open by phase, cost money and are bought once", () => {
+  const s = ceo(62);
+  s.cash = 10 ** 6;
+  assert.throws(() => G.buyBuilding(s, "storefront"), /opens at phase 2, Indie label/);
+  assert.throws(() => G.buyBuilding(s, "castle"), /Unknown building/);
+  assert.throws(() => G.buyBuilding(s, "apartment"), /already yours/);
+  s.company.phase = 2;
+  const cash = s.cash;
+  G.buyBuilding(s, "storefront");
+  assert.equal(s.cash, cash - G.BUILDINGS.find((b) => b.id === "storefront").cost);
+  assert.throws(() => G.buyBuilding(s, "storefront"), /already yours/);
+  s.cash = 10;
+  s.company.phase = 3;
+  assert.throws(() => G.buyBuilding(s, "studio"), /cash|Not enough/i);
+  assert.equal(
+    s.company.buildings.some((b) => b.id === "studio"),
+    false,
+  );
+  assert.throws(() => G.buyBuilding(G.create(62), "storefront"), /CEO run/);
+});
+
+test("Floors take only their building's types, up to its height, each facility once", () => {
+  const s = ceo(63);
+  s.cash = 10 ** 7;
+  assert.throws(() => G.buildFloor(s, "storefront", "writers"), /Buy the Storefront studio first/);
+  assert.throws(() => G.buildFloor(s, "apartment", "bar"), /cannot go in/);
+  const cash = s.cash;
+  G.buildFloor(s, "apartment", "writers");
+  assert.equal(s.cash, cash - G.floorQuote(G.create(63, { ceo: true }), "apartment", "writers"));
+  assert.throws(() => G.buildFloor(s, "apartment", "room", 1), /full: 2 floors/);
+  s.company.phase = 2;
+  G.buyBuilding(s, "storefront");
+  assert.throws(() => G.buildFloor(s, "storefront", "writers"), /already built/);
+  G.buildFloor(s, "storefront", "vocal");
+  assert.equal(s.company.buildings.find((b) => b.id === "storefront").floors.length, 1);
+});
+
+test("Each floor up costs more, by the building's structural cost", () => {
+  const s = ceo(64);
+  s.cash = 10 ** 7;
+  s.company.phase = 2;
+  G.buyBuilding(s, "storefront");
+  const first = G.floorQuote(s, "storefront", "lounge");
+  G.buildFloor(s, "storefront", "lounge");
+  const second = G.floorQuote(s, "storefront", "merch");
+  const def = G.BUILDINGS.find((b) => b.id === "storefront"),
+    cost = (id) => G.FACILITIES.find((f) => f.id === id).cost;
+  assert.equal(first, cost("lounge"));
+  assert.equal(second, cost("merch") + def.floorCost);
+});
+
+test("A recording room floor opens a room the studio can record in", () => {
+  const s = ceo(65);
+  s.cash = 10 ** 7;
+  s.company.phase = 2;
+  G.buyBuilding(s, "storefront");
+  assert.throws(() => G.buildFloor(s, "storefront", "room", 0), /already built/);
+  assert.throws(() => G.buildFloor(s, "storefront", "room", 4), /opens at phase 3, Regional label/);
+  G.buildFloor(s, "storefront", "room", 1);
+  assert.deepEqual(
+    s.booths.map((b) => b.id),
+    [0, 1],
+  );
+  assert.throws(() => G.buildFloor(s, "storefront", "room", 1), /already built/);
+  assert.throws(() => G.buildFloor(s, "storefront", "room", 99), /Unknown recording room/);
+});
+
+test("Facility floors level up to the top level at the usual upgrade price", () => {
+  const s = ceo(66);
+  s.cash = 10 ** 7;
+  G.buildFloor(s, "apartment", "writers");
+  const base = G.FACILITIES.find((f) => f.id === "writers").cost;
+  let cash = s.cash;
+  G.upgradeFloor(s, "apartment", 1);
+  assert.equal(s.cash, cash - base);
+  cash = s.cash;
+  G.upgradeFloor(s, "apartment", 1);
+  assert.equal(s.cash, cash - base * 2);
+  assert.throws(() => G.upgradeFloor(s, "apartment", 1), /top level/);
+  assert.throws(() => G.upgradeFloor(s, "apartment", 0), /do not level up/);
+  assert.throws(() => G.upgradeFloor(s, "apartment", 5), /No such floor/);
+});
+
+test("Save checks guard the buildings", () => {
+  const ok = roundTrip(ceo(67));
+  assert.equal(G.validSystemsSave(ok), true);
+  const bad = (change) => {
+    const s = roundTrip(ok);
+    change(s.company);
+    return G.validSystemsSave(s);
+  };
+  assert.equal(
+    bad((c) => (c.buildings = {})),
+    false,
+  );
+  assert.equal(
+    bad((c) => c.buildings.push({ id: "apartment", floors: [] })),
+    false,
+  );
+  assert.equal(
+    bad((c) => (c.buildings[0].floors[0].type = "bar")),
+    false,
+  );
+  assert.equal(
+    bad((c) => (c.buildings[0].floors[0].level = 9)),
+    false,
+  );
+  assert.equal(
+    bad((c) => c.buildings[0].floors.push({ type: "writers", level: 1 }, { type: "writers", level: 1 })),
+    false,
+  );
+  assert.equal(
+    bad((c) => delete c.buildings),
+    true,
+    "a CEO save from before buildings still loads",
+  );
 });
 
 console.log(`${count} company tests passed.`);

@@ -71,7 +71,7 @@ Do:
 
 ## M2 The street and buildings
 
-### [ ] T05 · Buildings and floors data
+### [x] T05 · Buildings and floors data
 
 Depends on: T01
 Files: `src/data/company.js`, `src/systems/company.js`, `tests/company-test.cjs`

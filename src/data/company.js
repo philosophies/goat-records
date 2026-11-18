@@ -17,7 +17,7 @@
       startCash: 2000,
       reach: "local",
       boardSeats: 0,
-      buildings: [],
+      buildings: ["apartment"],
       goals: { fame: 0, revenue: 0, releases: 0, hits: 0 },
     },
     {
@@ -25,7 +25,7 @@
       name: "Indie label",
       reach: "city",
       boardSeats: 1,
-      buildings: [],
+      buildings: ["storefront"],
       goals: { fame: 60, revenue: 25000, releases: 3, hits: 0 },
     },
     {
@@ -33,7 +33,7 @@
       name: "Regional label",
       reach: "region",
       boardSeats: 3,
-      buildings: [],
+      buildings: ["studio", "office"],
       goals: { fame: 200, revenue: 150000, releases: 8, hits: 1 },
     },
     {
@@ -41,7 +41,7 @@
       name: "National label",
       reach: "country",
       boardSeats: 5,
-      buildings: [],
+      buildings: ["hq", "venue"],
       goals: { fame: 600, revenue: 750000, releases: 18, hits: 4 },
     },
     {
@@ -49,7 +49,7 @@
       name: "Global label",
       reach: "world",
       boardSeats: 7,
-      buildings: [],
+      buildings: ["media", "warehouse"],
       goals: { fame: 1500, revenue: 3000000, releases: 35, hits: 10 },
     },
     {
@@ -57,7 +57,7 @@
       name: "Public company",
       reach: "world",
       boardSeats: 9,
-      buildings: [],
+      buildings: ["overseas"],
       goals: { fame: 3000, revenue: 10000000, releases: 60, hits: 20 },
     },
   ];
@@ -86,7 +86,109 @@
   // Naming a new run is free.
   const RENAME = { minLength: 1, maxLength: 32, fame: 15 };
 
-  const data = { PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING, RENAME };
+  // Buildings along the street (CEO runs). Each is bought once and built up floor by floor.
+  //   phase      the company phase that unlocks it
+  //   cost       purchase price
+  //   maxFloors  floors it can hold
+  //   floorCost  structural cost added per floor already standing (floor n costs type cost + n × this)
+  //   floors     what can go on its floors: "room" (a recording room) or a headquarters facility id
+  const BUILDINGS = [
+    {
+      id: "apartment",
+      name: "Your apartment",
+      phase: 1,
+      cost: 0,
+      maxFloors: 2,
+      floorCost: 0,
+      floors: ["room", "writers"],
+    },
+    {
+      id: "storefront",
+      name: "Storefront studio",
+      phase: 2,
+      cost: 15000,
+      maxFloors: 3,
+      floorCost: 2000,
+      floors: ["room", "writers", "vocal", "lounge", "merch"],
+    },
+    {
+      id: "studio",
+      name: "Studio building",
+      phase: 3,
+      cost: 60000,
+      maxFloors: 5,
+      floorCost: 5000,
+      floors: ["room", "vocal", "mix", "rehearsal", "writers"],
+    },
+    {
+      id: "office",
+      name: "Label office",
+      phase: 3,
+      cost: 50000,
+      maxFloors: 4,
+      floorCost: 5000,
+      floors: ["lounge", "radio", "archive", "merch"],
+    },
+    {
+      id: "hq",
+      name: "Headquarters tower",
+      phase: 4,
+      cost: 250000,
+      maxFloors: 8,
+      floorCost: 12000,
+      floors: [
+        "room",
+        "writers",
+        "vocal",
+        "lounge",
+        "mix",
+        "merch",
+        "rehearsal",
+        "radio",
+        "bar",
+        "archive",
+        "academy",
+      ],
+    },
+    {
+      id: "venue",
+      name: "Live venue",
+      phase: 4,
+      cost: 180000,
+      maxFloors: 3,
+      floorCost: 10000,
+      floors: ["bar", "rehearsal", "merch"],
+    },
+    {
+      id: "media",
+      name: "Media center",
+      phase: 5,
+      cost: 400000,
+      maxFloors: 4,
+      floorCost: 20000,
+      floors: ["radio", "academy", "archive", "mix"],
+    },
+    {
+      id: "warehouse",
+      name: "Warehouse",
+      phase: 5,
+      cost: 150000,
+      maxFloors: 3,
+      floorCost: 8000,
+      floors: ["merch", "archive"],
+    },
+    {
+      id: "overseas",
+      name: "Overseas office",
+      phase: 6,
+      cost: 600000,
+      maxFloors: 4,
+      floorCost: 25000,
+      floors: ["room", "lounge", "radio", "bar"],
+    },
+  ];
+
+  const data = { PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING, RENAME, BUILDINGS };
   root.GoatData = Object.assign(root.GoatData || {}, data);
   if (typeof module !== "undefined" && module.exports) module.exports = data;
 })(typeof globalThis !== "undefined" ? globalThis : this);
