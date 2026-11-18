@@ -400,3 +400,11 @@ A met want adds 1 morale a week. An ignored one costs 3 + ego × 0.02 − loyalt
 The board appears with the first angel or venture money. Each director is the Accountant, the Visionary, the Artist's Friend, the Old Guard or the Investor, with their own agenda and patience.
 
 **Board confidence.** Each director's satisfaction is 50 plus their agenda's results, plus your relationship and any promises, kept between 0 and 100. Results are measured against targets set when the board forms (and at each review): weekly profit over 13 weeks, a year of revenue, cash, average artist morale, reputation, scandals since the review, and company value. Each metric is worth up to 20–25 points either way. Confidence is the average satisfaction across the seats. Each director's panel lists what moved them.
+
+**The review.** With a board, a review comes every 52 weeks (26 once the label is public). It sets the next period:
+
+- Budget: the first is the larger of a phase floor ($30,000 in phase 2 up to $4,000,000 in phase 6) and 60% of a year's revenue. After that, last budget × (0.8 + 0.4 × confidence ÷ 100) × (1 + revenue growth), with growth kept between −50% and +100%.
+- Creative freedom: low below 40 confidence, medium below 70, high from 70. One step lower on probation.
+- Perks: a company car from 55 ($300 a week), a penthouse office from 70 ($1,500), a private jet from 85 ($6,000).
+
+Confidence below 35 at a review means probation for the next period. A no-confidence vote follows below 10 at any review, or below 20 while on probation. Each director under 25 satisfaction votes against you; the vote passes with more than half the seats, unless you own more than half the company. A lost vote is game over: you are fired. With a board, moving up a phase also needs 50 confidence.

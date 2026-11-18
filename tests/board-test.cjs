@@ -346,4 +346,220 @@ test("Scandals count toward the Old Guard and the week stores satisfaction and c
   assert.equal(G.validSystemsSave(roundTrip(s)), true);
 });
 
+// ---- The periodic review (T20) ----
+const { REVIEW } = G;
+/** A phase-2 run with an angel on the board, plenty of cash, and the review due now. */
+function reviewRun(satisfactionOf = 50, seats = 1) {
+  const s = ceo(2);
+  s.cash = 500000;
+  G.takeFunding(s, "angel", 0);
+  const b = s.company.board;
+  while (b.directors.length < seats) b.directors.push({ ...b.directors[0], id: b.nextId++ });
+  return s;
+}
+/** Forces each director's satisfaction in turn. */
+function setEach(s, values) {
+  s.company.board.directors.forEach((d, i) => {
+    d.relationship = 0;
+    d.relationship = values[i] - G.satisfaction(s, d).value;
+  });
+}
+/** Forces every director's satisfaction (and so confidence) through their relationship. */
+function setMood(s, value) {
+  for (const d of s.company.board.directors) {
+    d.relationship = 0;
+    d.relationship = value - G.satisfaction(s, d).value;
+  }
+  assert.equal(G.confidence(s), value);
+}
+
+test("A label without a board never gets a review and cannot be fired", () => {
+  const s = ceo(1);
+  s.cash = 1e6;
+  for (let i = 0; i < 60; i++) settle(s);
+  assert.equal(G.board(s), null);
+  assert.equal(s.finished, false);
+  assert.throws(() => G.runReview(s), /no board/);
+  assert.equal(G.approvesPhase(s), true, "no board, no vote on phases");
+});
+
+test("The board forms with a first budget and the next review a year away", () => {
+  const s = reviewRun(),
+    b = s.company.board;
+  assert.equal(b.budget, REVIEW.budget.floor[1]);
+  assert.equal(b.budgetLeft, b.budget);
+  assert.equal(b.freedom, "medium");
+  assert.deepEqual(b.perks, []);
+  assert.equal(b.nextReview, s.week + REVIEW.intervalWeeks);
+});
+
+test("The review comes once a year and sets the next period", () => {
+  const s = reviewRun(),
+    b = s.company.board;
+  b.nextReview = s.week + 1;
+  s.notifications = [];
+  settle(s);
+  assert.equal(b.reviews.length, 1);
+  assert.equal(b.nextReview, s.week + REVIEW.intervalWeeks);
+  assert.equal(s.notifications.at(-1).kind, "board");
+  settle(s);
+  assert.equal(b.reviews.length, 1, "not again until the next one is due");
+  s.company.public = true;
+  G.runReview(s);
+  assert.equal(b.nextReview, s.week + REVIEW.publicInterval, "twice a year once public");
+});
+
+test("Each confidence band sets creative freedom and perks", () => {
+  const cases = [
+    [20, "low", []],
+    [45, "medium", []],
+    [60, "medium", ["car"]],
+    [75, "high", ["car", "penthouse"]],
+    [90, "high", ["car", "penthouse", "jet"]],
+  ];
+  for (const [c, freedom, perks] of cases) {
+    const s = reviewRun();
+    setMood(s, c);
+    const r = G.runReview(s);
+    assert.equal(r.confidence, c);
+    assert.equal(s.company.board.freedom, c < REVIEW.probationBelow ? "low" : freedom, `freedom at ${c}`);
+    assert.deepEqual(s.company.board.perks, perks, `perks at ${c}`);
+  }
+  assert.equal(G.freedomFor(50, true), "low", "one step lower on probation");
+  assert.equal(G.freedomFor(80, true), "medium");
+  assert.equal(G.freedomFor(10, true), "low", "never below low");
+});
+
+test("Perks cost money every week", () => {
+  const s = reviewRun();
+  setMood(s, 90);
+  G.runReview(s);
+  const cost = REVIEW.perks.reduce((n, p) => n + p.weekly, 0);
+  assert.equal(G.perkCost(s), cost);
+  const upkeep = G.upkeep(s);
+  s.company.board.perks = [];
+  assert.equal(upkeep - G.upkeep(s), cost);
+});
+
+test("The budget follows design 4: last × (0.8 + 0.4 × confidence) × (1 + growth)", () => {
+  const s = reviewRun(),
+    b = s.company.board;
+  b.budget = 100000;
+  b.targets.growth = 50000;
+  s.financeHistory = Array.from({ length: 52 }, (_, i) => ({ week: i + 1, albumIncome: 1500 }));
+  const revenue = G.yearRevenue(s),
+    growth = Math.min(1, revenue / 50000 - 1);
+  assert.equal(
+    G.reviewBudget(s, 60),
+    Math.max(REVIEW.budget.floor[1], Math.round(100000 * (0.8 + 0.24) * (1 + growth))),
+  );
+  b.targets.growth = revenue * 4;
+  assert.equal(
+    G.reviewBudget(s, 60),
+    Math.max(REVIEW.budget.floor[1], Math.round(100000 * 1.04 * 0.5)),
+    "growth floored at −50%",
+  );
+});
+
+test("Below 35 puts you on probation; a good next review lifts it", () => {
+  const s = reviewRun();
+  setMood(s, 30);
+  const r = G.runReview(s);
+  assert.equal(r.vote, null, "30 is not low enough for a vote");
+  assert.equal(s.company.board.probation, true);
+  assert.equal(s.company.board.freedom, "low");
+  setMood(s, 50);
+  G.runReview(s);
+  assert.equal(s.company.board.probation, false);
+  assert.equal(s.company.board.freedom, "medium");
+});
+
+test("A vote comes below 20 on probation or below 10 at any review", () => {
+  const onProbation = reviewRun();
+  setMood(onProbation, 30);
+  G.runReview(onProbation);
+  setMood(onProbation, 18);
+  assert.notEqual(G.runReview(onProbation).vote, null);
+  const fresh = reviewRun();
+  setMood(fresh, 18);
+  assert.equal(G.runReview(fresh).vote, null, "18 off probation: probation, no vote");
+  const crash = reviewRun();
+  setMood(crash, 8);
+  assert.notEqual(G.runReview(crash).vote, null);
+});
+
+test("A won vote keeps the job; allies on the board can carry it", () => {
+  const s = reviewRun(50, 3);
+  s.company.ownership = 0.4;
+  setMood(s, 30);
+  G.runReview(s);
+  assert.equal(s.company.board.probation, true);
+  // Two allies just at the line, one director against: confidence 17 on probation calls a vote.
+  setEach(s, [REVIEW.removeBelow, REVIEW.removeBelow, 0]);
+  assert.ok(G.confidence(s) < REVIEW.voteOnProbationBelow);
+  const r = G.runReview(s);
+  assert.deepEqual([r.vote.against, r.vote.seats, r.vote.passed], [1, 3, false]);
+  assert.equal(s.finished, false);
+});
+
+test("A lost vote fires you: the run ends and no more weeks can be played", () => {
+  const s = reviewRun(50, 3);
+  s.company.ownership = 0.4;
+  setMood(s, 5);
+  const r = G.runReview(s);
+  assert.equal(r.vote.passed, true);
+  assert.equal(s.finished, true);
+  assert.equal(s.fired, true);
+  assert.equal(s.company.fired, true);
+  assert.match(s.outcome, /^Fired/);
+  assert.throws(() => G.advance(s), /season has ended/);
+  assert.throws(() => G.takeFunding(s, "loan"), /season has ended/);
+});
+
+test("Owning more than half the company protects you from a no-confidence vote", () => {
+  const s = reviewRun(50, 3);
+  assert.ok(s.company.ownership > 0.5);
+  setMood(s, 5);
+  const r = G.runReview(s);
+  assert.equal(r.vote.against, 3);
+  assert.equal(r.vote.protectedByShares, true);
+  assert.equal(r.vote.passed, false);
+  assert.equal(s.finished, false);
+  assert.equal(s.company.board.probation, true);
+});
+
+test("With a board, moving up a phase needs its approval", () => {
+  const s = reviewRun();
+  setMood(s, REVIEW.phaseVote - 1);
+  s.company.board.confidence = REVIEW.phaseVote - 1;
+  assert.equal(G.approvesPhase(s), false);
+  s.company.board.confidence = REVIEW.phaseVote;
+  assert.equal(G.approvesPhase(s), true);
+});
+
+test("Review state survives a save and bad values are rejected", () => {
+  const s = reviewRun();
+  setMood(s, 75);
+  G.runReview(s);
+  const copy = roundTrip(s);
+  assert.equal(G.validSystemsSave(copy), true);
+  const bad = (f) => {
+    const x = roundTrip(s);
+    f(x);
+    return G.validSystemsSave(x);
+  };
+  assert.equal(
+    bad((x) => (x.company.board.freedom = "total")),
+    false,
+  );
+  assert.equal(
+    bad((x) => (x.company.board.perks = ["yacht"])),
+    false,
+  );
+  assert.equal(
+    bad((x) => (x.company.board.nextReview = -1)),
+    false,
+  );
+});
+
 console.log(`${count} board tests passed.`);

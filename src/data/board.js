@@ -55,6 +55,41 @@
   // Confidence = Σ satisfaction × seat weight ÷ Σ seat weight. Every seat counts the same for now.
   const SEAT_WEIGHT = 1;
 
+  // The periodic review (design 3.3 and 4). It comes every intervalWeeks (publicInterval once public).
+  //   budget     the first budget is max(floor by phase, a year of revenue × revenueShare); after that
+  //              last budget × (0.8 + 0.4 × confidence ÷ 100) × (1 + revenue growth), growth kept within growth
+  //   freedom    creative freedom by confidence; one step lower while on probation
+  //   perks      granted at or above `min` confidence; each costs `weekly` dollars
+  //   probation  confidence below probationBelow at a review puts you on probation for the next period
+  //   vote       a no-confidence vote below voteBelow at any review, or below voteOnProbationBelow while on
+  //              probation; each director below removeBelow satisfaction votes to remove you, and it passes
+  //              with more than half the seats unless you own more than half the company
+  //   phaseVote  confidence the board needs to approve moving up a phase
+  const REVIEW = {
+    intervalWeeks: 52,
+    publicInterval: 26,
+    budget: {
+      floor: [5000, 30000, 120000, 400000, 1200000, 4000000],
+      revenueShare: 0.6,
+      growth: [-0.5, 1],
+    },
+    freedom: [
+      { id: "low", name: "Low", below: 40 },
+      { id: "medium", name: "Medium", below: 70 },
+      { id: "high", name: "High", below: Infinity },
+    ],
+    perks: [
+      { id: "car", name: "Company car", min: 55, weekly: 300 },
+      { id: "penthouse", name: "Penthouse office", min: 70, weekly: 1500 },
+      { id: "jet", name: "Private jet", min: 85, weekly: 6000 },
+    ],
+    probationBelow: 35,
+    voteBelow: 10,
+    voteOnProbationBelow: 20,
+    removeBelow: 25,
+    phaseVote: 50,
+  };
+
   // Which archetypes each kind of money tends to bring, in order of likelihood.
   const BACKERS = {
     angel: ["visionary", "friend", "investor"],
@@ -83,7 +118,7 @@
     },
   };
 
-  const data = { DIRECTORS, METRICS, MONEY_STEP, SEAT_WEIGHT, BACKERS, VALUATION, FUNDING };
+  const data = { DIRECTORS, METRICS, MONEY_STEP, SEAT_WEIGHT, REVIEW, BACKERS, VALUATION, FUNDING };
   root.GoatData = Object.assign(root.GoatData || {}, data);
   if (typeof module !== "undefined" && module.exports) module.exports = data;
 })(typeof globalThis !== "undefined" ? globalThis : this);
