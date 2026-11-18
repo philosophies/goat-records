@@ -50,7 +50,7 @@ Do:
 - Paid scouting tiers above the phase reach are locked with a reason.
   Done when: a phase 1 run never offers candidates above local reach in 200 seeded refreshes; a phase 3 run does; a 1.1 run is unchanged (compare candidates for the same seed before and after).
 
-### [ ] T04 · Phase in the top bar
+### [x] T04 · Phase in the top bar
 
 Depends on: T02
 Files: `src/ui/company.js` (new), `index.html`, `styles/ceo.css` (new), `tests/company-ui-test.cjs` (new)

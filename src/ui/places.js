@@ -89,7 +89,7 @@ const PLACES = {
   office: {
     title: () => "Office",
     render: () =>
-      `${section("sec-campaign", panelHtml("campaign"))}${section("sec-finance", finance())}${section("sec-catalog", catalog())}`,
+      `${state.company ? section("sec-company", panelHtml("company")) : ""}${section("sec-campaign", panelHtml("campaign"))}${section("sec-finance", finance())}${section("sec-catalog", catalog())}`,
   },
   billboard: {
     title: () => "Billboard",
