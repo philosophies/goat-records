@@ -250,6 +250,7 @@
   // Locations gain experience from releases: 1 per album, +1 for a hit (quality 75+).
   // xp[i] is the experience needed for level i + 1. stageBonus[i] is added to each boosted stage.
   // Rent rises with level: rent × (1 + rentStep × (level − 1)), rounded to $50.
+  // rankBonus is added to each boosted stage per location rank above 1, so better places start ahead.
   const LOCATION_LEVELS = {
     max: 9,
     xp: [0, 2, 4, 7, 10, 14, 19, 25, 32],
@@ -258,6 +259,7 @@
     hitXp: 1,
     hitQuality: 75,
     rentStep: 0.05,
+    rankBonus: 1,
   };
 
   // Paid gigs: an idle, contracted artist plays a show for cash.

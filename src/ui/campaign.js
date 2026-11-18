@@ -117,7 +117,7 @@ function campaignScreen() {
   const history = st.history.length
     ? `<h3>Earlier runs</h3><ul class="campaign-history">${st.history.map((h) => `<li>Run ${h.run} · ${h.score.toLocaleString("en-US")} points · ${campaignStars(h.stars)} · ${h.bankrupt ? "out of cash" : h.years + " years"}</li>`).join("")}</ul>`
     : "";
-  return `<div class="sectionhead"><h2>Campaign · run ${st.run}</h2><span class="muted">${st.met} of ${st.years} yearly goals met</span></div><p class="muted">Run the label for ${st.years} operating years. Each year has a goal; meeting it by the year's awards pays a reward. After year ${st.years} the run is scored and graded one to five stars, and the score buys legacy bonuses for the next run. Running out of cash ends the run early.</p>${head}${legacy}<table class="campaign-goals"><thead><tr><th>Year</th><th>Goal</th><th>Reward</th><th>Result</th></tr></thead><tbody>${rows}</tbody></table>${history}`;
+  return `<div class="sectionhead"><h2>Campaign · run ${st.run}</h2><span class="muted">${st.met} of ${st.years} yearly goals met</span></div><p class="muted">Run the label for ${st.years} operating years. Each year has a goal; meeting it by the year's awards pays a reward. After year ${st.years} the run is scored and graded one to five stars, and the score buys legacy bonuses for the next run. A label that stays below $0 for four weeks folds and ends the run early.</p>${head}${legacy}<table class="campaign-goals"><thead><tr><th>Year</th><th>Goal</th><th>Reward</th><th>Result</th></tr></thead><tbody>${rows}</tbody></table>${history}`;
 }
 
 /* ---------------- Handlers ---------------- */

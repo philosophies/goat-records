@@ -42,7 +42,11 @@
     /** Points a location adds to one stage at a given level. */
     function stageBoost(id, stage, level) {
       const base = byId[id]?.stages[stage];
-      return base ? base + LOCATION_LEVELS.stageBonus[level - 1] : 0;
+      return base
+        ? base +
+            LOCATION_LEVELS.stageBonus[level - 1] +
+            (byId[id].rank - 1) * (LOCATION_LEVELS.rankBonus || 0)
+        : 0;
     }
     /** Calculation rows a location adds to one stage. */
     function locationRows(id, genre, stage, level) {

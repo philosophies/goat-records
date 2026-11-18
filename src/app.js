@@ -434,7 +434,7 @@ function staff() {
       const key = roleKey(r),
         employee = state.employees[r],
         severance = employee ? employee.wage * 2 : 0;
-      return `<section class="team-role"><div class="sectionhead"><div><h2>${r}</h2><p class="muted">${x.description}</p></div>${employee ? `<div class="employee-badge"><b>${esc(employee.name)}</b><small>Skill ${employee.skill} · stage bonus +${G.staffBonus(state, r)} · ${money(employee.wage)}/week</small><button data-action="fire" data-role="${r}" ${disable(blocked() || state.cash < severance)}>End employment · ${money(severance)}</button></div>` : '<span class="tag">OPEN POSITION</span>'}</div><div class="drive-controls"><label>Recruitment budget<select id="drive-${key}">${G.RECRUIT_BUDGETS.map((b, i) => `<option value="${i}">${b.name} · ${money(b.cost)} · skill ${b.min}–${b.max}</option>`).join("")}</select></label><button data-action="drive" data-role="${r}" ${disable(blocked() || state.cash < G.RECRUIT_BUDGETS[0].cost)}>Run recruitment drive</button></div><div class="grid">${state.staffCandidates[r].map((c) => `<article class="card"><span class="tag">SKILL ${c.skill} /100 · EXPERTISE +${Math.round(6 + c.skill / 10)}</span><h3>${esc(c.name)}</h3><p>${money(c.wage)}/week · hiring fee ${money(c.cost)}${employee ? "<br>Replacement severance " + money(severance) : ""}</p><button data-action="hire" data-role="${r}" data-id="${c.id}" ${disable(blocked() || state.cash < c.cost + severance)}>${employee ? "Replace with" : "Hire"} ${esc(c.name)} · ${money(c.cost + severance)}</button></article>`).join("") || '<div class="empty">Run a new recruitment drive to see more candidates.</div>'}</div></section>`;
+      return `<section class="team-role"><div class="sectionhead"><div><h2>${r}</h2><p class="muted">${x.description}</p></div>${employee ? `<div class="employee-badge"><b>${esc(employee.name)}</b><small>Skill ${employee.skill} · stage bonus +${G.staffBonus(state, r)} · ${money(employee.wage)}/week</small><button data-action="fire" data-role="${r}" ${disable(blocked())}>End employment · ${money(severance)}</button></div>` : '<span class="tag">OPEN POSITION</span>'}</div><div class="drive-controls"><label>Recruitment budget<select id="drive-${key}">${G.RECRUIT_BUDGETS.map((b, i) => `<option value="${i}">${b.name} · ${money(b.cost)} · skill ${b.min}–${b.max}</option>`).join("")}</select></label><button data-action="drive" data-role="${r}" ${disable(blocked() || state.cash < G.RECRUIT_BUDGETS[0].cost)}>Run recruitment drive</button></div><div class="grid">${state.staffCandidates[r].map((c) => `<article class="card"><span class="tag">SKILL ${c.skill} /100 · EXPERTISE +${Math.round(6 + c.skill / 10)}</span><h3>${esc(c.name)}</h3><p>${money(c.wage)}/week · hiring fee ${money(c.cost)}${employee ? "<br>Replacement severance " + money(severance) : ""}</p><button data-action="hire" data-role="${r}" data-id="${c.id}" ${disable(blocked() || state.cash < c.cost + severance)}>${employee ? "Replace with" : "Hire"} ${esc(c.name)} · ${money(c.cost + severance)}</button></article>`).join("") || '<div class="empty">Run a new recruitment drive to see more candidates.</div>'}</div></section>`;
     })
     .join("")}`;
 }
@@ -517,7 +517,9 @@ function milestoneBanner() {
   if (!n) return "";
   const seen = seenMilestones.has(n.id);
   seenMilestones.add(n.id);
-  return `<div class="chart-alert ${seen ? "seen" : ""}" role="status"><div class="chart-award">${n.kind === "tour" ? "$" : "#" + n.rank}</div><div><span class="tag">WEEK ${n.week} · ${n.kind === "tour" ? "TOUR PROFITABILITY" : "CHART MILESTONE"}</span><h2>${esc(n.title)}</h2><p>${esc(n.body)}</p></div><button data-action="ackMilestone" data-id="${n.id}">Continue${state.notifications.length > 1 ? " · " + state.notifications.length + " milestones" : ""}</button></div>`;
+  const icon = n.kind === "tour" ? "$" : n.kind === "debt" ? "!" : "#" + n.rank,
+    tag = n.kind === "tour" ? "TOUR PROFITABILITY" : n.kind === "debt" ? "CASH WARNING" : "CHART MILESTONE";
+  return `<div class="chart-alert ${seen ? "seen" : ""}" role="status"><div class="chart-award">${icon}</div><div><span class="tag">WEEK ${n.week} · ${tag}</span><h2>${esc(n.title)}</h2><p>${esc(n.body)}</p></div><button data-action="ackMilestone" data-id="${n.id}">Continue${state.notifications.length > 1 ? " · " + state.notifications.length + " milestones" : ""}</button></div>`;
 }
 
 function catalog() {
@@ -628,11 +630,13 @@ function render() {
   $("trend").textContent = `Trending: ${s.trend} · Overhead ${money(G.upkeep(s))}/week`;
   $("continueCareer").hidden = !G.canContinueCareer(s);
   $("advance").disabled = blocked() || G.productionBlock(s);
-  $("advance").textContent = G.productionBlock(s)
-    ? "Decision waiting"
-    : state.tours.some((t) => t.status === "active")
-      ? "Next activity ›"
-      : "Next week ›";
+  $("advance").textContent = s.finished
+    ? "Run over"
+    : G.productionBlock(s)
+      ? "Decision waiting"
+      : state.tours.some((t) => t.status === "active")
+        ? "Next activity ›"
+        : "Next week ›";
   $("goal").textContent = s.finished ? s.outcome : G.campaignGoalText(s) + " " + rankLine();
   // The campaign system shows the run's final review as a card, so no separate outcome card.
   paintHTML("outcome", "");
@@ -932,10 +936,12 @@ $("reset").onclick = () => {
 $("testFunds").hidden = typeof location === "undefined" || location.hash !== "#dev";
 $("testFunds").onclick = () =>
   act(() => {
-    const revive = state.finished && state.cash < 0;
+    const revive = state.finished && (state.bankrupt ?? state.cash < 0);
     state.cash += 100000;
     if (revive) {
       state.finished = false;
+      state.bankrupt = false;
+      state.debtWeeks = 0;
       state.outcome = null;
     }
     state.news.unshift(`W${state.week}: Testing grant +$100,000.`);

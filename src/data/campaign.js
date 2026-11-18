@@ -8,10 +8,12 @@
     weeksPerYear: 52,
     // An artist counts as developed once they reach this career level during the run.
     developedLevel: 5,
+    // A theme reward pays this much cash per theme once every theme is known.
+    themeFallbackCash: 5000,
   };
 
   // One goal per operating year. Types:
-  //   breakout   — year-one target: fame, awards, releases and cash remaining
+  //   breakout   — fame, releases (and optionally awards), with cash remaining
   //   rank       — reach label rank `need` (1–6)
   //   peak       — `count` albums (default 1) that peaked at `peak` or better
   //   awards     — `need` annual awards
@@ -23,22 +25,22 @@
   // scope "total" counts the whole run; scope "year" counts only that operating year.
   // Rewards: cash, fame, or themes (new album themes discovered).
   const CAMPAIGN_GOALS = [
+    { year: 1, type: "rank", need: 2, name: "Reach Indie Imprint", reward: { cash: 8000 } },
+    { year: 2, type: "peak", peak: 40, scope: "total", name: "A Top 40 album", reward: { themes: 1 } },
     {
-      year: 1,
+      year: 3,
       type: "breakout",
       name: "Breakout Label",
-      need: { fame: 180, awards: 1, releases: 6 },
-      reward: { cash: 10000 },
+      need: { fame: 300, releases: 12 },
+      reward: { cash: 15000 },
     },
-    { year: 2, type: "rank", need: 2, name: "Reach Indie Imprint", reward: { cash: 8000 } },
-    { year: 3, type: "peak", peak: 40, scope: "total", name: "A Top 40 album", reward: { themes: 1 } },
     { year: 4, type: "releases", need: 10, scope: "total", name: "Release 10 albums", reward: { fame: 20 } },
     {
       year: 5,
       type: "awards",
-      need: 2,
+      need: 1,
       scope: "total",
-      name: "Win 2 awards in total",
+      name: "Win an annual award",
       reward: { cash: 15000 },
     },
     { year: 6, type: "rank", need: 3, name: "Reach Rising Label", reward: { themes: 1 } },
@@ -50,9 +52,9 @@
     {
       year: 12,
       type: "awards",
-      need: 5,
+      need: 4,
       scope: "total",
-      name: "Win 5 awards in total",
+      name: "Win 4 awards in total",
       reward: { themes: 2 },
     },
     { year: 13, type: "cash", need: 150000, name: "$150,000 on hand", reward: { fame: 40 } },
@@ -60,9 +62,9 @@
     {
       year: 15,
       type: "awards",
-      need: 2,
+      need: 1,
       scope: "year",
-      name: "Two awards in one year",
+      name: "An award this year",
       reward: { themes: 2 },
     },
     {
@@ -85,9 +87,9 @@
     {
       year: 18,
       type: "awards",
-      need: 10,
+      need: 8,
       scope: "total",
-      name: "Win 10 awards in total",
+      name: "Win 8 awards in total",
       reward: { themes: 2 },
     },
     { year: 19, type: "fame", need: 900, name: "900 label fame", reward: { cash: 100000 } },
@@ -98,10 +100,15 @@
   const CAMPAIGN_SCORE = {
     perRank: 100, // × label rank (1–6)
     perAward: 60,
-    perFame: 0.5,
+    awardCap: 15,
+    perFame: 0.25,
+    fameCap: 4000, // fame counted up to this
     perNumberOne: 80, // albums that peaked at #1
+    numberOneCap: 10,
     perTopTen: 25, // albums that peaked at #2–#10 (a #1 counts only as a #1)
+    topTenCap: 20,
     perHit: 10, // albums with quality 75+
+    hitCap: 40,
     perGoal: 30, // yearly goals met
     cashPer: 1000,
     cashCap: 500,
@@ -110,10 +117,10 @@
   };
 
   // Minimum final score for each star grade, 1 to 5.
-  const CAMPAIGN_STARS = [0, 800, 1600, 2600, 3600];
+  const CAMPAIGN_STARS = [0, 1200, 2400, 3600, 4800];
 
   // Legacy points earned per final score point, and the bonuses they buy for the next run.
-  const LEGACY = { scorePerPoint: 100 };
+  const LEGACY = { scorePerPoint: 250 };
   const LEGACY_BONUSES = [
     { id: "seed", name: "Seed money", cost: 3, cash: 15000, text: "Start with $15,000 more cash." },
     { id: "fund", name: "Trust fund", cost: 7, cash: 40000, text: "Start with $40,000 more cash." },

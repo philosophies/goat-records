@@ -28,7 +28,10 @@ function clockReasons(state, ui = {}) {
       else if (d.cooldown === 0) out.push("album decision ready");
     }
   }
-  if (state.notifications?.length) out.push("chart milestone");
+  if (state.notifications?.length) {
+    const kind = state.notifications[0].kind;
+    out.push(kind === "debt" ? "cash warning" : kind === "tour" ? "tour milestone" : "chart milestone");
+  }
   if ((state.rankUps || []).some((r) => !r.seen)) out.push("rank up");
   if (ui.productionBlock && !out.length) out.push("album decision ready");
   for (const r of ui.blockers || []) if (r) out.push(r);

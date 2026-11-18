@@ -159,7 +159,7 @@
       upkeep: 60,
       accent: "#e8c86a",
       income: { base: 60, fame: 1.2 },
-      text: "Weekly sales of $60 plus $1.20 per label fame, per level.",
+      text: "Weekly sales of $60 plus $1.20 per label fame (up to 400 fame), per level.",
       icon: [
         "..........",
         "..kk..kk..",
@@ -226,7 +226,7 @@
       upkeep: 150,
       accent: "#e8a86a",
       income: { base: 100, fame: 1.5 },
-      text: "Weekly takings of $100 plus $1.50 per label fame, per level.",
+      text: "Weekly takings of $100 plus $1.50 per label fame (up to 400 fame), per level.",
       icon: [
         "..........",
         ".k......k.",
@@ -247,8 +247,8 @@
       cost: 25000,
       upkeep: 220,
       accent: "#8fa8c8",
-      residual: 1,
-      text: "Albums whose earning run has ended pay $1 per quality point each week, per level.",
+      residual: 0.5,
+      text: "The best 30 albums whose earning run has ended pay $0.50 per quality point each week, per level.",
       icon: [
         "..........",
         ".kkkkkkkk.",
@@ -302,6 +302,10 @@
     maxLevel: 3,
     // Upgrade from level n to n + 1 costs the build cost × n.
     moveCost: 500,
+    // Shop and bar takings count label fame only up to this.
+    incomeFameCap: 400,
+    // The Master Archive pays on this many of the best finished albums.
+    residualAlbums: 30,
   };
 
   // Label ranks. Requirements are checked every week; a rank is never lost.

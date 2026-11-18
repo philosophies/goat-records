@@ -52,7 +52,7 @@ function fakeAlbum(s, { year = 1, best = null, quality = 60 } = {}) {
 }
 const goal = (s, year) => s.campaign.goals.find((g) => g.year === year);
 
-test("A new label starts run 1 of a 20-year campaign with the Breakout Label goal", () => {
+test("A new label starts run 1 of a 20-year campaign with the Reach Indie Imprint goal", () => {
   const s = G.create(1);
   assert.equal(s.campaign.run, 1);
   assert.equal(s.campaign.years, 20);
@@ -61,8 +61,11 @@ test("A new label starts run 1 of a 20-year campaign with the Breakout Label goa
     G.CAMPAIGN_GOALS.map((g) => g.year),
     Array.from({ length: 20 }, (_, i) => i + 1),
   );
-  assert.equal(G.currentGoal(s).goal.name, "Breakout Label");
-  assert.match(G.campaignGoalText(s), /^Year 1\/20 goal: Breakout Label · Fame 0\/180/);
+  assert.equal(G.currentGoal(s).goal.name, "Reach Indie Imprint");
+  assert.match(G.campaignGoalText(s), /^Year 1\/20 goal: Reach Indie Imprint · now Bedroom Label/);
+  const breakout = G.CAMPAIGN_GOALS.find((g) => g.type === "breakout");
+  s.fame = 120;
+  assert.equal(G.goalProgress(s, breakout).text, "Fame 120/300 · Releases 0/12");
   assert.equal(G.campaignStatus(s).goals.length, 20);
 });
 
@@ -75,7 +78,7 @@ test("The game no longer stops at week 53: year one is scored and play continues
   const review = s.campaign.reviews.at(-1);
   assert.equal(review.year, 1);
   assert.equal(review.seen, false);
-  assert.equal(review.next.name, "Reach Indie Imprint");
+  assert.equal(review.next.name, "A Top 40 album");
   assert.ok(review.rows.every((r) => typeof r.name === "string" && r.value !== undefined));
   G.acknowledgeCampaignReview(s);
   assert.equal(review.seen, true);
@@ -86,18 +89,16 @@ test("The game no longer stops at week 53: year one is scored and play continues
 });
 
 test("Meeting the year-one goal pays its cash reward exactly once", () => {
-  const make = (fame) => {
+  const make = (rank) => {
     const s = fresh(5);
-    for (let i = 0; i < 6; i++) fakeAlbum(s);
-    s.fame = fame;
-    s.awards = 1;
+    s.rank = rank;
     return s;
   };
-  const won = toYearEnd(make(200), 1),
-    lost = toYearEnd(make(100), 1);
+  const won = toYearEnd(make(2), 1),
+    lost = toYearEnd(make(1), 1);
   assert.equal(goal(won, 1).status, "met");
   assert.equal(goal(lost, 1).status, "missed");
-  assert.equal(won.campaign.reviews.at(-1).reward, "$10,000");
+  assert.equal(won.campaign.reviews.at(-1).reward, "$8,000");
   assert.equal(won.cash - lost.cash, G.CAMPAIGN_GOALS[0].reward.cash);
   const cash = won.cash;
   G.systems.find((x) => x.name === "campaign").yearEnd(won, 1);
@@ -108,13 +109,14 @@ test("Meeting the year-one goal pays its cash reward exactly once", () => {
 test("Theme and fame rewards apply when later goals are met", () => {
   const s = fresh(6);
   toYearEnd(s, 1);
-  toYearEnd(s, 2);
-  fakeAlbum(s, { year: 3, best: 30 });
+  fakeAlbum(s, { year: 2, best: 30 });
   const themes = s.themes.length;
-  toYearEnd(s, 3);
-  assert.equal(goal(s, 3).status, "met");
+  toYearEnd(s, 2);
+  assert.equal(goal(s, 2).status, "met");
   assert.equal(s.themes.length, themes + 1);
   assert.match(s.campaign.reviews.at(-1).reward, /^New themes: /);
+  toYearEnd(s, 3);
+  assert.equal(goal(s, 3).status, "missed", "Breakout Label needs 300 fame and 12 releases");
   for (let i = 0; i < 10; i++) fakeAlbum(s, { year: 4 });
   const fame = s.fame;
   toYearEnd(s, 4);
@@ -159,11 +161,50 @@ test("The run ends after year 20 once the awards ceremony is resolved", () => {
   assert.equal(G.canContinueCareer(s), false);
 });
 
-test("Running out of cash still ends the run immediately", () => {
+test("A theme reward pays cash instead once every theme is known", () => {
+  const s = fresh(6);
+  s.themes = G.THEMES.map((t) => t.name);
+  fakeAlbum(s, { year: 2, best: 30 });
+  toYearEnd(s, 1);
+  const cash = s.cash;
+  toYearEnd(s, 2);
+  assert.equal(goal(s, 2).status, "met");
+  assert.match(s.campaign.reviews.at(-1).reward, /^Every theme is already known · \$5,000 instead/);
+  const g2 = G.CAMPAIGN_GOALS.find((g) => g.year === 2);
+  assert.equal(g2.reward.themes * G.CAMPAIGN.themeFallbackCash, 5000);
+  assert.ok(s.cash >= cash + 5000 - 50000, "the fallback is paid into cash");
+});
+
+test("A label below $0 gets a warning and a grace period before the run ends", () => {
   const s = G.create(9);
   s.cash = 0;
   G.advance(s);
+  clear(s);
+  assert.equal(s.finished, false, "the first week in the red is a warning");
+  assert.equal(s.debtWeeks, 1);
+  const warning = s.notifications.find((n) => n.kind === "debt");
+  assert.ok(warning);
+  assert.match(warning.body, new RegExp(`within ${G.DEBT.graceWeeks} weeks`));
+  s.cash = 500;
+  G.advance(s);
+  clear(s);
+  assert.equal(s.debtWeeks, 0, "getting back above $0 resets the count");
+  s.cash = -1;
+  for (let i = 0; i < G.DEBT.graceWeeks; i++) {
+    G.advance(s);
+    clear(s);
+    s.cash = Math.min(s.cash, -1);
+  }
+  assert.equal(s.finished, false);
+  G.advance(s);
   assert.equal(s.finished, true);
+  assert.equal(s.bankrupt, true);
+  const staffed = fresh(21);
+  G.hire(staffed, "Producer");
+  staffed.cash = -100;
+  G.fire(staffed, "Producer");
+  assert.ok(staffed.cash < -100, "severance can be paid from debt");
+  assert.equal(staffed.staff.length, 0);
   assert.match(s.outcome, /ran out of cash/);
   const f = G.finalReview(s);
   assert.equal(f.bankrupt, true);
@@ -172,9 +213,17 @@ test("Running out of cash still ends the run immediately", () => {
   assert.match(f.score.rows.at(-1).name, /Ran out of cash/);
   const late = toYearEnd(fresh(10), 1);
   late.cash = -1;
+  late.debtWeeks = G.DEBT.graceWeeks;
   G.advance(late);
   assert.equal(late.finished, true);
   assert.equal(G.canNewGamePlus(late), true);
+  const ended = fresh(20);
+  ended.week = 20 * 52;
+  ended.cash = -10;
+  G.advance(ended);
+  clear(ended);
+  assert.equal(ended.finished, true);
+  assert.equal(G.finalReview(ended).bankrupt, false, "a run that reaches year 20 in the red still completes");
 });
 
 test("The final score follows the data formula and stars follow the thresholds", () => {
@@ -220,6 +269,17 @@ test("The final score follows the data formula and stars follow the thresholds",
   const empty = G.create(12);
   assert.equal(G.finalScore(empty).stars, 1);
   empty.awards = 100;
+  empty.fame = 99999;
+  const capped = G.finalScore(empty);
+  assert.equal(capped.rows[1].value, K.awardCap * K.perAward, "award points are capped");
+  assert.equal(capped.rows[2].value, Math.round(K.fameCap * K.perFame), "fame points are capped");
+  assert.ok(capped.stars <= 2, "two maxed rows alone do not reach the top grades");
+  empty.rank = 6;
+  empty.cash = 10 ** 7;
+  for (let i = 0; i < 12; i++) fakeAlbum(empty, { best: 1, quality: 90 });
+  for (let i = 0; i < 22; i++) fakeAlbum(empty, { best: 5, quality: 80 });
+  for (let i = 0; i < 10; i++) fakeAlbum(empty, { best: 50, quality: 80 });
+  for (let y = 1; y <= 20; y++) empty.campaign.goals.push({ year: y, status: "met" });
   assert.equal(G.finalScore(empty).stars, 5);
 });
 
@@ -265,9 +325,10 @@ function finishedRun(seed = 14) {
 }
 
 test("New Game+ starts run 2 with the chosen legacy bonuses", () => {
-  const prev = finishedRun(),
-    points = G.legacyPoints(prev);
-  assert.equal(points, Math.floor(G.finalScore(prev).total / G.LEGACY.scorePerPoint));
+  const prev = finishedRun();
+  prev.campaign.bank = 40; // points left over from earlier runs
+  const points = G.legacyPoints(prev);
+  assert.equal(points, Math.floor(G.finalScore(prev).total / G.LEGACY.scorePerPoint) + 40);
   assert.ok(points >= 44, "this run can afford every bonus");
   const all = G.LEGACY_BONUSES.map((b) => b.id),
     cost = G.LEGACY_BONUSES.reduce((n, b) => n + b.cost, 0);
@@ -348,7 +409,7 @@ test("A 0.9 label that finished year one continues automatically, with the goal 
   assert.equal(old.finished, false);
   assert.equal(old.outcome, null);
   assert.equal(old.campaign.years, 20);
-  assert.equal(goal(old, 1).status, "met");
+  assert.equal(goal(old, 1).status, "missed", "year one is a rank goal, read from rank history");
   assert.equal(goal(old, 1).migrated, true);
   G.advance(old);
   assert.equal(old.week, 54);
@@ -356,8 +417,10 @@ test("A 0.9 label that finished year one continues automatically, with the goal 
   missed.finished = true;
   missed.outcome =
     "Year one complete. Breakout Label requires 180 fame, an award, six releases and cash remaining.";
+  missed.rankUps.push({ rank: 2, week: 40, themes: [], seen: true });
+  missed.rank = 2;
   G.migrate(missed);
-  assert.equal(goal(missed, 1).status, "missed");
+  assert.equal(goal(missed, 1).status, "met");
   const broke = oldSave(s);
   broke.finished = true;
   broke.cash = -100;
@@ -379,9 +442,9 @@ test("A 0.9 career-mode save keeps playing; earlier goals come from history or a
   assert.deepEqual(
     old.campaign.goals.map((g) => [g.year, g.status]),
     [
-      [1, "met"],
+      [1, "untracked"], // reached rank 2 after year one, and the rank-up log may be incomplete
       [2, "met"],
-      [3, "met"],
+      [3, "untracked"], // 0.9 saves only recorded the year-one result
       [4, "missed"],
     ],
   );

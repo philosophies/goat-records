@@ -1,5 +1,26 @@
 # Validation
 
+## v1.0.0 — November 17, 2026
+
+170 simulation checks in 14 suites and eight interface harnesses pass (`node run-checks.cjs`). New suites cover the 20-year campaign (goals, rewards, scope, the debt grace period, capped score rows, stars, New Game+, 0.9 save migration), locations and gigs, promotion, the live clock, year-end ordering and save size.
+
+### Balance sample
+
+CAMPAIGN-BALANCE.json plays four scripted policies through full 20-year runs, 12 seeds each. Policies let their newest staff member go while in the red.
+
+| Policy | Folded | Median score | Stars (1–5) | Goals met |
+| --- | ---: | ---: | --- | ---: |
+| One artist, no extras | 2 | 3,580 | 2 / 0 / 5 / 5 / 0 | 122 of 240 |
+| One artist, promoted | 0 | 4,880 | 0 / 0 / 0 / 4 / 8 | 219 of 240 |
+| Two artists, gigs and locations | 0 | 4,030 | 0 / 0 / 1 / 11 / 0 | 167 of 240 |
+| Three artists, promoted | 0 | 4,790 | 0 / 0 / 0 / 7 / 5 | 216 of 240 |
+
+Every yearly goal is met by at least one policy, and none is met before its year starts. Before this tuning every finished run scored 7,000–17,000 and earned five stars, the year-one goal was never met, and a label folded the first week it dropped below $0. Cash still reaches several million dollars by year 10 in the promoted policies; this is listed on the roadmap.
+
+### Browser check
+
+Chrome at 1366 px and 420 px wide: the lot with a running clock, menus, album decisions, a location and a gig, lead singles and ads, a yearly review, the final review and New Game+, a bankrupt run's New label button, and the cash warning card (the clock pauses as "cash warning"; the label folds after four weeks in the red and stays folded after a reload). A year-5 export imports, and a year-20 save loads and reloads. No console errors. Screens are in `production/qa/evidence/`.
+
 ## v0.9.1 — November 17, 2026
 
 The interface harness now checks that a save with themed stage results passes the load check (it failed before the fix). In Chrome, a label with a Writers' Room and a themed album in production kept its week, album and facility after a page reload.

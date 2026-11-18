@@ -150,9 +150,10 @@ test("Awards are not automatically granted each quarter", () => {
   while (s.week < 26) next(s);
   assert.equal(s.awards, 0);
 });
-test("Negative cash ends the game and prevents further actions", () => {
+test("Negative cash past the grace period ends the game and prevents further actions", () => {
   let s = G.create(5);
   s.cash = 0;
+  s.debtWeeks = G.DEBT.graceWeeks;
   G.advance(s);
   assert.ok(s.finished);
   assert.throws(() => G.advance(s), /ended/);
@@ -187,7 +188,7 @@ function play(seed) {
   }
   return s;
 }
-test("Fifty seeded first years either go bankrupt or carry on into year two", () => {
+test("Fifty seeded first years either fold or carry on into year two", () => {
   let wins = 0,
     survived = 0;
   for (let i = 1; i <= 50; i++) {
@@ -199,9 +200,8 @@ test("Fifty seeded first years either go bankrupt or carry on into year two", ()
       if (s.campaign.goals[0].status === "met") wins++;
     }
   }
-  console.log(`  Conservative strategy: ${survived}/50 survived, ${wins}/50 reached Breakout Label.`);
+  console.log(`  Conservative strategy: ${survived}/50 survived, ${wins}/50 met the year-one goal.`);
   assert.ok(survived > 0);
-  assert.equal(wins, 0);
 });
 
 test("Five stages require decisions, reviews and elapsed weeks before release", () => {

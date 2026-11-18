@@ -8,7 +8,7 @@ Use the broad appeal of a creative-business management simulation: recruit, deve
 
 Core loop: scout talent → reserve a limited roster slot → choose album sound, audience and production resources → manage staff and recording time → release → respond to the press and rivals → collect catalog income and award prestige → expand label capacity.
 
-The interesting tension is between immediate cash, public attention, durable fan trust, artistic growth and label reputation. A player should be able to succeed as a careful boutique label or a high-volume hitmaker. The first prototype is deliberately smaller and has one campaign goal; alternative winning styles require balancing and playtesting.
+The interesting tension is between immediate cash, public attention, durable fan trust, artistic growth and label reputation. A player should be able to succeed as a careful boutique label or a high-volume hitmaker. Version 1.0 grades each 20-year run, so careful and high-volume labels can both reach five stars.
 
 ## Artists and audiences
 

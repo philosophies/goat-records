@@ -48,7 +48,7 @@ Taking a country singer out to the barn, a choir into a stone chapel, a rapper u
 ## Formulas
 
 - Affinity points per stage: Great +4, Good +2, Fair 0, Poor −3.
-- Stage boost = listed value + level bonus. Level bonus by level 1–9: 0, 1, 1, 2, 2, 3, 3, 4, 5.
+- Stage boost = listed value + level bonus + (location rank − 1). Level bonus by level 1–9: 0, 1, 1, 2, 2, 3, 3, 4, 5. The rank term lets a new, better location start ahead of a fully leveled early one.
 - Experience for levels 2–9: 2, 4, 7, 10, 14, 19, 25, 32.
 - Rent = base rent × (1 + 0.05 × (level − 1)), rounded to $50.
 - Gig pay = (base + min(fans, venue cap) × per fan + artist fame × per fame + craft × per craft) × (1 − spread + 2 × spread × roll), rounded to $10.
@@ -72,7 +72,7 @@ Taking a country singer out to the barn, a choir into a stone chapel, a rapper u
 
 ## Tuning knobs
 
-`LOCATIONS` (rank, rent, genres, stages, theme), `LOCATION_AFFINITY.points`, `LOCATION_LEVELS` (xp, stageBonus, releaseXp, hitXp, rentStep), and every field in `GIGS`.
+`LOCATIONS` (rank, rent, genres, stages, theme), `LOCATION_AFFINITY.points`, `LOCATION_LEVELS` (xp, stageBonus, releaseXp, hitXp, rentStep, rankBonus), and every field in `GIGS`.
 
 ## Balance sample
 

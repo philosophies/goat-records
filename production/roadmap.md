@@ -15,9 +15,10 @@ The headquarters lot as the main screen with a live clock; a 20-year campaign wi
 3. **Awards night.** An animated ceremony for the annual awards instead of a results card.
 4. **Roster and scouting legacy bonuses.** Hooks for an extra roster slot and cheaper scouting in New Game+.
 5. **Gig income in Finances.** Show gig pay and ad spend in the weekly settlement history.
+6. **Late-game spending.** Cash piles up after year five with little to buy. Bigger recording budgets, flagship tours or a second studio could give it a use.
 
 ## Open questions
 
-- Is the yearly goal ladder fair across a full 20-year run? Needs long human playtests.
+- The yearly goal ladder is tuned against four scripted policies (CAMPAIGN-BALANCE.json). Does it feel fair in long human playtests?
 - Do gigs compound too much after year three?
 - Should two-theme albums need Rising Label, or come earlier?

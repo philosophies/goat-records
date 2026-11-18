@@ -846,10 +846,29 @@
       s.trend = GENRES[Math.floor(rng(s) * 6)];
       log(s, `Market update: ${s.trend} is trending. New rival releases have entered the chart.`);
     }
-    if (s.cash < 0) {
+    if (s.cash >= 0) s.debtWeeks = 0;
+    else s.debtWeeks = (s.debtWeeks || 0) + 1;
+    const graceWeeks = D.DEBT?.graceWeeks ?? 0;
+    if (s.cash < 0 && s.debtWeeks > graceWeeks) {
       s.finished = true;
+      s.bankrupt = true;
       s.outcome = "The label ran out of cash. Try fewer salaries or smaller recording budgets.";
     } else {
+      if (s.cash < 0) {
+        const left = graceWeeks - s.debtWeeks + 1;
+        if (s.debtWeeks === 1)
+          s.notifications.push({
+            id: s.nextId++,
+            kind: "debt",
+            title: "IN THE RED",
+            body: `The label is $${(-s.cash).toLocaleString("en-US")} below zero. Get back above $0 within ${left} weeks or the run ends. Gigs, singles, cheaper budgets or letting staff go can help.`,
+            week: s.week,
+          });
+        log(
+          s,
+          `Cash is below $0. ${left} week${left === 1 ? "" : "s"} left to recover before the label folds.`,
+        );
+      }
       if (s.week % 4 === 0) {
         const e = makeEvent(s);
         if (e) s.eventQueue.push(e);
@@ -1059,7 +1078,8 @@
     requireAction(s);
     if (!s.staff.includes(role)) throw Error("Position is already vacant.");
     const fee = s.employees[role].wage * 2;
-    pay(s, fee);
+    // Severance may run the label below $0, so cutting costs is always possible.
+    s.cash -= fee;
     s.staff = s.staff.filter((r) => r !== role);
     delete s.employees[role];
     log(s, `${role} employment ended. Severance $${fee}.`);
@@ -2704,6 +2724,7 @@
     const outcome = api.campaignOutcome?.(s);
     if (!outcome) return;
     s.finished = true;
+    s.bankrupt = false;
     s.outcome = outcome;
   }
 
@@ -3425,6 +3446,7 @@
     inspirationInfo,
     CAREER_XP,
     CAREER_NAMES,
+    DEBT: D.DEBT,
     careerTier,
     operatingYear,
     advanceTourDay,

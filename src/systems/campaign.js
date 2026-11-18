@@ -55,7 +55,9 @@
             have,
             need: g.need,
             met,
-            text: `Fame ${have.fame}/${g.need.fame} · Awards ${have.awards}/${g.need.awards} · Releases ${have.releases}/${g.need.releases}`,
+            text: Object.keys(g.need)
+              .map((k) => `${k[0].toUpperCase() + k.slice(1)} ${have[k]}/${g.need[k]}`)
+              .join(" · "),
           };
         }
         case "rank": {
@@ -109,6 +111,8 @@
       const answer = (have, need) => (have >= need ? "met" : "missed");
       switch (g.type) {
         case "breakout":
+          // Saves from before the campaign only recorded the year-one result.
+          if (g.year !== 1) return "untracked";
           return /^You built/.test(s.outcome || "")
             ? "met"
             : /^Year one complete/.test(s.outcome || "")
@@ -182,7 +186,11 @@
           const t = api().discoverTheme(s, `Year ${g.year} goal`, true);
           if (t) found.push(t);
         }
-        return found.length ? "New themes: " + found.join(", ") : "Every theme is already known";
+        const missing = r.themes - found.length,
+          cash = missing * (CAMPAIGN.themeFallbackCash || 0);
+        s.cash += cash;
+        if (!found.length) return `Every theme is already known · $${cash.toLocaleString("en-US")} instead`;
+        return "New themes: " + found.join(", ") + (cash ? ` · $${cash.toLocaleString("en-US")}` : "");
       }
       return rewardText(g);
     }
@@ -294,13 +302,31 @@
         hits = albums.filter((p) => p.hit).length,
         goals = s.campaign.goals.filter((g) => g.status === "met").length,
         cash = clamp(Math.floor(Math.max(0, s.cash) / K.cashPer), 0, K.cashCap);
+      // Each row counts up to its cap, so no single source decides the grade.
+      const capped = (n, cap) => (cap ? Math.min(n, cap) : n),
+        capText = (cap) => (cap ? ` (max ${cap})` : "");
       const rows = [
         { name: `Label rank · ${RANKS[rank - 1].name} (${rank} × ${K.perRank})`, value: rank * K.perRank },
-        { name: `Awards · ${s.awards} × ${K.perAward}`, value: s.awards * K.perAward },
-        { name: `Label fame · ${s.fame} × ${K.perFame}`, value: Math.round(s.fame * K.perFame) },
-        { name: `#1 albums · ${ones} × ${K.perNumberOne}`, value: ones * K.perNumberOne },
-        { name: `Top 10 albums · ${tens} × ${K.perTopTen}`, value: tens * K.perTopTen },
-        { name: `Hit albums · ${hits} × ${K.perHit}`, value: hits * K.perHit },
+        {
+          name: `Awards · ${s.awards} × ${K.perAward}${capText(K.awardCap)}`,
+          value: capped(s.awards, K.awardCap) * K.perAward,
+        },
+        {
+          name: `Label fame · ${s.fame} × ${K.perFame}${capText(K.fameCap)}`,
+          value: Math.round(capped(Math.max(0, s.fame), K.fameCap) * K.perFame),
+        },
+        {
+          name: `#1 albums · ${ones} × ${K.perNumberOne}${capText(K.numberOneCap)}`,
+          value: capped(ones, K.numberOneCap) * K.perNumberOne,
+        },
+        {
+          name: `Top 10 albums · ${tens} × ${K.perTopTen}${capText(K.topTenCap)}`,
+          value: capped(tens, K.topTenCap) * K.perTopTen,
+        },
+        {
+          name: `Hit albums · ${hits} × ${K.perHit}${capText(K.hitCap)}`,
+          value: capped(hits, K.hitCap) * K.perHit,
+        },
         { name: `Yearly goals met · ${goals} × ${K.perGoal}`, value: goals * K.perGoal },
         {
           name: `Cash on hand · 1 per $${K.cashPer.toLocaleString("en-US")} (max ${K.cashCap})`,
@@ -308,7 +334,7 @@
         },
       ];
       const subtotal = rows.reduce((n, r) => n + r.value, 0);
-      if (s.finished && s.cash < 0)
+      if (isBankrupt(s))
         rows.push({
           name: `Ran out of cash · −${Math.round(K.bankruptPenalty * 100)}%`,
           value: -Math.round(subtotal * K.bankruptPenalty),
@@ -336,7 +362,7 @@
       return {
         run: c.run,
         finished: s.finished,
-        bankrupt: s.finished && s.cash < 0,
+        bankrupt: isBankrupt(s),
         complete: campaignOver(s),
         yearsPlayed: Math.min(c.years, operatingYear(s.week) - (campaignOver(s) ? 1 : 0)),
         score,
@@ -369,9 +395,13 @@
     function legacyPoints(s) {
       return Math.floor(finalScore(s).total / LEGACY.scorePerPoint) + s.campaign.bank;
     }
+    /** True when the run ended because the label folded. Older saves have no flag: a finished run below $0 folded. */
+    function isBankrupt(s) {
+      return !!s.finished && (s.bankrupt ?? s.cash < 0);
+    }
     /** New Game+ opens when a run ends at its last year, or by bankruptcy after year one. */
     function canNewGamePlus(s) {
-      return !!s.finished && (s.cash >= 0 ? campaignOver(s) : s.week > WEEKS);
+      return !!s.finished && (isBankrupt(s) ? s.week > WEEKS : campaignOver(s));
     }
     /** Starts a new run from a finished one, carrying the chosen legacy bonuses. Returns the new state. */
     function newGamePlus(prev, choices = []) {

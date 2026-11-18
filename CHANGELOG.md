@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.0
+The headquarters lot is now the main screen, with a live clock (pause, 1×, 2×, 4×) that stops for events, album decisions, milestones and open menus. A run lasts 20 years with a goal each year, a yearly review, a final score graded one to five stars, and New Game+ with legacy bonuses bought from that score. Albums can be recorded at ten locations that level up, reveal signature themes and suit some genres more than others. Idle artists can play paid gigs. A new Promotion screen adds hot streaks, lead singles and ad campaigns.
+
+Dropping below $0 now starts a four-week grace period with a warning card instead of ending the run at once, and staff can be let go while in the red. Shop and bar takings stop growing past 400 label fame, and the Master Archive pays on the best 30 finished albums. Better locations start with stronger stage boosts. Score rows are capped and the star bars raised, so five stars needs a strong run.
+
+Saves from 0.9 keep playing: a label that finished year one continues into year two, and earlier years' goals are read from history where it can tell. Long saves trim old chart and award detail at each year end so they stay within browser storage. A save that fails the load checks is kept as a backup before a new label replaces it.
+
 ## v0.9.1
 Fixes saves with themed albums or headquarters bonuses being replaced by a new label when the page was reopened. Production stages now accept the extra theme and headquarters rows when a save loads.
 

@@ -31,6 +31,7 @@ assert.equal(waiting({ event: { type: "tourDay" } }).reason, "tour decision");
 assert.equal(waiting({ event: { type: "awards" } }).reason, "awards night");
 assert.equal(waiting({ finished: true }).reason, "run complete");
 assert.equal(waiting({ notifications: [{ id: 1 }] }).reason, "chart milestone");
+assert.equal(waiting({ notifications: [{ id: 1, kind: "debt" }] }).reason, "cash warning");
 assert.equal(waiting({ rankUps: [{ rank: 2, seen: false }] }).reason, "rank up");
 assert.equal(waiting({ rankUps: [{ rank: 2, seen: true }] }).run, true, "a seen rank-up does not hold time");
 const album = (production, extra = {}) => ({ albums: [{ released: false, production, ...extra }] });

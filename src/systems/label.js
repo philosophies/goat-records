@@ -268,15 +268,15 @@
       let shops = 0;
       for (const f of s.hq.facilities) {
         const inc = byId[f.id].income;
-        if (inc) shops += (inc.base + s.fame * inc.fame) * f.level;
+        if (inc) shops += (inc.base + Math.min(s.fame, HQ.incomeFameCap ?? Infinity) * inc.fame) * f.level;
       }
       shops = Math.round(shops * (1 + bonus.incomeBonus));
-      const residual = Math.round(
-        bonus.residual *
-          s.albums
-            .filter((p) => p.released && p.age >= p.salesWeeks)
-            .reduce((n, p) => n + (p.quality || 0), 0),
-      );
+      const finished = s.albums
+        .filter((p) => p.released && p.age >= p.salesWeeks)
+        .map((p) => p.quality || 0)
+        .sort((a, b) => b - a)
+        .slice(0, HQ.residualAlbums ?? Infinity);
+      const residual = Math.round(bonus.residual * finished.reduce((n, q) => n + q, 0));
       return { shops, residual, total: shops + residual };
     }
     function upgradeCost(f) {

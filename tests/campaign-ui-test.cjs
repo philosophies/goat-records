@@ -55,13 +55,13 @@ function clear(s) {
 
 // A new label: goal chip, goal line and the Campaign screen with all 20 years.
 let p = page();
-assert.match(p.html("hud"), /campaign-chip[^>]*>Y1 goal · Breakout Label · Fame 0\/180/);
-assert.match(p.text("goal"), /^Year 1\/20 goal: Breakout Label/);
+assert.match(p.html("hud"), /campaign-chip[^>]*>Y1 goal · Reach Indie Imprint · now Bedroom Label/);
+assert.match(p.text("goal"), /^Year 1\/20 goal: Reach Indie Imprint/);
 assert.equal(p.el("continueCareer").hidden, true);
 p.click({ tab: "campaign" });
 assert.match(p.html("content"), /Campaign · run 1/);
 assert.equal((p.html("content").match(/<tr class="goal-/g) || []).length, 20);
-assert.match(p.html("content"), /goal-active[\s\S]*Breakout Label/);
+assert.match(p.html("content"), /goal-active[\s\S]*Reach Indie Imprint/);
 assert.match(p.html("content"), /Score so far/);
 
 // The yearly review banner appears after the year boundary and is dismissed with Continue.
@@ -71,12 +71,12 @@ G.advance(year);
 clear(year);
 p = page(year);
 assert.match(p.html("milestones"), /YEAR 1 REVIEW · GOAL MISSED/);
-assert.match(p.html("milestones"), /Next goal: <b>Reach Indie Imprint<\/b>/);
+assert.match(p.html("milestones"), /Next goal: <b>A Top 40 album<\/b>/);
 assert.match(p.html("milestones"), /class="component"[\s\S]*Albums released/);
 p.click({ action: "campaignAck" });
 assert.doesNotMatch(p.html("milestones"), /YEAR 1 REVIEW/);
 assert.equal(p.saved().campaign.reviews[0].seen, true);
-assert.match(p.html("hud"), /Y2 goal · Reach Indie Imprint/);
+assert.match(p.html("hud"), /Y2 goal · A Top 40 album/);
 
 // A finished run: final review, legacy picker and New Game+.
 const done = G.create(32);
@@ -85,8 +85,10 @@ done.week = 20 * 52;
 G.advance(done);
 clear(done);
 assert.equal(done.finished, true);
+done.campaign.bank = 20; // points carried from earlier runs, so both bonuses below are affordable
 p = page(done);
 assert.match(p.html("milestones"), /CAMPAIGN COMPLETE/);
+assert.equal(p.el("advance").textContent, "Run over");
 p.click({ tab: "campaign" });
 const points = G.legacyPoints(done);
 assert.match(p.html("content"), /FINAL REVIEW · 20 YEARS/);
@@ -104,9 +106,19 @@ assert.equal(next.week, 1);
 assert.equal(p.html("content"), "", "a new run starts on the lot with menus closed");
 assert.match(p.html("hud"), /Y1 goal/);
 
+// Dropping below $0 shows a warning card first; the run carries on during the grace period.
+const red = G.create(34);
+red.cash = 0;
+G.advance(red);
+clear(red);
+p = page(red);
+assert.equal(red.finished, false);
+assert.match(p.html("milestones"), /CASH WARNING[\s\S]*IN THE RED[\s\S]*within 4 weeks/);
+
 // An early bankruptcy offers no New Game+.
 const broke = G.create(33);
 broke.cash = 0;
+broke.debtWeeks = G.DEBT.graceWeeks;
 G.advance(broke);
 p = page(broke);
 p.click({ tab: "campaign" });
