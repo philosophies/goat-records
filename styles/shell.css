@@ -471,6 +471,26 @@ main.stage {
     opacity: 0;
   }
 }
+#newLabelDialog {
+  width: min(460px, calc(100% - 32px));
+  max-height: calc(100% - 32px);
+  padding: 18px;
+  color: inherit;
+}
+#newLabelDialog::backdrop {
+  background: rgba(8, 12, 32, 0.65);
+}
+#newLabelField input {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+}
+.new-label-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
 .modal-head {
   display: flex;
   justify-content: space-between;

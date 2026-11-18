@@ -154,6 +154,6 @@
 
     return { available, eligible, expire, queue, resolve, validSave };
   }
-  root.GoatSystems = Object.assign(root.GoatSystems || {}, { events: { create } });
+  root.GoatSystems = Object.assign(root.GoatSystems || {}, { events: create });
   if (typeof module !== "undefined" && module.exports) module.exports = { create };
 })(typeof globalThis !== "undefined" ? globalThis : this);

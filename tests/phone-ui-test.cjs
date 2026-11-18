@@ -13,19 +13,23 @@ const element = (id) => {
       disabled: false,
       classList: { toggle() {} },
       dataset: {},
+      showModal() { this.open = true; },
+      close() { this.open = false; this.onclose?.(); },
+      select() {},
+      setCustomValidity() {},
     });
   return elements.get(id);
 };
 let stored = null;
 const context = vm.createContext({
   console,
-  LabelGame: require("../src/engine.js"),
   document: {
     getElementById: element,
     querySelectorAll: () => [],
     addEventListener: (name, fn) => (listeners[name] = fn),
   },
   localStorage: { getItem: () => stored, setItem: (_, v) => (stored = v) },
+  location: { hash: "#ceo" },
   confirm: () => true,
   setTimeout,
   Blob,
@@ -44,7 +48,17 @@ assert.equal(element("phoneButton").hidden, true, "no phone in a classic run");
 click({ tab: "phone" });
 assert.equal(element("drawer").hidden, true, "the phone does not open in a classic run");
 
-run(`state = G.create(91, { ceo: true }); save(); render();`);
+element("reset").onclick();
+assert.equal(element("newLabelDialog").open, true);
+element("cancelNewLabel").onclick();
+assert.equal(element("newLabelDialog").open, false);
+assert.equal(saved().company, undefined);
+element("reset").onclick();
+element("newLabelName").value = "Test Records";
+element("newLabelForm").onsubmit({ preventDefault() {} });
+assert.equal(element("newLabelDialog").open, false);
+assert.equal(saved().labelName, "Test Records");
+assert.equal(saved().company.phase, 1);
 assert.equal(element("phoneButton").hidden, false);
 assert.doesNotMatch(html("phoneButton"), /phone-badge/, "nothing waiting, no badge");
 click({ tab: "phone" });

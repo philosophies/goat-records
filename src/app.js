@@ -716,6 +716,7 @@ function render() {
   animateTourMoney();
   GoatClock.update(
     [
+      $("newLabelDialog").open && "new label",
       panelOpen && "panel open",
       (hqView.selected || hqView.moving) && "building",
       inputBanners.length && "label news",
@@ -919,7 +920,7 @@ $("advance").onclick = () => {
   advanceOnce();
 };
 document.addEventListener("keydown", (e) => {
-  if (e.key !== "Escape") return;
+  if (e.key !== "Escape" || $("newLabelDialog").open) return;
   if (hqView.selected || hqView.moving) {
     hqView.selected = null;
     hqView.moving = null;
@@ -941,14 +942,36 @@ function resetView() {
   GoatClock.reset();
   GoatLot.reset();
 }
+// CEO runs (2.0) are a preview, opened with #ceo, until they become the default.
+const ceoPreview = () => typeof location !== "undefined" && location.hash === "#ceo";
 $("reset").onclick = () => {
-  if (!confirm("Start a new label? Export your save first if you want to keep this season.")) return;
-  // CEO runs (2.0) are a preview, opened with #ceo, until they become the default.
-  const ceo = typeof location !== "undefined" && location.hash === "#ceo";
-  const name = ceo && typeof prompt === "function" ? prompt("Name your label", "Goat Records") : null;
-  if (ceo && name === null) return;
+  const ceo = ceoPreview();
+  const input = $("newLabelName");
+  $("newLabelField").hidden = !ceo;
+  input.required = ceo;
+  input.maxLength = G.RENAME.maxLength;
+  input.value = G.labelName({});
+  input.setCustomValidity("");
+  $("newLabelDialog").showModal();
+  if (ceo) input.select();
+  render();
+};
+$("cancelNewLabel").onclick = () => $("newLabelDialog").close();
+$("newLabelDialog").onclose = render;
+$("newLabelName").oninput = () => $("newLabelName").setCustomValidity("");
+$("newLabelForm").onsubmit = (event) => {
+  event.preventDefault();
+  const ceo = ceoPreview();
+  const input = $("newLabelName");
+  const name = input.value.trim();
+  if (ceo && !name) {
+    input.setCustomValidity("Enter a label name.");
+    input.reportValidity();
+    return;
+  }
   act(() => {
     state = G.create(Date.now(), ceo ? { ceo: true, labelName: name } : {});
+    $("newLabelDialog").close();
     resetView();
   });
 };

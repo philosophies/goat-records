@@ -88,6 +88,20 @@
         <section id="production" aria-label="Album production"></section>
       </div>
     </section>
+    <dialog id="newLabelDialog" class="modal-card" aria-labelledby="newLabelTitle">
+      <form id="newLabelForm">
+        <h2 id="newLabelTitle">Start a new label?</h2>
+        <p>This replaces your current run. Export your save first if you want to keep it.</p>
+        <label id="newLabelField" for="newLabelName" hidden>
+          Label name
+          <input id="newLabelName" type="text" autocomplete="off" />
+        </label>
+        <div class="new-label-actions">
+          <button id="cancelNewLabel" type="button">Cancel</button>
+          <button type="submit" class="primary">Start new label</button>
+        </div>
+      </form>
+    </dialog>
     <p id="message" class="toast" role="status" aria-live="polite"></p>
     <footer>
       <span>Tap a person or place to open it. Time stops while a panel is open.</span>
