@@ -133,5 +133,5 @@ Players who ignore headquarters stay at Bedroom Label and keep the lower develop
 
 ## Version 1.0 the lot
 
-The label's building is now the game screen, as in studio-management sims of this kind: a pixel-art cutaway where staff and artists move between rooms, menus open over it, and a live clock runs until a decision needs the player. A 20-year campaign gives each year a goal and ends with a star grade and New Game+. Rented recording locations and paid gigs add Kairosoft-style leveling and training income; hot streaks, lead singles and ads make success visible and give money a second use. See design/gdd/presentation.md, campaign.md, locations.md and promotion.md.
+The label's building is now the game screen, as in studio-management sims of this kind: a pixel-art cutaway where staff and artists move between rooms and a live clock runs until a decision needs the player. In 1.1 the menus went away: every person and place on the lot, and each recording location on the street, opens its own panel. A 20-year campaign gives each year a goal and ends with a star grade and New Game+. Rented recording locations and paid gigs add Kairosoft-style leveling and training income; hot streaks, lead singles and ads make success visible and give money a second use. See design/gdd/presentation.md, campaign.md, locations.md and promotion.md.
 

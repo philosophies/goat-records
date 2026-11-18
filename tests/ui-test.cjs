@@ -36,14 +36,28 @@ const context = vm.createContext({
   URL,
 });
 require("./load-interface.cjs")(context);
-// The lot is the main screen; menu screens open in a panel over it.
+// The lot is the main screen. There is no menu: every panel opens from a person or place on it.
 assert.match(element("lot").innerHTML, /data-action="hqTile"/);
 assert.match(element("lot").innerHTML, /Living Room/);
 assert.match(element("lotRoof").innerHTML, /Bedroom Label/);
 assert.equal(element("drawer").hidden, true);
 assert.equal(element("content").innerHTML, "");
-assert.match(element("menu").innerHTML, /data-tab="studio"/);
-assert.match(element("menu").innerHTML, /data-tab="hq"/);
+assert.equal(element("menu").innerHTML, "", "no menu bar");
+for (const place of ["desk", "trophies", "office", "room:0", "newroom"])
+  assert.match(
+    element("lot").innerHTML,
+    new RegExp(`data-tab="${place}"`),
+    place + " is on the ground floor",
+  );
+assert.match(element("lotRoof").innerHTML, /data-tab="label"/);
+for (const place of ["billboard", "newsstand", "bus", "street", "location:barn"])
+  assert.match(element("lotTown").innerHTML, new RegExp(`data-tab="${place}"`), place + " is on the street");
+assert.match(
+  element("lotTown").innerHTML,
+  /Hillside Mansion[\s\S]*Rank 4/,
+  "locked locations show their rank",
+);
+assert.match(element("roster").innerHTML, /data-tab="desk"[\s\S]*Find artists/);
 assert.match(
   element("clockReason").textContent,
   /Paused · press 1×/,
@@ -54,11 +68,15 @@ assert.match(element("date").innerHTML, /YEAR 01 · WEEK 1 · .*DAY 1/);
 function click(data) {
   listeners.click({ target: { closest: () => ({ dataset: data }) } });
 }
-click({ tab: "studio" });
+click({ tab: "desk" });
 assert.equal(element("drawer").hidden, false);
-assert.equal(element("drawerTitle").textContent, "The studio");
-assert.match(element("content").innerHTML, /Your first discovery/);
-assert.match(element("clockReason").textContent, /menu open/, "an open menu holds the clock");
+assert.equal(element("drawerTitle").textContent, "Front desk");
+assert.match(
+  element("content").innerHTML,
+  /Tomorrow[\s\S]*Your team/,
+  "scouting and hiring share the front desk",
+);
+assert.match(element("clockReason").textContent, /panel open/, "an open panel holds the clock");
 click({ action: "closePanel" });
 assert.equal(element("drawer").hidden, true);
 click({ action: "clockSpeed", id: 2 });
@@ -71,8 +89,23 @@ assert.equal(vm.runInContext("GoatClock.current().held", context), true, "the ch
 const original = JSON.parse(stored);
 click({ action: "sign", id: original.candidates[0].id });
 assert.equal(JSON.parse(stored).artists.length, 1);
-click({ tab: "studio" });
-assert.match(element("content").innerHTML, /Start an album/);
+const signed = JSON.parse(stored).artists[0];
+assert.match(
+  element("roster").innerHTML,
+  new RegExp(`data-tab="artist:${signed.id}"[\\s\\S]*Ready to record`),
+);
+click({ tab: "artist:" + signed.id });
+assert.equal(element("drawerTitle").textContent, signed.name);
+assert.match(element("content").innerHTML, /Record an album[\s\S]*id="albumForm"[\s\S]*Touring[\s\S]*Albums/);
+assert.equal(
+  (
+    element("content")
+      .innerHTML.match(/<select id="artist">([\s\S]*?)<\/select>/)[1]
+      .match(/<option/g) || []
+  ).length,
+  1,
+  "an artist's sheet records that artist",
+);
 element("artist").value = JSON.parse(stored).artists[0].id;
 element("booth").value = 0;
 element("genre").value = "Pop";
@@ -138,8 +171,12 @@ click({ action: "hqFocus", x: "2", y: "1" });
 assert.equal(element("drawer").hidden, true);
 assert.match(element("lotPopover").innerHTML, /Upgrade to level 2/);
 click({ action: "hqClose" });
+click({ tab: "room:0" });
+assert.equal(element("drawerTitle").textContent, "The Living Room");
+assert.match(element("content").innerHTML, /Start an album here[\s\S]*Album theme/);
 click({ tab: "studio" });
-assert.match(element("content").innerHTML, /Album theme/);
+assert.equal(element("drawerTitle").textContent, "The Living Room", "the old studio link opens a free room");
+click({ tab: "label" });
 assert.match(element("content").innerHTML, /Combo notebook/);
 assert.match(
   element("content").innerHTML,
@@ -156,6 +193,8 @@ assert.equal(
   true,
   "a save with themed albums survives a page reload",
 );
+click({ tab: "artist:99999" });
+assert.equal(element("drawer").hidden, true, "a sheet for someone who left does not open");
 assert.equal(vm.runInContext("validSave(JSON.parse(JSON.stringify(state)))", context), true);
 assert.equal(vm.runInContext("validSave({version:1})", context), false);
 assert.equal(
@@ -166,5 +205,5 @@ assert.equal(
   false,
 );
 console.log(
-  "PASS interface harness: lot main screen, menu panels, clock controls and holds, tabs, signing, album form, week progression, event resolution, escaping, building, moving and focusing facilities on the lot, themes and combo notebook, save round-trip and invalid-save rejection.",
+  "PASS interface harness: lot main screen, places on the ground floor and street, roster, artist and room panels, clock controls and holds, old screen links, signing, album form, week progression, event resolution, escaping, building, moving and focusing facilities on the lot, themes and combo notebook, save round-trip and invalid-save rejection.",
 );

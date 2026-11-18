@@ -2,6 +2,28 @@
 
 Detailed rules for every system. See README.md for a short overview.
 
+## Getting around
+
+There are no menus. Everything opens from a person or place on the lot, in a panel beside it; time stops while the panel is open. The roster in the side panel lists every artist and staff member, including artists away on tour.
+
+| Tap | Opens |
+| --- | --- |
+| An artist (on the lot or in the roster) | Their stats, contract, inspiration, gigs and hot streak; record an album; book a tour; their albums with singles and ads |
+| A staff member | Their role, skill and wage, a recruitment drive and replacements |
+| Roof sign | Label rank and its goals, headquarters overview, pairings, combo notebook |
+| Front desk (lobby) | Scouting and hiring |
+| Trophy case (lobby) | Annual award entries and results |
+| Office | Campaign goals and final review, finances, discography |
+| A recording room | Its equipment and record; start an album there |
+| + Room | Build another recording room |
+| A facility tile | Build, upgrade, move or close it |
+| Billboard | Top 300 chart and promotion |
+| Newsstand | Industry wire and label news |
+| Tour bus | Active tours, booking and tour history |
+| Out of town sign | Every recording location and the gig table |
+| A recording location | Its level, boosts, genre fit and theme; record an album there |
+| Goal or "on fire" chip | The office or the billboard |
+
 ## Label ranks
 
 Six ranks: Bedroom Label, Indie Imprint, Rising Label, Major Contender, Powerhouse and Greatest of All Time. Each rank lists goals for label fame, albums released, facilities built, best chart peak, awards won and cash on hand. Promotion happens at the weekly settlement once every goal is met. A rank is never lost.
@@ -78,7 +100,7 @@ Stage bonuses are added when a stage decision is made, so building mid-album hel
 - Goals are checked at each year boundary, right after the annual awards. A met goal pays its reward once: cash, label fame, or new album themes. Each year is scored only once.
 - Goal types: reach a label rank, an album that peaked at a chart position (or several), awards won, albums released, hit albums, facilities built, label fame, cash on hand. "Total" goals count the whole run; "this year" goals count only that operating year's releases or awards.
 - Each year end queues a yearly review: the goal result and reward, the year's numbers (releases, hits, awards, best chart position, fame gained, cash change, rank) and the next goal. Continue dismisses it.
-- The current goal shows as a status chip and in the goal line. The Campaign screen lists all 20 years with their goals, rewards and results, the score so far, legacy bonuses in use and earlier runs.
+- The current goal shows as a status chip and in the goal line. The office lists all 20 years with their goals, rewards and results, the score so far, legacy bonuses in use and earlier runs.
 - The run ends once the year-20 awards ceremony is resolved. The final review shows the score breakdown, the star grade and highlights: best album, #1 albums, awards, top rank, peak cash, artists developed (career level 5+) and goals met.
 - New Game+ opens when a run reaches the end of year 20, or folds after year one. The player picks legacy bonuses with legacy points; the new run starts at week 1 with a fresh roster and catalog, the run number raised and earlier runs listed.
 
@@ -190,7 +212,7 @@ Legacy points = floor(final score / 250) + points left unspent from the last New
 ## Make an album
 
 1. Scout and sign an artist on a 1-, 3- or 5-album contract. Artist age and listener audience are independent.
-2. Start an album in The studio: choose an artist, ranked room, genre, album theme, audience, base budget, optional production/push add-ons and working title.
+2. Start an album from the artist, a recording room or a recording location: choose the artist, ranked room, genre, album theme, audience, base budget, optional production/push add-ons and working title.
 3. Complete five interactive stages: Creative Direction, Songwriting, Recording, Mix & Master, and Campaign Planning. Each has three approaches, numeric forecasts and staff bonuses.
 4. Review each animated calculation, then accept and advance a week. Youth artists take an extra week at Recording. Each selected add-on adds one further week after Campaign Planning. Animations can be skipped and respect reduced-motion settings.
 5. At final review, inspect Identity, Songwriting, Performance, Sound and Reach. Their rounded average determines quality, hits and award eligibility.
@@ -218,7 +240,7 @@ Each Team role has three candidates with individual skill, hiring fee and salary
 
 Choose 1, 3 or 5 album commitments. Short deals have lower advances and higher base royalties (18%); 3-album deals use 15%, and 5-album deals use 12%. Career recognition can increase newly signed rates. Longer deals cost more up front. Each release consumes exactly one commitment. An expired artist keeps the roster slot, draws no roster salary and cannot record or train until renewed. Releasing a completed contract is penalty-free; ending an unfinished one reduces label reputation by 3.
 
-Market value rises with craft, fans, artist fame, reputation, level, potential, career recognition and momentum. The Finances tab reports weekly cash flow and artist development ceilings. Training costs rise with repeated sessions; momentum decays, so attention requires upkeep. New albums pay 4–8% baseline distribution fees, reduced by VP expertise. Releases by the same artist less than eight weeks apart receive a demand penalty. Previously recorded albums retain their original revenue model. Renewal fees and salary are recalculated from current value/stats. Albums retain the royalty rate from their original recording contract even if the artist renews or leaves later.
+Market value rises with craft, fans, artist fame, reputation, level, potential, career recognition and momentum. The office reports weekly cash flow and artist development ceilings. Training costs rise with repeated sessions; momentum decays, so attention requires upkeep. New albums pay 4–8% baseline distribution fees, reduced by VP expertise. Releases by the same artist less than eight weeks apart receive a demand penalty. Previously recorded albums retain their original revenue model. Renewal fees and salary are recalculated from current value/stats. Albums retain the royalty rate from their original recording contract even if the artist renews or leaves later.
 
 ## Weekly charts and album events
 
@@ -276,7 +298,7 @@ The album target is frozen at recording start. It is the rounded maximum of $4,0
 
 Assessment occurs on the advance after the earning window closes, allowing week-12 encore choices to extend the run first. Meeting the target grants morale and reputation. Missing it reduces morale, artist reputation/fame and label reputation/fame in proportion to the shortfall. Assessment happens once; low morale also weakens subsequent production ratings. Idle artists recover morale slowly. Catalog cards show target, progress and final penalties. Old released albums are exempt from retroactive expectations.
 
-## Tours: The road
+## Tours: the tour bus
 
 A recent album (within 26 weeks of release) qualifies with a Top 10 peak, $10,000 gross sales, or at least two earning weeks and 250 units in the last earning week. Each album can launch one tour. The headliner and any labelmate must be idle. Album contracts count albums; touring does not consume an album commitment.
 
@@ -300,7 +322,7 @@ Contracts, albums and tours carry on from year to year. A label that stays below
 
 ## Finding active work
 
-Active activities at the top links directly to pending events, album stages and touring artists. Album cards distinguish action-ready steps from production waiting time. The road puts active tour ledgers before new bookings, with completed and ended tours collapsed below. Released albums use compact expandable rows, with earning campaigns sorted before completed runs. All costs, ratings and tour history remain available by expanding a row.
+The side panel lists the roster and active work, linking to pending events, album stages and the tour bus. Album cards distinguish action-ready steps from production waiting time. The tour bus puts active tour ledgers before new bookings, with completed and ended tours collapsed below. Released albums use compact expandable rows, with earning campaigns sorted before completed runs. All costs, ratings and tour history remain available by expanding a row.
 
 ## Inspiration and album pacing
 

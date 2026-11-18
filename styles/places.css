@@ -1,0 +1,328 @@
+/* Places and people you tap on the lot: the roof sign, lobby desk and trophy case, the office,
+   the build slot, clickable people, the street row of props and recording locations, and the
+   roster in the side panel. */
+
+/* The lot fills the stage now that there is no menu bar; the street row sits on the grass. */
+.scene {
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+.scene::after {
+  height: 92px;
+}
+.building {
+  --tile: max(
+    58px,
+    min(168px, calc((100vw - 310px - 110px) / var(--cols)), calc((var(--stage-h) - 220px) / var(--rows)))
+  );
+}
+
+/* ---------- Top bar chips open their place ---------- */
+button.campaign-chip,
+button.promo-chip {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  cursor: pointer;
+}
+button.campaign-chip {
+  padding: 2px 8px;
+  border: 1px solid #505b3f;
+}
+button.campaign-chip.met {
+  border-color: var(--lime);
+}
+button.promo-chip {
+  padding: 1px 8px;
+  border: 1px solid var(--orange);
+  box-shadow: 0 0 10px rgba(246, 120, 60, 0.4);
+}
+button.campaign-chip:hover,
+button.promo-chip:hover {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+/* ---------- Roof sign ---------- */
+.roof-sign {
+  cursor: pointer;
+  border-radius: 0;
+  font: inherit;
+}
+.roof-sign:hover,
+.roof-sign:focus-visible {
+  background: #2a2733;
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* ---------- Ground floor ---------- */
+.gf.lobby {
+  flex: 2 1 0;
+}
+.gf.office {
+  background:
+    linear-gradient(to top, #7a6a52 0 9px, #5c4e3b 9px 11px, transparent 11px),
+    repeating-linear-gradient(90deg, #f6e7b8 0 18px, #eedb9f 18px 36px);
+}
+.gf.build-room {
+  flex: 0.7 1 0;
+  justify-content: center;
+  background: repeating-linear-gradient(135deg, #f1e2bd 0 8px, #e5d2a3 8px 16px);
+  color: #5c4e3b;
+}
+.gf.build-room .plus {
+  font:
+    700 24px/1 Verdana,
+    sans-serif;
+}
+.gf.build-room small {
+  font:
+    700 10px/1.2 Verdana,
+    sans-serif;
+}
+/* The desk and trophy case stand in front of the people, so staff at the desk never block it. */
+.front-desk,
+.trophy-case {
+  z-index: 3;
+}
+.front-desk {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 0;
+  color: #18171f;
+  font:
+    700 9px/1 Verdana,
+    sans-serif;
+  letter-spacing: 1px;
+}
+.front-desk span {
+  margin-top: 1px;
+}
+/* A wall-mounted case above head height, so people walk underneath it. */
+.trophy-case {
+  position: absolute;
+  left: 34%;
+  top: 22%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 3px 4px 2px;
+  background: #3a2a22;
+  border: 2px solid #18171f;
+  border-radius: 0;
+  color: #ffd84a;
+  cursor: pointer;
+}
+.trophy-case small {
+  font:
+    700 9px/1 Verdana,
+    sans-serif;
+}
+.front-desk:hover,
+.trophy-case:hover,
+.front-desk:focus-visible,
+.trophy-case:focus-visible {
+  outline: 3px solid #fff1b8;
+  outline-offset: 1px;
+  filter: brightness(1.1);
+}
+.cabinet {
+  position: absolute;
+  left: 10%;
+  bottom: 11px;
+  width: 16%;
+  height: 42%;
+  background: repeating-linear-gradient(#7b7f8c 0 9px, #18171f 9px 11px);
+  border: 2px solid #18171f;
+}
+.office-desk {
+  right: 12%;
+  width: 44%;
+  background: #8c5a3c;
+}
+
+/* ---------- People ---------- */
+.people {
+  pointer-events: none;
+}
+.person {
+  pointer-events: auto;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  cursor: pointer;
+}
+.person:hover .pixel {
+  filter: drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff)
+    drop-shadow(0 -2px 0 #fff);
+}
+
+/* ---------- The street row ---------- */
+.town-row {
+  position: relative;
+  z-index: 1;
+  align-self: stretch;
+  min-width: 0;
+}
+.town {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  padding: 6px 6px 4px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.town-gap {
+  flex: 0 0 10px;
+  align-self: stretch;
+  border-left: 3px dashed rgba(255, 255, 255, 0.55);
+}
+.town-spot {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 64px;
+  padding: 3px 4px 2px;
+  background: rgba(24, 23, 31, 0.18);
+  border: 2px solid transparent;
+  border-radius: 0;
+  box-shadow: none;
+  color: #18171f;
+  cursor: pointer;
+}
+.town-spot:hover,
+.town-spot:focus-visible {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: #18171f;
+}
+.town-plate {
+  padding: 0 4px;
+  background: #18171f;
+  color: #f7f4ea;
+  font:
+    700 9px/1.5 Verdana,
+    sans-serif;
+  white-space: nowrap;
+}
+.town-spot small {
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #18171f;
+  font:
+    700 9px/1.2 Verdana,
+    sans-serif;
+}
+.town-spot.location .town-plate {
+  background: var(--accent);
+  color: #18171f;
+}
+.town-spot.locked {
+  opacity: 0.55;
+  filter: grayscale(0.8);
+}
+.town-spot.booked small {
+  color: #8b1f1b;
+}
+.town-spot.bus-spot.away .pixel {
+  opacity: 0.35;
+}
+
+/* ---------- Roster in the side panel ---------- */
+.ticker .roster {
+  margin-bottom: 4px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+.roster-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 5px 6px;
+  background: #18204b;
+  border: 2px solid var(--frame);
+  border-radius: 0;
+  text-align: left;
+}
+.roster-chip span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.roster-chip b,
+.roster-chip small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.roster-chip b {
+  font-size: 12px;
+}
+.roster-chip small {
+  color: var(--muted);
+  font-size: 10px;
+}
+.roster-chip.hot {
+  border-color: var(--orange);
+}
+.roster-chip.staff {
+  background: #1c2a2f;
+}
+.roster-chip.add {
+  border-style: dashed;
+  border-color: var(--lime);
+}
+
+/* ---------- Sheets ---------- */
+.place-intro {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 4px;
+  color: var(--muted);
+}
+.sheet-section + .sheet-section {
+  margin-top: 18px;
+  padding-top: 4px;
+  border-top: 3px solid var(--frame);
+}
+.sheet-section {
+  scroll-margin-top: 8px;
+}
+
+@media (max-width: 760px) {
+  .scene::after {
+    height: 84px;
+  }
+  .town-spot {
+    min-width: 56px;
+  }
+  .trophy-case {
+    left: 32%;
+    top: 26%;
+    padding: 1px 2px;
+  }
+  .trophy-case .pixel {
+    width: 12px;
+    height: 12px;
+  }
+  .trophy-case small {
+    display: none;
+  }
+  .front-desk {
+    font-size: 7px;
+  }
+}

@@ -30,7 +30,7 @@ A run lasts 20 operating years (weeks 1–1,040). Every year has a goal; meeting
 - Goals are checked at each year boundary, right after the annual awards. A met goal pays its reward once: cash, label fame, or new album themes. Each year is scored only once.
 - Goal types: reach a label rank, an album that peaked at a chart position (or several), awards won, albums released, hit albums, facilities built, label fame, cash on hand. "Total" goals count the whole run; "this year" goals count only that operating year's releases or awards.
 - Each year end queues a yearly review: the goal result and reward, the year's numbers (releases, hits, awards, best chart position, fame gained, cash change, rank) and the next goal. Continue dismisses it.
-- The current goal shows as a status chip and in the goal line. The Campaign screen lists all 20 years with their goals, rewards and results, the score so far, legacy bonuses in use and earlier runs.
+- The current goal shows as a status chip and in the goal line. The office lists all 20 years with their goals, rewards and results, the score so far, legacy bonuses in use and earlier runs.
 - The run ends once the year-20 awards ceremony is resolved. The final review shows the score breakdown, the star grade and highlights: best album, #1 albums, awards, top rank, peak cash, artists developed (career level 5+) and goals met.
 - New Game+ opens when a run reaches the end of year 20, or folds after year one. The player picks legacy bonuses with legacy points; the new run starts at week 1 with a fresh roster and catalog, the run number raised and earlier runs listed.
 

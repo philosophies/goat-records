@@ -135,7 +135,7 @@ function promotionScreen() {
 function promoHud() {
   const n = G.hotArtists(state).length;
   return n
-    ? `<span class="promo-chip" title="Open Promotion for details">${n} artist${n === 1 ? "" : "s"} on fire</span>`
+    ? `<button class="promo-chip" data-tab="promotion" title="See the billboard for details">${n} artist${n === 1 ? "" : "s"} on fire</button>`
     : "";
 }
 function promoClick(b) {

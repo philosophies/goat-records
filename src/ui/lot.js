@@ -31,46 +31,33 @@ const TOUR_BUS = [
   ".kkkkkkkkkkkkkkk",
   "...kgk.....kgk..",
 ];
-const MENU_ICONS = {
-  studio: ["..kkkk..", ".kaaaak.", ".kaaaak.", "..kkkk..", "...kk...", ".k.kk.k.", "..kkkk..", "...kk..."],
-  scout: [".kkkk...", "kwwwwk..", "kwaawk..", "kwaawk..", "kwwwwk..", ".kkkkk..", ".....kk.", "......kk"],
-  staff: ["...kk...", "..kssk..", "..kssk..", "...kk...", "..kaak..", ".kaaaak.", "..kaak..", "..k..k.."],
-  catalog: ["..kkkk..", ".kkkkkk.", "kkkaakkk", "kkayyakk", "kkayyakk", "kkkaakkk", ".kkkkkk.", "..kkkk.."],
-  charts: ["........", "......a.", "......a.", "...a..a.", "...a..a.", "a..a..a.", "a..a..a.", "kkkkkkkk"],
-  road: ["........", "kkkkkkk.", "kawawak.", "kaaaaaak", "kaaaaaak", "kkkkkkkk", ".kk..kk.", "........"],
-  awards: ["kyyyyyyk", "kyyyyyyk", ".kyyyyk.", "..kyyk..", "...yy...", "...yy...", "..kyyk..", ".kkkkkk."],
-  finance: ["..kkkk..", ".kyyyyk.", "kyykkyyk", "kykyyyyk", "kyykkyyk", "kyyyykyk", ".kykkyk.", "..kkkk.."],
-  journal: ["kkkkkkk.", "kwwwwwk.", "kwaaawk.", "kwwwwwkk", "kwkkkwkw", "kwwwwwkw", "kwkkkwkw", "kkkkkkkk"],
-  hq: ["...kk...", "..kaak..", ".kaaaak.", "kkkkkkkk", ".kwkwkk.", ".kkkkkk.", ".kwkdwk.", ".kkkdkk."],
-  other: ["...yy...", "...yy...", "yyyyyyyy", ".yyyyyy.", "..yyyy..", ".yy..yy.", "yy....yy", "........"],
-};
-const MENU_COLORS = {
-  studio: "#e86a8f",
-  scout: "#7fb8e8",
-  staff: "#f3a64b",
-  catalog: "#d9534f",
-  charts: "#4caf7a",
-  road: "#f3d25b",
-  awards: "#f3d25b",
-  finance: "#4caf7a",
-  journal: "#7fb8e8",
-  hq: "#c9e86a",
-};
-
-/** Small pixel icon for a menu button. Screens added by features get a star. */
-function menuIcon(id) {
-  return pixelSvg(MENU_ICONS[id] || MENU_ICONS.other, MENU_COLORS[id] || "#b48ae8", 22);
-}
+const TROPHY = [
+  "kyyyyyyk",
+  "kyyyyyyk",
+  ".kyyyyk.",
+  "..kyyk..",
+  "...yy...",
+  "...yy...",
+  "..kyyk..",
+  ".kkkkkk.",
+];
 
 /* ---------------- Building ---------------- */
 
+/** Ground floor widths: the lobby is twice a room; the build slot shows while rooms are left to build. */
+const GROUND = { lobby: 2, office: 1, booth: 1, build: 0.7 };
+function canBuildRoom() {
+  return state.booths.length < G.BOOTHS.length;
+}
 /** Grid size drawn on the lot: the current lot plus the tiles the next rank unlocks. */
 function lotFrame() {
   const [w, h] = G.lotSize(state),
     next = G.RANKS[G.rank(state)]?.lot || [w, h],
     gw = Math.max(w, next[0]),
-    gh = Math.max(h, next[1]);
-  return { w, h, gw, gh, rows: gh + 1, segs: 1 + state.booths.length };
+    gh = Math.max(h, next[1]),
+    segs =
+      GROUND.lobby + GROUND.office + state.booths.length * GROUND.booth + (canBuildRoom() ? GROUND.build : 0);
+  return { w, h, gw, gh, rows: gh + 1, segs };
 }
 function recordingAlbum(artistId) {
   return state.albums.find((p) => !p.released && p.artist === artistId);
@@ -92,9 +79,14 @@ function groundFloor(frame) {
   const rooms = state.booths.map((b) => {
     const def = G.BOOTHS[b.id],
       p = state.albums.find((x) => !x.released && x.booth === b.id);
-    return `<button class="gf booth ${p ? "rec" : ""}" data-tab="studio" aria-label="${esc(def.name)}${p ? ", recording " + esc(p.title) : ""}"><span class="plate">${esc(def.name)}</span>${p ? '<span class="on-air">REC</span>' : ""}<span class="desk mixing"></span></button>`;
+    return `<button class="gf booth ${p ? "rec" : ""}" data-tab="room:${b.id}" aria-label="${esc(def.name)}${p ? ", recording " + esc(p.title) : ", free"}"><span class="plate">${esc(def.name)}</span>${p ? '<span class="on-air">REC</span>' : ""}<span class="desk mixing"></span></button>`;
   });
-  return `<div class="groundfloor" style="grid-column:2 / span ${frame.gw};grid-row:${frame.rows}"><button class="gf lobby" data-tab="staff" aria-label="Lobby and team desk"><span class="plate">Lobby</span><span class="door"></span><span class="desk"></span></button>${rooms.join("")}</div>`;
+  const lobby = `<div class="gf lobby"><span class="plate">Lobby</span><span class="door"></span><button class="trophy-case" data-tab="trophies" aria-label="Trophy case, ${state.awards} award${state.awards === 1 ? "" : "s"}">${pixelSvg(TROPHY, "#f3d25b", 18)}<small>${state.awards}</small></button><button class="desk front-desk" data-tab="desk" aria-label="Front desk: scouting and hiring"><span>DESK</span></button></div>`,
+    office = `<button class="gf office" data-tab="office" aria-label="Office: goals, finances and catalog"><span class="plate">Office</span><span class="cabinet"></span><span class="desk office-desk"></span></button>`,
+    build = canBuildRoom()
+      ? `<button class="gf build-room" data-tab="newroom" aria-label="Build a recording room"><span class="plus">+</span><small>Room</small></button>`
+      : "";
+  return `<div class="groundfloor" style="grid-column:2 / span ${frame.gw};grid-row:${frame.rows}">${lobby}${office}${rooms.join("")}${build}</div>`;
 }
 /** The building: floors of facility tiles above a ground floor, with a stairwell on the left. */
 function lotBuilding() {
@@ -106,11 +98,10 @@ function lotBuilding() {
 }
 function lotRoof() {
   const st = G.rankStatus(state);
-  return `<div class="roof-sign"><b>GOAT RECORDS</b><span class="roof-stars" aria-label="Label rank ${st.rank} of ${G.RANKS.length}">${"★".repeat(st.rank)}<i>${"★".repeat(G.RANKS.length - st.rank)}</i></span><small>${esc(st.name)}</small></div>`;
+  return `<button class="roof-sign" data-tab="label" aria-label="Goat Records: rank, headquarters and themes"><b>GOAT RECORDS</b><span class="roof-stars" aria-label="Label rank ${st.rank} of ${G.RANKS.length}">${"★".repeat(st.rank)}<i>${"★".repeat(G.RANKS.length - st.rank)}</i></span><small>${esc(st.name)}</small></button>`;
 }
 function lotGround() {
-  const tours = state.tours.filter((t) => t.status === "active");
-  return `<div class="street">${tours.length ? `<div class="bus" title="On tour">${pixelSvg(TOUR_BUS, "#f3a64b", 72, "Tour bus")}<small>ON TOUR · ${tours.map((t) => esc(t.artistName)).join(", ")}</small></div>` : ""}${GoatUI.html("lotDecor")}</div>`;
+  return `<div class="street">${GoatUI.html("lotDecor")}</div>`;
 }
 function lotPopover() {
   const sel = hqView.selected?.split(",").map(Number);
@@ -135,14 +126,18 @@ function liveDom() {
 function lotCast(frame) {
   const groundY = frame.gh,
     spot = (fx, y, spread) => ({ fx, y, spread }),
-    lobby = spot(0.55 / frame.segs, groundY, 0.25 / frame.segs),
+    // Staff work behind the front desk; idle artists hang around the left of the lobby.
+    lobby = spot(1.5 / frame.segs, groundY, 0.22 / frame.segs),
+    hangout = spot(0.85 / frame.segs, groundY, 0.3 / frame.segs),
     room = (id) => {
       const f = G.builtFacility(state, id);
       return f && f.x < frame.w && f.y < frame.h ? spot((f.x + 0.38) / frame.gw, f.y, 0.24 / frame.gw) : null;
     },
     booth = (id) => {
       const i = state.booths.findIndex((b) => b.id === id);
-      return i < 0 ? null : spot((i + 1.5) / frame.segs, groundY, 0.28 / frame.segs);
+      return i < 0
+        ? null
+        : spot((GROUND.lobby + GROUND.office + i + 0.5) / frame.segs, groundY, 0.28 / frame.segs);
     },
     out = [];
   for (const a of state.artists) {
@@ -150,9 +145,10 @@ function lotCast(frame) {
     const p = recordingAlbum(a.id),
       home = p
         ? room("vocal") || room("mix") || room("writers") || booth(p.booth) || lobby
-        : room("lounge") || room("rehearsal") || room("bar") || lobby;
+        : room("lounge") || room("rehearsal") || room("bar") || hangout;
     out.push({
       key: "a" + a.id,
+      tab: "artist:" + a.id,
       kind: "artist",
       name: a.name,
       map: G.ARTIST_SPRITE,
@@ -165,6 +161,7 @@ function lotCast(frame) {
   state.staff.forEach((role, i) => {
     out.push({
       key: "s" + role,
+      tab: "staffer:" + role,
       kind: "staff",
       name: state.employees[role]?.name || role,
       map: STAFF_SPRITE,
@@ -227,8 +224,12 @@ function stepPerson(p, now) {
   }
 }
 function newPerson(c, arrive) {
-  const el = document.createElement("div");
+  // People are buttons that open their sheet; the roster in the side panel offers the same by keyboard.
+  const el = document.createElement("button");
   el.className = "person " + c.kind;
+  el.type = "button";
+  el.tabIndex = -1;
+  el.dataset.tab = c.tab;
   el.innerHTML = pixelSvg(c.map, c.color, 30);
   lotLife.layer.appendChild(el);
   const p = { ...c, el, fx: 0, y: 0, path: [], until: 0, target: c.home };
@@ -274,6 +275,7 @@ function syncPeople() {
   for (const p of lotLife.people.values()) {
     p.el.classList.toggle("hot", !!p.hot);
     p.el.title = p.name;
+    p.el.setAttribute?.("aria-label", p.name);
     if (!keys.has(p.key) && !p.leaving) {
       p.leaving = true;
       p.path = lotLife.reduced ? [] : routeTo(p, 0.15 / frame.segs, frame.gh);
@@ -385,6 +387,7 @@ const GoatLot = {
     paintLot("lotRoof", lotRoof());
     paintLot("lot", lotBuilding());
     paintLot("lotGround", lotGround());
+    paintLot("lotTown", GoatPlaces.town());
     const pop = lotPopover();
     $("lotPopover").innerHTML = pop;
     $("lotPopover").hidden = !pop;

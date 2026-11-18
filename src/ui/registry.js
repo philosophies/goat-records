@@ -3,11 +3,11 @@
 "use strict";
 
 const GoatUI = {
-  /** Full screens opened from the menu: { id, label, order, render() }. */
+  /** Full screens, shown in a place on the lot (see places.js) or on their own: { id, label, order, render() }. */
   panels: [],
   /** Album form additions: { fields(), read() -> plan fields, quote(plan) -> html }. */
   albumForm: [],
-  /** Extra sections in the studio screen below the album form: { render() }. */
+  /** Extra sections on the roof sign's panel, below headquarters: { render() }. */
   studioSections: [],
   /** Extra rows on a signed artist's card: { render(artist) }. */
   artistCard: [],

@@ -1,5 +1,13 @@
 # Validation
 
+## v1.1.0 — November 17, 2026
+
+170 simulation checks in 14 suites and eight interface harnesses pass (`node run-checks.cjs`). The main harness now checks that there is no menu bar, that every place is on the ground floor, roof and street, the roster, an artist's panel holding only that artist's album form, a room's panel, older screen links opening their new place, and that a panel for a released artist does not open. The locations harness opens a location's panel, finds it preselected in the album form and booked once recording starts.
+
+### Browser check
+
+Chrome at 1366 px and 420 px wide, with real clicks only: signing at the front desk, tapping the artist's sprite, recording at the Barn Loft from the street, every production decision through release, the artist's panel listing the album, a gig, and each place on the lot (front desk, trophy case, office, recording room, + Room, roof sign, billboard, newsstand, tour bus, Out of town, the goal chip). A year-20 save loads and shows its final review in the office, and its export imports. The cash warning still pauses the clock. No console errors. Screens are in `production/qa/evidence/v1.1-*.png`.
+
 ## v1.0.0 — November 17, 2026
 
 170 simulation checks in 14 suites and eight interface harnesses pass (`node run-checks.cjs`). New suites cover the 20-year campaign (goals, rewards, scope, the debt grace period, capped score rows, stars, New Game+, 0.9 save migration), locations and gigs, promotion, the live clock, year-end ordering and save size.

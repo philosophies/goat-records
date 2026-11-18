@@ -387,7 +387,7 @@
       if (!s.campaign || !campaignOver(s)) return null;
       const score = finalScore(s);
       log(s, `Run ${s.campaign.run} complete: ${score.total} points, ${score.stars}-star label.`);
-      return `Run complete after ${s.campaign.years} years: ${score.total} points, a ${score.stars}-star label. Open Campaign for the final review and New Game+.`;
+      return `Run complete after ${s.campaign.years} years: ${score.total} points, a ${score.stars}-star label. Visit the office for the final review and New Game+.`;
     }
 
     /* ---------------- New Game+ ---------------- */

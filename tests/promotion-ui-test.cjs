@@ -116,7 +116,7 @@ assert.equal(saved().promotion.ads.length, 1);
 assert.ok(saved().cash < cash);
 assert.match(screen(), /Ad running/);
 
-click({ tab: "studio" });
+click({ tab: "artist:" + saved().artists[0].id });
 assert.match(screen(), /ON FIRE · LEVEL [1-3]\/3 · \d+ weeks left/, "the artist card glows");
 
 click({ tab: "promotion" });

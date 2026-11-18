@@ -8,7 +8,7 @@ const G = LabelGame,
       (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c],
     );
 let state,
-  tab = "studio",
+  tab = "desk",
   panelOpen = false,
   modalHidden = false,
   modalKey = "",
@@ -222,19 +222,34 @@ function validProductionSave(s) {
     })
   );
 }
-function roomCards() {
-  return `<div class="grid">${G.BOOTHS.map((b, id) => {
+/** One recording room: its equipment, upkeep and either its record or a build button. */
+function roomCard(id) {
+  const b = G.BOOTHS[id];
+  {
     const owned = state.booths.find((x) => x.id === id),
       p = state.albums.find((x) => !x.released && x.booth === id);
     return `<article class="card"><span class="tag">${esc(b.theme)}</span><h3>${b.name}</h3><div class="metrics"><span>Equipment <b>${b.equipment}</b></span><span>Production team <b>${b.team}</b></span></div><p>${money(b.upkeep)}/week upkeep · requires label tier ${b.labelTier}</p>${owned ? `<p>${owned.hits} hits · ${owned.prestige} prestige<br>${p ? "Recording: " + esc(p.title) : "Room available"}</p>${p ? `<div class="progress"><span style="width:${Math.max(0, Math.min(100, ((p.duration - p.remaining) / p.duration) * 100))}%"></span></div><small>${p.production.stage}/5 decisions · ${p.production.cooldown ? p.production.cooldown + " week(s) to next step" : "Decision ready"}</small>` : ""}` : `<button data-action="build" data-id="${id}" ${disable(blocked() || state.cash < b.cost || G.tier(state) < b.labelTier)}>Build · ${money(b.cost)}</button>`}</article>`;
-  }).join("")}</div>`;
+  }
 }
-function studio() {
-  const free = state.artists.filter((a) => !G.busy(state, a.id) && a.contract.remaining > 0),
-    booths = state.booths.filter((b) => !state.albums.some((p) => !p.released && p.booth === b.id));
-  return `<div class="sectionhead"><h2>Your roster</h2><span class="muted">${state.artists.length} / ${G.slots(state)} signed</span></div>${state.artists.length ? `<div class="grid">${state.artists.map(artistCard).join("")}</div>` : '<div class="empty">Your first discovery is waiting. Open Scout artists to sign talent.</div>'}<h2>Start an album</h2><div class="card"><p>Five interactive stages take five weeks (six for Youth). Each selected package add-on adds one more week before release. Fees are paid up front. Room quality benefits every genre.</p><form id="albumForm" class="form"><label>Artist<select id="artist">${free.map((a) => `<option value="${a.id}">${esc(a.name)} · ${a.genre} · inspiration ${Math.round(G.inspirationInfo(a).value)}/100</option>`).join("")}</select></label><label>Recording room<select id="booth">${booths.map((b) => `<option value="${b.id}">${G.BOOTHS[b.id].name} · rank ${b.id + 1}</option>`).join("")}</select></label><label>Genre<select id="genre">${G.GENRES.map((g) => `<option ${free[0]?.genre === g ? "selected" : ""}>${g}</option>`).join("")}</select></label>${GoatUI.albumForm.map((x) => x.fields?.() || "").join("")}<label>Target audience<select id="audience">${["Youth", "Teen", "Adult"].map((g) => `<option ${free[0]?.audience === g ? "selected" : ""}>${g}</option>`).join("")}</select></label><label>Base production budget<select id="budget"><option value="4000">Lean · $4,000</option><option value="8000">Standard · $8,000</option><option value="12000">Premium · $12,000</option></select></label><label>Album title<input id="title" maxlength="45" placeholder="Name your next record"></label><fieldset class="album-addons"><legend>Album push & production add-ons · +1 week each</legend>${G.ALBUM_ADDONS.map((o) => `<label><input type="checkbox" name="albumAddon" value="${o.id}"><span><b>${o.name} · ${money(o.cost)}</b><small>${o.description}</small></span></label>`).join("")}</fieldset><div id="albumQuote" class="plan-quote form-full" aria-live="polite">Choose your album package.</div><button id="beginAlbum" class="primary" ${disable(blocked() || !free.length || !booths.length || state.cash < 4000 || !G.inspirationInfo(free[0] || {}).canRecord)}>Begin recording →</button></form></div>${GoatUI.html("studioSections")}<h2>Ranked recording rooms</h2><p class="muted">Stronger equipment and production teams raise ratings across all genres. Successful recordings still grow each room’s prestige. Extra rooms support simultaneous projects; higher ranks cost more to build and run.</p>${roomCards()}`;
+/**
+ * The album form. Options narrow it to one artist ({ artistId }) or one room ({ boothId });
+ * a location sheet preselects its location through the location field.
+ */
+function albumFormCard({ artistId, boothId } = {}) {
+  const free = state.artists.filter(
+      (a) =>
+        !G.busy(state, a.id) && a.contract.remaining > 0 && (artistId === undefined || a.id === artistId),
+    ),
+    booths = state.booths.filter(
+      (b) =>
+        !state.albums.some((p) => !p.released && p.booth === b.id) &&
+        (boothId === undefined || b.id === boothId),
+    );
+  if (!free.length)
+    return `<div class="empty">${state.artists.length ? "No artist is free to record. Finish recording or touring, or renew a completed contract." : '<button data-tab="desk">Sign your first artist at the front desk</button>'}</div>`;
+  return `<div class="card"><p>Five interactive stages take five weeks (six for Youth). Each selected package add-on adds one more week before release. Fees are paid up front. Room quality benefits every genre.</p><form id="albumForm" class="form"><label>Artist<select id="artist">${free.map((a) => `<option value="${a.id}">${esc(a.name)} · ${a.genre} · inspiration ${Math.round(G.inspirationInfo(a).value)}/100</option>`).join("")}</select></label><label>Recording room<select id="booth">${booths.map((b) => `<option value="${b.id}">${G.BOOTHS[b.id].name} · rank ${b.id + 1}</option>`).join("")}</select></label><label>Genre<select id="genre">${G.GENRES.map((g) => `<option ${free[0]?.genre === g ? "selected" : ""}>${g}</option>`).join("")}</select></label>${GoatUI.albumForm.map((x) => x.fields?.() || "").join("")}<label>Target audience<select id="audience">${["Youth", "Teen", "Adult"].map((g) => `<option ${free[0]?.audience === g ? "selected" : ""}>${g}</option>`).join("")}</select></label><label>Base production budget<select id="budget"><option value="4000">Lean · $4,000</option><option value="8000">Standard · $8,000</option><option value="12000">Premium · $12,000</option></select></label><label>Album title<input id="title" maxlength="45" placeholder="Name your next record"></label><fieldset class="album-addons"><legend>Album push & production add-ons · +1 week each</legend>${G.ALBUM_ADDONS.map((o) => `<label><input type="checkbox" name="albumAddon" value="${o.id}"><span><b>${o.name} · ${money(o.cost)}</b><small>${o.description}</small></span></label>`).join("")}</fieldset><div id="albumQuote" class="plan-quote form-full" aria-live="polite">Choose your album package.</div><button id="beginAlbum" class="primary" ${disable(blocked() || !free.length || !booths.length || state.cash < 4000 || !G.inspirationInfo(free[0] || {}).canRecord)}>Begin recording →</button></form></div>`;
 }
-/** The album plan as entered in the studio form, including fields added by feature scripts. */
+/** The album plan as entered in the album form, including fields added by feature scripts. */
 function readAlbumPlan() {
   return Object.assign(
     {
@@ -253,7 +268,7 @@ function selectedAddons() {
   return [...document.querySelectorAll('input[name="albumAddon"]:checked')].map((e) => e.value);
 }
 function updateAlbumQuote() {
-  if (tab !== "studio" || !panelOpen) return;
+  if (!panelOpen || !sheetForms.album) return;
   const a = state.artists.find((a) => a.id === Number($("artist").value));
   if (!a) {
     $("albumQuote").textContent =
@@ -290,10 +305,11 @@ function tourReviewText(t) {
     return `Tour completes on day ${t.plannedDays}; no additional review is scheduled before closing.`;
   return `Next review target: day ${earliest}${t.reviewAfterShow ? " / after show #" + t.reviewAfterShow : ""}${remaining ? "" : " (next label week)"}. ${remaining} more tour decision(s) available this week across all tours.`;
 }
-function tourCards(status) {
+function tourCards(status, artistId) {
   return [...state.tours]
     .reverse()
     .filter((t) => (status === "active" ? t.status === "active" : t.status !== "active"))
+    .filter((t) => artistId === undefined || t.artists.includes(artistId))
     .map((t) => {
       const scale = G.TOUR_SCALES.find((r) => r.id === t.scale),
         mode = G.TOUR_MODES.find((m) => m.id === t.mode),
@@ -322,11 +338,18 @@ function tourCards(status) {
     })
     .join("");
 }
-function road() {
+/** The tour booking form, for every eligible album or only one artist's. */
+function tourFormCard(artistId) {
   const eligible = state.albums.filter(
-    (p) => G.popularAlbum(state, p) && state.artists.some((a) => a.id === p.artist && !G.busy(state, a.id)),
+    (p) =>
+      G.popularAlbum(state, p) &&
+      (artistId === undefined || p.artist === artistId) &&
+      state.artists.some((a) => a.id === p.artist && !G.busy(state, a.id)),
   );
-  return `<section id="active-tours"><div class="sectionhead"><h2>Active tours</h2><span class="tag">${state.tours.filter((t) => t.status === "active").length} ON THE ROAD</span></div>${tourCards("active") || '<div class="empty">No active tours. Book your next run below.</div>'}</section><h2>Book a new tour</h2><p class="muted">A recent album qualifies with a Top 10 peak, $10,000 gross revenue, or two earning weeks and 250 weekly units. Each album gets one tour. Touring label artists cannot record or train. Upfront costs make every tour start in the red; ticket demand ramps with completed show days. Daily receipts still settle, but choices cover several days. At most three tour decisions occur per label week across all active tours. Advancing skips quiet days and stops at a review, weekly settlement or required album decision.</p><div class="card"><form id="tourForm" class="form"><label>Popular album<select id="tour-album">${eligible.map((p) => `<option value="${p.id}">${esc(p.title)} · ${esc(p.artistName)}</option>`).join("")}</select></label><label>Tour territory<select id="tour-scale">${G.TOUR_SCALES.map((r) => `<option value="${r.id}">${r.name} · ${r.weeks * 7} days / ${r.weeks} weeks</option>`).join("")}</select></label><label>Tour lineup<select id="tour-mode">${G.TOUR_MODES.map((m) => `<option value="${m.id}">${m.name}</option>`).join("")}</select></label><label id="tour-partner-wrap" hidden>Labelmate<select id="tour-partner"></select></label><label id="tour-rival-wrap" hidden>Rival artist<select id="tour-rival">${state.rivalArtists.map((a) => `<option value="${a.id}">${esc(a.name)} · fame ${Math.round(a.fame)}</option>`).join("")}</select></label><div id="tourQuote" class="plan-quote form-full" aria-live="polite">Choose an eligible album to see tour costs and forecasts.</div><button id="bookTour" class="primary" ${disable(blocked() || !eligible.length)}>Book tour →</button></form></div><details class="archive-section"><summary>Completed & ended tours · ${state.tours.filter((t) => t.status !== "active").length}</summary>${state.tours.some((t) => t.status !== "active") ? tourCards("complete") : '<div class="empty">Book a popular artist’s first tour to watch its costs, ticket revenue, quality, itinerary length and net profit evolve day by day.</div>'}</details>`;
+  return `<div class="card"><form id="tourForm" class="form"><label>Popular album<select id="tour-album">${eligible.map((p) => `<option value="${p.id}">${esc(p.title)} · ${esc(p.artistName)}</option>`).join("")}</select></label><label>Tour territory<select id="tour-scale">${G.TOUR_SCALES.map((r) => `<option value="${r.id}">${r.name} · ${r.weeks * 7} days / ${r.weeks} weeks</option>`).join("")}</select></label><label>Tour lineup<select id="tour-mode">${G.TOUR_MODES.map((m) => `<option value="${m.id}">${m.name}</option>`).join("")}</select></label><label id="tour-partner-wrap" hidden>Labelmate<select id="tour-partner"></select></label><label id="tour-rival-wrap" hidden>Rival artist<select id="tour-rival">${state.rivalArtists.map((a) => `<option value="${a.id}">${esc(a.name)} · fame ${Math.round(a.fame)}</option>`).join("")}</select></label><div id="tourQuote" class="plan-quote form-full" aria-live="polite">Choose an eligible album to see tour costs and forecasts.</div><button id="bookTour" class="primary" ${disable(blocked() || !eligible.length)}>Book tour →</button></form></div>`;
+}
+function road() {
+  return `<section id="active-tours"><div class="sectionhead"><h2>Active tours</h2><span class="tag">${state.tours.filter((t) => t.status === "active").length} ON THE ROAD</span></div>${tourCards("active") || '<div class="empty">No active tours. Book your next run below.</div>'}</section><h2>Book a new tour</h2><p class="muted">A recent album qualifies with a Top 10 peak, $10,000 gross revenue, or two earning weeks and 250 weekly units. Each album gets one tour. Touring label artists cannot record or train. Upfront costs make every tour start in the red; ticket demand ramps with completed show days. Daily receipts still settle, but choices cover several days. At most three tour decisions occur per label week across all active tours. Advancing skips quiet days and stops at a review, weekly settlement or required album decision.</p>${tourFormCard()}<details class="archive-section"><summary>Completed & ended tours · ${state.tours.filter((t) => t.status !== "active").length}</summary>${state.tours.some((t) => t.status !== "active") ? tourCards("complete") : '<div class="empty">Book a popular artist’s first tour to watch its costs, ticket revenue, quality, itinerary length and net profit evolve day by day.</div>'}</details>`;
 }
 function readTourPlan() {
   return {
@@ -338,7 +361,7 @@ function readTourPlan() {
   };
 }
 function updateTourQuote(refreshPartners = false) {
-  if (tab !== "road" || !panelOpen) return;
+  if (!panelOpen || !sheetForms.tour) return;
   const plan = readTourPlan(),
     p = state.albums.find((p) => p.id === Number(plan.albumId));
   $("tour-partner-wrap").hidden = plan.mode !== "labelmate";
@@ -426,17 +449,17 @@ function scouting() {
       .join("") || '<div class="empty">No prospects left. Choose a scouting budget above.</div>'
   }</div>`;
 }
+/** One team role: the employee if hired, a recruitment drive and the candidate pool. */
+function staffRole(r) {
+  const x = G.ROLES[r];
+
+  const key = roleKey(r),
+    employee = state.employees[r],
+    severance = employee ? employee.wage * 2 : 0;
+  return `<section class="team-role"><div class="sectionhead"><div><h2>${r}</h2><p class="muted">${x.description}</p></div>${employee ? `<div class="employee-badge"><b>${esc(employee.name)}</b><small>Skill ${employee.skill} · stage bonus +${G.staffBonus(state, r)} · ${money(employee.wage)}/week</small><button data-action="fire" data-role="${r}" ${disable(blocked())}>End employment · ${money(severance)}</button></div>` : '<span class="tag">OPEN POSITION</span>'}</div><div class="drive-controls"><label>Recruitment budget<select id="drive-${key}">${G.RECRUIT_BUDGETS.map((b, i) => `<option value="${i}">${b.name} · ${money(b.cost)} · skill ${b.min}–${b.max}</option>`).join("")}</select></label><button data-action="drive" data-role="${r}" ${disable(blocked() || state.cash < G.RECRUIT_BUDGETS[0].cost)}>Run recruitment drive</button></div><div class="grid">${state.staffCandidates[r].map((c) => `<article class="card"><span class="tag">SKILL ${c.skill} /100 · EXPERTISE +${Math.round(6 + c.skill / 10)}</span><h3>${esc(c.name)}</h3><p>${money(c.wage)}/week · hiring fee ${money(c.cost)}${employee ? "<br>Replacement severance " + money(severance) : ""}</p><button data-action="hire" data-role="${r}" data-id="${c.id}" ${disable(blocked() || state.cash < c.cost + severance)}>${employee ? "Replace with" : "Hire"} ${esc(c.name)} · ${money(c.cost + severance)}</button></article>`).join("") || '<div class="empty">Run a new recruitment drive to see more candidates.</div>'}</div></section>`;
+}
 function staff() {
-  return `<h2>The people behind the records</h2><p class="muted">Each role has a pool of named candidates. Skill affects production expertise and that role’s business benefit. Recruitment refreshes only the chosen role. Fees and weekly salaries are separate; replacing or dismissing an employee costs two weeks’ severance.</p>${Object.entries(
-    G.ROLES,
-  )
-    .map(([r, x]) => {
-      const key = roleKey(r),
-        employee = state.employees[r],
-        severance = employee ? employee.wage * 2 : 0;
-      return `<section class="team-role"><div class="sectionhead"><div><h2>${r}</h2><p class="muted">${x.description}</p></div>${employee ? `<div class="employee-badge"><b>${esc(employee.name)}</b><small>Skill ${employee.skill} · stage bonus +${G.staffBonus(state, r)} · ${money(employee.wage)}/week</small><button data-action="fire" data-role="${r}" ${disable(blocked())}>End employment · ${money(severance)}</button></div>` : '<span class="tag">OPEN POSITION</span>'}</div><div class="drive-controls"><label>Recruitment budget<select id="drive-${key}">${G.RECRUIT_BUDGETS.map((b, i) => `<option value="${i}">${b.name} · ${money(b.cost)} · skill ${b.min}–${b.max}</option>`).join("")}</select></label><button data-action="drive" data-role="${r}" ${disable(blocked() || state.cash < G.RECRUIT_BUDGETS[0].cost)}>Run recruitment drive</button></div><div class="grid">${state.staffCandidates[r].map((c) => `<article class="card"><span class="tag">SKILL ${c.skill} /100 · EXPERTISE +${Math.round(6 + c.skill / 10)}</span><h3>${esc(c.name)}</h3><p>${money(c.wage)}/week · hiring fee ${money(c.cost)}${employee ? "<br>Replacement severance " + money(severance) : ""}</p><button data-action="hire" data-role="${r}" data-id="${c.id}" ${disable(blocked() || state.cash < c.cost + severance)}>${employee ? "Replace with" : "Hire"} ${esc(c.name)} · ${money(c.cost + severance)}</button></article>`).join("") || '<div class="empty">Run a new recruitment drive to see more candidates.</div>'}</div></section>`;
-    })
-    .join("")}`;
+  return `<p class="muted">Each role has a pool of named candidates. Skill affects production expertise and that role’s business benefit. Recruitment refreshes only the chosen role. Fees and weekly salaries are separate; replacing or dismissing an employee costs two weeks’ severance.</p>${Object.keys(G.ROLES).map(staffRole).join("")}`;
 }
 let chartPage = 0,
   chartFilter = "all",
@@ -523,8 +546,12 @@ function milestoneBanner() {
 }
 
 function catalog() {
-  return `<h2>Your discography</h2><p class="muted">Albums earn for 12 weeks, extendable to 18 through campaign decisions. Revenue shown is after royalties and distribution. Expand a record for costs, expectations and ratings. Current campaigns appear first; finished runs are below.</p><div class="catalog-list">${
-    [...state.albums]
+  return `<h2>Your discography</h2><p class="muted">Albums earn for 12 weeks, extendable to 18 through campaign decisions. Revenue shown is after royalties and distribution. Expand a record for costs, expectations and ratings. Current campaigns appear first; finished runs are below.</p>${catalogList(state.albums)}`;
+}
+/** Album cards, current campaigns first. */
+function catalogList(albums) {
+  return `<div class="catalog-list">${
+    [...albums]
       .sort(
         (a, b) =>
           Number(a.released && a.age >= a.salesWeeks) - Number(b.released && b.age >= b.salesWeeks) ||
@@ -544,7 +571,7 @@ function catalog() {
           }</article>${p.released ? "</details>" : ""}`,
       )
       .join("") ||
-    '<div class="empty">A label is a collection of choices. Your first record starts in The studio.</div>'
+    '<div class="empty">A label is a collection of choices. Tap an artist on the lot to start the first record.</div>'
   }</div>`;
 }
 /** Compact list of what the label is working on, shown in the side ticker. */
@@ -561,7 +588,7 @@ function activityHub() {
     })
     .join(
       "",
-    )}${tours.map((t) => `<button class="activity-card" data-action="openRoad"><span class="tag">TOUR · DAY ${t.day}/${t.plannedDays}</span><b>${esc(t.artistName)} / ${esc(t.title)}</b><small>Quality ${Math.round(t.quality)}/100 · net ${money(t.net)} · Open tour →</small><div class="progress"><span style="width:${Math.min(100, (t.day / t.plannedDays) * 100)}%"></span></div></button>`).join("")}${!projects.length && !tours.length && !state.event ? '<div class="empty">No active projects. Start an album in The studio or book a tour in The road.</div>' : ""}</div>`;
+    )}${tours.map((t) => `<button class="activity-card" data-tab="bus"><span class="tag">TOUR · DAY ${t.day}/${t.plannedDays}</span><b>${esc(t.artistName)} / ${esc(t.title)}</b><small>Quality ${Math.round(t.quality)}/100 · net ${money(t.net)} · Open tour →</small><div class="progress"><span style="width:${Math.min(100, (t.day / t.plannedDays) * 100)}%"></span></div></button>`).join("")}${!projects.length && !tours.length && !state.event ? '<div class="empty">No active projects. Tap an artist on the lot to start an album or book a tour.</div>' : ""}</div>`;
 }
 /** The latest label news lines for the side ticker. */
 function newsFeed() {
@@ -570,24 +597,9 @@ function newsFeed() {
     .map((n) => `<div class="line">${esc(n)}</div>`)
     .join("")}`;
 }
-const BUILT_IN_SCREENS = [
-  { id: "studio", label: "The studio", order: 10, render: () => studio() },
-  { id: "scout", label: "Scout artists", order: 20, render: () => scouting() },
-  { id: "staff", label: "Your team", order: 30, render: () => staff() },
-  { id: "catalog", label: "The catalog", order: 40, render: () => catalog() },
-  { id: "charts", label: "The charts", order: 50, render: () => charts() },
-  { id: "road", label: "The road", order: 60, render: () => road() },
-  { id: "awards", label: "Annual awards", order: 70, render: () => annualAwards() },
-  { id: "finance", label: "Finances", order: 80, render: () => finance() },
-  { id: "journal", label: "Industry wire", order: 90, render: () => journal() },
-];
-/** Built-in screens plus screens registered by feature scripts, in menu order. */
-function menuScreens() {
-  const ids = new Set(GoatUI.panels.map((p) => p.id));
-  return [...BUILT_IN_SCREENS.filter((x) => !ids.has(x.id)), ...GoatUI.panels].sort(
-    (a, b) => (a.order ?? 50) - (b.order ?? 50),
-  );
-}
+/** Which forms the open sheet holds, so their live quotes refresh. */
+let sheetForms = { album: false, tour: false },
+  sheetSection = "";
 /** Steps time once: to the next tour activity while a tour is on the road, else one week. */
 function advanceOnce() {
   act(() =>
@@ -595,12 +607,15 @@ function advanceOnce() {
   );
 }
 function openPanel(id) {
-  tab = id;
+  const place = GoatPlaces.resolve(id);
+  tab = place.id;
+  sheetSection = place.section;
   panelOpen = true;
   hqView.selected = null;
   hqView.moving = null;
   render();
   $("content").scrollTop = 0;
+  if (sheetSection) document.getElementById(sheetSection)?.scrollIntoView?.({ block: "start" });
 }
 function closePanel() {
   panelOpen = false;
@@ -646,21 +661,15 @@ function render() {
       ? `<div class="event"><span class="tag">INDUSTRY MOMENT · TIME IS PAUSED</span><h2>${esc(s.event.title)}</h2><p>${esc(s.event.body)}</p><div class="options">${s.event.options.map((o, i) => `<button data-action="choose" data-id="${i}" ${disable(!G.eventOptionAvailable(s, o))}>${esc(o.label)}<small>${esc(o.hint)}${o.extension && s.albums.find((p) => p.id === s.event.album)?.salesWeeks >= 18 ? " Extension cap reached." : ""}${s.staff.includes("Public Relations") && o.trust < 0 ? " PR staff reduces the immediate trust loss." : ""}</small></button>`).join("")}</div></div>`
       : "",
   );
-  const screens = menuScreens();
-  if (!screens.some((x) => x.id === tab)) tab = "studio";
-  const screen = screens.find((x) => x.id === tab);
-  paintHTML(
-    "menu",
-    screens
-      .map(
-        (x) =>
-          `<button data-tab="${x.id}" class="menu-btn ${panelOpen && x.id === tab ? "active" : ""}">${menuIcon(x.id)}<span>${esc(x.label)}</span></button>`,
-      )
-      .join(""),
-  );
+  // The open sheet belongs to a person or place; it closes if they leave (a released artist).
+  const sheet = panelOpen && GoatPlaces.sheet(tab);
+  if (!sheet) panelOpen = false;
+  const html = sheet ? sheet.render() : "";
+  sheetForms = { album: html.includes('id="albumForm"'), tour: html.includes('id="tourForm"') };
   $("drawer").hidden = !panelOpen;
-  $("drawerTitle").textContent = panelOpen ? screen.label : "";
-  $("content").innerHTML = panelOpen ? screen.render() : "";
+  $("drawerTitle").textContent = sheet ? sheet.title() : "";
+  $("content").innerHTML = html;
+  paintHTML("roster", GoatPlaces.roster());
   paintHTML("hud", GoatUI.html("hud"));
   const banners = GoatUI.banners.map((b) => b.render() || "").filter(Boolean),
     // A banner with a button (an action or a screen to open) is shown as a card over the lot.
@@ -695,7 +704,7 @@ function render() {
   animateTourMoney();
   GoatClock.update(
     [
-      panelOpen && "menu open",
+      panelOpen && "panel open",
       (hqView.selected || hqView.moving) && "building",
       inputBanners.length && "label news",
       ...GoatUI.pauses.map((p) => p.reason?.() || ""),
@@ -705,11 +714,6 @@ function render() {
 document.addEventListener("click", (e) => {
   const b = e.target.closest("button");
   if (!b) return;
-  if (b.dataset.action === "openRoad") {
-    openPanel("road");
-    $("active-tours").scrollIntoView?.({ behavior: "smooth", block: "start" });
-    return;
-  }
   if (b.dataset.action === "chartPage") {
     chartPage = Number(b.dataset.id);
     render();
@@ -917,7 +921,7 @@ $("sound").onclick = () => {
 };
 /** Returns the screen to the lot with the clock paused, for a fresh label or run. */
 function resetView() {
-  tab = "studio";
+  tab = "desk";
   panelOpen = false;
   modalHidden = false;
   hqView.selected = null;
