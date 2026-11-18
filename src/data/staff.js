@@ -199,6 +199,12 @@
     perQuarter: 2,
     perContact: 1,
   };
+  // How a grab ends when it comes to a head. With a board, it succeeds when the executive has courted
+  // more than `majority` of the seats and out-influences you. They take the chair (the run ends) when their
+  // influence beats yours by chairMargin or more and they courted every seat; otherwise they become co-CEO,
+  // which costs you one step of creative freedom from then on. A failed grab sends them to a rival, and
+  // they try to take an artist: the least loyal one goes with them if that loyalty is below poachLoyalty.
+  const GRAB_END = { majority: 0.5, chairMargin: 25, poachLoyalty: 50 };
   // Your own influence: base, plus perPhase for each phase, plus perPerk for each board perk; at most 100.
   const CEO_INFLUENCE = { base: 20, perPhase: 5, perPerk: 10 };
   // Your answers to an ambitious executive.
@@ -266,6 +272,7 @@
     WANT_MORALE,
     WALKOUT,
     GRAB,
+    GRAB_END,
     CEO_INFLUENCE,
     RESPONSES,
     CHEMISTRY,

@@ -9,7 +9,7 @@
     const { DEPARTMENTS, ROLE_DEPARTMENT, EXEC_POOL, EXEC_PAY, DEPT_STAFF, EXEC_FIRST, EXEC_LAST, PHASES } =
       D;
     const { TEAM_ROLES, TEAM_EFFECTS, TEAM_POOL, TEAM_STYLES, CHEMISTRY, GENRES } = D;
-    const { TRAITS, WANTS, WANT_MORALE, WALKOUT, GRAB, CEO_INFLUENCE, RESPONSES } = D;
+    const { TRAITS, WANTS, WANT_MORALE, WALKOUT, GRAB, GRAB_END, CEO_INFLUENCE, RESPONSES } = D;
     const WANT_IDS = Object.keys(WANTS);
     const teamRoleById = Object.fromEntries(TEAM_ROLES.map((r) => [r.id, r]));
     const { log, pay, requireAction, roll, busy, clamp } = core;
@@ -556,6 +556,65 @@
       }
       return x;
     }
+    /** How a grab that has come to a head ends: "chair", "coCeo" or "failed". */
+    function grabResult(s, x) {
+      const seats = s.company.board?.directors.length || 0,
+        backed = seats > 0 && x.contacts.length > seats * GRAB_END.majority,
+        stronger = x.influence > ceoInfluence(s);
+      if (!backed || !stronger) return "failed";
+      return x.contacts.length >= seats && x.influence >= ceoInfluence(s) + GRAB_END.chairMargin
+        ? "chair"
+        : "coCeo";
+    }
+    /** Ends a grab that has come to a head, records the outcome card and returns it. */
+    function resolveGrab(s, id) {
+      const x = headOf(s, id),
+        result = grabResult(s, x),
+        outcome = {
+          kind: result,
+          exec: x.name,
+          dept: id,
+          week: s.week,
+          artist: null,
+          artistLeft: false,
+          seen: false,
+        };
+      s.company.departments[id].head = null;
+      if (result === "chair") {
+        s.finished = true;
+        s.bankrupt = false;
+        s.ousted = true;
+        s.outcome = `Ousted. ${x.name} won the board over and took the CEO's chair at ${core.api().labelName(s)}.`;
+        log(s, s.outcome);
+      } else if (result === "coCeo") {
+        s.company.coCeo = { name: x.name, since: s.week };
+        const b = s.company.board;
+        if (b) b.freedom = core.api().freedomFor(b.confidence ?? 50, b.probation, true);
+        log(s, `${x.name} is now co-CEO. Creative decisions are shared from here on.`);
+      } else {
+        const target = s.artists
+          .filter((a) => !busy(s, a.id))
+          .reduce((low, a) => (!low || persona(s, a).loyalty < persona(s, low).loyalty ? a : low), null);
+        if (target) {
+          outcome.artist = target.name;
+          outcome.artistLeft = persona(s, target).loyalty < GRAB_END.poachLoyalty;
+          if (outcome.artistLeft) s.artists = s.artists.filter((a) => a !== target);
+        }
+        log(
+          s,
+          `${x.name}'s grab failed. They left for a rival${target ? (outcome.artistLeft ? ` and took ${target.name} with them` : `; ${target.name} stayed loyal`) : ""}.`,
+        );
+      }
+      s.company.grabOutcome = outcome;
+      return outcome;
+    }
+    function grabWeek(s) {
+      for (const { dept: id, x } of heads(s))
+        if (x.plot && s.week >= x.plot.due && !s.finished) resolveGrab(s, id);
+    }
+    function ackGrab(s) {
+      if (s.company?.grabOutcome) s.company.grabOutcome.seen = true;
+    }
     function teamPay(s) {
       return (s.company?.team?.pool || []).reduce((n, m) => n + m.salary, 0);
     }
@@ -620,6 +679,11 @@
       );
     }
     function validSave(s) {
+      const c = s.company,
+        outcome = c?.grabOutcome;
+      if (c?.coCeo !== undefined && (!c.coCeo || typeof c.coCeo.name !== "string")) return false;
+      if (outcome !== undefined && !(outcome && ["chair", "coCeo", "failed"].includes(outcome.kind)))
+        return false;
       return validDepartments(s) && validTeam(s) && (s.artists || []).every((a) => validPersona(a.persona));
     }
     function validPersona(x) {
@@ -653,6 +717,7 @@
         pruneTeam(s);
         moodWeek(s);
         if (s.company?.departments && s.week % GRAB.quarter === 0) grabQuarter(s);
+        if (s.company?.departments) grabWeek(s);
         return 0;
       },
       beforeRenew: checkRenew,
@@ -699,6 +764,10 @@
         grabChance,
         grabQuarter,
         respond,
+        GRAB_END,
+        grabResult,
+        resolveGrab,
+        ackGrab,
         artistTeam,
         teamPay,
         departmentOpen,

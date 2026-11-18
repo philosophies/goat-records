@@ -148,6 +148,26 @@ assert.equal(saved().company.departments.ar.head, null);
 click({ tab: "dept:nothing" });
 assert.equal(element("drawer").hidden, true);
 
+// An ambitious head: the response buttons, then a failed grab's outcome card.
+run(`state.event = null; G.hireHead(state, "ar", G.recruitExecs(state, "ar")[0].id);
+  Object.assign(state.company.departments.ar.head, { ambition: 90, loyalty: 10, plot: { since: state.week, due: state.week + 1 } });
+  save(); render();`);
+click({ tab: "dept:ar" });
+page = html("content");
+assert.match(page, /Rumoured to be plotting/);
+assert.match(page, /data-action="execRespond" data-dept="ar" data-kind="promote"/);
+assert.match(page, /data-kind="placate"/);
+click({ action: "execRespond", dept: "ar", kind: "promote" });
+s = saved();
+assert.equal(s.company.departments.ar.head.title, "Senior Head of A&R");
+assert.match(html("content"), /SENIOR HEAD OF A&amp;R[\s\S]*Calm until week/);
+run(
+  `state.company.departments.ar.head.plot = { since: state.week, due: state.week }; G.resolveGrab(state, "ar"); save(); render();`,
+);
+assert.match(html("milestones"), /POWER GRAB[\s\S]*The grab failed[\s\S]*data-action="grabAck"/);
+click({ action: "grabAck" });
+assert.doesNotMatch(html("milestones"), /POWER GRAB/);
+
 console.log(
-  "PASS staff interface harness: team section with slots, chooser with chemistry before hiring or assigning, removal, mood card and bonus, departments at the desk and in their panels, classic runs untouched",
+  "PASS staff interface harness: grab responses and the outcome card, team section with slots, chooser with chemistry before hiring or assigning, removal, mood card and bonus, departments at the desk and in their panels, classic runs untouched",
 );
