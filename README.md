@@ -27,6 +27,8 @@ Progress autosaves in the browser. Use **Export save** for a backup and **Import
 
 For a local server instead of opening the file directly: `python -m http.server 8765 --bind 127.0.0.1`, then visit http://127.0.0.1:8765/. File and localhost saves are stored separately.
 
+On localhost or an HTTPS host, you can install the game from Chrome or Edge and play offline after the first load. See [Android and offline play](docs/android.md).
+
 ## Project layout
 
 | Path | Contents |

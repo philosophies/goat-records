@@ -372,7 +372,7 @@ Files: `src/engine.js`, `src/app.js`, all affected tests, `README.md`, `docs/rul
 Do: new runs default to CEO mode (classic stays available from the New label dialog). Update tests that assumed 1.1 defaults. Rewrite README and rules for 2.0.
 Done when: all checks pass and a full browser play-test (desktop and phone) is noted in `VALIDATION.md` under "Unreleased". Do not add a version heading; the owner releases 2.0.
 
-### [ ] T38 · Installable now, Play Store ready later
+### [x] T38 · Installable now, Play Store ready later
 
 Depends on: T07
 Files: `manifest.webmanifest` (new), `sw.js` (new), `icons/` (new), `index.html`, `src/app.js`, `docs/android.md` (new)

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Installable build
+
+Chrome's DevTools protocol reported zero installability and manifest errors on localhost. After the service worker took control, the game reloaded with the network disabled and advanced to week 2. Browser Back closed the Inbox, then the phone. The extracted release ZIP also opened through `file://` and advanced a week. The automated suite checks the manifest, icon dimensions, offline resource list, and nested panel history. The build has been tested in desktop Chrome. Android device and store bundle checks are part of the later wrapper build.
+
 ### CEO browser playtest
 
 In Chromium at 1280 px and 420 px, started new CEO labels, took a bank loan in the boardroom, signed a one-album deal at the front desk, recorded in the home studio, and completed all five stages through release and review. At 420 px, advanced through the first sales settlement and reloaded the save with the released album and its Top 300 milestone intact. No browser console errors were logged.

@@ -629,7 +629,10 @@ function advanceOnce() {
     state.tours.some((t) => t.status === "active") ? G.advanceTourToNextActivity(state) : G.advance(state),
   );
 }
-function openPanel(id) {
+const panelHistory = typeof window !== "undefined" && typeof window.history?.pushState === "function"
+  ? window.history : null;
+
+function showPanel(id) {
   const place = GoatPlaces.resolve(id);
   tab = place.id;
   sheetSection = place.section;
@@ -640,9 +643,29 @@ function openPanel(id) {
   $("content").scrollTop = 0;
   if (sheetSection) document.getElementById(sheetSection)?.scrollIntoView?.({ block: "start" });
 }
+function openPanel(id) {
+  if (panelHistory && GoatPlaces.sheet(GoatPlaces.resolve(id).id)) {
+    const entry = panelHistory.state?.goatPanel;
+    if (entry?.id !== id)
+      panelHistory.pushState({ ...panelHistory.state, goatPanel: { id, depth: (entry?.depth || 0) + 1 } }, "");
+  }
+  showPanel(id);
+}
+function clearPanelHistory() {
+  const depth = panelHistory?.state?.goatPanel?.depth;
+  if (depth) panelHistory.go(-depth);
+}
 function closePanel() {
   panelOpen = false;
+  clearPanelHistory();
   render();
+}
+function restorePanel(entry) {
+  if (entry?.id) showPanel(entry.id);
+  else {
+    panelOpen = false;
+    render();
+  }
 }
 function render() {
   const s = state;
@@ -690,7 +713,10 @@ function render() {
   );
   // The open sheet belongs to a person or place; it closes if they leave (a released artist).
   const sheet = panelOpen && GoatPlaces.sheet(tab);
-  if (!sheet) panelOpen = false;
+  if (panelOpen && !sheet) {
+    panelOpen = false;
+    clearPanelHistory();
+  }
   const html = sheet ? sheet.render() : "";
   sheetForms = { album: html.includes('id="albumForm"'), tour: html.includes('id="tourForm"') };
   $("drawer").hidden = !panelOpen;
@@ -875,6 +901,7 @@ document.addEventListener("submit", (e) => {
   act(() => {
     G.record(state, readAlbumPlan());
     panelOpen = false;
+    clearPanelHistory();
   });
 });
 document.addEventListener("change", (e) => {
@@ -953,6 +980,7 @@ $("sound").onclick = () => {
 function resetView() {
   tab = "desk";
   panelOpen = false;
+  clearPanelHistory();
   modalHidden = false;
   hqView.selected = null;
   hqView.moving = null;
@@ -1177,12 +1205,19 @@ function measureShell() {
   document.documentElement.style.setProperty("--hud-h", bar.offsetHeight + "px");
   if (menu?.offsetHeight) document.documentElement.style.setProperty("--menu-h", menu.offsetHeight + "px");
 }
-if (typeof window !== "undefined") window.addEventListener("resize", measureShell);
+if (typeof window !== "undefined") {
+  window.addEventListener("resize", measureShell);
+  window.addEventListener("popstate", (event) => restorePanel(event.state?.goatPanel));
+}
 refreshClassicBackupButton();
 GoatClock.init(state.week === 1 && !state.artists.length && !state.albums.length);
 if (startupSave && !state.company && !state.classicMode && typeof $("loadSaveDialog").showModal === "function")
   offerLoadedSave(state, startupSave, false);
 else {
   save();
-  render();
+  restorePanel(panelHistory?.state?.goatPanel);
+}
+if (typeof location !== "undefined" && /^https?:$/.test(location.protocol) &&
+    typeof navigator !== "undefined" && navigator.serviceWorker) {
+  navigator.serviceWorker.register("sw.js").catch((error) => console.warn("Offline setup unavailable:", error.message));
 }

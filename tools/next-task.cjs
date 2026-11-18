@@ -61,9 +61,11 @@ console.log(
     .trim(),
 );
 console.log(`\n## Task (${done.size}/${all.length} done)\n`);
-if (!chosen)
-  console.log(arg ? `No task ${arg} in the backlog.` : "Every task is done or blocked. Ask the owner.");
-else {
+if (!chosen) {
+  if (arg) console.log(`No task ${arg} in the backlog.`);
+  else if (all.length && done.size === all.length) console.log("All backlog tasks are complete.");
+  else console.log("No open task has all of its dependencies complete.");
+} else {
   const open = chosen.deps.filter((d) => !done.has(d));
   if (open.length) console.log(`Warning: depends on ${open.join(", ")}, not done yet.\n`);
   console.log(chosen.text);

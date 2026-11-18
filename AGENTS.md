@@ -1,6 +1,6 @@
 # Project workflow
 
-Goat Records is a record label management game in plain browser JavaScript: no build step, no dependencies. It runs by opening `index.html`. Version 1.1 is released; version 2.0 (the CEO update) is being built task by task.
+Goat Records is a record label management game in plain browser JavaScript. Open `index.html` directly, or serve it over HTTP or HTTPS to install the web app. Version 1.1 is released. The CEO update is available for review.
 
 ## Rules
 
