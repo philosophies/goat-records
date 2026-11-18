@@ -96,9 +96,136 @@ function phoneInbox() {
       : '<div class="empty">Nothing needs you right now.</div>'
   }</div>`;
 }
-/** Apps the next update fills in say so, with the place that already holds the information. */
-function phoneLater(name, where) {
-  return `<div class="phone"><button class="phone-back" data-tab="phone">‹ Home</button><div class="empty">${esc(name)} arrives in a later build. For now, ${where}</div></div>`;
+function phoneScreen(body) {
+  return `<div class="phone"><button class="phone-back" data-tab="phone">‹ Home</button>${body}</div>`;
+}
+function weekLabel(week) {
+  return `Y${1 + Math.floor((week - 1) / 52)} W${1 + ((week - 1) % 52)}`;
+}
+
+/** Dated and ongoing things, soonest first: [{ week | null, kind, text, tab }]. */
+function calendarItems() {
+  const out = [],
+    nextYear = state.week + ((53 - (state.week % 52)) % 52 || 52);
+  out.push({
+    week: nextYear,
+    kind: "Awards",
+    text: "Annual awards and the year's goal are settled.",
+    tab: "awards",
+  });
+  if (state.board?.nextReview)
+    out.push({ week: state.board.nextReview, kind: "Board", text: "Board review.", tab: "board" });
+  for (const p of state.albums.filter((x) => !x.released))
+    out.push({
+      week: null,
+      kind: "Recording",
+      text: `${p.title} · ${p.artistName}${p.production ? ` · ${p.production.stage}/5 decisions` : ""}`,
+      tab: "artist:" + p.artist,
+    });
+  for (const t of state.tours.filter((x) => x.status === "active"))
+    out.push({
+      week: null,
+      kind: "On tour",
+      text: `${t.artistName} · day ${t.day || 0} of ${t.plannedDays || t.duration || "?"}`,
+      tab: "bus",
+    });
+  for (const ad of state.promotion?.ads || [])
+    if (ad.until >= state.week) {
+      const p = state.albums.find((x) => x.id === ad.albumId);
+      out.push({ week: ad.until, kind: "Ad ends", text: p ? p.title : "Ad campaign", tab: "promotion" });
+    }
+  for (const a of state.artists)
+    if (a.contract.remaining <= 1)
+      out.push({
+        week: null,
+        kind: "Contract",
+        text: `${a.name} · ${a.contract.remaining ? "last album on contract" : "contract complete"}`,
+        tab: "artist:" + a.id,
+      });
+  return out.sort((x, y) => (x.week ?? 0) - (y.week ?? 0));
+}
+function phoneCalendar() {
+  const items = calendarItems();
+  return phoneScreen(
+    `<ul class="inbox">${items
+      .map(
+        (x) =>
+          `<li class="inbox-item"><span class="tag">${esc(x.kind.toUpperCase())}${x.week ? " · " + weekLabel(x.week) : " · NOW"}</span><button class="link" data-tab="${esc(x.tab)}">${esc(x.text)}</button></li>`,
+      )
+      .join("")}</ul>`,
+  );
+}
+
+let contactQuery = "";
+function phoneContacts() {
+  const q = contactQuery.trim().toLowerCase(),
+    people = [
+      ...state.artists.map((a) => ({
+        tab: "artist:" + a.id,
+        name: a.name,
+        role: `${a.genre} artist`,
+        map: G.ARTIST_SPRITE,
+        color: G.GENRE_COLORS[a.genre] || "#ccc",
+      })),
+      ...state.staff.map((r) => ({
+        tab: "staffer:" + r,
+        name: state.employees[r]?.name || r,
+        role: r,
+        map: STAFF_SPRITE,
+        color: ROLE_COLORS[r] || "#7b7f8c",
+      })),
+    ].filter((p) => !q || (p.name + " " + p.role).toLowerCase().includes(q));
+  return phoneScreen(
+    `<label class="contact-search">Search<input id="contactSearch" data-contact-search value="${esc(contactQuery)}" placeholder="Name or role"></label><ul class="inbox">${
+      people
+        .map(
+          (p) =>
+            `<li><button class="roster-chip" data-tab="${p.tab}">${pixelSvg(p.map, p.color, 16)}<span><b>${esc(p.name)}</b><small>${esc(p.role)}</small></span></button></li>`,
+        )
+        .join("") || '<li class="empty">Nobody matches.</li>'
+    }</ul>`,
+  );
+}
+
+function phoneWallet() {
+  const last = state.financeHistory?.at(-1),
+    rows = [
+      ["Cash", money(state.cash)],
+      ["Weekly costs", money(G.upkeep(state)) + "/week"],
+      ["Last week", last ? (last.cashChange >= 0 ? "+" : "") + money(last.cashChange) : "—"],
+      ["Revenue, last 52 weeks", money(G.yearRevenue(state))],
+      [
+        "Budget left this period",
+        state.board?.budgetLeft !== undefined ? money(state.board.budgetLeft) : "— (no board)",
+      ],
+      ["Debt", state.cash < 0 ? money(-state.cash) : "None"],
+      [
+        "Share price",
+        state.company?.shares?.price ? money(state.company.shares.price) : "— (private company)",
+      ],
+    ];
+  return phoneScreen(
+    `<dl class="wallet">${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`).join("")}</dl><button data-tab="finance">Full finances in the office</button>`,
+  );
+}
+
+function phoneSettings() {
+  const speeds = [
+    [0, "Pause"],
+    [1, "1×"],
+    [2, "2×"],
+    [4, "4×"],
+  ];
+  return phoneScreen(
+    `<h3>Speed</h3><div class="actions">${speeds
+      .map(
+        ([n, label]) =>
+          `<button data-action="phoneSpeed" data-speed="${n}" ${GoatClock.speed === n ? 'class="primary"' : ""}>${label}</button>`,
+      )
+      .join(
+        "",
+      )}</div><h3>Sound</h3><button data-action="phoneSound">${typeof sound !== "undefined" && sound ? "Sound on" : "Sound off"}</button><h3>Saves</h3><p class="muted">Progress saves itself in this browser. Keep a backup file too.</p><div class="actions"><button data-action="phoneExport">Export save</button></div>`,
+  );
 }
 
 /** Sheets for phone ids: phone, phone:<app>. */
@@ -109,10 +236,10 @@ function phoneSheet(id) {
   if (!app) return null;
   const body = {
     inbox: phoneInbox,
-    calendar: () => phoneLater("The calendar", "upcoming dates are in the side panel and on each artist."),
-    contacts: () => phoneLater("Contacts", "everyone is in the roster in the side panel."),
-    wallet: () => phoneLater("The wallet", 'money is in the <button data-tab="finance">office</button>.'),
-    settings: () => phoneLater("Settings", "speed is in the top bar and saves are in the footer."),
+    calendar: phoneCalendar,
+    contacts: phoneContacts,
+    wallet: phoneWallet,
+    settings: phoneSettings,
   }[app.id];
   return { title: () => app.name, render: body };
 }
@@ -129,6 +256,22 @@ function paintPhoneButton() {
   b.setAttribute?.("aria-label", n ? `Phone, ${n} waiting` : "Phone");
 }
 
+GoatUI.click.push((b) => {
+  const d = b.dataset;
+  if (d.action === "phoneSpeed") GoatClock.setSpeed(Number(d.speed));
+  else if (d.action === "phoneSound") $("sound").onclick();
+  else if (d.action === "phoneExport") $("export").onclick();
+  else return false;
+  render();
+  return true;
+});
+GoatUI.change.push((e) => {
+  if (!e.target?.dataset || !("contactSearch" in e.target.dataset)) return false;
+  contactQuery = e.target.value;
+  render();
+  return true;
+});
+
 if (typeof document !== "undefined" && document.addEventListener)
   document.addEventListener("keydown", (e) => {
     if (e.key !== "p" && e.key !== "P") return;
@@ -139,4 +282,10 @@ if (typeof document !== "undefined" && document.addEventListener)
     else openPanel("phone");
   });
 
-const GoatPhone = { sheet: phoneSheet, paint: paintPhoneButton, inbox: inboxItems, badge: phoneBadge };
+const GoatPhone = {
+  sheet: phoneSheet,
+  paint: paintPhoneButton,
+  inbox: inboxItems,
+  badge: phoneBadge,
+  calendar: calendarItems,
+};

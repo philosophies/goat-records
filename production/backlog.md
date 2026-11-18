@@ -130,7 +130,7 @@ Do:
 - Keyboard: `P` opens the phone, `Esc` closes it.
   Done when: the badge count matches pending items in tests; Inbox opens an event card.
 
-### [ ] T11 · Calendar, Contacts and Wallet apps
+### [x] T11 · Calendar, Contacts and Wallet apps
 
 Depends on: T10
 Files: `src/ui/phone.js`, `tests/phone-ui-test.cjs`

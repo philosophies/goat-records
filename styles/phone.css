@@ -93,3 +93,26 @@
     bottom: 12px;
   }
 }
+.wallet {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 16px;
+  margin: 8px 0 14px;
+}
+.wallet dt {
+  color: var(--muted);
+}
+.wallet dd {
+  margin: 0;
+  font-weight: 700;
+  text-align: right;
+}
+.contact-search {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.inbox-item .link {
+  justify-self: start;
+  text-align: left;
+}
