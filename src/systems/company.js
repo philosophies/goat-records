@@ -6,7 +6,7 @@
 
   /** @param {object} core engine helpers  @param {object} D data tables */
   function create(core, D) {
-    const { PHASES, REACHES, PHASE_GOALS, HIT_QUALITY } = D;
+    const { PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING } = D;
     const { log } = core;
     const isCount = (n) => Number.isInteger(n) && n >= 0;
 
@@ -14,6 +14,16 @@
       if (!s.ceoMode || s.company) return s;
       s.company = { phase: 1, since: s.week, history: [{ phase: 1, week: s.week }] };
       s.cash = PHASES[0].startCash;
+      // The first prospects were drawn before the company existed: hold them to the local scene too.
+      const lim = scoutLimits(s);
+      for (const a of s.candidates || []) {
+        a.talent = Math.min(a.talent, lim.talentMax);
+        a.potential = Math.max(a.talent, Math.min(a.potential, lim.potentialMax));
+        a.reach = lim.reach;
+        const q = core.api().contractQuote(s, a, 3);
+        a.fee = q.fee;
+        a.wage = q.wage;
+      }
       return s;
     }
     function validSave(s) {
@@ -57,6 +67,18 @@
         });
       return { next, goals, met: goals.every((g) => g.met) };
     }
+    /** Scouting limits for the label's reach in a CEO run, or null for a classic run. */
+    function scoutLimits(s) {
+      const phase = companyPhase(s);
+      return phase ? { reach: phase.reach, ...REACH_SCOUTING[phase.reach] } : null;
+    }
+    /** Why a paid scouting budget is locked, or "" when it can be used. */
+    function scoutLocked(s, index) {
+      const lim = scoutLimits(s);
+      if (!lim || index <= lim.budget) return "";
+      const opens = PHASES.find((p) => REACH_SCOUTING[p.reach].budget >= index);
+      return `Opens when the label reaches phase ${opens.id}, ${opens.name}, and scouts ${REACH_SCOUTING[opens.reach].name}.`;
+    }
     /** Whether the board lets the label move up. Always true until the board exists (T20). */
     function boardApproved(s) {
       return true;
@@ -73,7 +95,7 @@
         id: s.nextId++,
         kind: "phase",
         title: `Phase ${p.id} · ${p.name}`,
-        body: `The label has outgrown its last phase. Scouting now reaches the ${p.reach === "world" ? "whole world" : p.reach}.`,
+        body: `The label has outgrown its last phase. Scouting now reaches ${REACH_SCOUTING[p.reach].name}.`,
         week: s.week,
       });
       return 0;
@@ -83,7 +105,18 @@
       init,
       validSave,
       weekly,
-      api: { PHASES, REACHES, PHASE_GOALS, companyPhase, phaseProgress, yearRevenue, boardApproved },
+      api: {
+        PHASES,
+        REACHES,
+        PHASE_GOALS,
+        REACH_SCOUTING,
+        companyPhase,
+        phaseProgress,
+        yearRevenue,
+        boardApproved,
+        scoutLimits,
+        scoutLocked,
+      },
     };
   }
 

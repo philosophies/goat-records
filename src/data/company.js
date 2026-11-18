@@ -70,8 +70,19 @@
     hits: "Hit albums (quality 75+)",
   };
   const HIT_QUALITY = 75;
+  // How far scouting looks at each reach, in a CEO run:
+  //   budget        the highest paid scouting budget (index into SCOUT_BUDGETS) allowed
+  //   talentMax     every prospect's craft is capped here
+  //   potentialMax  and their potential here
+  const REACH_SCOUTING = {
+    local: { name: "the local scene", budget: 0, talentMax: 58, potentialMax: 80 },
+    city: { name: "the city", budget: 0, talentMax: 64, potentialMax: 86 },
+    region: { name: "the region", budget: 1, talentMax: 74, potentialMax: 91 },
+    country: { name: "the whole country", budget: 2, talentMax: 86, potentialMax: 96 },
+    world: { name: "the world", budget: 2, talentMax: 100, potentialMax: 100 },
+  };
 
-  const data = { PHASES, REACHES, PHASE_GOALS, HIT_QUALITY };
+  const data = { PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING };
   root.GoatData = Object.assign(root.GoatData || {}, data);
   if (typeof module !== "undefined" && module.exports) module.exports = data;
 })(typeof globalThis !== "undefined" ? globalThis : this);

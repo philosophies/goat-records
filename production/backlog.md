@@ -39,7 +39,7 @@ Do:
 - Record `{ phase, week }` in `s.company.history`.
   Done when: tests cover not-yet-met, met, the history entry and the notification; phases never go down.
 
-### [ ] T03 · Broke start and local scouting
+### [x] T03 · Broke start and local scouting
 
 Depends on: T02
 Files: `src/data/company.js`, `src/systems/company.js`, `src/engine.js` (candidate generation only), `tests/company-test.cjs`

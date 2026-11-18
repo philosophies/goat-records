@@ -190,4 +190,75 @@ test("A classic run never changes phase", () => {
   assert.equal(s.company, undefined);
 });
 
+test("A home studio only finds local talent, over 200 searches", () => {
+  const s = ceo(31),
+    lim = G.REACH_SCOUTING.local;
+  s.cash = 10 ** 7;
+  const pool = [...s.candidates];
+  for (let i = 0; i < 200; i++) {
+    G.paidScout(s, 0);
+    pool.push(...s.candidates);
+  }
+  assert.ok(pool.length > 600);
+  for (const a of pool) {
+    assert.ok(a.talent <= lim.talentMax, `craft ${a.talent}`);
+    assert.ok(a.potential <= lim.potentialMax && a.potential >= a.talent, `potential ${a.potential}`);
+    assert.equal(a.reach, "local");
+  }
+});
+
+test("Paid searches beyond the label's reach are locked with the phase that opens them", () => {
+  const s = ceo(32);
+  s.cash = 10 ** 6;
+  assert.equal(G.scoutLocked(s, 0), "");
+  assert.match(G.scoutLocked(s, 1), /phase 3, Regional label/);
+  assert.match(G.scoutLocked(s, 2), /phase 4, National label/);
+  const cash = s.cash;
+  assert.throws(() => G.paidScout(s, 1), /phase 3/);
+  assert.equal(s.cash, cash, "a locked search costs nothing");
+  s.company.phase = 3;
+  assert.equal(G.scoutLocked(s, 1), "");
+  G.paidScout(s, 1);
+  assert.ok(s.candidates.every((a) => a.reach === "region"));
+});
+
+test("A regional label finds better talent than a home studio", () => {
+  const best = (phase) => {
+    const s = ceo(33);
+    s.company.phase = phase;
+    s.cash = 10 ** 7;
+    let top = 0;
+    for (let i = 0; i < 100; i++) {
+      G.paidScout(s, phase >= 3 ? 1 : 0);
+      top = Math.max(top, ...s.candidates.map((a) => a.talent));
+    }
+    return top;
+  };
+  assert.ok(best(1) <= G.REACH_SCOUTING.local.talentMax);
+  assert.ok(best(3) > G.REACH_SCOUTING.local.talentMax);
+});
+
+test("Prospects from events stay within the label's reach", () => {
+  const s = ceo(34);
+  s.cash = 10 ** 6;
+  // Signing replaces a prospect with a newcomer drawn from the top budget.
+  G.sign(s, s.candidates[0].id);
+  for (const a of s.candidates) assert.ok(a.talent <= G.REACH_SCOUTING.local.talentMax);
+});
+
+test("Classic scouting is unchanged: no reach tags, no caps, no locks", () => {
+  const s = G.create(35);
+  s.cash = 10 ** 7;
+  assert.equal(G.scoutLimits(s), null);
+  assert.equal(G.scoutLocked(s, 2), "");
+  let top = 0;
+  for (let i = 0; i < 50; i++) {
+    G.paidScout(s, 2);
+    top = Math.max(top, ...s.candidates.map((a) => a.talent));
+    assert.ok(s.candidates.every((a) => a.reach === undefined));
+  }
+  assert.ok(top > G.REACH_SCOUTING.local.talentMax);
+  assert.deepEqual(G.create(35).candidates, G.create(35).candidates, "same seed, same prospects");
+});
+
 console.log(`${count} company tests passed.`);
