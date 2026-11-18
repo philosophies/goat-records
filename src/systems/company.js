@@ -8,7 +8,7 @@
   function create(core, D) {
     const {
       PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING, RENAME, LABEL_NAME, BUILDINGS,
-      COMPANY_REVENUE, COMPANY_COSTS, COMPANY_VALUE, FUNDING, VALUATION,
+      COMPANY_REVENUE, COMPANY_COSTS, COMPANY_VALUE, FUNDING, VALUATION, IPO,
     } = D;
     const { BOOTHS, FACILITIES, HQ } = D;
     const buildingById = Object.fromEntries(BUILDINGS.map((b) => [b.id, b])),
@@ -96,6 +96,16 @@
       if (c.marketMood !== undefined &&
         (!Number.isFinite(c.marketMood) || c.marketMood < COMPANY_VALUE.moodRange[0] ||
           c.marketMood > COMPANY_VALUE.moodRange[1])) return false;
+      if (c.annualProfit !== undefined && (!Array.isArray(c.annualProfit) ||
+        c.annualProfit.length > IPO.profitYears ||
+        !c.annualProfit.every((row) => row && isCount(row.year) && Number.isFinite(row.profit)))) return false;
+      if (c.offering !== undefined && (!c.public || !c.offering || !isCount(c.offering.week) ||
+        !isCount(c.offering.proceeds) || !Number.isFinite(c.offering.price) ||
+        typeof c.offering.scene !== "boolean")) return false;
+      if (c.analyst !== undefined && (!c.public || !c.analyst || !isCount(c.analyst.dueWeek) ||
+        !isCount(c.analyst.revenue) ||
+        (c.analyst.last !== null && (!c.analyst.last || !isCount(c.analyst.last.revenue) ||
+          !isCount(c.analyst.last.target) || typeof c.analyst.last.met !== "boolean")))) return false;
       if (c.buildings === undefined) return true;
       if (!Array.isArray(c.buildings)) return false;
       const seen = new Set();
@@ -172,7 +182,7 @@
     }
     /** Goals for the next phase: { next, goals: [{ key, name, have, need, met }], met } or null. */
     function phaseProgress(s) {
-      if (!s.company || s.company.phase >= PHASES.length) return null;
+      if (!s.company || s.company.phase >= IPO.phase) return null;
       const next = PHASES[s.company.phase],
         goals = Object.entries(next.goals).map(([key, need]) => {
           const have = metric(s, key);
@@ -330,11 +340,82 @@
       return income;
     }
 
+    function ipoRequirements(s) {
+      const company = s.company;
+      if (company?.phase !== IPO.phase || company.public) return null;
+      const years = company.annualProfit || [];
+      let streak = 0;
+      for (const { profit } of [...years].reverse()) {
+        if (profit <= 0) break;
+        streak++;
+      }
+      const goals = [
+        { label: "Consecutive profitable years", have: streak, need: IPO.profitYears },
+        { label: "CFO skill", have: company.departments.finance.head?.skill || 0, need: IPO.cfoSkill },
+        { label: "Board confidence", have: company.board?.confidence || 0, need: IPO.boardConfidence },
+      ];
+      const valuation = companyValuation(s);
+      const mood = core.clamp(1 - (company.board?.scandals || 0) * IPO.scandalDiscount, ...COMPANY_VALUE.moodRange);
+      const proceeds = Math.round(valuation.value * mood * IPO.equity / (1 - IPO.equity));
+      const price = Math.round(proceeds / (company.shares.total * IPO.equity) * 100) / 100;
+      return { goals, ready: proceeds > 0 && goals.every(({ have, need }) => have >= need), proceeds, price, mood };
+    }
+
+    function nextAnalystTarget(s, last = null) {
+      const revenue = revenueFor(s.financeHistory.slice(-IPO.analystWeeks));
+      return { dueWeek: s.week + IPO.analystWeeks, revenue: Math.ceil(revenue * IPO.revenueStretch), last };
+    }
+
+    function goPublic(s) {
+      core.requireAction(s);
+      const ipo = ipoRequirements(s);
+      if (!ipo?.ready) throw Error("The label does not meet the IPO requirements.");
+      const company = s.company;
+      company.public = true;
+      company.phase = PHASES.length;
+      company.since = s.week;
+      company.history.push({ phase: company.phase, week: s.week });
+      company.marketMood = ipo.mood;
+      company.offering = { week: s.week, proceeds: ipo.proceeds, price: ipo.price, scene: true };
+      company.analyst = nextAnalystTarget(s);
+      s.cash += ipo.proceeds;
+      core.api().recordPublicRound(s, IPO.equity, ipo.proceeds);
+      log(s, `${labelName(s)} rings the bell and raises $${ipo.proceeds.toLocaleString("en-US")} in its IPO.`);
+      return company.offering;
+    }
+
+    function acknowledgeIPO(s) {
+      if (s.company?.offering) s.company.offering.scene = false;
+    }
+
+    function afterSettlement(s) {
+      if (!s.company) return;
+      const company = s.company;
+      if (s.week > 1 && s.week % 52 === 1 && s.financeHistory.length === 52) {
+        const profit = s.financeHistory.reduce((total, row) => total + (row.cashChange || 0), 0);
+        const year = core.operatingYear(s.week - 1);
+        company.annualProfit = [...(company.annualProfit || []), { year, profit }].slice(-IPO.profitYears);
+      }
+      if (!company.analyst || !company.public || s.week < company.analyst.dueWeek || s.finished) return;
+      const revenue = revenueFor(s.financeHistory.slice(-IPO.analystWeeks));
+      const target = company.analyst.revenue;
+      const met = revenue >= target;
+      const direction = met ? 1 : -1;
+      company.marketMood = core.clamp(
+        company.marketMood + direction * IPO.moodChange, ...COMPANY_VALUE.moodRange,
+      );
+      const board = company.board;
+      board.analystConfidence = core.clamp((board.analystConfidence || 0) + direction * IPO.confidenceChange, -100, 100);
+      company.analyst = nextAnalystTarget(s, { revenue, target, met });
+      log(s, `Analysts: ${met ? "revenue beat" : "revenue missed"} the half-year target.`);
+    }
+
     return {
       init,
       validSave,
       upkeep: companyUpkeep,
       weekly,
+      afterSettlement,
       api: {
         PHASES,
         REACHES,
@@ -345,6 +426,9 @@
         yearRevenue,
         companyValuation,
         syncShares,
+        ipoRequirements,
+        goPublic,
+        acknowledgeIPO,
         COMPANY_REVENUE,
         companyRevenue,
         companyCosts,

@@ -110,6 +110,18 @@
     catalogIncomeFactor: 0.4,
     moodRange: [0.8, 1.2],
   };
+  const IPO = {
+    phase: 5,
+    profitYears: 3,
+    cfoSkill: 60,
+    boardConfidence: 60,
+    equity: 0.25,
+    scandalDiscount: 0.025,
+    analystWeeks: 26,
+    revenueStretch: 1.06,
+    moodChange: 0.05,
+    confidenceChange: 5,
+  };
 
   // Buildings along the street (CEO runs). Each is bought once and built up floor by floor.
   //   phase      the company phase that unlocks it
@@ -215,7 +227,7 @@
 
   const data = {
     PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING, RENAME, BUILDINGS,
-    COMPANY_REVENUE, COMPANY_COSTS, COMPANY_VALUE,
+    COMPANY_REVENUE, COMPANY_COSTS, COMPANY_VALUE, IPO,
   };
   root.GoatData = Object.assign(root.GoatData || {}, data);
   if (typeof module !== "undefined" && module.exports) module.exports = data;

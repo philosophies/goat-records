@@ -102,7 +102,7 @@
     function newDirector(s, kind) {
       const b = s.company.board,
         used = new Set(b.directors.map((d) => d.type)),
-        prefs = BACKERS[kind],
+        prefs = BACKERS[kind === "ipo" ? "venture" : kind],
         open = prefs.filter((t) => !used.has(t)),
         pool = open.length ? open : prefs,
         type = pool[Math.floor(roll(s, "board") * pool.length)],
@@ -116,6 +116,17 @@
         satisfaction: 50,
         since: s.week,
       };
+    }
+    function recordPublicRound(s, equity, amount) {
+      const company = s.company;
+      const b = board(s);
+      company.ownership = Math.round(company.ownership * (1 - equity) * 10000) / 10000;
+      core.api().syncShares(s);
+      const seats = PHASES[phase(s) - 1].boardSeats - b.directors.length;
+      for (let index = 0; index < seats; index++) b.directors.push(newDirector(s, "ipo"));
+      company.rounds.push({ kind: "ipo", name: "IPO", phase: phase(s), week: s.week, equity, amount, seats });
+      b.nextReview = s.week + reviewInterval(s);
+      boardWeek(s);
     }
     /** Takes the offer of a kind at a term (0 or 1 for equity deals). Returns what changed. */
     function takeFunding(s, kind, term = 0) {
@@ -216,6 +227,8 @@
       if (d.promises) reasons.push({ key: "promises", name: "Promises", points: d.promises });
       if (board(s)?.eventConfidence)
         reasons.push({ key: "events", name: "Company events", points: board(s).eventConfidence });
+      if (board(s)?.analystConfidence)
+        reasons.push({ key: "analysts", name: "Analyst results", points: board(s).analystConfidence });
       const over = overspendPoints(s);
       if (over) reasons.push({ key: "overspend", name: "Over budget", points: over });
       reasons.sort((a, b) => Math.abs(b.points) - Math.abs(a.points));
@@ -621,6 +634,8 @@
         (c.board.scandals === undefined || isCount(c.board.scandals)) &&
         (c.board.eventConfidence === undefined ||
           (Number.isFinite(c.board.eventConfidence) && Math.abs(c.board.eventConfidence) <= 100)) &&
+        (c.board.analystConfidence === undefined ||
+          (Number.isFinite(c.board.analystConfidence) && Math.abs(c.board.analystConfidence) <= 100)) &&
         (c.board.nextReview === undefined || isCount(c.board.nextReview)) &&
         (c.board.spent === undefined || isCount(c.board.spent)) &&
         (c.board.approvals === undefined || Array.isArray(c.board.approvals)) &&
@@ -643,10 +658,12 @@
       upkeep: (s) => loanPayment(s) + perkCost(s),
       weekly: (s) => {
         loanWeek(s);
+        return 0;
+      },
+      afterSettlement: (s) => {
         boardWeek(s);
         const b = board(s);
         if (b && !s.finished && s.week >= b.nextReview) runReview(s);
-        return 0;
       },
       onScandal,
       onSpend,
@@ -664,6 +681,7 @@
         valuation,
         fundingOffers,
         takeFunding,
+        recordPublicRound,
         loanPayment,
         repayLoan,
         METRICS,

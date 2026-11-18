@@ -6,6 +6,25 @@ function companyGoalValue(key, n) {
   return key === "revenue" ? money(n) : Math.round(n).toLocaleString("en-US");
 }
 
+function listingCard() {
+  const ipo = G.ipoRequirements(state);
+  if (ipo) {
+    const goals = ipo.goals.map(({ label, have, need }) =>
+      `<li><span>${esc(label)}</span><b>${have} / ${need}</b></li>`).join("");
+    return `<h3>Initial public offering</h3><ul class="board-terms">${goals}</ul><p>Sell 25% of the company to raise ${money(ipo.proceeds)} at $${ipo.price.toFixed(2)} per share.</p><button class="primary" data-action="goPublic" ${disable(!ipo.ready || blocked())}>Go public</button>`;
+  }
+  const analyst = state.company.analyst;
+  if (!analyst) return "";
+  const last = analyst.last;
+  return `<h3>Analyst expectations</h3><p>Half-year revenue target ${money(analyst.revenue)} · due week ${analyst.dueWeek}.</p>${last ? `<p>Last result: ${money(last.revenue)} against ${money(last.target)} · ${last.met ? "met" : "missed"}.</p>` : ""}`;
+}
+
+function ipoScene() {
+  const offering = state.company?.offering;
+  if (!offering?.scene) return "";
+  return `<div class="chart-alert" role="dialog" aria-label="Initial public offering"><div class="chart-award">IPO</div><div><span class="tag">WEEK ${offering.week}</span><h2>The opening bell rings</h2><p>${esc(G.labelName(state))} is now listed. The offering raised ${money(offering.proceeds)} at $${offering.price.toFixed(2)} per share.</p><button class="primary" data-action="ackIPO">Back to the street</button></div></div>`;
+}
+
 function companyChip() {
   const phase = G.companyPhase(state);
   if (!phase) return "";
@@ -32,8 +51,8 @@ function companyScreen() {
         .join(
           "",
         )}</ul><p class="muted">The label moves up at the weekly settlement once every goal is met. A phase is never lost.</p>`
-    : '<p class="muted">The label has reached its final phase.</p>';
-  return `<h2>Phase ${phase.id} · ${esc(phase.name)}</h2><p class="muted">Since week ${state.company.since}. Scouting reaches ${esc(G.REACH_SCOUTING[phase.reach].name)}.</p>${goals}<h3>The road to a public company</h3><ol class="phase-ladder">${ladder}</ol>`;
+    : "";
+  return `<h2>Phase ${phase.id} · ${esc(phase.name)}</h2><p class="muted">Since week ${state.company.since}. Scouting reaches ${esc(G.REACH_SCOUTING[phase.reach].name)}.</p>${goals}${listingCard()}<h3>The road to a public company</h3><ol class="phase-ladder">${ladder}</ol>`;
 }
 
 /** The office's name card: works in every run. */
@@ -41,11 +60,25 @@ function companyNameCard() {
   return `<article class="card company-name"><span class="tag">COMPANY NAME</span><h3>${esc(G.labelName(state))}</h3><label>New name<input id="labelNameInput" maxlength="${G.RENAME.maxLength}" value="${esc(G.labelName(state))}"></label><p class="muted">The name shows on the roof sign, the charts, the awards and the news. A rename costs ${G.RENAME.fame} fame while fans catch up.</p><button data-action="renameLabel" ${disable(blocked())}>Rename the label</button></article>`;
 }
 function companyClick(b) {
-  if (b.dataset.action !== "renameLabel") return false;
-  act(() => G.renameLabel(state, $("labelNameInput").value));
-  return true;
+  switch (b.dataset.action) {
+    case "renameLabel":
+      act(() => G.renameLabel(state, $("labelNameInput").value));
+      return true;
+    case "goPublic":
+      act(() => {
+        G.goPublic(state);
+        closePanel();
+      });
+      return true;
+    case "ackIPO":
+      act(() => G.acknowledgeIPO(state));
+      return true;
+    default:
+      return false;
+  }
 }
 
 GoatUI.registerPanel({ id: "company", label: "Company", order: 5, render: companyScreen });
 GoatUI.click.push(companyClick);
 GoatUI.hud.push({ render: companyChip });
+GoatUI.banners.push({ render: ipoScene });

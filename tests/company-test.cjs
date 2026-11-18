@@ -608,4 +608,81 @@ test("Funding updates share ownership and older CEO saves derive it from existin
   assert.equal(G.validSystemsSave(oldSave), false);
 });
 
+function ipoFixture() {
+  const s = ceo(79);
+  s.cash = 2000000;
+  s.company.phase = 2;
+  G.takeFunding(s, "angel", 0);
+  s.company.phase = 5;
+  G.appointHead(s, "finance", { skill: 60 });
+  s.company.annualProfit = [{ year: 1, profit: 1 }, { year: 2, profit: 1 }, { year: 3, profit: 1 }];
+  s.company.board.confidence = 60;
+  s.financeHistory = Array.from({ length: 52 }, (_, i) =>
+    ({ week: 106 + i, albumIncome: 50000, cashChange: 10000 }));
+  s.week = 157;
+  return s;
+}
+
+test("An IPO requires phase five, three profitable years, a skilled CFO and confident directors", () => {
+  for (const miss of [
+    (s) => { s.company.phase = 4; },
+    (s) => { s.company.annualProfit[1].profit = 0; },
+    (s) => { s.company.departments.finance.head = null; },
+    (s) => { s.company.departments.finance.head.skill = 59; },
+    (s) => { s.company.board.confidence = 59; },
+  ]) {
+    const s = ipoFixture();
+    miss(s);
+    assert.ok(!G.ipoRequirements(s)?.ready);
+    assert.throws(() => G.goPublic(s), /IPO requirements/);
+  }
+  const s = ipoFixture();
+  s.company.board.scandals = 4;
+  const value = G.companyValuation(s).value;
+  const ownership = s.company.ownership;
+  const cash = s.cash;
+  const offered = G.goPublic(s);
+  assert.equal(offered.proceeds, Math.round(value * 0.9 / 3));
+  assert.equal(offered.price, Math.round((offered.proceeds / 2500) * 100) / 100);
+  assert.equal(s.cash, cash + offered.proceeds);
+  assert.equal(s.company.phase, 6);
+  assert.equal(s.company.ownership, Math.round(ownership * 0.75 * 10000) / 10000);
+  assert.equal(G.seats(s), 9);
+  assert.equal(s.company.board.nextReview, s.week + 26);
+  assert.equal(s.company.analyst.dueWeek, s.week + 26);
+  assert.equal(s.company.analyst.revenue, 1378000);
+  assert.equal(offered.scene, true);
+  G.acknowledgeIPO(s);
+  assert.equal(offered.scene, false);
+  assert.equal(G.validSystemsSave(roundTrip(s)), true);
+  assert.throws(() => G.goPublic(s), /IPO requirements/);
+});
+
+test("Annual profit comes from settlements and analysts move sentiment at half-year reviews", () => {
+  const s = ipoFixture();
+  s.week = 156;
+  s.financeHistory.pop();
+  week(s);
+  assert.equal(s.company.annualProfit.at(-1).year, 3);
+  assert.ok(s.company.annualProfit.at(-1).profit > 0);
+  s.company.board.confidence = 60;
+  G.goPublic(s);
+  G.acknowledgeIPO(s);
+  const first = s.company.analyst.dueWeek;
+  s.week = first - 1;
+  s.financeHistory = Array.from({ length: 51 }, () => ({ albumIncome: 100000, cashChange: 10000 }));
+  week(s);
+  assert.equal(s.company.analyst.last.met, true);
+  assert.equal(s.company.marketMood, 1.05);
+  assert.equal(s.company.board.analystConfidence, 5);
+  assert.equal(s.company.board.nextReview, first + 26);
+  s.week = first + 25;
+  s.financeHistory = Array.from({ length: 51 }, () => ({ albumIncome: 100, cashChange: 100 }));
+  week(s);
+  assert.equal(s.company.analyst.last.met, false);
+  assert.equal(s.company.marketMood, 1);
+  assert.equal(s.company.board.analystConfidence, 0);
+  assert.equal(s.company.board.nextReview, first + 52);
+});
+
 console.log(`${count} company tests passed.`);

@@ -875,6 +875,21 @@
       [x.name, x.weekly?.(s, x.name === "company" ? companyRevenue : undefined) || 0])),
       hqIncome = income.label || 0,
       otherIncome = Object.values(income).reduce((n, v) => n + v, 0) - hqIncome;
+    s.financeHistory.push({
+      week: s.week,
+      openingCash: opening,
+      overhead: weeklyOverhead,
+      closingCash: s.cash,
+      cashChange: s.cash - opening,
+      hqIncome,
+      otherIncome,
+      ...(companyRevenue ? { companyRevenue, companyCosts } : {}),
+      albumIncome: s.albums
+        .filter((p) => p.lastSalesWeek === s.week)
+        .reduce((n, p) => n + (p.lastNetIncome || 0), 0),
+    });
+    s.financeHistory = s.financeHistory.slice(-52);
+    if (s.company) hooks.each("afterSettlement", s);
     if (s.week % 4 === 0) {
       s.trend = GENRES[Math.floor(rng(s) * 6)];
       log(s, `Market update: ${s.trend} is trending. New rival releases have entered the chart.`);
@@ -882,11 +897,11 @@
     if (s.cash >= 0) s.debtWeeks = 0;
     else s.debtWeeks = (s.debtWeeks || 0) + 1;
     const graceWeeks = D.DEBT?.graceWeeks ?? 0;
-    if (s.cash < 0 && s.debtWeeks > graceWeeks) {
+    if (!s.finished && s.cash < 0 && s.debtWeeks > graceWeeks) {
       s.finished = true;
       s.bankrupt = true;
       s.outcome = "The label ran out of cash. Try fewer salaries or smaller recording budgets.";
-    } else {
+    } else if (!s.finished) {
       if (s.cash < 0) {
         const left = graceWeeks - s.debtWeeks + 1;
         if (s.debtWeeks === 1)
@@ -910,20 +925,6 @@
       s.event = s.eventQueue.shift() || null;
       finalizeRun(s);
     }
-    s.financeHistory.push({
-      week: s.week,
-      openingCash: opening,
-      overhead: weeklyOverhead,
-      closingCash: s.cash,
-      cashChange: s.cash - opening,
-      hqIncome,
-      otherIncome,
-      ...(companyRevenue ? { companyRevenue, companyCosts } : {}),
-      albumIncome: s.albums
-        .filter((p) => p.lastSalesWeek === s.week)
-        .reduce((n, p) => n + (p.lastNetIncome || 0), 0),
-    });
-    s.financeHistory = s.financeHistory.slice(-52);
     return s;
   }
   function staffSkill(s, role) {

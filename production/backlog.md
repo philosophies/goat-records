@@ -325,7 +325,7 @@ Files: `src/systems/company.js`, `tests/company-test.cjs`
 Do: company value and share price from design 4; `s.company.shares` (total, yours, investors). Show them in the Wallet.
 Done when: tests check the formula on fixed inputs and that rounds dilute correctly.
 
-### [ ] T32 · The IPO and analysts
+### [x] T32 · The IPO and analysts
 
 Depends on: T31, T20
 Files: `src/systems/company.js`, `src/systems/board.js`, `src/ui/company.js`, `tests/company-test.cjs`
