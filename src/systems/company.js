@@ -8,7 +8,7 @@
   function create(core, D) {
     const {
       PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING, RENAME, LABEL_NAME, BUILDINGS,
-      COMPANY_REVENUE, COMPANY_COSTS, FUNDING,
+      COMPANY_REVENUE, COMPANY_COSTS, COMPANY_VALUE, FUNDING, VALUATION,
     } = D;
     const { BOOTHS, FACILITIES, HQ } = D;
     const buildingById = Object.fromEntries(BUILDINGS.map((b) => [b.id, b])),
@@ -17,7 +17,11 @@
     const isCount = (n) => Number.isInteger(n) && n >= 0;
 
     function init(s) {
-      if (!s.ceoMode || s.company) return s;
+      if (s.company) {
+        if (s.company.shares === undefined) syncShares(s);
+        return s;
+      }
+      if (!s.ceoMode) return s;
       s.company = {
         phase: 1,
         since: s.week,
@@ -25,6 +29,7 @@
         // The bedroom booth (recording room 0) is the apartment's first floor.
         buildings: [{ id: "apartment", floors: [{ type: "room", room: 0, level: 1 }] }],
       };
+      syncShares(s);
       s.cash = PHASES[0].startCash;
       // The first prospects were drawn before the company existed: hold them to the local scene too.
       const lim = scoutLimits(s);
@@ -82,6 +87,15 @@
       if (!Number.isInteger(c.phase) || c.phase < 1 || c.phase > PHASES.length) return false;
       if (!isCount(c.since) || !Array.isArray(c.history)) return false;
       if (!c.history.every((h) => h && Number.isInteger(h.phase) && isCount(h.week))) return false;
+      if (c.shares !== undefined) {
+        const shares = c.shares;
+        if (!shares || shares.total !== COMPANY_VALUE.shares || !isCount(shares.yours) ||
+          !isCount(shares.investors) || shares.yours + shares.investors !== shares.total ||
+          shares.yours !== Math.round((c.ownership ?? 1) * shares.total)) return false;
+      }
+      if (c.marketMood !== undefined &&
+        (!Number.isFinite(c.marketMood) || c.marketMood < COMPANY_VALUE.moodRange[0] ||
+          c.marketMood > COMPANY_VALUE.moodRange[1])) return false;
       if (c.buildings === undefined) return true;
       if (!Array.isArray(c.buildings)) return false;
       const seen = new Set();
@@ -108,9 +122,8 @@
     function companyPhase(s) {
       return s.company ? PHASES[s.company.phase - 1] : null;
     }
-    /** Income over the last 52 settled weeks: album sales plus every system's weekly income. */
-    function yearRevenue(s) {
-      return (s.financeHistory || []).reduce(
+    function revenueFor(rows) {
+      return rows.reduce(
         (n, w) =>
           n +
           Math.max(0, w.albumIncome || 0) +
@@ -118,6 +131,36 @@
           Math.max(0, w.otherIncome || 0),
         0,
       );
+    }
+    /** Income over the last 52 settled weeks: album sales plus every system's weekly income. */
+    function yearRevenue(s) {
+      return revenueFor((s.financeHistory || []).slice(-52));
+    }
+    function syncShares(s) {
+      const total = COMPANY_VALUE.shares;
+      const yours = Math.round((s.company.ownership ?? 1) * total);
+      s.company.shares = { total, yours, investors: total - yours };
+      return s.company.shares;
+    }
+    function companyValuation(s) {
+      if (!s.company) return null;
+      const rows = s.financeHistory || [];
+      const prior = rows.length >= 52 ? revenueFor(rows.slice(-52, -26)) : 0;
+      const growth = prior ? revenueFor(rows.slice(-26)) / prior - 1 : 0;
+      const albums = s.albums.filter((p) => p.released);
+      const hitRate = albums.length ? albums.filter((p) => p.quality >= HIT_QUALITY).length / albums.length : 0;
+      const multiple = VALUATION.multiple[s.company.phase - 1] +
+        core.clamp(growth, ...COMPANY_VALUE.growthRange) * COMPANY_VALUE.growthFactor +
+        hitRate * COMPANY_VALUE.hitRateFactor;
+      const revenue = yearRevenue(s);
+      const catalogValue = albums.reduce((total, p) => total + (p.total || 0), 0) *
+        COMPANY_VALUE.catalogIncomeFactor;
+      const debt = (s.company.loan?.balance || 0) + (s.company.acquisitionDebt || 0);
+      const value = Math.max(0, Math.round(revenue * multiple + catalogValue + s.cash - debt));
+      const mood = s.company.marketMood ?? 1;
+      const shares = s.company.shares || { total: COMPANY_VALUE.shares };
+      const sharePrice = Math.round((value / shares.total) * mood * 100) / 100;
+      return { value, sharePrice, mood, multiple, revenue, growth, hitRate, catalogValue, debt };
     }
     function metric(s, key) {
       const released = s.albums.filter((p) => p.released);
@@ -300,6 +343,8 @@
         companyPhase,
         phaseProgress,
         yearRevenue,
+        companyValuation,
+        syncShares,
         COMPANY_REVENUE,
         companyRevenue,
         companyCosts,

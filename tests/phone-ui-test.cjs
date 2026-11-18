@@ -108,8 +108,9 @@ assert.match(html("content"), /Nobody matches/);
 click({ tab: "phone:wallet" });
 assert.match(
   html("content"),
-  /Cash<\/dt><dd>\$[\d,]+<\/dd>[\s\S]*Budget left this period<\/dt><dd>— \(no board\)[\s\S]*Share price<\/dt><dd>— \(private company\)/,
+  /Cash<\/dt><dd>\$[\d,]+<\/dd>[\s\S]*Budget left this period<\/dt><dd>— \(no board\)[\s\S]*Estimated share price/,
 );
+assert.match(html("content"), /Your shares<\/dt><dd>10,000 \/ 10,000/);
 click({ tab: "phone:settings" });
 assert.match(html("content"), /data-action="phoneSpeed" data-speed="2"/);
 click({ action: "phoneSpeed", speed: "2" });

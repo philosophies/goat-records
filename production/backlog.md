@@ -318,7 +318,7 @@ Do:
 - Each shows in the weekly finance history. Add bigger costs that grow with phase (rent, insurance, interest).
   Done when: tests cover each stream's unlock and the finance history lines.
 
-### [ ] T31 · Company value and shares
+### [x] T31 · Company value and shares
 
 Depends on: T30, T18
 Files: `src/systems/company.js`, `tests/company-test.cjs`

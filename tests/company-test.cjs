@@ -33,6 +33,7 @@ test("A CEO run starts in the home studio with $2,000", () => {
     ownership: 1,
     rounds: [],
     loan: null,
+    shares: { total: 10000, yours: 10000, investors: 0 },
   });
   assert.equal(s.cash, PHASES[0].startCash);
   assert.equal(s.cash, 2000);
@@ -570,6 +571,41 @@ test("Weekly settlement itemizes company income and growing costs without chargi
   G.advance(classic);
   assert.equal(classic.financeHistory.at(-1).companyRevenue, undefined);
   assert.equal(classic.financeHistory.at(-1).companyCosts, undefined);
+});
+
+test("Company value uses trailing revenue, growth, hit rate, catalog, cash, debt and market mood", () => {
+  const s = ceo(77);
+  s.company.phase = 2;
+  s.cash = 1000;
+  s.company.loan = { amount: 600, balance: 600, payment: 50 };
+  s.company.marketMood = 1.2;
+  s.financeHistory = Array.from({ length: 52 }, (_, index) => ({ albumIncome: index < 26 ? 80 : 120 }));
+  s.albums.push(
+    { released: true, quality: 80, total: 750 },
+    { released: true, quality: 60, total: 250 },
+    { released: false, quality: 100, total: 2000 },
+  );
+  assert.deepEqual(G.companyValuation(s), {
+    value: 15750, sharePrice: 1.89, mood: 1.2, multiple: 2.875,
+    revenue: 5200, growth: 0.5, hitRate: 0.5, catalogValue: 400, debt: 600,
+  });
+  assert.equal(G.companyValuation(G.create(77)), null);
+});
+
+test("Funding updates share ownership and older CEO saves derive it from existing ownership", () => {
+  const s = ceo(78);
+  s.company.phase = 2;
+  const angel = G.takeFunding(s, "angel", 0);
+  s.company.phase = 3;
+  const venture = G.takeFunding(s, "venture", 0);
+  const yours = Math.round(10000 * (1 - angel.equity) * (1 - venture.equity));
+  assert.deepEqual(s.company.shares, { total: 10000, yours, investors: 10000 - yours });
+  const oldSave = roundTrip(s);
+  delete oldSave.company.shares;
+  assert.ok(G.validSystemsSave(oldSave));
+  assert.deepEqual(G.migrate(oldSave).company.shares, s.company.shares);
+  oldSave.company.shares.yours++;
+  assert.equal(G.validSystemsSave(oldSave), false);
 });
 
 console.log(`${count} company tests passed.`);

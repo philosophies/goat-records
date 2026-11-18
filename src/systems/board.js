@@ -136,6 +136,7 @@
         return offer;
       }
       s.company.ownership = Math.round(s.company.ownership * (1 - offer.equity) * 10000) / 10000;
+      core.api().syncShares(s);
       const fresh = !s.company.board;
       s.company.board ??= { directors: [], nextId: 1, since: s.week };
       const added = Array.from({ length: offer.seats }, () => newDirector(s, kind));

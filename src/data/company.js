@@ -102,6 +102,14 @@
     rent: [0, 45, 130, 320, 650, 1100],
     insurance: [0, 15, 55, 140, 320, 600],
   };
+  const COMPANY_VALUE = {
+    shares: 10000,
+    growthFactor: 0.5,
+    growthRange: [-0.5, 1],
+    hitRateFactor: 1.25,
+    catalogIncomeFactor: 0.4,
+    moodRange: [0.8, 1.2],
+  };
 
   // Buildings along the street (CEO runs). Each is bought once and built up floor by floor.
   //   phase      the company phase that unlocks it
@@ -207,7 +215,7 @@
 
   const data = {
     PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING, RENAME, BUILDINGS,
-    COMPANY_REVENUE, COMPANY_COSTS,
+    COMPANY_REVENUE, COMPANY_COSTS, COMPANY_VALUE,
   };
   root.GoatData = Object.assign(root.GoatData || {}, data);
   if (typeof module !== "undefined" && module.exports) module.exports = data;
