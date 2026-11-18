@@ -261,4 +261,76 @@ test("Classic scouting is unchanged: no reach tags, no caps, no locks", () => {
   assert.deepEqual(G.create(35).candidates, G.create(35).candidates, "same seed, same prospects");
 });
 
+test("A label is Goat Records unless named, and a new run can be named for free", () => {
+  assert.equal(G.labelName(G.create(51)), "Goat Records");
+  assert.equal(G.create(51).labelName, undefined, "classic saves gain no name field");
+  const s = G.create(51, { ceo: true, labelName: "  Dynasty   Sound " });
+  assert.equal(G.labelName(s), "Dynasty Sound");
+  assert.equal(s.fame, 0);
+  assert.ok(s.news.some((x) => /Welcome to Dynasty Sound/.test(x)));
+});
+
+test("The label's name appears on its chart entries", () => {
+  const s = G.create(52, { ceo: true, labelName: "Crown Lane" });
+  s.cash = 10 ** 6;
+  G.sign(s, s.candidates[0].id);
+  const a = s.artists[0];
+  Object.assign(a, { talent: 90, inspiration: 90, energy: 100 });
+  G.record(s, {
+    artistId: a.id,
+    boothId: 0,
+    genre: a.genre,
+    audience: a.audience,
+    budget: 4000,
+    themes: [s.themes[0]],
+  });
+  for (let i = 0; i < 60 && !s.albums[0].released; i++) {
+    while (s.event) G.choose(s, s.event.options.length - 1);
+    const p = s.albums[0];
+    const d = p.production;
+    if (d?.releaseReady) {
+      G.releaseAlbum(s, p.id, p.title, "fans");
+      continue;
+    }
+    if (d && !d.cooldown && !d.review) G.decideStage(s, p.id, 0);
+    if (d && !d.cooldown) G.continueProduction(s, p.id);
+    if (!G.productionBlock(s)) G.advance(s);
+  }
+  for (let i = 0; i < 3; i++) {
+    while (s.event) G.choose(s, s.event.options.length - 1);
+    for (const p of s.albums) p.launchReview = false;
+    G.advance(s);
+  }
+  const mine = s.charts.entries.filter((e) => e.owned);
+  assert.ok(mine.length, "the album charted");
+  assert.ok(mine.every((e) => e.label === "Crown Lane"));
+});
+
+test("Renaming costs fame, is logged and checks the name", () => {
+  const s = G.create(53);
+  s.fame = 100;
+  G.renameLabel(s, "Gold Standard");
+  assert.equal(G.labelName(s), "Gold Standard");
+  assert.equal(s.fame, 100 - G.RENAME.fame);
+  assert.match(s.news[0], /Goat Records is now Gold Standard/);
+  s.fame = 5;
+  G.renameLabel(s, "Gold Standard Two");
+  assert.equal(s.fame, 0, "fame never goes below zero");
+  assert.throws(() => G.renameLabel(s, "   "), /needs a name/);
+  assert.throws(() => G.renameLabel(s, 42), /needs a name/);
+  assert.throws(() => G.renameLabel(s, "x".repeat(G.RENAME.maxLength + 1)), /32 characters/);
+  assert.throws(() => G.renameLabel(s, "Gold Standard Two"), /already called/);
+  assert.equal(G.labelName(s), "Gold Standard Two");
+});
+
+test("Save checks reject a bad name", () => {
+  const s = roundTrip(G.create(54, { ceo: true, labelName: "Fine Name" }));
+  assert.equal(G.validSystemsSave(s), true);
+  for (const bad of ["", "   ", 7, "y".repeat(40)]) {
+    const copy = roundTrip(s);
+    copy.labelName = bad;
+    assert.equal(G.validSystemsSave(copy), false, JSON.stringify(bad));
+  }
+});
+
 console.log(`${count} company tests passed.`);

@@ -89,7 +89,7 @@ const PLACES = {
   office: {
     title: () => "Office",
     render: () =>
-      `${state.company ? section("sec-company", panelHtml("company")) : ""}${section("sec-campaign", panelHtml("campaign"))}${section("sec-finance", finance())}${section("sec-catalog", catalog())}`,
+      `${state.company ? section("sec-company", panelHtml("company")) : ""}${section("sec-campaign", panelHtml("campaign"))}${section("sec-finance", finance())}${section("sec-catalog", catalog())}${section("sec-name", companyNameCard())}`,
   },
   billboard: {
     title: () => "Billboard",
@@ -98,7 +98,7 @@ const PLACES = {
   newsstand: { title: () => "Newsstand", render: () => journal() },
   bus: { title: () => "Tour bus", render: () => road() },
   label: {
-    title: () => "Goat Records",
+    title: () => G.labelName(state),
     render: () =>
       `${section("sec-label", panelHtml("hq"))}${section("sec-notebook", GoatUI.html("studioSections"))}`,
   },

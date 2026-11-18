@@ -77,6 +77,21 @@ assert.equal(saved().company.phase, 2);
 assert.match(html("hud"), /Phase 2 · Indie label/);
 assert.match(html("milestones"), /COMPANY GROWTH[\s\S]*Phase 2 · Indie label/);
 
+// The office renames the label; the roof sign and panel title follow.
+run(`state.albums = state.albums.filter((p) => p.id < 800); save(); render();`);
+click({ tab: "office" });
+assert.match(html("content"), /COMPANY NAME[\s\S]*Goat Records/);
+element("labelNameInput").value = "Velvet Throne";
+click({ action: "renameLabel" });
+assert.equal(saved().labelName, "Velvet Throne");
+assert.match(html("lotRoof"), /<b>VELVET THRONE<\/b>/);
+click({ tab: "label" });
+assert.equal(element("drawerTitle").textContent, "Velvet Throne");
+element("labelNameInput").value = "";
+click({ tab: "office" });
+click({ action: "renameLabel" });
+assert.equal(saved().labelName, "Velvet Throne", "an empty name is refused");
+
 console.log(
-  "PASS company interface harness: phase chip, Company panel and office section, phase-up card, classic runs untouched",
+  "PASS company interface harness: label renaming in the office, phase chip, Company panel and office section, phase-up card, classic runs untouched",
 );

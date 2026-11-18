@@ -36,5 +36,16 @@ function companyScreen() {
   return `<h2>Phase ${phase.id} · ${esc(phase.name)}</h2><p class="muted">Since week ${state.company.since}. Scouting reaches ${esc(G.REACH_SCOUTING[phase.reach].name)}.</p>${goals}<h3>The road to a public company</h3><ol class="phase-ladder">${ladder}</ol>`;
 }
 
+/** The office's name card: works in every run. */
+function companyNameCard() {
+  return `<article class="card company-name"><span class="tag">COMPANY NAME</span><h3>${esc(G.labelName(state))}</h3><label>New name<input id="labelNameInput" maxlength="${G.RENAME.maxLength}" value="${esc(G.labelName(state))}"></label><p class="muted">The name shows on the roof sign, the charts, the awards and the news. A rename costs ${G.RENAME.fame} fame while fans catch up.</p><button data-action="renameLabel" ${disable(blocked())}>Rename the label</button></article>`;
+}
+function companyClick(b) {
+  if (b.dataset.action !== "renameLabel") return false;
+  act(() => G.renameLabel(state, $("labelNameInput").value));
+  return true;
+}
+
 GoatUI.registerPanel({ id: "company", label: "Company", order: 5, render: companyScreen });
+GoatUI.click.push(companyClick);
 GoatUI.hud.push({ render: companyChip });

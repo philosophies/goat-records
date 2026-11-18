@@ -333,10 +333,11 @@
     if (options.legacy) s.legacy = options.legacy;
     // A CEO run (2.0) is opt-in until the cutover; the company system sets it up in its init hook.
     if (options.ceo) s.ceoMode = true;
+    if (options.labelName) api.renameLabel(s, options.labelName, true);
     initializeManagement(s);
     log(
       s,
-      "Welcome to Goat Records. Sign an artist at the front desk, tap them to start an album, then advance weeks.",
+      `Welcome to ${api.labelName(s)}. Sign an artist at the front desk, tap them to start an album, then advance weeks.`,
     );
     return s;
   }
@@ -1236,7 +1237,7 @@
           id: p.id,
           title: p.title,
           artistName: p.artistName,
-          label: LD.LABEL_NAME,
+          label: api.labelName(s),
           genre: p.genre,
           units: p.lastUnits,
           owned: true,
@@ -2293,7 +2294,7 @@
         id: p.id,
         title: p.title,
         artistName: p.artistName,
-        label: LD.LABEL_NAME,
+        label: api.labelName(s),
         genre: p.genre,
         units,
         owned: true,
@@ -2646,7 +2647,7 @@
           id: p.id,
           title: p.title,
           artist: p.artistName,
-          label: LD.LABEL_NAME,
+          label: api.labelName(s),
           owned: true,
           ...awardScore(s, p, true),
         });

@@ -514,7 +514,7 @@ function annualAwards() {
     )
     .join("")}</select></label>${
     program.results
-      ? `<div class="award-results">${program.results.map((r) => `<section class="card"><span class="tag">${r.genre} · ALBUM OF THE YEAR</span><h3>${esc(r.entries.find((e) => e.id === r.winner)?.title || "No eligible release")}</h3>${r.entries.map((e, i) => `<details ${e.owned ? "open" : ""}><summary>#${i + 1} · ${esc(e.title)} · ${esc(e.label)} · ${e.score}/100 ${e.owned ? "— YOUR ENTRY" : ""}</summary>${calculation({ name: e.title, parts: e.parts, score: e.score }, "award")}</details>`).join("")}</section>`).join("")}</div>`
+      ? `<div class="award-results">${program.results.map((r) => `<section class="card"><span class="tag">${r.genre} · ALBUM OF THE YEAR</span><h3>${esc(r.entries.find((e) => e.id === r.winner)?.title || "No eligible release")}</h3>${r.entries.map((e, i) => `<details ${e.owned ? "open" : ""}><summary>#${i + 1} · ${esc(e.title)} · ${esc(e.owned ? G.labelName(state) : e.label)} · ${e.score}/100 ${e.owned ? "— YOUR ENTRY" : ""}</summary>${calculation({ name: e.title, parts: e.parts, score: e.score }, "award")}</details>`).join("")}</section>`).join("")}</div>`
       : `<p class="plan-quote">Year ${year} entries close after week ${year * 52}. Winners receive $8,000 per genre plus label fame and artist career recognition. Attendance spending cannot buy a win.</p><div class="grid">${G.GENRES.map(
           (g) => {
             const eligible = G.awardEligible(state, year, g);
@@ -934,11 +934,15 @@ function resetView() {
   GoatLot.reset();
 }
 $("reset").onclick = () => {
-  if (confirm("Start a new label? Export your save first if you want to keep this season."))
-    act(() => {
-      state = G.create();
-      resetView();
-    });
+  if (!confirm("Start a new label? Export your save first if you want to keep this season.")) return;
+  // CEO runs (2.0) are a preview, opened with #ceo, until they become the default.
+  const ceo = typeof location !== "undefined" && location.hash === "#ceo";
+  const name = ceo && typeof prompt === "function" ? prompt("Name your label", "Goat Records") : null;
+  if (ceo && name === null) return;
+  act(() => {
+    state = G.create(Date.now(), ceo ? { ceo: true, labelName: name } : {});
+    resetView();
+  });
 };
 // The cash grant is a testing aid, shown only when the page is opened with #dev.
 $("testFunds").hidden = typeof location === "undefined" || location.hash !== "#dev";
