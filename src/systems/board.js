@@ -426,6 +426,30 @@
           `This $${n.toLocaleString("en-US")} payment goes past the period budget.`,
         );
     }
+    function acquisitionVotes(s) {
+      const directors = board(s).directors;
+      return directors.filter((d) => satisfaction(s, d).value >= APPROVAL.grant).length;
+    }
+    function payAcquisition(s, id, price, upfront) {
+      if (s.cash < upfront) throw Error("Not enough cash for the acquisition.");
+      const b = board(s);
+      if (b && price > b.budget - (b.spent || 0) && !approved(s, "acquisition", id)) {
+        s.event = {
+          type: "approval",
+          title: "The board must approve the acquisition",
+          body: "The proposed purchase exceeds the remaining budget. A majority must vote in favor.",
+          approval: { kind: "acquisition", key: id },
+          options: [
+            { label: "Call the vote", hint: "Each director votes according to their satisfaction.", approve: true },
+            { label: "Drop it", hint: "Keep the current budget." },
+          ],
+        };
+        return false;
+      }
+      s.cash -= upfront;
+      onSpend(s, price);
+      return true;
+    }
     function approveSigning(s, a, q) {
       const b = board(s);
       if (!b?.budget || freedomOf(s) !== "low") return;
@@ -451,13 +475,17 @@
       if (e.type !== "approval" || !o.approve) return;
       const b = board(s),
         c = b.confidence ?? confidence(s);
-      if (c >= APPROVAL.grant) {
+      const acquisition = e.approval.kind === "acquisition";
+      const yes = acquisition ? acquisitionVotes(s) : 0;
+      if (acquisition ? yes > b.directors.length / 2 : c >= APPROVAL.grant) {
         b.approvals = [
           ...(b.approvals || []).filter((x) => x.week === s.week),
           { ...e.approval, week: s.week },
         ];
         log(s, "The board approved the request. Go ahead this week.");
-      } else log(s, `The board said no (confidence ${c}).`);
+      } else log(s, acquisition
+        ? `The board vetoed the acquisition (${yes} of ${b.directors.length} in favor).`
+        : `The board said no (confidence ${c}).`);
     }
     // ---- Lobbying and promises (T22) ----
     function director(s, id) {
@@ -682,6 +710,7 @@
         fundingOffers,
         takeFunding,
         recordPublicRound,
+        payAcquisition,
         loanPayment,
         repayLoan,
         METRICS,

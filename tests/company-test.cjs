@@ -685,4 +685,62 @@ test("Annual profit comes from settlements and analysts move sentiment at half-y
   assert.equal(s.company.board.nextReview, first + 52);
 });
 
+test("Catalog purchases earn weekly royalties and cannot be bought twice", () => {
+  const s = ceo(80);
+  assert.deepEqual(G.acquisitionOffers(s), []);
+  s.company.phase = 6;
+  s.cash = 1000000;
+  const offer = G.acquisitionOffers(s)[0];
+  const cash = s.cash;
+  const owned = G.buyAcquisition(s, offer.id);
+  assert.equal(s.cash, cash - offer.price);
+  assert.equal(owned.debt, 0);
+  assert.throws(() => G.buyAcquisition(s, offer.id), /unavailable/);
+  G.advance(s);
+  assert.equal(s.financeHistory.at(-1).companyRevenue.acquisitions, offer.revenue);
+  assert.ok(G.validSystemsSave(roundTrip(s)));
+});
+
+test("Financing a small label transfers its artist and repays acquisition debt weekly", () => {
+  const s = ceo(81);
+  s.company.phase = 6;
+  s.cash = 1000000;
+  const offer = G.acquisitionOffers(s).find(({ kind }) => kind === "label");
+  const cash = s.cash;
+  const owned = G.buyAcquisition(s, offer.id, true);
+  assert.equal(s.cash, cash - offer.down);
+  assert.equal(owned.debt, offer.price - offer.down);
+  assert.equal(s.artists[0].id, offer.artist.id);
+  assert.equal(s.artists[0].contract.remaining, 3);
+  assert.ok(!s.rivalArtists.some(({ id }) => id === offer.artist.id));
+  const debt = owned.debt;
+  G.advance(s);
+  assert.ok(owned.debt < debt);
+  assert.equal(G.companyValuation(s).debt, owned.debt);
+  assert.equal(s.financeHistory.at(-1).companyCosts.acquisitionPayments, owned.payment);
+});
+
+test("A majority can veto a purchase above budget even under high creative freedom", () => {
+  const s = ipoFixture();
+  G.goPublic(s);
+  const board = s.company.board;
+  board.freedom = "high";
+  board.budget = 1;
+  for (const director of board.directors) director.promises = -100;
+  const offer = G.acquisitionOffers(s)[0];
+  const cash = s.cash;
+  const spent = board.spent;
+  assert.equal(G.buyAcquisition(s, offer.id), null);
+  G.choose(s, 0);
+  assert.ok(s.news.some((line) => line.includes("vetoed the acquisition")));
+  assert.equal(s.cash, cash);
+  assert.equal(s.company.acquisitions, undefined);
+  for (const director of board.directors) director.promises = 100;
+  assert.equal(G.buyAcquisition(s, offer.id), null);
+  G.choose(s, 0);
+  assert.ok(G.buyAcquisition(s, offer.id));
+  assert.equal(s.cash, cash - offer.price);
+  assert.equal(board.spent, spent + offer.price);
+});
+
 console.log(`${count} company tests passed.`);

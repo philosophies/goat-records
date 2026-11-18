@@ -122,6 +122,18 @@
     moodChange: 0.05,
     confidenceChange: 5,
   };
+  const ACQUISITIONS = {
+    phase: 6,
+    downPayment: 0.35,
+    termWeeks: 104,
+    rate: 0.08,
+    termAlbums: 3,
+    offers: [
+      { id: "harbor-catalog", company: "harbor", kind: "catalog", price: 150000, revenue: 1650 },
+      { id: "redwood-catalog", company: "redwood", kind: "catalog", price: 260000, revenue: 2700 },
+      { id: "meridian-label", company: "meridian", kind: "label", price: 450000, revenue: 4500 },
+    ],
+  };
 
   // Buildings along the street (CEO runs). Each is bought once and built up floor by floor.
   //   phase      the company phase that unlocks it
@@ -227,7 +239,7 @@
 
   const data = {
     PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING, RENAME, BUILDINGS,
-    COMPANY_REVENUE, COMPANY_COSTS, COMPANY_VALUE, IPO,
+    COMPANY_REVENUE, COMPANY_COSTS, COMPANY_VALUE, IPO, ACQUISITIONS,
   };
   root.GoatData = Object.assign(root.GoatData || {}, data);
   if (typeof module !== "undefined" && module.exports) module.exports = data;

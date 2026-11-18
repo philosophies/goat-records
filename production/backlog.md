@@ -335,7 +335,7 @@ Do:
 - Half-yearly analyst targets; beating or missing them moves the share price and confidence. Reviews become twice-yearly. An IPO scene (bell ringing) on the street.
   Done when: tests cover the requirements, the price, the targets and the review cadence.
 
-### [ ] T33 · Acquisitions
+### [x] T33 · Acquisitions
 
 Depends on: T31
 Files: `src/systems/company.js`, `src/data/company.js`, `tests/company-test.cjs`

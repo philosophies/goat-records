@@ -523,13 +523,26 @@ function annualAwards() {
         ).join("")}</div>`
   }`;
 }
+function companyFinanceLines(row) {
+  if (!row.companyRevenue) return "";
+  const income = G.COMPANY_REVENUE
+    .filter(({ id }) => Object.hasOwn(row.companyRevenue, id))
+    .map(({ id, name }) => name + " " + money(row.companyRevenue[id]));
+  if (row.companyRevenue.acquisitions) income.push("Acquired catalog " + money(row.companyRevenue.acquisitions));
+  const costs = row.companyCosts;
+  const overhead = costs
+    ? "<small>Included in overhead: rent " + money(costs.rent) + " · insurance " + money(costs.insurance) +
+      " · interest " + money(costs.interest) + "</small>"
+    : "";
+  return "<small>" + esc(income.join(" · ")) + "</small>" + overhead;
+}
 function finance() {
   return `<h2>Label finances & career economics</h2><p class="muted">New albums pay artist royalties and 4–8% distribution fees (VP skill reduces the baseline). CEO distribution concessions can add fees. Back-to-back releases by the same artist within eight weeks lose 10% launch demand. Momentum rises with successful releases and charts, then fades. Existing contracts and already-produced album models are preserved.</p><div class="grid">${state.artists.map((a) => `<article class="card"><span class="tag">${G.CAREER_NAMES[G.careerTier(a)]} · LEVEL ${G.level(a)}/10</span><h3>${esc(a.name)}</h3><p>Market value ${money(G.artistValue(a))}<br>${a.career.releases} releases · ${a.career.awards} annual wins · ${a.career.showDays} show days<br>Career label album revenue ${money(a.career.albumRevenue)}<br>Momentum ${Math.round(a.momentum)}/100 · next level ${G.level(a) < 10 ? G.CAREER_XP[G.level(a)] + " XP" : "maximum"}</p></article>`).join("")}</div><h2>Weekly settlement history</h2><p class="muted">Daily tour ledgers settle separately. These rows show cash immediately before and after weekly payroll, album receipts and awards. Cash changes during the week (including investments, events and test grants) are outside this weekly delta.</p><div class="finance-table">${state.financeHistory
     .slice(-16)
     .reverse()
     .map(
       (w) =>
-        `<div class="line">Week ${w.week} · opening ${money(w.openingCash)} · overhead ${money(w.overhead)} · label album receipts ${money(w.albumIncome)}${w.hqIncome ? " · headquarters takings " + money(w.hqIncome) : ""} · closing ${money(w.closingCash)} · change ${money(w.cashChange)}${w.companyRevenue ? `<small>${G.COMPANY_REVENUE.filter(({ id }) => Object.hasOwn(w.companyRevenue, id)).map(({ id, name }) => `${esc(name)} ${money(w.companyRevenue[id])}`).join(" · ")}</small>` : ""}${w.companyCosts ? `<small>Included in overhead: rent ${money(w.companyCosts.rent)} · insurance ${money(w.companyCosts.insurance)} · loan interest ${money(w.companyCosts.interest)}</small>` : ""}</div>`,
+        `<div class="line">Week ${w.week} · opening ${money(w.openingCash)} · overhead ${money(w.overhead)} · label album receipts ${money(w.albumIncome)}${w.hqIncome ? " · headquarters takings " + money(w.hqIncome) : ""} · closing ${money(w.closingCash)} · change ${money(w.cashChange)}${companyFinanceLines(w)}</div>`,
     )
     .join("")}</div>`;
 }

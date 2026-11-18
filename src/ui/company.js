@@ -25,6 +25,15 @@ function ipoScene() {
   return `<div class="chart-alert" role="dialog" aria-label="Initial public offering"><div class="chart-award">IPO</div><div><span class="tag">WEEK ${offering.week}</span><h2>The opening bell rings</h2><p>${esc(G.labelName(state))} is now listed. The offering raised ${money(offering.proceeds)} at $${offering.price.toFixed(2)} per share.</p><button class="primary" data-action="ackIPO">Back to the street</button></div></div>`;
 }
 
+function acquisitionCards() {
+  const offers = G.acquisitionOffers(state);
+  if (!offers.length) return "";
+  return `<h3>Acquisitions</h3><div class="grid">${offers.map((offer) => {
+    const noRosterSpace = offer.kind === "label" && (!offer.artist || state.artists.length >= G.slots(state));
+    return `<article class="card"><h4>${esc(offer.name)} · ${offer.kind === "catalog" ? "catalog" : "label"}</h4><p>${money(offer.revenue)}/week in catalog royalties.${offer.artist ? ` ${esc(offer.artist.name)} joins your roster.` : ""}</p><div class="actions"><button data-action="buyAcquisition" data-offer="${offer.id}" ${disable(blocked() || noRosterSpace || state.cash < offer.price)}>Buy for ${money(offer.price)}</button><button data-action="buyAcquisition" data-offer="${offer.id}" data-financed="true" ${disable(blocked() || noRosterSpace || state.cash < offer.down)}>Finance · ${money(offer.down)} down</button></div></article>`;
+  }).join("")}</div>`;
+}
+
 function companyChip() {
   const phase = G.companyPhase(state);
   if (!phase) return "";
@@ -52,7 +61,7 @@ function companyScreen() {
           "",
         )}</ul><p class="muted">The label moves up at the weekly settlement once every goal is met. A phase is never lost.</p>`
     : "";
-  return `<h2>Phase ${phase.id} · ${esc(phase.name)}</h2><p class="muted">Since week ${state.company.since}. Scouting reaches ${esc(G.REACH_SCOUTING[phase.reach].name)}.</p>${goals}${listingCard()}<h3>The road to a public company</h3><ol class="phase-ladder">${ladder}</ol>`;
+  return `<h2>Phase ${phase.id} · ${esc(phase.name)}</h2><p class="muted">Since week ${state.company.since}. Scouting reaches ${esc(G.REACH_SCOUTING[phase.reach].name)}.</p>${goals}${listingCard()}${acquisitionCards()}<h3>The road to a public company</h3><ol class="phase-ladder">${ladder}</ol>`;
 }
 
 /** The office's name card: works in every run. */
@@ -72,6 +81,9 @@ function companyClick(b) {
       return true;
     case "ackIPO":
       act(() => G.acknowledgeIPO(state));
+      return true;
+    case "buyAcquisition":
+      act(() => G.buyAcquisition(state, b.dataset.offer, b.dataset.financed === "true"));
       return true;
     default:
       return false;
