@@ -70,6 +70,39 @@ assert.match(html("content"), /data-tab="finance"/, "apps still to come point to
 click({ tab: "phone:unknown" });
 assert.equal(element("drawer").hidden, true);
 
+// Calendar, Contacts, Wallet and Settings.
+run(`state.event = null; state.notifications = []; state.cash = 200000;
+  G.sign(state, state.candidates[0].id); G.hire(state, "Producer"); save(); render();`);
+const s = saved();
+click({ tab: "phone:calendar" });
+assert.match(html("content"), /AWARDS · Y2 W1[\s\S]*Annual awards/);
+click({ tab: "phone:contacts" });
+assert.match(
+  html("content"),
+  new RegExp(`data-tab="artist:${s.artists[0].id}"[\\s\\S]*data-tab="staffer:Producer"`),
+);
+element("contactSearch").value = "producer";
+listeners.change({ target: { dataset: { contactSearch: "" }, value: "producer" } });
+assert.doesNotMatch(
+  html("content"),
+  new RegExp(`data-tab="artist:${s.artists[0].id}"`),
+  "search filters by name or role",
+);
+assert.match(html("content"), /data-tab="staffer:Producer"/);
+listeners.change({ target: { dataset: { contactSearch: "" }, value: "nobody-by-this-name" } });
+assert.match(html("content"), /Nobody matches/);
+click({ tab: "phone:wallet" });
+assert.match(
+  html("content"),
+  /Cash<\/dt><dd>\$[\d,]+<\/dd>[\s\S]*Budget left this period<\/dt><dd>— \(no board\)[\s\S]*Share price<\/dt><dd>— \(private company\)/,
+);
+click({ tab: "phone:settings" });
+assert.match(html("content"), /data-action="phoneSpeed" data-speed="2"/);
+click({ action: "phoneSpeed", speed: "2" });
+assert.equal(run("GoatClock.speed"), 2);
+click({ action: "phoneSpeed", speed: "0" });
+assert.equal(run("GoatClock.speed"), 0);
+
 console.log(
-  "PASS phone interface harness: corner button and badge, five apps, Inbox of decisions, albums and news, classic runs without a phone",
+  "PASS phone interface harness: Calendar, Contacts with search, Wallet and Settings apps, corner button and badge, Inbox, classic runs without a phone",
 );
