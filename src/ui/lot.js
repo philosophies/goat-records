@@ -387,6 +387,8 @@ function renderStreet() {
   const lot = $("lot"),
     left = lot.scrollLeft || 0;
   $("scene").classList?.toggle("street-scene", true);
+  if ($("scene").dataset) $("scene").dataset.phase = String(state.company.phase);
+  document.body?.classList.toggle("ceo-run", true);
   lot.classList?.toggle("street-mode", true);
   if (lot.setAttribute) {
     lot.setAttribute("tabindex", "0");
@@ -406,6 +408,7 @@ const GoatLot = {
   render() {
     if (state.company) return renderStreet();
     $("scene").classList?.toggle("street-scene", false);
+    document.body?.classList.toggle("ceo-run", false);
     $("lot").classList?.toggle("street-mode", false);
     paintLot("lotRoof", lotRoof());
     paintLot("lot", lotBuilding());

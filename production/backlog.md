@@ -106,7 +106,7 @@ Files: `src/ui/street.js`, `src/ui/places.js`, `tests/street-ui-test.cjs`
 Do: tapping a floor opens its panel (reuse `facilityPanel` content for facility floors, `roomSheet` for recording floors). A "+ Floor" slot on top of each building opens the build list; an empty plot opens "buy building".
 Done when: the harness opens a floor, builds a floor and buys a building through clicks.
 
-### [ ] T09 · Look and feel: the dynasty theme
+### [x] T09 · Look and feel: the dynasty theme
 
 Depends on: T07
 Files: `styles/ceo.css`, `styles/street.css`, `src/ui/street.js` (pixel maps), `production/qa/evidence/` (screenshots)

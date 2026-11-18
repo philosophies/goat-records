@@ -639,10 +639,14 @@ function render() {
       .map(([k, v, c]) => `<div class="stat ${c}"><small>${k}</small><b>${v}</b></div>`)
       .join(""),
   );
-  const rank = G.rankStatus(s);
+  const rank = G.rankStatus(s),
+    phase = G.companyPhase(s);
+  // CEO runs grade the label by company phase instead of the classic rank.
   paintHTML(
     "rank",
-    `<span class="stars">${"★".repeat(rank.rank)}<i>${"★".repeat(G.RANKS.length - rank.rank)}</i></span> ${esc(rank.name)}`,
+    phase
+      ? `<span class="stars">${"★".repeat(phase.id)}<i>${"★".repeat(G.PHASES.length - phase.id)}</i></span> ${esc(phase.name)}`
+      : `<span class="stars">${"★".repeat(rank.rank)}<i>${"★".repeat(G.RANKS.length - rank.rank)}</i></span> ${esc(rank.name)}`,
   );
   $("date").innerHTML =
     `YEAR ${String(1 + Math.floor((s.week - 1) / 52)).padStart(2, "0")} · WEEK ${1 + ((s.week - 1) % 52)} · <span id="dateDay">DAY ${GoatClock.day()}</span>`;

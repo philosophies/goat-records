@@ -90,7 +90,12 @@ function streetBuilding(def) {
       .reverse()
       .join(""),
     room = owned.floors.length < def.maxFloors;
-  return `<section class="street-building" id="bldg-${def.id}" style="${style}"><button class="building-sign" data-tab="building:${def.id}">${esc(def.name)}<small>${owned.floors.length}/${def.maxFloors} floors</small></button>${room ? `<button class="floor-add" data-tab="buildfloor:${def.id}" aria-label="Build a floor on the ${esc(def.name)}">+ Floor</button>` : ""}${floors}<div class="building-door" aria-hidden="true"></div></section>`;
+  const first = state.company.buildings[0]?.id === def.id,
+    hits = first ? Math.min(6, state.albums.filter((p) => p.released && (p.quality || 0) >= 75).length) : 0,
+    records = hits
+      ? `<span class="gold-records" aria-label="${hits} hit album${hits === 1 ? "" : "s"}">${"<i></i>".repeat(hits)}</span>`
+      : "";
+  return `<section class="street-building" id="bldg-${def.id}" style="${style}"><button class="building-sign" data-tab="building:${def.id}">${esc(def.name)}<small>${owned.floors.length}/${def.maxFloors} floors</small>${records}</button>${room ? `<button class="floor-add" data-tab="buildfloor:${def.id}" aria-label="Build a floor on the ${esc(def.name)}">+ Floor</button>` : ""}${floors}<div class="building-door" aria-hidden="true"></div></section>`;
 }
 
 /** The buildings in street order: everything owned, then the next one for sale, then one locked plot. */
