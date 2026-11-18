@@ -8,7 +8,7 @@
   function create(core, D) {
     const { DEPARTMENTS, ROLE_DEPARTMENT, EXEC_POOL, EXEC_PAY, DEPT_STAFF, EXEC_FIRST, EXEC_LAST, PHASES } =
       D;
-    const { TEAM_ROLES, TEAM_POOL, TEAM_STYLES, CHEMISTRY, GENRES } = D;
+    const { TEAM_ROLES, TEAM_EFFECTS, TEAM_POOL, TEAM_STYLES, CHEMISTRY, GENRES } = D;
     const teamRoleById = Object.fromEntries(TEAM_ROLES.map((r) => [r.id, r]));
     const { log, pay, requireAction, roll } = core;
     const deptById = Object.fromEntries(DEPARTMENTS.map((d) => [d.id, d]));
@@ -39,6 +39,8 @@
     }
     function initTeam(s) {
       if (s.company && !s.company.team) s.company.team = { pool: [], candidates: {}, nextId: 1 };
+      // A fixed number for this run's personality fits; s.seed itself moves with every roll.
+      if (s.company?.team && !isCount(s.company.team.salt)) s.company.team.salt = (s.seed ^ 0x2c1b3c6d) >>> 0;
       return s;
     }
     /** A new executive candidate for a department, from the company's reach. */
@@ -206,7 +208,7 @@
     }
     /** Fixed −1..1 personality fit for an artist and a team member in this run. */
     function pairFit(s, artistId, memberId) {
-      let h = (s.seed ^ 0x2c1b3c6d) >>> 0;
+      let h = s.company.team.salt;
       for (const n of [artistId, memberId]) h = Math.imul(h ^ (n + 0x9e3779b9), 2246822519) >>> 0;
       h ^= h >>> 15;
       return (h % 2001) / 1000 - 1;
@@ -273,6 +275,50 @@
         };
       });
     }
+    /** A role's effect for an artist: skill × weight × chemistry × share, or 0 with nobody in the slot. */
+    function teamEffect(s, a, roleId) {
+      if (!a || !s.company?.team) return 0;
+      const m = teamMember(s, a.id, roleId);
+      return m ? m.skill * teamRole(roleId).weight * chemistry(s, a, m).value * teamShare(m) : 0;
+    }
+    function teamStageParts(s, p, stage) {
+      const a = s.company && s.artists.find((x) => x.id === p.artist);
+      if (!a) return [];
+      const out = [];
+      for (const [roleId, fx] of Object.entries(TEAM_EFFECTS)) {
+        if (!fx.stages?.includes(stage) || teamRole(roleId).phase > phaseOf(s)) continue;
+        const m = teamMember(s, a.id, roleId);
+        out.push({
+          name: `Team ${teamRole(roleId).name.toLowerCase()} · ${m ? m.name : "nobody assigned"}`,
+          value: Math.round(teamEffect(s, a, roleId) * fx.stagePoints),
+        });
+      }
+      return out;
+    }
+    /** On release: the publicist adds artist fame, and every member counts an album together. */
+    function teamRelease(s, p) {
+      const a = s.company?.team && s.artists.find((x) => x.id === p.artist);
+      if (!a) return;
+      const fame = Math.round(teamEffect(s, a, "publicist") * TEAM_EFFECTS.publicist.releaseFame);
+      if (fame) a.fame = Math.min(100, a.fame + fame);
+      for (const m of s.company.team.pool)
+        if (m.artists.includes(a.id)) m.history[a.id] = (m.history[a.id] || 0) + 1;
+    }
+    /** Share of an event's trust loss that reaches the artist (1 without a publicist). */
+    function trustLossShare(s, a) {
+      const fx = TEAM_EFFECTS.publicist;
+      return 1 - Math.min(fx.defenceMax, teamEffect(s, a, "publicist") * fx.defence);
+    }
+    /** Tour ticket revenue multiplier from the lead artist's tour manager. */
+    function tourGate(s, t) {
+      const lead = s.artists.find((x) => x.id === t.artist);
+      return 1 + teamEffect(s, lead, "tour") * TEAM_EFFECTS.tour.gate;
+    }
+    /** Share of the tour energy drain an artist still takes, from their own tour manager. */
+    function tourDrain(s, t, a) {
+      const fx = TEAM_EFFECTS.tour;
+      return 1 - Math.min(fx.drainMax, teamEffect(s, a, "tour") * fx.drain);
+    }
     function teamPay(s) {
       return (s.company?.team?.pool || []).reduce((n, m) => n + m.salary, 0);
     }
@@ -309,6 +355,7 @@
         !t ||
         !Array.isArray(t.pool) ||
         !isCount(t.nextId) ||
+        (t.salt !== undefined && !isCount(t.salt)) ||
         !t.candidates ||
         typeof t.candidates !== "object"
       )
@@ -351,6 +398,11 @@
       init: (s) => initTeam(init(s)),
       validSave,
       weekly: pruneTeam,
+      stageParts: teamStageParts,
+      onRelease: teamRelease,
+      trustLoss: trustLossShare,
+      tourGate,
+      tourDrain,
       upkeep: (s) => departmentPay(s) + teamPay(s),
       roleSkill: headSkill,
       api: {
@@ -371,6 +423,8 @@
         assignTeam,
         unassignTeam,
         teamShare,
+        teamEffect,
+        TEAM_EFFECTS,
         artistTeam,
         teamPay,
         departmentOpen,

@@ -180,7 +180,7 @@ Do:
 - Chemistry is 0.6–1.4 from genre fit, personality and history, and is shown before assigning.
   Done when: tests cover the slot unlocks, sharing, the chemistry range and determinism for a seed.
 
-### [ ] T15 · Team effects on records and tours
+### [x] T15 · Team effects on records and tours
 
 Depends on: T14, T13
 Files: `src/systems/staff.js`, `src/engine.js` (stage score and tour hooks), `tests/staff-test.cjs`

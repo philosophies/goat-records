@@ -360,6 +360,15 @@ test("Chemistry stays within its range and is the same before and after assignin
   assert.ok(G.chemistry(s, a, m).value <= CHEMISTRY.max);
 });
 
+test("Chemistry does not drift as the run's random numbers move on", () => {
+  const s = teamRun(),
+    a = s.artists[0],
+    m = hireMember(s, "producer"),
+    shown = G.chemistry(s, a, m).value;
+  for (let i = 0; i < 4; i++) settle(s);
+  assert.equal(G.chemistry(s, a, m).value, shown);
+});
+
 test("Team pools and chemistry are the same for the same seed", () => {
   const build = (seed) => {
     const s = teamRun(3, seed);
@@ -407,7 +416,176 @@ test("Artists who leave drop off their team members, and teams survive a save", 
   delete old.company.team;
   assert.equal(G.validSystemsSave(old), true);
   G.migrate(old);
-  assert.deepEqual(old.company.team, { pool: [], candidates: {}, nextId: 1 });
+  assert.deepEqual(old.company.team, { pool: [], candidates: {}, nextId: 1, salt: old.company.team.salt });
+  assert.ok(Number.isInteger(old.company.team.salt));
+});
+
+// ---- Team effects (T15) ----
+const { TEAM_EFFECTS } = G;
+/** A phase-4 CEO run with one strong artist recording an album. */
+function studioRun(seed = 18) {
+  const s = ceo(seed, 4);
+  s.cash = 900000;
+  G.sign(s, s.candidates[0].id, 3);
+  const a = s.artists[0];
+  Object.assign(a, { age: "Adult", talent: 85, potential: 100, fans: 150, fame: 40, energy: 100 });
+  G.record(s, { artistId: a.id, boothId: 0, genre: a.genre, audience: a.audience, title: "Team Test" });
+  return { s, a, p: s.albums[0] };
+}
+function clearEvents(s) {
+  while (s.event) G.choose(s, s.event.options.length - 1);
+}
+function produce(s, p) {
+  for (let guard = 0; guard < 120 && !p.production.releaseReady; guard++) {
+    clearEvents(s);
+    const d = p.production;
+    if (!d.cooldown) {
+      if (!d.review) G.decideStage(s, p.id, 0);
+      G.continueProduction(s, p.id);
+    }
+    if (!d.releaseReady) G.advance(s);
+  }
+  clearEvents(s);
+}
+/** Hires a member for a role at a set skill and genre fit, and assigns them. */
+function assign(s, a, role, skill = 70) {
+  const m = hireMember(s, role);
+  m.skill = skill;
+  m.genres = [a.genre];
+  G.assignTeam(s, m.id, a.id);
+  return m;
+}
+/** Expected score for every stage with option 0, without moving the album on. */
+function stageScores(s, p) {
+  const stage = p.production.stage;
+  const out = [0, 1, 2, 3, 4].map((k) => {
+    p.production.stage = k;
+    return G.stagePreview(s, p, 0);
+  });
+  p.production.stage = stage;
+  return out;
+}
+const teamRows = (preview) => preview.parts.filter((x) => x.name.startsWith("Team "));
+
+test("Team effect is skill × weight × chemistry × share", () => {
+  const { s, a } = studioRun(),
+    m = assign(s, a, "producer", 80);
+  assert.equal(G.teamEffect(s, a, "producer"), 80 * 1 * G.chemistry(s, a, m).value);
+  assert.equal(G.teamEffect(s, a, "publicist"), 0, "an empty slot has no effect");
+});
+
+test("Producer and A&R rep each show as a row on their own stages only", () => {
+  const { s, a, p } = studioRun(),
+    before = stageScores(s, p);
+  assert.deepEqual(
+    before.map((x) => teamRows(x).map((r) => r.name)),
+    [
+      [],
+      ["Team a&r rep · nobody assigned"],
+      ["Team producer · nobody assigned"],
+      ["Team producer · nobody assigned"],
+      [],
+    ],
+  );
+  const producer = assign(s, a, "producer"),
+    withProducer = stageScores(s, p),
+    lift = Math.round(G.teamEffect(s, a, "producer") * TEAM_EFFECTS.producer.stagePoints);
+  assert.ok(lift > 0);
+  for (const k of [0, 1, 4])
+    assert.equal(withProducer[k].expected, before[k].expected, `stage ${k} unchanged`);
+  for (const k of [2, 3]) {
+    assert.deepEqual(teamRows(withProducer[k]), [{ name: `Team producer · ${producer.name}`, value: lift }]);
+    assert.equal(withProducer[k].expected, Math.min(100, before[k].expected + lift));
+  }
+  const rep = assign(s, a, "ar"),
+    withRep = stageScores(s, p);
+  assert.equal(teamRows(withRep[1])[0].name, `Team a&r rep · ${rep.name}`);
+  assert.ok(withRep[1].expected > withProducer[1].expected);
+  for (const k of [0, 2, 3, 4]) assert.equal(withRep[k].expected, withProducer[k].expected);
+  for (const role of ["publicist", "tour", "manager", "stylist", "business"]) assign(s, a, role);
+  assert.deepEqual(
+    stageScores(s, p).map((x) => x.expected),
+    withRep.map((x) => x.expected),
+    "other roles leave the stages alone",
+  );
+});
+
+test("The publicist adds fame on release and cushions trust losses", () => {
+  const base = studioRun();
+  produce(base.s, base.p);
+  const plain = roundTrip(base.s),
+    s = base.s,
+    a = base.a,
+    m = assign(s, a, "publicist"),
+    fame = Math.round(G.teamEffect(s, a, "publicist") * TEAM_EFFECTS.publicist.releaseFame);
+  assert.ok(fame > 0);
+  const before = a.fame;
+  globalThis.DBG = 1;
+  console.log("TEST", JSON.stringify(G.chemistry(s, a, m)), a.genre, a.id, m.skill, m.artists);
+  G.releaseAlbum(s, base.p.id, base.p.title);
+  G.releaseAlbum(plain, plain.albums[0].id, plain.albums[0].title);
+  console.log("DBG", before, a.fame, plain.artists[0].fame, base.p.quality, plain.albums[0].quality, fame);
+  assert.equal(a.fame - plain.artists[0].fame, fame);
+  assert.ok(a.fame >= before + fame);
+  assert.equal(m.history[a.id], 1, "an album together counts toward chemistry");
+  clearEvents(s);
+  clearEvents(plain);
+  const scandal = (x) => {
+    const artist = x.artists[0];
+    artist.trust = 80;
+    x.event = {
+      id: 999,
+      title: "Scandal",
+      artist: artist.id,
+      options: [{ label: "Ride it out", trust: -20 }],
+    };
+    G.choose(x, 0);
+    return artist.trust;
+  };
+  const share =
+    1 -
+    Math.min(
+      TEAM_EFFECTS.publicist.defenceMax,
+      G.teamEffect(s, a, "publicist") * TEAM_EFFECTS.publicist.defence,
+    );
+  assert.equal(scandal(plain), 60);
+  assert.equal(scandal(s), 80 + Math.ceil(-20 * share));
+  assert.ok(scandal(s) > 60);
+});
+
+test("The tour manager raises ticket revenue and saves energy on the road", () => {
+  const base = studioRun();
+  produce(base.s, base.p);
+  G.releaseAlbum(base.s, base.p.id, base.p.title);
+  base.p.launchReview = false;
+  base.p.chart.best = 5;
+  clearEvents(base.s);
+  const plain = roundTrip(base.s),
+    s = base.s;
+  assign(s, base.a, "tour");
+  const scores = (x) => stageScores(x, x.albums[0]).map((y) => y.expected);
+  assert.deepEqual(scores(s), scores(plain), "the tour manager leaves the stages alone");
+  const tour = (x) => {
+    x.artists[0].energy = 100;
+    const t = G.startTour(x, {
+      albumId: x.albums[0].id,
+      scale: "regional",
+      mode: "solo",
+      rivalId: x.rivalArtists[0].id,
+    });
+    for (let i = 0; i < 10 && t.status === "active"; i++) {
+      clearEvents(x);
+      G.advanceTourDay(x);
+    }
+    clearEvents(x);
+    return { t, energy: x.artists[0].energy, fame: x.artists[0].fame };
+  };
+  const a = tour(plain),
+    b = tour(s);
+  assert.ok(b.t.teamGate > 1);
+  assert.equal(a.t.teamGate, 1, "no tour manager, no lift");
+  assert.ok(b.t.revenue > a.t.revenue, "more ticket revenue");
+  assert.ok(b.energy > a.energy, "less energy drain");
 });
 
 console.log(`${count} staff tests passed.`);

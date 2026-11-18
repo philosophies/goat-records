@@ -135,6 +135,20 @@
     maxArtists: 2,
     sharedEffect: 0.6,
   };
+  // What each team role changes. A member's effect is skill × role weight × chemistry × share.
+  //   stagePoints  stage score points per effect point, on the listed stages (0 Creative direction …
+  //                4 Campaign planning)
+  //   releaseFame  artist fame per effect point when an album comes out
+  //   defence      share of an event's trust loss absorbed per effect point, up to defenceMax
+  //   gate         extra tour ticket revenue per effect point
+  //   drain        share of tour energy drain removed per effect point, up to drainMax
+  // Manager, stylist and business manager effects arrive with traits, wants and deals (T16, T27).
+  const TEAM_EFFECTS = {
+    producer: { stages: [2, 3], stagePoints: 0.1 },
+    ar: { stages: [1], stagePoints: 0.1 },
+    publicist: { releaseFame: 0.05, defence: 0.004, defenceMax: 0.5 },
+    tour: { gate: 0.002, drain: 0.004, drainMax: 0.5 },
+  };
   // How a member styles their work; shown on their card. Chemistry with an artist also depends on the pair.
   const TEAM_STYLES = ["Calm", "Driven", "Blunt", "Playful", "Meticulous", "Old-school"];
   // Chemistry = base + genre fit + personality + history, clamped to min–max.
@@ -192,6 +206,7 @@
     DEPARTMENTS,
     ROLE_DEPARTMENT,
     TEAM_ROLES,
+    TEAM_EFFECTS,
     TEAM_POOL,
     TEAM_STYLES,
     CHEMISTRY,
