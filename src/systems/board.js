@@ -6,7 +6,19 @@
 
   /** @param {object} core engine helpers  @param {object} D data tables */
   function create(core, D) {
-    const { DIRECTORS, BACKERS, VALUATION, FUNDING, PHASES, EXEC_FIRST, EXEC_LAST } = D;
+    const {
+      DIRECTORS,
+      METRICS,
+      MONEY_STEP,
+      SEAT_WEIGHT,
+      BACKERS,
+      VALUATION,
+      FUNDING,
+      PHASES,
+      EXEC_FIRST,
+      EXEC_LAST,
+    } = D;
+    const { clamp } = core;
     const { log, requireAction, roll } = core;
     const directorById = Object.fromEntries(DIRECTORS.map((d) => [d.id, d]));
     const isCount = (n) => Number.isInteger(n) && n >= 0;
@@ -120,9 +132,12 @@
         return offer;
       }
       s.company.ownership = Math.round(s.company.ownership * (1 - offer.equity) * 10000) / 10000;
+      const fresh = !s.company.board;
       s.company.board ??= { directors: [], nextId: 1, since: s.week };
       const added = Array.from({ length: offer.seats }, () => newDirector(s, kind));
       s.company.board.directors.push(...added);
+      if (fresh) setTargets(s);
+      boardWeek(s);
       s.company.rounds.push({
         kind,
         name: offer.name,
@@ -137,6 +152,97 @@
         `${offer.name}: $${offer.amount.toLocaleString("en-US")} for ${Math.round(offer.equity * 100)}% of the company. ${added.length ? added.map((d) => d.name).join(" and ") + " join the board." : ""} You now own ${Math.round(s.company.ownership * 100)}%.`,
       );
       return { ...offer, directors: added };
+    }
+
+    // ---- Satisfaction and confidence (design 4) ----
+    /** Today's value of every board metric. */
+    function metricValues(s) {
+      const recent = (s.financeHistory || []).slice(-METRICS.profit.weeks),
+        morale = s.artists.map((a) => a.morale ?? 75);
+      return {
+        profit: recent.length
+          ? Math.round(recent.reduce((n, w) => n + (w.cashChange || 0), 0) / recent.length)
+          : 0,
+        growth: core.api().yearRevenue(s),
+        cash: Math.round(s.cash),
+        welfare: morale.length ? Math.round(morale.reduce((n, m) => n + m, 0) / morale.length) : 75,
+        reputation: Math.round(s.reputation),
+        scandals: board(s)?.scandals || 0,
+        valuation: valuation(s),
+      };
+    }
+    /** Satisfaction points a metric is worth before the director's agenda weight. */
+    function metricPoints(s, key, value, target) {
+      const m = METRICS[key];
+      let distance;
+      if (m.kind === "money") distance = (value - target) / (m.step * MONEY_STEP[phase(s) - 1]);
+      else if (m.kind === "percent") distance = target > 0 ? ((value / target - 1) * 100) / m.step : 0;
+      else distance = (value - target) / m.step;
+      return Math.max(-m.cap, Math.min(m.cap, distance));
+    }
+    /**
+     * A director's satisfaction: clamp(0, 100, 50 + Σ metric points × agenda weight + relationship +
+     * promises), with the reasons that moved it, largest first.
+     */
+    function satisfaction(s, d, values = metricValues(s)) {
+      const targets = board(s)?.targets || values,
+        agenda = directorById[d.type].agenda,
+        reasons = Object.entries(agenda)
+          .map(([key, weight]) => ({
+            key,
+            name: METRICS[key].name,
+            value: values[key],
+            target: targets[key],
+            points: Math.round(metricPoints(s, key, values[key], targets[key]) * weight * 10) / 10,
+          }))
+          .filter((r) => r.points);
+      if (d.relationship)
+        reasons.push({ key: "relationship", name: "Your relationship", points: d.relationship });
+      if (d.promises) reasons.push({ key: "promises", name: "Promises", points: d.promises });
+      reasons.sort((a, b) => Math.abs(b.points) - Math.abs(a.points));
+      const total = 50 + reasons.reduce((n, r) => n + r.points, 0);
+      return { value: Math.round(clamp(total)), reasons };
+    }
+    /** Board confidence 0–100, or null with no board. */
+    function confidence(s, values = metricValues(s)) {
+      const b = board(s);
+      if (!b?.directors.length) return null;
+      const weights = b.directors.map(() => SEAT_WEIGHT),
+        sum = b.directors.reduce((n, d, i) => n + satisfaction(s, d, values).value * weights[i], 0);
+      return Math.round(sum / weights.reduce((n, w) => n + w, 0));
+    }
+    /** Every director's satisfaction and reasons, and the board's confidence. */
+    function boardReport(s) {
+      const b = board(s);
+      if (!b) return null;
+      const values = metricValues(s);
+      return {
+        confidence: confidence(s, values),
+        values,
+        targets: b.targets,
+        directors: b.directors.map((d) => ({
+          ...d,
+          archetype: directorById[d.type].name,
+          ...satisfaction(s, d, values),
+        })),
+      };
+    }
+    /** Sets this period's targets to where the label stands now, and clears the scandal count. */
+    function setTargets(s) {
+      const b = board(s);
+      b.scandals = 0;
+      b.targets = metricValues(s);
+    }
+    function boardWeek(s) {
+      const b = board(s);
+      if (!b) return;
+      const values = metricValues(s);
+      for (const d of b.directors) d.satisfaction = satisfaction(s, d, values).value;
+      b.confidence = confidence(s, values);
+    }
+    function onScandal(s) {
+      const b = board(s);
+      if (b) b.scandals = (b.scandals || 0) + 1;
     }
 
     // ---- Loan payments ----
@@ -193,7 +299,13 @@
         !!c.board &&
         Array.isArray(c.board.directors) &&
         isCount(c.board.nextId) &&
-        c.board.directors.every(validDirector)
+        c.board.directors.every(validDirector) &&
+        (c.board.scandals === undefined || isCount(c.board.scandals)) &&
+        (c.board.targets === undefined ||
+          (!!c.board.targets && Object.keys(METRICS).every((k) => Number.isFinite(c.board.targets[k])))) &&
+        (c.board.confidence === undefined ||
+          c.board.confidence === null ||
+          (Number.isFinite(c.board.confidence) && c.board.confidence >= 0 && c.board.confidence <= 100))
       );
     }
 
@@ -201,7 +313,12 @@
       init,
       validSave,
       upkeep: loanPayment,
-      weekly: loanWeek,
+      weekly: (s) => {
+        loanWeek(s);
+        boardWeek(s);
+        return 0;
+      },
+      onScandal,
       api: {
         DIRECTORS,
         BACKERS,
@@ -214,6 +331,14 @@
         takeFunding,
         loanPayment,
         repayLoan,
+        METRICS,
+        MONEY_STEP,
+        metricValues,
+        metricPoints,
+        satisfaction,
+        confidence,
+        boardReport,
+        setTargets,
       },
     };
   }

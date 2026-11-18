@@ -398,3 +398,5 @@ A met want adds 1 morale a week. An ignored one costs 3 + ego × 0.02 − loyalt
 - Rounds are priced at the larger of a phase floor ($60,000 in phase 2 up to $6,000,000 in phase 6) and a year of revenue × 1.5–4 by phase. Each round shrinks your share of what is left.
 
 The board appears with the first angel or venture money. Each director is the Accountant, the Visionary, the Artist's Friend, the Old Guard or the Investor, with their own agenda and patience.
+
+**Board confidence.** Each director's satisfaction is 50 plus their agenda's results, plus your relationship and any promises, kept between 0 and 100. Results are measured against targets set when the board forms (and at each review): weekly profit over 13 weeks, a year of revenue, cash, average artist morale, reputation, scandals since the review, and company value. Each metric is worth up to 20–25 points either way. Confidence is the average satisfaction across the seats. Each director's panel lists what moved them.

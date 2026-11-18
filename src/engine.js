@@ -716,6 +716,7 @@
   function apply(s, a, e, mitigate = false) {
     // In CEO runs the artist's publicist absorbs part of a trust loss.
     if (a && e.trust < 0 && s.company) {
+      hooks.each("onScandal", s, a, e);
       const share = hooks.product("trustLoss", s, a);
       if (share !== 1) e = { ...e, trust: Math.ceil(e.trust * share) };
     }
