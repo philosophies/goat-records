@@ -150,9 +150,10 @@ test("Awards are not automatically granted each quarter", () => {
   while (s.week < 26) next(s);
   assert.equal(s.awards, 0);
 });
-test("Negative cash ends the game and prevents further actions", () => {
+test("Negative cash past the grace period ends the game and prevents further actions", () => {
   let s = G.create(5);
   s.cash = 0;
+  s.debtWeeks = G.DEBT.graceWeeks;
   G.advance(s);
   assert.ok(s.finished);
   assert.throws(() => G.advance(s), /ended/);
@@ -161,7 +162,8 @@ function play(seed) {
   let s = G.create(seed);
   G.sign(s, s.candidates.toSorted((a, b) => b.talent - a.talent)[0].id);
   G.hire(s, "Producer");
-  while (!s.finished) {
+  // Plays the first operating year; the campaign continues after it, so the sample stops at week 53.
+  while (!s.finished && s.week < 53) {
     while (s.event) G.choose(s, 2);
     if (s.finished) break;
     let a = s.artists[0];
@@ -186,18 +188,20 @@ function play(seed) {
   }
   return s;
 }
-test("Fifty seeded seasons reach a valid end state", () => {
+test("Fifty seeded first years either fold or carry on into year two", () => {
   let wins = 0,
     survived = 0;
   for (let i = 1; i <= 50; i++) {
     let s = play(i);
-    assert.ok(s.finished);
-    if (s.week === 53) survived++;
-    if (s.outcome.startsWith("You built")) wins++;
+    assert.ok(s.finished ? s.cash < 0 : s.week === 53, "only bankruptcy stops a run in year one");
+    if (!s.finished) {
+      survived++;
+      assert.equal(s.campaign.goals[0].year, 1);
+      if (s.campaign.goals[0].status === "met") wins++;
+    }
   }
-  console.log(`  Conservative strategy: ${survived}/50 survived, ${wins}/50 reached Breakout Label.`);
+  console.log(`  Conservative strategy: ${survived}/50 survived, ${wins}/50 met the year-one goal.`);
   assert.ok(survived > 0);
-  assert.equal(wins, 0);
 });
 
 test("Five stages require decisions, reviews and elapsed weeks before release", () => {

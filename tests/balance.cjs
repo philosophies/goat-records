@@ -33,7 +33,8 @@ function run(seed, national, hq = false) {
     start = a.talent;
   let sessions = 0,
     firstLevel3 = null;
-  while (!s.finished) {
+  // Samples the first operating year; the campaign carries on after week 53.
+  while (!s.finished && s.week < 53) {
     while (s.event) G.choose(s, 2);
     if (s.finished) break;
     if (hq) buildHq(s);
@@ -100,8 +101,8 @@ function run(seed, national, hq = false) {
     G.advance(s);
   }
   return {
-    survived: s.week === 53,
-    won: s.outcome.startsWith("You built"),
+    survived: !s.finished && s.week === 53,
+    won: s.campaign.goals[0]?.status === "met",
     startCraft: start,
     endCraft: a.talent,
     level: G.level(a),

@@ -187,7 +187,7 @@ test("Awards accept one eligible release per genre and reject previous or future
   assert.throws(() => G.enterAwards(s, 2, p.genre, p.id), /operating year/);
   assert.throws(() => G.enterAwards(s, 1, p.genre, p.id), /this operating year/);
 });
-test("Annual ceremony resolves once, competes with rivals, and does not softlock first-year results", () => {
+test("Annual ceremony resolves once, competes with rivals, and year two follows without a stop", () => {
   const { s, a, p } = prepared(11);
   p.quality = 100;
   p.launchRatings.forEach((r) => (r.score = 100));
@@ -206,12 +206,13 @@ test("Annual ceremony resolves once, competes with rivals, and does not softlock
   assert.equal(s.awardPrograms[1].results.find((r) => r.genre === p.genre).winner, p.id);
   assert.equal(a.career.awards, 1);
   G.choose(s, 2);
-  assert.equal(s.finished, true);
+  assert.equal(s.finished, false, "the campaign carries on after year one");
+  assert.equal(s.campaign.goals[0].year, 1);
   const cash = s.cash;
   G.resolveAnnualAwards(s, 1);
   assert.equal(s.awards, 1);
   assert.equal(s.cash, cash);
-  G.continueCareer(s);
+  assert.throws(() => G.continueCareer(s), /first year/);
   assert.ok(s.awardPrograms[2]);
 });
 test("The first review blocks time and seven tour days settle exactly one label week", () => {
@@ -400,15 +401,14 @@ test("Rival daily offers retain real recruitment and poaching outcomes", () => {
   }
   assert.ok(recruited && poached);
 });
-test("Daily tours can cross the annual ceremony and continue in career mode", () => {
+test("Daily tours can cross the annual ceremony into year two", () => {
   const f = prepared(16);
   f.s.week = 52;
   f.p.releaseWeek = 52;
   const t = book(f);
   for (let i = 0; i < 7; i++) day(f.s);
   assert.equal(f.s.week, 53);
-  assert.equal(f.s.finished, true);
-  G.continueCareer(f.s);
+  assert.equal(f.s.finished, false, "year one no longer stops the label");
   let guard = 0;
   while (t.status === "active" && guard++ < 100) day(f.s);
   assert.equal(t.status, "completed");

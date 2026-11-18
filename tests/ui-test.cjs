@@ -17,6 +17,7 @@ const element = (id) => {
   return elements.get(id);
 };
 let stored = null;
+const prefs = {};
 const context = vm.createContext({
   console,
   LabelGame: require("../src/engine.js"),
@@ -25,20 +26,48 @@ const context = vm.createContext({
     querySelectorAll: () => [],
     addEventListener: (name, fn) => (listeners[name] = fn),
   },
-  localStorage: { getItem: () => stored, setItem: (_, v) => (stored = v) },
+  localStorage: {
+    getItem: (k) => (k === "side-a-save-v1" ? stored : (prefs[k] ?? null)),
+    setItem: (k, v) => (k === "side-a-save-v1" ? (stored = v) : (prefs[k] = v)),
+  },
   confirm: () => true,
   setTimeout,
   Blob,
   URL,
 });
-vm.runInContext(fs.readFileSync(__dirname + "/../src/ui/label-ui.js", "utf8"), context);
-vm.runInContext(fs.readFileSync(__dirname + "/../src/app.js", "utf8"), context);
-assert.match(element("content").innerHTML, /Your first discovery/);
+require("./load-interface.cjs")(context);
+// The lot is the main screen; menu screens open in a panel over it.
+assert.match(element("lot").innerHTML, /data-action="hqTile"/);
+assert.match(element("lot").innerHTML, /Living Room/);
+assert.match(element("lotRoof").innerHTML, /Bedroom Label/);
+assert.equal(element("drawer").hidden, true);
+assert.equal(element("content").innerHTML, "");
+assert.match(element("menu").innerHTML, /data-tab="studio"/);
+assert.match(element("menu").innerHTML, /data-tab="hq"/);
+assert.match(
+  element("clockReason").textContent,
+  /Paused · press 1×/,
+  "a new label starts paused with a hint",
+);
+assert.match(element("clock").innerHTML, /data-action="clockSpeed"/);
+assert.match(element("date").innerHTML, /YEAR 01 · WEEK 1 · .*DAY 1/);
 function click(data) {
   listeners.click({ target: { closest: () => ({ dataset: data }) } });
 }
+click({ tab: "studio" });
+assert.equal(element("drawer").hidden, false);
+assert.equal(element("drawerTitle").textContent, "The studio");
+assert.match(element("content").innerHTML, /Your first discovery/);
+assert.match(element("clockReason").textContent, /menu open/, "an open menu holds the clock");
+click({ action: "closePanel" });
+assert.equal(element("drawer").hidden, true);
+click({ action: "clockSpeed", id: 2 });
+assert.equal(vm.runInContext("GoatClock.speed", context), 2);
+assert.equal(prefs["goat-records-clock-speed"], "2", "the chosen speed is remembered");
+assert.match(element("clockReason").textContent, /2× · time is running/);
 click({ tab: "scout" });
 assert.match(element("content").innerHTML, /Tomorrow/);
+assert.equal(vm.runInContext("GoatClock.current().held", context), true, "the chosen speed waits while held");
 const original = JSON.parse(stored);
 click({ action: "sign", id: original.candidates[0].id });
 assert.equal(JSON.parse(stored).artists.length, 1);
@@ -83,18 +112,32 @@ click({ tab: "journal" });
 assert.match(element("content").innerHTML, /Industry wire/);
 click({ tab: "hq" });
 assert.match(element("content").innerHTML, /Bedroom Label/);
-assert.match(element("content").innerHTML, /Pick a tile/);
+assert.match(element("content").innerHTML, /pick an empty tile on the lot/);
+click({ action: "closePanel" });
+// Building happens on the lot: a tile opens a popover that holds the clock.
+assert.equal(element("lotPopover").hidden, true);
 click({ action: "hqTile", x: "0", y: "0" });
-assert.match(element("content").innerHTML, /Build on tile 1, 1/);
+assert.equal(element("lotPopover").hidden, false);
+assert.match(element("lotPopover").innerHTML, /Build on tile 1, 1/);
+assert.match(element("clockReason").textContent, /building/);
 const cashBeforeBuild = JSON.parse(stored).cash;
 click({ action: "buildFacility", fac: "writers", x: "0", y: "0" });
 assert.equal(JSON.parse(stored).hq.facilities[0].id, "writers");
 assert.equal(JSON.parse(stored).cash, cashBeforeBuild - 4000);
-assert.match(element("content").innerHTML, /Upgrade to level 2/);
+assert.match(element("lot").innerHTML, /Writers&#39; Room|Writers' Room/);
+assert.match(element("lotPopover").innerHTML, /Upgrade to level 2/);
 click({ action: "hqMove", fac: "writers" });
-assert.match(element("content").innerHTML, /Move here/);
+assert.match(element("lot").innerHTML, /Move here/);
 click({ action: "hqTile", x: "2", y: "1" });
 assert.deepEqual([JSON.parse(stored).hq.facilities[0].x, JSON.parse(stored).hq.facilities[0].y], [2, 1]);
+click({ action: "hqClose" });
+assert.equal(element("lotPopover").hidden, true);
+click({ tab: "hq" });
+assert.match(element("content").innerHTML, /Show on lot/);
+click({ action: "hqFocus", x: "2", y: "1" });
+assert.equal(element("drawer").hidden, true);
+assert.match(element("lotPopover").innerHTML, /Upgrade to level 2/);
+click({ action: "hqClose" });
 click({ tab: "studio" });
 assert.match(element("content").innerHTML, /Album theme/);
 assert.match(element("content").innerHTML, /Combo notebook/);
@@ -123,5 +166,5 @@ assert.equal(
   false,
 );
 console.log(
-  "PASS interface harness: initial render, tabs, signing, album form, week progression, event resolution, escaping, headquarters build and move, themes and combo notebook, save round-trip and invalid-save rejection.",
+  "PASS interface harness: lot main screen, menu panels, clock controls and holds, tabs, signing, album form, week progression, event resolution, escaping, building, moving and focusing facilities on the lot, themes and combo notebook, save round-trip and invalid-save rejection.",
 );

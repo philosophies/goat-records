@@ -19,8 +19,8 @@ Watching a cramped bedroom setup turn into a building full of busy rooms, and wo
 ## Formulas
 
 - Stage bonus = Σ facility stage value × level + active pairing values, added when a stage decision is made.
-- Shop takings = round((Σ (base + fame × rate) × level) × (1 + Fan district bonus)).
-- Archive residual = level × Σ quality of albums whose earning run has ended.
+- Shop takings = round((Σ (base + min(fame, 400) × rate) × level) × (1 + Fan district bonus)). Fame past 400 no longer raises takings.
+- Archive residual = 0.5 × level × Σ quality of the best 30 albums whose earning run has ended.
 - Idle artist care each week: morale and inspiration + Lounge × level; energy + Rehearsal × level.
 - Development: ceiling + 3 × Academy level; fee × (1 − discounts), discounts capped at 60%.
 

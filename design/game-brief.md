@@ -8,7 +8,7 @@ Use the broad appeal of a creative-business management simulation: recruit, deve
 
 Core loop: scout talent → reserve a limited roster slot → choose album sound, audience and production resources → manage staff and recording time → release → respond to the press and rivals → collect catalog income and award prestige → expand label capacity.
 
-The interesting tension is between immediate cash, public attention, durable fan trust, artistic growth and label reputation. A player should be able to succeed as a careful boutique label or a high-volume hitmaker. The first prototype is deliberately smaller and has one campaign goal; alternative winning styles require balancing and playtesting.
+The interesting tension is between immediate cash, public attention, durable fan trust, artistic growth and label reputation. A player should be able to succeed as a careful boutique label or a high-volume hitmaker. Version 1.0 grades each 20-year run, so careful and high-volume labels can both reach five stars.
 
 ## Artists and audiences
 
@@ -130,4 +130,8 @@ Three systems borrowed in spirit from studio-management sims give the label a vi
 - **Headquarters** turns label investment into a floor plan. Facilities give stage bonuses, takings and artist care; neighbors pair up for extra effects; artists appear where they work. See design/gdd/headquarters.md.
 
 Players who ignore headquarters stay at Bedroom Label and keep the lower development ceiling. The seeded sample in BALANCE.json compares both approaches. Next steps are in production/roadmap.md.
+
+## Version 1.0 the lot
+
+The label's building is now the game screen, as in studio-management sims of this kind: a pixel-art cutaway where staff and artists move between rooms, menus open over it, and a live clock runs until a decision needs the player. A 20-year campaign gives each year a goal and ends with a star grade and New Game+. Rented recording locations and paid gigs add Kairosoft-style leveling and training income; hot streaks, lead singles and ads make success visible and give money a second use. See design/gdd/presentation.md, campaign.md, locations.md and promotion.md.
 

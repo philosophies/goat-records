@@ -1,0 +1,55 @@
+# Architecture
+
+Plain browser JavaScript, no build step. `index.html` loads scripts in this order: data tables, systems, engine, interface registry, feature interfaces, `app.js`.
+
+## Simulation
+
+- `src/engine.js` — core rules (artists, albums, charts, tours, awards, saves). Exposes `LabelGame` in the browser and `module.exports` in Node.
+- `src/data/<name>.js` — balance tables. Each file merges its tables into `GoatData`.
+- `src/systems/<name>.js` — optional game systems. Each file exports `create(core, data)` (and registers `GoatSystems[name]` in the browser). The engine loads the names listed in `SYSTEM_NAMES`; a missing file is skipped.
+
+`core` gives a system `clamp`, `log`, `pay`, `requireAction`, `busy`, `artist`, `operatingYear`, `roll(s, key)` (a separate seeded random stream per key, so a new system never changes existing seeded outcomes) and `api()` (the engine's public API, for calls at run time).
+
+### System hooks
+
+A system object may implement any of these. All are optional.
+
+| Hook | Called | Returns |
+| --- | --- | --- |
+| `init(s)` | New game and every load (migration) | — |
+| `validSave(s)` | Save import and page load | `false` to reject |
+| `validatePlan(s, plan)` | Before an album is paid for | throws to reject |
+| `planCost(s, plan)` | Album quote and start | extra cost |
+| `onRecord(s, album, plan)` | Album started | — |
+| `stageParts(s, album, stage)` | Each production stage preview | calculation rows `{name, value}` |
+| `launchParts(s, album, i)` | Release ratings (0 Critics, 1 Fan response, 2 Market impact) | rows |
+| `onRelease(s, album)` | Album released | — |
+| `salesMultiplier(s, album, artist)` | Weekly album sales | multiplier |
+| `upkeep(s)` | Weekly overhead | cost |
+| `weekly(s)` | Weekly settlement, after charts | income paid this week |
+| `trainingAdjust(s, artist)` | Development quote | `{ceilingBonus, discount}` |
+| `afterTraining(s, artist)` | After a development session | — |
+| `afterTour(s, tour, completed)` | Tour ends | — |
+| `yearEnd(s, year)` | After the annual awards at a year boundary | — |
+
+Add new public functions to the engine API through the system object; `LabelGame.systems` lists loaded systems.
+
+## Interface
+
+- `src/ui/registry.js` — `GoatUI`, the plug-in points listed in the file: menu screens (`registerPanel`), album form fields, studio sections, artist and catalog card rows, production rows, status chips, banners, click and change handlers.
+- `src/ui/<name>.js` — feature screens. They register with `GoatUI` and use the page helpers from `app.js` at render time (`G`, `state`, `$`, `esc`, `money`, `act`, `render`, `disable`, `blocked`).
+- `src/app.js` — page shell, built-in screens, saving and loading.
+
+Album form controls that should refresh the quote carry a `data-album-field` attribute.
+
+Two more points serve the lot screen: `GoatUI.pauses` (`{ reason() }`; any non-empty text holds the live clock and is shown as the pause reason) and `GoatUI.lotDecor` (`{ render() }`; drawn on the street in front of the building). A banner with a button is shown as a card over the lot and holds the clock; one without a button sits in the side ticker.
+
+Page globals for feature scripts: `GoatLot.say(text, key, facilityId)` shows a speech bubble over an artist (`"a" + id`) or staff member (`"s" + role`); `GoatClock` has `speed`, `setSpeed(n)` and `day()`; `openPanel(id)` and `closePanel()` open and close menu screens; `paintHTML(id, html)` rewrites a region only when it changed.
+
+## Live clock
+
+`src/ui/clock.js` decides each tick with `clockState(state, ui)`. Time holds for a finished run, an event, an album decision or result, a chart milestone, an unseen rank-up, an open menu or building popover, a banner with a button, and any `GoatUI.pauses` reason. Each tick runs one Next week step. A chosen speed resumes by itself once nothing is waiting; Pause stays paused.
+
+## Checks
+
+`node run-checks.cjs` runs every suite in `tests/`. Interface harnesses load scripts in `index.html` order through `tests/load-interface.cjs`, so new interface files are picked up automatically.

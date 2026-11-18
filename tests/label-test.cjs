@@ -250,7 +250,30 @@ test("Shops earn from label fame, the Fan district pairing adds 30%, and archive
   s.albums.push({ id: 1, released: true, quality: 80, age: 6, salesWeeks: 12, chart: {} });
   assert.equal(G.hqIncome(s).residual, 0);
   s.albums[0].age = 12;
-  assert.equal(G.hqIncome(s).residual, 80);
+  assert.equal(G.hqIncome(s).residual, 40);
+});
+
+test("Shop takings stop rising past the fame cap and the archive pays on the best albums only", () => {
+  const { s } = label(16);
+  s.cash = 10 ** 7;
+  s.rank = 4;
+  G.buildFacility(s, "merch", 0, 0);
+  s.fame = G.HQ.incomeFameCap;
+  const atCap = G.hqIncome(s).shops;
+  s.fame = G.HQ.incomeFameCap * 10;
+  assert.equal(G.hqIncome(s).shops, atCap);
+  G.buildFacility(s, "archive", 3, 2);
+  for (let i = 0; i < G.HQ.residualAlbums + 10; i++)
+    s.albums.push({
+      id: 100 + i,
+      released: true,
+      quality: i < 10 ? 10 : 80,
+      age: 20,
+      salesWeeks: 12,
+      chart: {},
+    });
+  const archive = G.FACILITIES.find((f) => f.id === "archive");
+  assert.equal(G.hqIncome(s).residual, Math.round(archive.residual * 80 * G.HQ.residualAlbums));
 });
 
 test("The Artist Lounge restores morale and inspiration for idle artists only", () => {

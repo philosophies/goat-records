@@ -160,14 +160,21 @@
       const left = THEMES.filter((t) => !s.themes.includes(t.name));
       if (!left.length) return null;
       const t = left[Math.floor(discoveryRoll(s) * left.length)].name;
-      s.themes.push(t);
-      s.themeLog.unshift({ theme: t, week: s.week, source });
-      s.themeLog = s.themeLog.slice(0, 40);
-      if (!quiet) log(s, `New album theme discovered (${source}): ${t}.`);
+      learnTheme(s, t, source, quiet);
       return t;
     }
-    function onRecord(s, p) {
-      if (!p.themes?.length) return;
+    /** Adds a specific theme. Returns false when it is unknown or already discovered. */
+    function learnTheme(s, name, source, quiet = false) {
+      if (!theme(name) || s.themes.includes(name)) return false;
+      s.themes.push(name);
+      s.themeLog.unshift({ theme: name, week: s.week, source });
+      s.themeLog = s.themeLog.slice(0, 40);
+      if (!quiet) log(s, `New album theme discovered (${source}): ${name}.`);
+      return true;
+    }
+    function onRecord(s, p, plan = {}) {
+      p.themes = [...(plan.themes ?? [])];
+      if (!p.themes.length) return;
       p.comboKey = comboKey(p.genre, p.themes);
       s.combos[p.comboKey] ??= {
         genre: p.genre,
@@ -261,15 +268,15 @@
       let shops = 0;
       for (const f of s.hq.facilities) {
         const inc = byId[f.id].income;
-        if (inc) shops += (inc.base + s.fame * inc.fame) * f.level;
+        if (inc) shops += (inc.base + Math.min(s.fame, HQ.incomeFameCap ?? Infinity) * inc.fame) * f.level;
       }
       shops = Math.round(shops * (1 + bonus.incomeBonus));
-      const residual = Math.round(
-        bonus.residual *
-          s.albums
-            .filter((p) => p.released && p.age >= p.salesWeeks)
-            .reduce((n, p) => n + (p.quality || 0), 0),
-      );
+      const finished = s.albums
+        .filter((p) => p.released && p.age >= p.salesWeeks)
+        .map((p) => p.quality || 0)
+        .sort((a, b) => b - a)
+        .slice(0, HQ.residualAlbums ?? Infinity);
+      const residual = Math.round(bonus.residual * finished.reduce((n, q) => n + q, 0));
       return { shops, residual, total: shops + residual };
     }
     function upgradeCost(f) {
@@ -377,9 +384,12 @@
       }
       return parts;
     }
-    function trainingAdjust(s, info) {
+    function trainingAdjust(s) {
       const bonus = hqBonuses(s);
-      return { ...info, ceilingBonus: bonus.ceiling, discount: bonus.trainingDiscount };
+      return { ceilingBonus: bonus.ceiling, discount: bonus.trainingDiscount };
+    }
+    function validatePlan(s, plan) {
+      validateThemes(s, plan.themes ?? []);
     }
     function afterTraining(s) {
       if (discoveryRoll(s) < FIT.trainingDiscovery) discoverTheme(s, "development session");
@@ -442,6 +452,7 @@
       comboInfo,
       validateThemes,
       discoverTheme,
+      learnTheme,
       onRecord,
       onRelease,
       lotSize,
@@ -457,6 +468,8 @@
       moveFacility,
       demolishFacility,
       weekly,
+      upkeep: hqUpkeep,
+      validatePlan,
       stageParts,
       launchParts,
       trainingAdjust,
@@ -467,6 +480,6 @@
     };
   }
 
-  root.GoatSystems = Object.assign(root.GoatSystems || {}, { createLabelSystems });
-  if (typeof module !== "undefined" && module.exports) module.exports = { createLabelSystems };
+  root.GoatSystems = Object.assign(root.GoatSystems || {}, { label: createLabelSystems });
+  if (typeof module !== "undefined" && module.exports) module.exports = { create: createLabelSystems };
 })(typeof globalThis !== "undefined" ? globalThis : this);

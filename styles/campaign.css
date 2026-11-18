@@ -1,0 +1,160 @@
+/* Campaign: goal chip, yearly and final reviews, goal table and New Game+ picker. */
+.campaign-chip {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 2px 8px;
+  border: 1px solid #505b3f;
+  border-radius: 3px;
+  font: 11px monospace;
+  color: var(--muted);
+}
+.campaign-chip.met {
+  color: var(--lime);
+  border-color: var(--lime);
+}
+.campaign-review > div:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+.campaign-review .formula {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  column-gap: 22px;
+  margin: 10px 0;
+}
+.campaign-review.goal-missed {
+  background: linear-gradient(120deg, #3a3426, #262b29);
+  border-color: var(--orange);
+}
+.campaign-review.goal-missed .chart-award {
+  border-color: var(--orange);
+  color: var(--orange);
+}
+.campaign-stars {
+  color: var(--lime);
+  letter-spacing: 2px;
+}
+.campaign-stars span {
+  color: #3d4447;
+}
+.campaign-final {
+  margin: 10px 0 26px;
+}
+.campaign-final h2 {
+  font: 32px Georgia;
+  margin: 10px 0;
+}
+.campaign-highlights {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+}
+.campaign-highlights li {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+.campaign-highlights small {
+  display: block;
+  color: var(--muted);
+  font: 10px monospace;
+  text-transform: uppercase;
+}
+.legacy-points b {
+  font: 28px Georgia;
+  color: var(--lime);
+}
+.legacy-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+  margin: 12px 0 18px;
+}
+.legacy-option {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+  background: #222c24;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.legacy-option.picked {
+  border-color: var(--lime);
+}
+.legacy-option input[type="checkbox"] {
+  appearance: auto;
+  accent-color: var(--lime);
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.legacy-option small {
+  display: block;
+  color: var(--muted);
+}
+.campaign-current {
+  margin: 14px 0 20px;
+}
+.campaign-current h3 {
+  margin: 8px 0 4px;
+}
+.campaign-goals {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin: 14px 0 22px;
+}
+.campaign-goals th,
+.campaign-goals td {
+  text-align: left;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.campaign-goals th {
+  font: 10px monospace;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.campaign-goals td small {
+  display: block;
+  color: var(--muted);
+}
+.campaign-goals .goal-met b {
+  color: var(--lime);
+}
+.campaign-goals .goal-missed b {
+  color: var(--orange);
+}
+.campaign-goals .goal-active {
+  background: #1f2a20;
+}
+.campaign-goals .goal-upcoming,
+.campaign-goals .goal-none {
+  color: var(--muted);
+}
+.campaign-history {
+  color: var(--muted);
+  padding-left: 18px;
+}
+@media (max-width: 700px) {
+  .campaign-review .formula {
+    grid-template-columns: 1fr;
+  }
+  .campaign-review > div:nth-child(2) {
+    flex: 1 1 100%;
+  }
+  .campaign-review .formula b {
+    white-space: nowrap;
+  }
+  .campaign-goals td:nth-child(3),
+  .campaign-goals th:nth-child(3) {
+    display: none;
+  }
+}

@@ -1,9 +1,23 @@
 (function (root) {
   "use strict";
   const isNode = typeof module !== "undefined" && module.exports;
-  const D = isNode ? require("./data/core.js") : root.GoatData;
-  const LD = isNode ? require("./data/label.js") : root.GoatData;
-  const Systems = isNode ? require("./systems/label.js") : root.GoatSystems;
+  // Game systems live in src/systems/<name>.js with tables in src/data/<name>.js.
+  // Each is optional: a missing file is skipped. In the browser they load as script tags first.
+  const SYSTEM_NAMES = ["label", "campaign", "locations", "promotion"];
+  function optionalRequire(path) {
+    try {
+      return require(path);
+    } catch (e) {
+      if (e.code === "MODULE_NOT_FOUND" && String(e.message).includes(path.slice(1))) return null;
+      throw e;
+    }
+  }
+  if (isNode) for (const n of ["core", ...SYSTEM_NAMES]) optionalRequire("./data/" + n + ".js");
+  const D = root.GoatData,
+    LD = D;
+  const factories = isNode
+    ? Object.fromEntries(SYSTEM_NAMES.map((n) => [n, optionalRequire("./systems/" + n + ".js")?.create]))
+    : root.GoatSystems || {};
   const {
     GENRES,
     ROLES,
@@ -49,6 +63,7 @@
     }
     for (const p of s.albums) if (!p.released && !p.production) initializeProject(p, artist(s, p.artist));
     initializeManagement(s);
+    compactHistory(s);
     return s;
   }
   function project(s, id) {
@@ -113,7 +128,7 @@
         name: "Inspiration at recording · " + p.inspirationAtStart + "/100",
         value: inspirationInfo({ inspiration: p.inspirationAtStart }).bonus,
       });
-    parts.push(...L.stageParts(s, p, d.stage));
+    parts.push(...hooks.collect("stageParts", s, p, d.stage));
     return {
       name: o.name,
       role: o.role,
@@ -218,7 +233,30 @@
     return p;
   }
   const clamp = (v, a = 0, b = 100) => Math.max(a, Math.min(b, v));
-  const L = Systems.createLabelSystems({ clamp, log, pay, requireAction, busy }, { ...D, ...LD });
+  /** Separate random stream per system and key, so new systems never shift existing seeded outcomes. */
+  function roll(s, key) {
+    s.streams ??= {};
+    if (!Number.isInteger(s.streams[key])) {
+      let h = s.seed ^ 0x51ed270b;
+      for (const c of String(key)) h = Math.imul(h ^ c.charCodeAt(0), 2654435761);
+      s.streams[key] = h >>> 0;
+    }
+    s.streams[key] = (Math.imul(s.streams[key], 1664525) + 1013904223) >>> 0;
+    return s.streams[key] / 4294967296;
+  }
+  const core = { clamp, log, pay, requireAction, busy, artist, roll, operatingYear, api: () => api };
+  const SYS = SYSTEM_NAMES.filter((n) => factories[n]).map((n) => ({ name: n, ...factories[n](core, D) }));
+  const L = SYS.find((x) => x.name === "label");
+  // Hook helpers: every system may implement any hook; missing hooks are skipped.
+  const hooks = {
+    each: (name, ...args) => {
+      for (const x of SYS) x[name]?.(...args);
+    },
+    collect: (name, ...args) => SYS.flatMap((x) => x[name]?.(...args) || []),
+    sum: (name, ...args) => SYS.reduce((n, x) => n + (x[name]?.(...args) || 0), 0),
+    product: (name, ...args) => SYS.reduce((n, x) => n * (x[name]?.(...args) ?? 1), 1),
+    every: (name, ...args) => SYS.every((x) => !x[name] || x[name](...args)),
+  };
   function rng(s) {
     s.seed = (Math.imul(s.seed, 1664525) + 1013904223) >>> 0;
     return s.seed / 4294967296;
@@ -268,7 +306,8 @@
   function scout(s) {
     s.candidates = Array.from({ length: 4 }, () => prospect(s, 0));
   }
-  function create(seed = Date.now()) {
+  /** New label. `options.legacy` carries New Game+ bonuses, applied by the campaign system's init. */
+  function create(seed = Date.now(), options = {}) {
     let s = {
       version: 1,
       seed: seed >>> 0,
@@ -291,6 +330,7 @@
       trend: "Pop",
     };
     scout(s);
+    if (options.legacy) s.legacy = options.legacy;
     initializeManagement(s);
     log(s, "Welcome to Goat Records. Sign an artist, start an album, then advance weeks.");
     return s;
@@ -384,7 +424,7 @@
     a.trainingSessions++;
     a.lastTrainingWeek = s.week;
     log(s, `${a.name}: craft +${info.gain}, career XP +1. Next development in 3 weeks.`);
-    L.afterTraining(s);
+    hooks.each("afterTraining", s, a);
   }
   function releaseArtist(s, id) {
     requireAction(s);
@@ -395,7 +435,12 @@
     s.reputation = clamp(s.reputation - penalty);
     log(s, `${a.name} left the roster. Reputation -${penalty}.`);
   }
-  function record(s, { artistId, boothId, genre, audience, budget = 4000, title, addOns = [], themes = [] }) {
+  /**
+   * Starts an album. Systems may read extra plan fields (themes, location, …) through
+   * validatePlan, planCost and onRecord.
+   */
+  function record(s, plan) {
+    let { artistId, boothId, genre, audience, budget = 4000, title, addOns = [] } = plan;
     requireAction(s);
     const a = artist(s, artistId),
       b = s.booths.find((x) => x.id === Number(boothId));
@@ -410,7 +455,7 @@
       addOns.some((id) => !ALBUM_ADDONS.some((x) => x.id === id))
     )
       throw Error("Invalid album plan.");
-    L.validateThemes(s, themes);
+    hooks.each("validatePlan", s, plan);
     if (!a.contract.remaining) throw Error("Contract complete. Renew before starting another album.");
     if (busy(s, a.id)) throw Error("This artist is already recording or touring.");
     if (s.albums.some((x) => !x.released && x.booth === b.id)) throw Error("That booth is occupied.");
@@ -419,7 +464,10 @@
       throw Error(
         "Artist needs at least 25 inspiration to start an album. Inspiration recovers between projects.",
       );
-    const total = budget + addOns.reduce((n, id) => n + ALBUM_ADDONS.find((x) => x.id === id).cost, 0),
+    const total =
+        budget +
+        addOns.reduce((n, id) => n + ALBUM_ADDONS.find((x) => x.id === id).cost, 0) +
+        hooks.sum("planCost", s, plan),
       expectation = albumExpectation(s, a, total);
     pay(s, total);
     const p = {
@@ -436,7 +484,6 @@
       baseBudget: budget,
       budget: total,
       addOns: [...addOns],
-      themes: [...themes],
       recordWeek: s.week,
       expectation,
       released: false,
@@ -455,7 +502,7 @@
     p.distributionFees = 0;
     initializeProject(p, a);
     s.albums.push(p);
-    L.onRecord(s, p);
+    hooks.each("onRecord", s, p, plan);
     a.energy -= 30;
     log(
       s,
@@ -472,7 +519,7 @@
       wages * factor +
         s.staff.reduce((n, r) => n + (s.employees[r]?.wage ?? ROLES[r].wage), 0) +
         s.booths.reduce((n, b) => n + BOOTHS[b.id].upkeep, 0) +
-        L.hqUpkeep(s),
+        hooks.sum("upkeep", s),
     );
   }
   function finishAlbum(s, p) {
@@ -538,7 +585,7 @@
         value:
           i === plan.target && s.staff.includes(plan.role) ? Math.round(staffBonus(s, plan.role) / 2) : 0,
       });
-      r.parts.push(...L.launchParts(s, p, i));
+      r.parts.push(...hooks.collect("launchParts", s, p, i));
       r.parts.push({ name: "Release-day variation", value: Math.floor(rng(s) * 13) - 6 });
       r.score = clamp(r.parts.reduce((n, c) => n + c.value, 0));
     }
@@ -555,7 +602,7 @@
       b.prestige = clamp(b.prestige + 12);
       s.fame += 8;
     }
-    L.onRelease(s, p);
+    hooks.each("onRelease", s, p);
     log(s, `${p.title} released: ${p.quality}/100${p.hit ? " · HIT! Booth prestige +12." : ""}`);
   }
   function makeEvent(s) {
@@ -707,8 +754,7 @@
     if (!s.event && s.pendingTourWeek) {
       s.pendingTourWeek = false;
       advance(s, { fromDays: true });
-    } else if (!s.event && !s.eventQueue.length && s.week >= 53 && !s.careerMode && !s.finished)
-      finalizeFirstYear(s);
+    } else finalizeRun(s);
   }
   function advance(s, options = {}) {
     requireAction(s);
@@ -780,28 +826,55 @@
       log(s, e.text);
     }
     s.effects = s.effects.filter((x) => x.week > s.week);
-    if (s.week % 52 === 1 && s.week > 1) resolveAnnualAwards(s, operatingYear(s.week - 1));
+    if (s.week % 52 === 1 && s.week > 1) {
+      resolveAnnualAwards(s, operatingYear(s.week - 1));
+      // Promote first, so a rank earned at this settlement counts toward the year's goal.
+      L?.checkRank(s);
+      hooks.each("yearEnd", s, operatingYear(s.week - 1));
+      compactHistory(s);
+    }
     s.awardPrograms[operatingYear(s.week)] ??= { year: operatingYear(s.week), entries: {}, results: null };
     if (s.week % 52 === 49)
       log(
         s,
         "Annual awards entries close at the end of this operating year. Submit one eligible album per genre.",
       );
-    const hqIncome = L.weekly(s);
+    const income = Object.fromEntries(SYS.map((x) => [x.name, x.weekly?.(s) || 0])),
+      hqIncome = income.label || 0,
+      otherIncome = Object.values(income).reduce((n, v) => n + v, 0) - hqIncome;
     if (s.week % 4 === 0) {
       s.trend = GENRES[Math.floor(rng(s) * 6)];
       log(s, `Market update: ${s.trend} is trending. New rival releases have entered the chart.`);
     }
-    if (s.cash < 0) {
+    if (s.cash >= 0) s.debtWeeks = 0;
+    else s.debtWeeks = (s.debtWeeks || 0) + 1;
+    const graceWeeks = D.DEBT?.graceWeeks ?? 0;
+    if (s.cash < 0 && s.debtWeeks > graceWeeks) {
       s.finished = true;
+      s.bankrupt = true;
       s.outcome = "The label ran out of cash. Try fewer salaries or smaller recording budgets.";
     } else {
+      if (s.cash < 0) {
+        const left = graceWeeks - s.debtWeeks + 1;
+        if (s.debtWeeks === 1)
+          s.notifications.push({
+            id: s.nextId++,
+            kind: "debt",
+            title: "IN THE RED",
+            body: `The label is $${(-s.cash).toLocaleString("en-US")} below zero. Get back above $0 within ${left} weeks or the run ends. Gigs, singles, cheaper budgets or letting staff go can help.`,
+            week: s.week,
+          });
+        log(
+          s,
+          `Cash is below $0. ${left} week${left === 1 ? "" : "s"} left to recover before the label folds.`,
+        );
+      }
       if (s.week % 4 === 0) {
         const e = makeEvent(s);
         if (e) s.eventQueue.push(e);
       }
       s.event = s.eventQueue.shift() || null;
-      if (s.week >= 53 && !s.careerMode && !s.event) finalizeFirstYear(s);
+      finalizeRun(s);
     }
     s.financeHistory.push({
       week: s.week,
@@ -810,6 +883,7 @@
       closingCash: s.cash,
       cashChange: s.cash - opening,
       hqIncome,
+      otherIncome,
       albumIncome: s.albums
         .filter((p) => p.lastSalesWeek === s.week)
         .reduce((n, p) => n + (p.lastNetIncome || 0), 0),
@@ -958,7 +1032,7 @@
     s.managementRevision = 3;
     initializeRoad(s);
     initializeIndustry(s);
-    L.init(s);
+    hooks.each("init", s);
     return s;
   }
   function paidScout(s, index) {
@@ -1004,13 +1078,21 @@
     requireAction(s);
     if (!s.staff.includes(role)) throw Error("Position is already vacant.");
     const fee = s.employees[role].wage * 2;
-    pay(s, fee);
+    // Severance may run the label below $0, so cutting costs is always possible.
+    s.cash -= fee;
     s.staff = s.staff.filter((r) => r !== role);
     delete s.employees[role];
     log(s, `${role} employment ended. Severance $${fee}.`);
   }
   function trainingInfo(s, a) {
-    const hq = L.trainingAdjust(s, {}),
+    const adjust = SYS.map((x) => x.trainingAdjust?.(s, a) || {}),
+      hq = {
+        ceilingBonus: adjust.reduce((n, x) => n + (x.ceilingBonus || 0), 0),
+        discount: Math.min(
+          0.6,
+          adjust.reduce((n, x) => n + (x.discount || 0), 0),
+        ),
+      },
       cap = Math.max(
         a.talent,
         Math.min(a.potential ?? 85, 64 + tier(s) * 4 + level(a) * 2 + careerTier(a) * 2 + hq.ceilingBonus),
@@ -1196,13 +1278,15 @@
     if (advanceRivals) {
       c.history.push({
         week: s.week,
-        entries: c.entries.map((e) => ({
-          id: e.id,
-          rank: e.rank,
-          units: e.units,
-          title: e.title,
-          owned: e.owned,
-        })),
+        entries: c.entries
+          .filter((e) => e.rank <= 40 || e.owned)
+          .map((e) => ({
+            id: e.id,
+            rank: e.rank,
+            units: e.units,
+            title: e.title,
+            owned: e.owned,
+          })),
       });
       c.history = c.history.slice(-13);
     }
@@ -1750,13 +1834,13 @@
       s.reputation = clamp(s.reputation + ((t.quality ?? 80) < 40 ? -4 : (t.quality ?? 80) >= 80 ? 3 : 1));
     }
     log(s, `${t.title} tour ${t.status}: ${reason}. Tour net $${t.net}.`);
-    L.afterTour(s, t, completed);
+    hooks.each("afterTour", s, t, completed);
   }
   function cancelTour(s, id) {
     requireAction(s);
     const t = s.tours.find((t) => t.id === Number(id) && t.status === "active");
     if (!t) throw Error("No active tour.");
-    endTour(s, t, "Label cancelled the remaining dates");
+    endTour(s, t, "Label canceled the remaining dates");
   }
   function tourEvent(s, t, fatigue = false) {
     const r = TOUR_SCALES.find((r) => r.id === t.scale),
@@ -1935,15 +2019,20 @@
     else if (o.cancelChance && rng(s) < o.cancelChance) {
       if (a) a.morale = clamp(a.morale - 8);
       s.reputation = clamp(s.reputation - 3);
-      endTour(s, t, "An avoidable disruption cancelled the remaining shows");
+      endTour(s, t, "An avoidable disruption canceled the remaining shows");
     }
   }
+  // Labels no longer stop after year one; loading an older save resumes it (campaign system).
+  // These remain for labels still marked finished at the old year-one checkpoint.
+  function canContinueCareer(s) {
+    return s.finished && s.cash >= 0 && s.week >= 53 && !api.campaignOver?.(s);
+  }
   function continueCareer(s) {
-    if (!s.finished || s.cash < 0 || s.week < 53)
-      throw Error("Complete the first year with cash remaining to continue.");
+    if (!canContinueCareer(s)) throw Error("Complete the first year with cash remaining to continue.");
     s.finished = false;
     s.careerMode = true;
-    log(s, "Year-one results recorded. Career mode continues with existing albums, contracts and tours.");
+    s.outcome = null;
+    log(s, "Year-one results recorded. The label continues with existing albums, contracts and tours.");
   }
   function validRoadSave(s) {
     return (
@@ -2150,7 +2239,8 @@
           (0.55 + trust / 180) *
           (1 + attention / 180) *
           Math.pow(0.85, p.age) *
-          boost,
+          boost *
+          hooks.product("salesMultiplier", s, p, a),
       );
     const momentum = a?.momentum ?? 25,
       rep = a?.reputation ?? 65;
@@ -2165,7 +2255,8 @@
         (1 + attention / 200) *
         Math.pow(0.88, p.age) *
         (p.freshness || 1) *
-        boost,
+        boost *
+        hooks.product("salesMultiplier", s, p, a),
     );
   }
   function projectedDebut(s, p) {
@@ -2597,12 +2688,44 @@
     });
     log(s, `Year ${year} annual awards results published. Next operating year begins.`);
   }
-  function finalizeFirstYear(s) {
+  // The run ends once the campaign reports its last year done and every pending event is resolved.
+  // Year one's Breakout Label target is now the campaign's first yearly goal.
+  /**
+   * Keeps long careers small enough for browser storage. Albums whose earning run ended more
+   * than a year ago keep their stage scores and ratings but drop the calculation rows; rival
+   * albums are archived only while they can still matter (this year, last year, or charting);
+   * award results older than three years keep scores without rows.
+   */
+  function compactHistory(s) {
+    const year = operatingYear(s.week);
+    for (const p of s.albums) {
+      if (!p.released || p.launchReview || p.age < p.salesWeeks) continue;
+      if (operatingYear(p.releaseWeek) >= year - 1) continue;
+      if (p.production) {
+        p.stageScores = p.production.results.map((r) => ({ area: r.area, choice: r.choice, score: r.score }));
+        delete p.production;
+      }
+      if (p.launchRatings?.some((r) => r.parts))
+        p.launchRatings = p.launchRatings.map((r) => ({ name: r.name, score: r.score }));
+      if (p.chart?.history?.length > 26) p.chart.history = p.chart.history.slice(-26);
+    }
+    if (s.charts?.history)
+      for (const h of s.charts.history) h.entries = h.entries.filter((e) => e.rank <= 40 || e.owned);
+    const charting = new Set((s.charts?.rivals || []).map((r) => r.id));
+    for (const [id, r] of Object.entries(s.rivalArchive || {}))
+      if (r.year < year - 1 && !charting.has(id)) delete s.rivalArchive[id];
+    for (const program of Object.values(s.awardPrograms || {}))
+      if (program.year < year - 3)
+        for (const r of program.results || []) for (const e of r.entries) if (e.parts?.length) e.parts = [];
+    return s;
+  }
+  function finalizeRun(s) {
+    if (s.finished || s.event || s.eventQueue.length) return;
+    const outcome = api.campaignOutcome?.(s);
+    if (!outcome) return;
     s.finished = true;
-    const won = s.fame >= 180 && s.awards >= 1 && s.albums.filter((p) => p.released).length >= 6;
-    s.outcome = won
-      ? "You built a breakout label! Continue career to keep growing."
-      : "Year one complete. Breakout Label requires 180 fame, an award, six releases and cash remaining. Continue career to keep growing.";
+    s.bankrupt = false;
+    s.outcome = outcome;
   }
 
   function tourInteractionBudget(s) {
@@ -3294,6 +3417,7 @@
     comboInfo: L.comboInfo,
     fitOf: L.fitOf,
     discoverTheme: L.discoverTheme,
+    learnTheme: L.learnTheme,
     lotSize: L.lotSize,
     facilityAt: L.facilityAt,
     builtFacility: L.builtFacility,
@@ -3307,6 +3431,11 @@
     moveFacility: L.moveFacility,
     demolishFacility: L.demolishFacility,
     validLabelSave: L.validSave,
+    validSystemsSave: (s) => hooks.every("validSave", s),
+    compactHistory,
+    planCost: (s, plan) => hooks.sum("planCost", s, plan),
+    systems: SYS,
+    roll,
     tourInteractionBudget,
     tourChoiceGap,
     advanceTourToNextActivity,
@@ -3317,6 +3446,7 @@
     inspirationInfo,
     CAREER_XP,
     CAREER_NAMES,
+    DEBT: D.DEBT,
     careerTier,
     operatingYear,
     advanceTourDay,
@@ -3334,6 +3464,7 @@
     startTour,
     cancelTour,
     continueCareer,
+    canContinueCareer,
     validRoadSave,
     SCOUT_BUDGETS,
     RECRUIT_BUDGETS,
@@ -3378,6 +3509,8 @@
     advance,
     busy,
   };
+  // Systems publish their own functions through an `api` object.
+  for (const x of SYS) Object.assign(api, x.api || {});
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   root.LabelGame = api;
 })(typeof globalThis !== "undefined" ? globalThis : this);

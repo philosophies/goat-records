@@ -350,7 +350,10 @@
   ];
   const CAREER_XP = [0, 4, 10, 19, 31, 46, 64, 85, 109, 136];
   const CAREER_NAMES = ["Emerging", "Developing", "Breakthrough", "Headliner", "Icon"];
+  // A label can stay below $0 for this many weekly settlements before the run ends.
+  const DEBT = { graceWeeks: 4 };
   const data = {
+    DEBT,
     GENRES,
     ROLES,
     BOOTHS,
