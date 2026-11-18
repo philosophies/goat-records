@@ -9,7 +9,7 @@
     const { DEPARTMENTS, ROLE_DEPARTMENT, EXEC_POOL, EXEC_PAY, DEPT_STAFF, EXEC_FIRST, EXEC_LAST, PHASES } =
       D;
     const { TEAM_ROLES, TEAM_EFFECTS, TEAM_POOL, TEAM_STYLES, CHEMISTRY, GENRES } = D;
-    const { TRAITS, WANTS, WANT_MORALE, WALKOUT } = D;
+    const { TRAITS, WANTS, WANT_MORALE, WALKOUT, GRAB, CEO_INFLUENCE, RESPONSES } = D;
     const WANT_IDS = Object.keys(WANTS);
     const teamRoleById = Object.fromEntries(TEAM_ROLES.map((r) => [r.id, r]));
     const { log, pay, requireAction, roll, busy, clamp } = core;
@@ -454,6 +454,108 @@
         walkOutBelow: walkOutLine(s, a),
       };
     }
+    // ---- Power grabs (design 3.4) ----
+    /** Your influence as CEO: base, phase and board perks, at most 100. */
+    function ceoInfluence(s) {
+      const perks = s.company?.board?.perks?.length || 0;
+      return Math.min(
+        100,
+        CEO_INFLUENCE.base + phaseOf(s) * CEO_INFLUENCE.perPhase + perks * CEO_INFLUENCE.perPerk,
+      );
+    }
+    /** Chance a quarter that a head starts a power grab (design 4). */
+    function grabChance(s, x) {
+      if (!x || (x.calmUntil && s.week < x.calmUntil)) return 0;
+      const drive = Math.max(0, (x.ambition + x.influence - x.loyalty - GRAB.threshold) / GRAB.divisor);
+      return drive * (1 - ceoInfluence(s) / GRAB.ceoDivisor);
+    }
+    function heads(s) {
+      return Object.entries(s.company?.departments || {})
+        .filter(([, d]) => d.head)
+        .map(([id, d]) => ({ dept: id, x: d.head }));
+    }
+    function headOf(s, id) {
+      const x = s.company?.departments?.[id]?.head;
+      if (!x) throw Error("That department has no head.");
+      return x;
+    }
+    function courtDirector(s, x) {
+      const free = (s.company.board?.directors || []).filter((d) => !x.contacts.includes(d.id));
+      if (free.length) x.contacts.push(free[Math.floor(roll(s, "grab") * free.length)].id);
+    }
+    /** Every quarter: influence grows, plots move on, new plots may start as gossip. */
+    function grabQuarter(s) {
+      for (const { dept: id, x } of heads(s)) {
+        x.contacts ??= [];
+        x.influence = Math.min(100, x.influence + GRAB.perQuarter + x.contacts.length * GRAB.perContact);
+        if (x.plot) {
+          courtDirector(s, x);
+          continue;
+        }
+        if (roll(s, "grab") < grabChance(s, x)) {
+          x.plot = { since: s.week, due: s.week + GRAB.warnWeeks };
+          courtDirector(s, x);
+          s.notifications.push({
+            id: s.nextId++,
+            kind: "gossip",
+            title: `Office gossip about ${x.name}`,
+            body: `People say ${x.name} (${deptById[id].head}) has been meeting directors and taking credit for wins. It will come to a head around week ${x.plot.due}.`,
+            week: s.week,
+          });
+          log(s, `Office gossip: ${x.name} is building a following.`);
+        }
+      }
+    }
+    /** Answers an executive: "promote", "placate", "sideline" (with the department to move them to), "fire" or "counter". */
+    function respond(s, id, kind, target) {
+      requireAction(s);
+      requireCeo(s);
+      const x = headOf(s, id),
+        R = RESPONSES[kind];
+      if (!R) throw Error("Unknown response.");
+      x.contacts ??= [];
+      if (kind === "promote") {
+        x.salary = Math.round(x.salary * (1 + R.raise));
+        x.title = "Senior " + deptById[id].head;
+        x.ambition = Math.max(0, x.ambition + R.ambition);
+        x.calmUntil = s.week + R.calmWeeks;
+        delete x.plot;
+        log(s, `${x.name} is promoted to ${x.title}.`);
+      } else if (kind === "placate") {
+        pay(s, x.salary * R.bonusWeeks);
+        x.calmUntil = s.week + R.calmWeeks;
+        if (x.plot) x.plot.due += R.calmWeeks;
+        log(s, `${x.name} takes a bonus and goes quiet for a while.`);
+      } else if (kind === "sideline") {
+        const to = dept(target);
+        if (to.id === id) throw Error("Pick another department.");
+        if (!departmentOpen(s, to.id)) throw Error(`${to.name} is not open yet.`);
+        if (s.company.departments[to.id].head) throw Error(`${to.name} already has a head.`);
+        s.company.departments[id].head = null;
+        s.company.departments[to.id].head = x;
+        x.dept = to.id;
+        x.influence = Math.max(0, x.influence + R.influence);
+        x.loyalty = Math.max(0, x.loyalty + R.loyalty);
+        delete x.plot;
+        log(s, `${x.name} is moved to head ${to.name}.`);
+      } else if (kind === "fire") {
+        const courted = x.contacts.slice();
+        fireHead(s, id);
+        for (const d of s.company.board?.directors || [])
+          if (courted.includes(d.id)) d.relationship -= R.contactPenalty;
+      } else if (kind === "counter") {
+        const b = s.company.board;
+        if (!b || !x.contacts.length) throw Error(`${x.name} has no board contacts to win back.`);
+        if (b.meetingWeek === s.week) throw Error("You have already spent this week's time with the board.");
+        pay(s, R.costPerPhase * phaseOf(s));
+        b.meetingWeek = s.week;
+        x.influence = Math.max(0, x.influence - x.contacts.length * R.perContact);
+        x.contacts = [];
+        delete x.plot;
+        log(s, `You won ${x.name}'s board contacts back.`);
+      }
+      return x;
+    }
     function teamPay(s) {
       return (s.company?.team?.pool || []).reduce((n, m) => n + m.salary, 0);
     }
@@ -511,7 +613,10 @@
         [x.skill, x.ambition, x.loyalty, x.influence].every(
           (n) => Number.isFinite(n) && n >= 0 && n <= 100,
         ) &&
-        isCount(x.salary)
+        isCount(x.salary) &&
+        (x.contacts === undefined || (Array.isArray(x.contacts) && x.contacts.every(isCount))) &&
+        (x.plot === undefined || (!!x.plot && isCount(x.plot.due))) &&
+        (x.calmUntil === undefined || isCount(x.calmUntil))
       );
     }
     function validSave(s) {
@@ -547,6 +652,7 @@
       weekly: (s) => {
         pruneTeam(s);
         moodWeek(s);
+        if (s.company?.departments && s.week % GRAB.quarter === 0) grabQuarter(s);
         return 0;
       },
       beforeRenew: checkRenew,
@@ -586,6 +692,13 @@
         payBonus,
         bonusCost,
         walksOut,
+        GRAB,
+        CEO_INFLUENCE,
+        RESPONSES,
+        ceoInfluence,
+        grabChance,
+        grabQuarter,
+        respond,
         artistTeam,
         teamPay,
         departmentOpen,

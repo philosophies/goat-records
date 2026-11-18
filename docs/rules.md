@@ -414,3 +414,13 @@ Confidence below 35 at a review means probation for the next period. A no-confid
 **Lobbying.** Before a review you can work the board. Meeting a director takes your week (one meeting a week) and adds 4 to your relationship, up to 25. A promise picks a target from their agenda: today's figure plus 5 money steps, 10%, or 5 points (or no more scandals). It adds 2 at once; at the next review a kept promise adds 6 and a broken one costs 12. Favors add relationship too: hiring a director's pick as a department head (+8, any director; their pick has the lowest skill your reach finds), shelving an album in production with a risky theme (+10, the Old Guard), or giving up a perk until the next review (+6, the Accountant).
 
 **The boardroom.** The office's boardroom card opens the board panel: confidence, budget, freedom and perks, each director with what moved them, lobbying, and funding. A review plays as a scene with the clock stopped: each director's score in turn, then the board's settings for the next period. With reduced motion the whole result shows at once.
+
+**Power grabs.** Every 13 weeks each department head gains 2 influence, plus 1 for each director they have courted, up to 100. The chance a head starts a grab that quarter is max(0, (ambition + influence − loyalty − 90) ÷ 200) × (1 − your influence ÷ 200). Your influence is 20, plus 5 a phase, plus 10 for each perk. A grab first shows as office gossip in the Inbox and comes to a head 26 weeks later; meanwhile the executive courts one more director a quarter. Your answers:
+
+- Promote: a "Senior" title, a 25% raise, 15 less ambition, and no grab for a year.
+- Placate: a bonus of 8 weeks' salary; no new grab for a quarter, and a plot slips by a quarter.
+- Sideline: move them to head an open department; influence −20, loyalty −15.
+- Fire: the usual severance; every director they courted loses 6 relationship with you.
+- Counter: win their board contacts back for $2,000 × phase and your week with the board; they lose 5 influence per contact.
+
+Every answer but placating ends a plot.
