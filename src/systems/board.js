@@ -14,6 +14,7 @@
       REVIEW,
       OVERSPEND,
       APPROVAL,
+      LOBBY,
       BACKERS,
       VALUATION,
       FUNDING,
@@ -311,12 +312,13 @@
     function runReview(s) {
       const b = board(s);
       if (!b) throw Error("There is no board to review the label.");
+      const promises = checkPromises(s);
       boardWeek(s);
       const c = b.confidence,
         wasOnProbation = b.probation,
         voteDue = c < REVIEW.voteBelow || (wasOnProbation && c < REVIEW.voteOnProbationBelow),
         vote = voteDue ? holdVote(s) : null,
-        record = { week: s.week, confidence: c, probation: false, vote };
+        record = { week: s.week, confidence: c, probation: false, vote, promises };
       if (vote?.passed) {
         b.reviews.push(record);
         fire(s, c);
@@ -435,6 +437,111 @@
         log(s, "The board approved the request. Go ahead this week.");
       } else log(s, `The board said no (confidence ${c}).`);
     }
+    // ---- Lobbying and promises (T22) ----
+    function director(s, id) {
+      const d = board(s)?.directors.find((x) => x.id === Number(id));
+      if (!d) throw Error("That director is not on the board.");
+      return d;
+    }
+    function befriend(d, n) {
+      d.relationship = Math.max(-LOBBY.maxRelationship, Math.min(LOBBY.maxRelationship, d.relationship + n));
+    }
+    /** Meets a director. It takes your week: one meeting a week. */
+    function meetDirector(s, id) {
+      requireAction(s);
+      const d = director(s, id),
+        b = board(s);
+      if (b.meetingWeek === s.week) throw Error("You have already spent this week's time with the board.");
+      b.meetingWeek = s.week;
+      befriend(d, LOBBY.meet);
+      log(s, `You met ${d.name}. Relationship ${d.relationship}.`);
+      return d.relationship;
+    }
+    /** Targets you could promise a director, one per metric on their agenda. */
+    function promiseOptions(s, id) {
+      const d = director(s, id),
+        values = metricValues(s),
+        S = LOBBY.promise.stretch;
+      return Object.keys(directorById[d.type].agenda).map((key) => {
+        const m = METRICS[key];
+        let value;
+        if (key === "scandals") value = values.scandals;
+        else if (m.kind === "money") value = values[key] + S.money * MONEY_STEP[phase(s) - 1];
+        else if (m.kind === "percent") value = Math.round(values[key] * (1 + S.percent / 100));
+        else value = Math.min(100, values[key] + S.plain);
+        return {
+          metric: key,
+          value,
+          text:
+            key === "scandals"
+              ? "No more scandals before the review"
+              : `${m.name} of ${value.toLocaleString("en-US")} by the review`,
+        };
+      });
+    }
+    function makePromise(s, id, metric) {
+      requireAction(s);
+      const d = director(s, id);
+      if (d.promise) throw Error(`You already owe ${d.name} a promise.`);
+      const option = promiseOptions(s, id).find((o) => o.metric === metric);
+      if (!option) throw Error("That is not on their agenda.");
+      d.promise = { metric, value: option.value, week: s.week };
+      d.promises = (d.promises || 0) + LOBBY.promise.now;
+      log(s, `Promised ${d.name}: ${option.text}.`);
+      return d.promise;
+    }
+    /** Settles every open promise at a review: kept +kept, broken −2 × kept. */
+    function checkPromises(s) {
+      const values = metricValues(s),
+        out = [];
+      for (const d of board(s).directors) {
+        const p = d.promise;
+        if (!p) continue;
+        const kept = p.metric === "scandals" ? values.scandals <= p.value : values[p.metric] >= p.value;
+        d.promises = (d.promises || 0) + (kept ? LOBBY.promise.kept : -2 * LOBBY.promise.kept);
+        out.push({ director: d.id, metric: p.metric, value: p.value, kept });
+        delete d.promise;
+      }
+      return out;
+    }
+    /** Favors this director would take. */
+    function favorOptions(s, id) {
+      const d = director(s, id);
+      return Object.entries(LOBBY.favors)
+        .filter(([, f]) => !f.types || f.types.includes(d.type))
+        .map(([kind, f]) => ({ kind, name: f.name, relationship: f.relationship }));
+    }
+    /** Trades a favor: "candidate" (target: a department id), "shelve" (an album id) or "perk" (a perk id). */
+    function tradeFavor(s, id, kind, target) {
+      requireAction(s);
+      const d = director(s, id),
+        f = LOBBY.favors[kind],
+        b = board(s);
+      if (!f || (f.types && !f.types.includes(d.type))) throw Error(`${d.name} is not asking for that.`);
+      if (kind === "candidate") {
+        const reach = PHASES[phase(s) - 1].reach,
+          pick = (list) => list[Math.floor(roll(s, "board") * list.length)];
+        core.api().appointHead(s, target, {
+          name: `${pick(EXEC_FIRST)} ${pick(EXEC_LAST)}`,
+          skill: D.EXEC_POOL.skill[reach][0],
+          loyalty: 30,
+          favorOf: d.id,
+        });
+      } else if (kind === "shelve") {
+        const p = s.albums.find((x) => x.id === Number(target));
+        if (!p || p.released) throw Error("Pick an album that is still in production.");
+        if (!(p.themes || []).some((t) => APPROVAL.riskyThemes.includes(t)))
+          throw Error(`${d.name} has no problem with that album.`);
+        s.albums = s.albums.filter((x) => x !== p);
+        log(s, `${p.title} is shelved.`);
+      } else if (kind === "perk") {
+        if (!b.perks.includes(target)) throw Error("You do not have that perk.");
+        b.perks = b.perks.filter((x) => x !== target);
+      }
+      befriend(d, f.relationship);
+      log(s, `${d.name} appreciated the favor. Relationship ${d.relationship}.`);
+      return d.relationship;
+    }
     function onScandal(s) {
       const b = board(s);
       if (b) b.scandals = (b.scandals || 0) + 1;
@@ -477,7 +584,9 @@
         Number.isFinite(d.relationship) &&
         Number.isFinite(d.satisfaction) &&
         d.satisfaction >= 0 &&
-        d.satisfaction <= 100
+        d.satisfaction <= 100 &&
+        (d.promises === undefined || Number.isFinite(d.promises)) &&
+        (d.promise === undefined || (!!METRICS[d.promise.metric] && Number.isFinite(d.promise.value)))
       );
     }
     function validSave(s) {
@@ -560,6 +669,13 @@
         OVERSPEND,
         APPROVAL,
         overspendPoints,
+        LOBBY,
+        meetDirector,
+        promiseOptions,
+        makePromise,
+        checkPromises,
+        favorOptions,
+        tradeFavor,
       },
     };
   }

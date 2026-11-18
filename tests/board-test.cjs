@@ -719,4 +719,138 @@ test("Without a board nothing needs approval and nothing is tracked", () => {
   assert.equal(G.board(s), null);
 });
 
+// ---- Lobbying and promises (T22) ----
+const { LOBBY } = G;
+/** A board run with one director of the given type. */
+function lobbyRun(type = "accountant") {
+  const s = reviewRun();
+  s.cash = 1e6;
+  s.company.phase = 3;
+  const d = s.company.board.directors[0];
+  d.type = type;
+  return { s, d };
+}
+
+test("Meeting a director builds the relationship, one meeting a week", () => {
+  const { s, d } = lobbyRun(),
+    before = G.satisfaction(s, d).value;
+  G.meetDirector(s, d.id);
+  assert.equal(d.relationship, LOBBY.meet);
+  assert.equal(G.satisfaction(s, d).value, before + LOBBY.meet);
+  assert.throws(() => G.meetDirector(s, d.id), /this week's time/);
+  settle(s);
+  G.meetDirector(s, d.id);
+  assert.equal(d.relationship, 2 * LOBBY.meet);
+  d.relationship = LOBBY.maxRelationship - 1;
+  settle(s);
+  G.meetDirector(s, d.id);
+  assert.equal(d.relationship, LOBBY.maxRelationship, "capped");
+  assert.throws(() => G.meetDirector(s, 999), /not on the board/);
+});
+
+test("Promise options follow the director's agenda", () => {
+  const { s, d } = lobbyRun("oldGuard"),
+    options = G.promiseOptions(s, d.id);
+  assert.deepEqual(
+    options.map((o) => o.metric),
+    Object.keys(G.DIRECTORS.find((x) => x.id === "oldGuard").agenda),
+  );
+  const v = G.metricValues(s);
+  assert.equal(options.find((o) => o.metric === "scandals").value, v.scandals);
+  assert.equal(
+    options.find((o) => o.metric === "reputation").value,
+    Math.min(100, v.reputation + LOBBY.promise.stretch.plain),
+  );
+  assert.equal(
+    options.find((o) => o.metric === "cash").value,
+    v.cash + LOBBY.promise.stretch.money * MONEY_STEP[2],
+  );
+});
+
+test("A promise adds a little now; kept at the review it adds more", () => {
+  const { s, d } = lobbyRun("accountant");
+  G.makePromise(s, d.id, "cash");
+  assert.equal(d.promises, LOBBY.promise.now);
+  assert.throws(() => G.makePromise(s, d.id, "profit"), /already owe/);
+  assert.throws(() => G.makePromise(lobbyRun("accountant").s, d.id, "welfare"), /not on their agenda/);
+  s.cash = d.promise.value + 1;
+  const r = G.runReview(s);
+  assert.deepEqual(r.promises, [{ director: d.id, metric: "cash", value: r.promises[0].value, kept: true }]);
+  assert.equal(d.promises, LOBBY.promise.now + LOBBY.promise.kept);
+  assert.equal(d.promise, undefined, "settled");
+});
+
+test("A broken promise costs twice what a kept one gives", () => {
+  const { s, d } = lobbyRun("accountant");
+  G.makePromise(s, d.id, "cash");
+  s.cash = d.promise.value - 1;
+  G.runReview(s);
+  assert.equal(d.promises, LOBBY.promise.now - 2 * LOBBY.promise.kept);
+  assert.equal(
+    G.satisfaction(s, { ...d, promises: 0 }).value - G.satisfaction(s, d).value,
+    2 * LOBBY.promise.kept - LOBBY.promise.now,
+  );
+});
+
+test("A no-scandals promise is broken by a scandal", () => {
+  const { s, d } = lobbyRun("oldGuard");
+  G.makePromise(s, d.id, "scandals");
+  s.company.board.scandals += 1;
+  const r = G.runReview(s);
+  assert.equal(r.promises[0].kept, false);
+  const again = lobbyRun("oldGuard");
+  G.makePromise(again.s, again.d.id, "scandals");
+  assert.equal(G.runReview(again.s).promises[0].kept, true);
+});
+
+test("Favors: hire a director's pick as a department head", () => {
+  const { s, d } = lobbyRun("visionary");
+  assert.deepEqual(
+    G.favorOptions(s, d.id).map((f) => f.kind),
+    ["candidate"],
+  );
+  G.tradeFavor(s, d.id, "candidate", "ar");
+  const head = s.company.departments.ar.head;
+  assert.equal(head.favorOf, d.id);
+  assert.equal(head.skill, G.EXEC_POOL.skill.region[0], "their pick is no star");
+  assert.equal(d.relationship, LOBBY.favors.candidate.relationship);
+  assert.throws(() => G.tradeFavor(s, d.id, "candidate", "ar"), /already has a head/);
+  assert.throws(() => G.tradeFavor(s, d.id, "perk", "car"), /not asking for that/);
+});
+
+test("Favors: the Old Guard wants a risky album shelved", () => {
+  const { s, d } = lobbyRun("oldGuard");
+  assert.deepEqual(
+    G.favorOptions(s, d.id).map((f) => f.kind),
+    ["candidate", "shelve"],
+  );
+  s.albums.push({ id: 801, title: "Wild", released: false, themes: [G.APPROVAL.riskyThemes[0]] });
+  s.albums.push({ id: 802, title: "Mild", released: false, themes: ["Summer"] });
+  assert.throws(() => G.tradeFavor(s, d.id, "shelve", 802), /no problem with that album/);
+  G.tradeFavor(s, d.id, "shelve", 801);
+  assert.ok(!s.albums.some((p) => p.id === 801));
+  assert.equal(d.relationship, LOBBY.favors.shelve.relationship);
+});
+
+test("Favors: the Accountant likes a perk given up", () => {
+  const { s, d } = lobbyRun("accountant");
+  s.company.board.perks = ["car", "jet"];
+  const cost = G.perkCost(s);
+  G.tradeFavor(s, d.id, "perk", "jet");
+  assert.deepEqual(s.company.board.perks, ["car"]);
+  assert.ok(G.perkCost(s) < cost);
+  assert.equal(d.relationship, LOBBY.favors.perk.relationship);
+  assert.throws(() => G.tradeFavor(s, d.id, "perk", "jet"), /do not have that perk/);
+});
+
+test("Lobbying state survives a save", () => {
+  const { s, d } = lobbyRun("accountant");
+  G.meetDirector(s, d.id);
+  G.makePromise(s, d.id, "profit");
+  const copy = roundTrip(s);
+  assert.equal(G.validSystemsSave(copy), true);
+  copy.company.board.directors[0].promise.metric = "luck";
+  assert.equal(G.validSystemsSave(copy), false);
+});
+
 console.log(`${count} board tests passed.`);

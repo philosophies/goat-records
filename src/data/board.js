@@ -103,6 +103,27 @@
     grant: 50,
   };
 
+  // Lobbying before a review (design 3.3).
+  //   meet      one meeting a week (a week of your time): +meet relationship, up to maxRelationship
+  //   promise   one open promise per director, checked at the next review: +now when made, +kept if met,
+  //             −2 × kept if broken. Targets stretch the director's metric from today: money metrics by
+  //             stretch.money steps, percent ones by stretch.percent %, plain ones by stretch.plain; the
+  //             scandals promise is "no more this period".
+  //   favors    trade a favor for relationship: hire a director's pick as a department head (any director;
+  //             their pick has the lowest skill the company's reach finds), shelve an album in production
+  //             that uses a risky theme (the Old Guard), or give up a perk until the next review (the
+  //             Accountant)
+  const LOBBY = {
+    meet: 4,
+    maxRelationship: 25,
+    promise: { now: 2, kept: 6, stretch: { money: 5, percent: 10, plain: 5 } },
+    favors: {
+      candidate: { name: "Hire their pick", relationship: 8, types: null },
+      shelve: { name: "Shelve a risky album", relationship: 10, types: ["oldGuard"] },
+      perk: { name: "Give up a perk", relationship: 6, types: ["accountant"] },
+    },
+  };
+
   // Which archetypes each kind of money tends to bring, in order of likelihood.
   const BACKERS = {
     angel: ["visionary", "friend", "investor"],
@@ -139,6 +160,7 @@
     REVIEW,
     OVERSPEND,
     APPROVAL,
+    LOBBY,
     BACKERS,
     VALUATION,
     FUNDING,
