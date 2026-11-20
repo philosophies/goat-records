@@ -24,10 +24,22 @@
 
     /** Current rank number, 1-based. */
     function rank(s) {
+      // CEO runs climb one ladder: the company phase stands in for the label rank.
+      if (s.company) return clamp(s.company.phase, 1, RANKS.length);
       return clamp(s.rank ?? 1, 1, RANKS.length);
     }
     function rankInfo(s) {
+      if (s.company) {
+        const p = D.PHASES[s.company.phase - 1];
+        return { ...RANKS[rank(s) - 1], ...p.ladder, name: p.name };
+      }
       return RANKS[rank(s) - 1];
+    }
+    /** How a rank requirement reads: "phase 3 (Regional label)" in CEO runs, "label rank 3 (…)" otherwise. */
+    function ladderLabel(s, n) {
+      return s.company
+        ? `phase ${n} (${D.PHASES[n - 1]?.name || ""})`
+        : `label rank ${n} (${RANKS[n - 1]?.name || ""})`;
     }
     /** Room unlock / stage bonus tier derived from rank. */
     function tier(s) {
@@ -55,6 +67,7 @@
     }
     /** Progress toward the next rank: one row per requirement. */
     function rankStatus(s) {
+      if (s.company) return { rank: rank(s), name: rankInfo(s).name, next: null, checks: [], ready: false };
       const current = rank(s),
         next = RANKS[current],
         metrics = rankMetrics(s);
@@ -81,6 +94,7 @@
     /** Promotes the label while every requirement for the next rank is met. Returns promotions made. */
     function checkRank(s) {
       const promoted = [];
+      if (s.company) return promoted;
       while (rankStatus(s).ready) {
         s.rank = rank(s) + 1;
         const r = rankInfo(s),
@@ -465,6 +479,7 @@
       comboInfo,
       validateThemes,
       discoverTheme,
+      ladderLabel,
       learnTheme,
       onRecord,
       onRelease,

@@ -96,7 +96,7 @@
           nextXp: level < LOCATION_LEVELS.max ? next : null,
           rentNow: locationRent(s, loc.id),
           locked: labelRank(s) < loc.rank,
-          rankName: rankName(loc.rank),
+          rankName: s.company ? D.PHASES[loc.rank - 1]?.name || "" : rankName(loc.rank),
           stats: st,
           themeKnown: !!st,
           booked: bookedBy(s, loc.id),
@@ -142,7 +142,7 @@
       let reason = null;
       if (s.finished) reason = "This season has ended.";
       else if (s.event) reason = "Resolve the industry event first.";
-      else if (labelRank(s) < g.rank) reason = `Reach label rank ${g.rank} (${rankName(g.rank)}) first.`;
+      else if (labelRank(s) < g.rank) reason = `Reach ${core.api().ladderLabel(s, g.rank)} first.`;
       else if (!a.contract?.remaining) reason = "Renew this artist's contract before booking gigs.";
       else if (busy(s, a.id)) reason = "Gigs are not possible while recording or touring.";
       else if (wait) reason = `Next gig available in ${wait} week${wait === 1 ? "" : "s"}.`;
@@ -211,7 +211,7 @@
       if (typeof id !== "string" || !byId[id]) throw Error("Unknown recording location.");
       const loc = byId[id];
       if (labelRank(s) < loc.rank)
-        throw Error(`Reach label rank ${loc.rank} (${rankName(loc.rank)}) to rent the ${loc.name}.`);
+        throw Error(`Reach ${core.api().ladderLabel(s, loc.rank)} to rent the ${loc.name}.`);
       if (bookedBy(s, id)) throw Error(`The ${loc.name} is booked by another album in production.`);
     }
     function planCost(s, plan) {

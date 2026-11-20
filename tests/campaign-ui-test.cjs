@@ -53,8 +53,9 @@ function clear(s) {
     );
 }
 
-// A new label: goal chip, goal line and the Campaign screen with all 20 years.
-let p = page();
+// A new classic label (classic saves still play): goal chip, goal line and the Campaign screen with all
+// 20 years. CEO runs have no yearly goals; their check is at the end of this file.
+let p = page(G.create(5, { ceo: false }));
 assert.match(p.html("hud"), /campaign-chip[^>]*>Y1 goal · Reach Indie Imprint · now Bedroom Label/);
 assert.match(p.text("goal"), /^Year 1\/20 goal: Reach Indie Imprint/);
 assert.equal(p.el("continueCareer").hidden, true);
@@ -125,5 +126,20 @@ p.click({ tab: "campaign" });
 assert.match(p.html("content"), /OUT OF CASH IN YEAR 1/);
 assert.match(p.html("content"), /New Game\+ opens when a run reaches the end of year 20/);
 assert.doesNotMatch(p.html("content"), /campaignNewGamePlus/);
+
+// A CEO run shows one ladder: no yearly goal chip, and the year review has no classic goal.
+p = page(G.create(5, { ceo: true }));
+assert.doesNotMatch(p.html("hud"), /campaign-chip/);
+assert.match(p.html("hud"), /company-chip[^>]*>Phase 1 · Home studio/);
+for (const tab of ["label", "company", "desk", "office", "locations", "campaign", "promotion", "finance"]) {
+  p.click({ tab });
+  assert.doesNotMatch(
+    p.html("content"),
+    /LABEL RANK|Bedroom Label|Y1 goal|label rank \d/,
+    `one ladder in the ${tab} panel`,
+  );
+}
+p.click({ tab: "label" });
+assert.match(p.html("content"), /PHASE 1 \/ 6[\s\S]*Home studio/);
 
 console.log("Campaign interface check passed.");

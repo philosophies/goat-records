@@ -34,6 +34,8 @@ function campaignRows(rows) {
 /* ---------------- Status chip and goal banner ---------------- */
 
 function campaignChip() {
+  // CEO runs show one ladder: the company chip.
+  if (state.company && !state.finished) return "";
   if (state.finished) return `<span class="campaign-chip">Run ${state.campaign.run} · final review</span>`;
   const g = G.currentGoal(state);
   if (!g) return `<span class="campaign-chip">Run ${state.campaign.run} · final year</span>`;
@@ -49,7 +51,8 @@ function endingTitle(review) {
   return review.bankrupt ? "OUT OF CASH" : "CAMPAIGN COMPLETE";
 }
 function endingText(review) {
-  if (review.ending === "fired") return "<p>You lost the CEO chair. The label continues under new leadership.</p>";
+  if (review.ending === "fired")
+    return "<p>You lost the CEO chair. The label continues under new leadership.</p>";
   if (review.ending === "folded") return "<p>The label ran out of cash and closed its doors.</p>";
   return "";
 }
@@ -114,7 +117,7 @@ function campaignScreen() {
     g = st.current;
   const head = state.finished
     ? finalReviewCard()
-    : `<div class="card campaign-current"><span class="tag">YEAR ${st.year} OF ${st.years}</span>${g ? `<h3>${esc(g.goal.name)}</h3><p>${esc(g.text)}${g.met ? " · met, the reward is paid at year end" : ""}</p><p class="muted">Reward: ${esc(g.reward)} · checked after the year's awards</p>` : "<h3>Final year</h3>"}<details><summary>Score so far</summary>${campaignRows(G.finalScore(state).rows)}<p>Total <b>${G.finalScore(state).total}</b> · ${campaignStars(G.finalScore(state).stars)}</p></details></div>`;
+    : `<div class="card campaign-current"><span class="tag">YEAR ${st.year} OF ${st.years}</span>${g ? `<h3>${esc(g.goal.name)}</h3><p>${esc(g.text)}${g.met ? " · met, the reward is paid at year end" : ""}</p><p class="muted">Reward: ${esc(g.reward)} · checked after the year's awards</p>` : state.company ? `<h3>${esc(G.companyPhase(state).name)}</h3><p class="muted">The company phase sets this run's goals. <button class="link" data-tab="company">Goals for the next phase</button></p>` : "<h3>Final year</h3>"}<details><summary>Score so far</summary>${campaignRows(G.finalScore(state).rows)}<p>Total <b>${G.finalScore(state).total}</b> · ${campaignStars(G.finalScore(state).stars)}</p></details></div>`;
   const rows = st.goals
     .map(
       (y) =>
@@ -127,6 +130,8 @@ function campaignScreen() {
   const history = st.history.length
     ? `<h3>Earlier runs</h3><ul class="campaign-history">${st.history.map((h) => `<li>Run ${h.run} · ${h.score.toLocaleString("en-US")} points · ${campaignStars(h.stars)} · ${h.ending === "fired" ? "fired" : h.bankrupt ? "out of cash" : h.years + " years"}</li>`).join("")}</ul>`
     : "";
+  if (state.company)
+    return `<div class="sectionhead"><h2>Campaign · run ${st.run}</h2></div><p class="muted">Run the company for ${st.years} operating years. Each phase sets the goals for the next; reaching a phase pays its backers and finds new themes. After year ${st.years}, or if you are fired or ousted, the run is scored and graded one to five stars, and the score buys legacy bonuses for the next run. A label that stays below $0 for four weeks folds and ends the run early.</p>${head}${legacy}${history}`;
   return `<div class="sectionhead"><h2>Campaign · run ${st.run}</h2><span class="muted">${st.met} of ${st.years} yearly goals met</span></div><p class="muted">Run the label for ${st.years} operating years. Each year has a goal; meeting it by the year's awards pays a reward. After year ${st.years} the run is scored and graded one to five stars, and the score buys legacy bonuses for the next run. A label that stays below $0 for four weeks folds and ends the run early.</p>${head}${legacy}<table class="campaign-goals"><thead><tr><th>Year</th><th>Goal</th><th>Reward</th><th>Result</th></tr></thead><tbody>${rows}</tbody></table>${history}`;
 }
 

@@ -122,7 +122,7 @@ function promoAdTable() {
   const rank = G.rank(state);
   return `<div class="promo-table"><table><thead><tr><th>Ad</th><th>Rank</th><th>Cost now</th><th>Effect</th></tr></thead><tbody>${G.ADS.map(
     (a) =>
-      `<tr class="${a.rank > rank ? "locked" : ""}"><th>${esc(a.name)}</th><td>${a.rank > rank ? `Locked · rank ${a.rank} (${esc(G.RANKS[a.rank - 1].name)})` : `Rank ${a.rank} ✓`}</td><td>${money(G.adCost(state, a))}</td><td>${promoAdLabel(a)}</td></tr>`,
+      `<tr class="${a.rank > rank ? "locked" : ""}"><th>${esc(a.name)}</th><td>${a.rank > rank ? `Locked · ${state.company ? esc(G.ladderLabel(state, a.rank)) : `rank ${a.rank} (${esc(G.RANKS[a.rank - 1].name)})`}` : `${state.company ? "Phase" : "Rank"} ${a.rank} ✓`}</td><td>${money(G.adCost(state, a))}</td><td>${promoAdLabel(a)}</td></tr>`,
   ).join(
     "",
   )}</tbody></table></div><p class="muted">Ads are for released albums still in their earning run, one at a time per album. The boost starts with the next weekly settlement. Prices rise with label fame. An ad pays back when the album is already selling well; on a slow seller it mostly buys chart attention.</p>`;

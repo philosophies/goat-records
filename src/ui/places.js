@@ -78,9 +78,12 @@ function section(id, html) {
 }
 function sheetSections(items) {
   const selected = items.find(([id]) => id === sheetSection) || items[0];
-  const links = items.map(([id, label]) =>
-    `<button data-tab="${esc(tab)}~${id}" aria-pressed="${id === selected[0]}">${label}</button>`,
-  ).join("");
+  const links = items
+    .map(
+      ([id, label]) =>
+        `<button data-tab="${esc(tab)}~${id}" aria-pressed="${id === selected[0]}">${label}</button>`,
+    )
+    .join("");
   return `<nav class="sheet-tabs" aria-label="Panel sections">${links}</nav>${section(selected[0], selected[2]())}`;
 }
 function panelHtml(id) {
@@ -89,10 +92,11 @@ function panelHtml(id) {
 const PLACES = {
   desk: {
     title: () => "Front desk",
-    render: () => sheetSections([
-      ["sec-scout", "Scouting", scouting],
-      ["sec-team", "Staff", () => state.company?.departments ? GoatStaff.departmentList() : staff()],
-    ]),
+    render: () =>
+      sheetSections([
+        ["sec-scout", "Scouting", scouting],
+        ["sec-team", "Staff", () => (state.company?.departments ? GoatStaff.departmentList() : staff())],
+      ]),
   },
   trophies: {
     title: () => "Trophy case",
@@ -101,36 +105,42 @@ const PLACES = {
   },
   office: {
     title: () => "Office",
-    render: () => sheetSections([
-      ...(state.company ? [["sec-company", "Company", () => GoatBoard.summary() + panelHtml("company")]] : []),
-      ["sec-campaign", "Goals", () => panelHtml("campaign")],
-      ["sec-finance", "Finances", finance],
-      ["sec-catalog", "Catalog", catalog],
-      ["sec-name", "Label name", companyNameCard],
-    ]),
+    render: () =>
+      sheetSections([
+        ...(state.company
+          ? [["sec-company", "Company", () => GoatBoard.summary() + panelHtml("company")]]
+          : []),
+        ["sec-campaign", "Goals", () => panelHtml("campaign")],
+        ["sec-finance", "Finances", finance],
+        ["sec-catalog", "Catalog", catalog],
+        ["sec-name", "Label name", companyNameCard],
+      ]),
   },
   billboard: {
     title: () => "Billboard",
-    render: () => sheetSections([
-      ["sec-charts", "Charts", charts],
-      ["sec-promotion", "Promotion", () => panelHtml("promotion")],
-    ]),
+    render: () =>
+      sheetSections([
+        ["sec-charts", "Charts", charts],
+        ["sec-promotion", "Promotion", () => panelHtml("promotion")],
+      ]),
   },
   newsstand: { title: () => "Newsstand", render: () => journal() },
   bus: { title: () => "Tour bus", render: () => road() },
   label: {
     title: () => G.labelName(state),
-    render: () => sheetSections([
-      ["sec-label", "Headquarters", () => panelHtml("hq")],
-      ["sec-notebook", "Combo notebook", () => GoatUI.html("studioSections")],
-    ]),
+    render: () =>
+      sheetSections([
+        ["sec-label", "Headquarters", () => panelHtml("hq")],
+        ["sec-notebook", "Combo notebook", () => GoatUI.html("studioSections")],
+      ]),
   },
   street: {
     title: () => "Out of town",
-    render: () => sheetSections([
-      ["sec-locations", "Studios", locationsScreen],
-      ["sec-gigs", "Paid gigs", gigsScreen],
-    ]),
+    render: () =>
+      sheetSections([
+        ["sec-locations", "Studios", locationsScreen],
+        ["sec-gigs", "Paid gigs", gigsScreen],
+      ]),
   },
   newroom: { title: () => "Build a recording room", render: () => newRoomSheet() },
 };
@@ -215,7 +225,11 @@ function artistSheet(a) {
     ["sec-record", "Record", () => recordSection(a)],
     ["sec-tour", "Touring", () => tourSection(a)],
     ...(state.company ? [["sec-team", "Team", () => GoatStaff.teamSection(a)]] : []),
-    ["sec-albums", "Albums", () => albums.length ? catalogList(albums) : '<div class="empty">No albums yet.</div>'],
+    [
+      "sec-albums",
+      "Albums",
+      () => (albums.length ? catalogList(albums) : '<div class="empty">No albums yet.</div>'),
+    ],
   ]);
 }
 
@@ -239,7 +253,8 @@ function newRoomSheet() {
 
 function locationSheet(l) {
   let body;
-  if (l.locked) body = `<div class="empty">Opens at rank ${l.rank}, ${esc(l.rankName)}.</div>`;
+  if (l.locked)
+    body = `<div class="empty">Opens at ${state.company ? "phase" : "rank"} ${l.rank}, ${esc(l.rankName)}.</div>`;
   else if (l.booked)
     body = `<div class="empty">Booked by ${esc(l.booked.title)} until it is released. <button data-tab="artist:${l.booked.artist}">See ${esc(l.booked.artistName)}</button></div>`;
   else {

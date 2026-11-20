@@ -244,7 +244,18 @@
     s.streams[key] = (Math.imul(s.streams[key], 1664525) + 1013904223) >>> 0;
     return s.streams[key] / 4294967296;
   }
-  const core = { clamp, log, pay, requireAction, busy, artist, roll, operatingYear, uniqueName, api: () => api };
+  const core = {
+    clamp,
+    log,
+    pay,
+    requireAction,
+    busy,
+    artist,
+    roll,
+    operatingYear,
+    uniqueName,
+    api: () => api,
+  };
   const SYS = SYSTEM_NAMES.filter((n) => factories[n]).map((n) => ({ name: n, ...factories[n](core, D) }));
   const L = SYS.find((x) => x.name === "label");
   const E = SYS.find((x) => x.name === "events");
@@ -902,8 +913,9 @@
         "Annual awards entries close at the end of this operating year. Submit one eligible album per genre.",
       );
     const companyRevenue = s.company ? api.companyRevenue?.(s) : null;
-    const income = Object.fromEntries(SYS.map((x) =>
-      [x.name, x.weekly?.(s, x.name === "company" ? companyRevenue : undefined) || 0])),
+    const income = Object.fromEntries(
+        SYS.map((x) => [x.name, x.weekly?.(s, x.name === "company" ? companyRevenue : undefined) || 0]),
+      ),
       hqIncome = income.label || 0,
       otherIncome = Object.values(income).reduce((n, v) => n + v, 0) - hqIncome;
     s.financeHistory.push({
@@ -3500,6 +3512,7 @@
     comboInfo: L.comboInfo,
     fitOf: L.fitOf,
     discoverTheme: L.discoverTheme,
+    ladderLabel: L.ladderLabel,
     learnTheme: L.learnTheme,
     lotSize: L.lotSize,
     facilityAt: L.facilityAt,

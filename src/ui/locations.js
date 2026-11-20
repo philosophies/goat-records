@@ -109,7 +109,7 @@ function locationCard(l) {
           ((l.xp - G.LOCATION_LEVELS.xp[l.level - 1]) / (l.nextXp - G.LOCATION_LEVELS.xp[l.level - 1])) * 100,
         )
       : 100;
-  return `<article class="card location-card ${l.locked ? "locked" : ""}" style="--accent:${l.accent}"><div class="location-head">${locPixels(l.icon, l.accent, 48, l.name)}<div><span class="tag">${l.locked ? `Locked · rank ${l.rank} ${esc(l.rankName)}` : l.booked ? "Booked · in production" : `Level ${l.level} / ${G.LOCATION_LEVELS.max}`}</span><h3>${esc(l.name)}</h3>${locLevelPips(l.level)}</div></div><p>${esc(l.text)}</p><div class="progress" title="${l.nextXp ? `${l.xp} / ${l.nextXp} experience` : "Top level"}"><span style="width:${progress}%"></span></div><div class="metrics"><span>Rent <b>${money(l.rentNow)}</b></span><span>Rank <b>${l.rank}</b></span><span>Albums <b>${st?.albums || 0}</b></span><span>Best quality <b>${st?.bestQuality || "—"}</b></span><span>Experience <b>${l.xp}${l.nextXp ? " / " + l.nextXp : " · MAX"}</b></span><span>Releases <b>${st?.releases || 0}</b></span></div><p>Boosts: ${esc(locBoostText(l, l.level))}<br>Genres: ${esc(locGenreText(l))}<br>Signature theme: <b>${l.themeKnown ? esc(l.theme) : "?"}</b></p></article>`;
+  return `<article class="card location-card ${l.locked ? "locked" : ""}" style="--accent:${l.accent}"><div class="location-head">${locPixels(l.icon, l.accent, 48, l.name)}<div><span class="tag">${l.locked ? `Locked · ${state.company ? "phase" : "rank"} ${l.rank} ${esc(l.rankName)}` : l.booked ? "Booked · in production" : `Level ${l.level} / ${G.LOCATION_LEVELS.max}`}</span><h3>${esc(l.name)}</h3>${locLevelPips(l.level)}</div></div><p>${esc(l.text)}</p><div class="progress" title="${l.nextXp ? `${l.xp} / ${l.nextXp} experience` : "Top level"}"><span style="width:${progress}%"></span></div><div class="metrics"><span>Rent <b>${money(l.rentNow)}</b></span><span>${state.company ? "Phase" : "Rank"} <b>${l.rank}</b></span><span>Albums <b>${st?.albums || 0}</b></span><span>Best quality <b>${st?.bestQuality || "—"}</b></span><span>Experience <b>${l.xp}${l.nextXp ? " / " + l.nextXp : " · MAX"}</b></span><span>Releases <b>${st?.releases || 0}</b></span></div><p>Boosts: ${esc(locBoostText(l, l.level))}<br>Genres: ${esc(locGenreText(l))}<br>Signature theme: <b>${l.themeKnown ? esc(l.theme) : "?"}</b></p></article>`;
 }
 function gigTable() {
   const r = G.rank(state);
@@ -121,9 +121,13 @@ function gigTable() {
 function locationsScreen() {
   const list = G.locationList(state);
   const visited = list.filter((l) => l.stats).length;
-  const buttons = (locations) => locations.map((l) =>
-    `<button data-tab="location:${l.id}">${esc(l.name)} <small>${l.locked ? "Locked · rank " + l.rank : l.booked ? "Booked" : money(l.rentNow) + " rent"}</small></button>`,
-  ).join("");
+  const buttons = (locations) =>
+    locations
+      .map(
+        (l) =>
+          `<button data-tab="location:${l.id}">${esc(l.name)} <small>${l.locked ? "Locked · rank " + l.rank : l.booked ? "Booked" : money(l.rentNow) + " rent"}</small></button>`,
+      )
+      .join("");
   return `<div class="sectionhead"><h2>Recording locations</h2><span class="muted">${visited} of ${list.length} visited</span></div><div class="destination-list">${buttons(list.filter((l) => !l.locked))}</div><details class="decision-details"><summary>Locked studios</summary><div class="destination-list">${buttons(list.filter((l) => l.locked))}</div></details>`;
 }
 function gigsScreen() {

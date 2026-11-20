@@ -9,10 +9,10 @@ Task: v2.0.0 released
 
 <!-- CHECKPOINT -->
 
-**Updated:** 2026-11-19
+**Updated:** 2026-11-20
 **Branch:** `main`
-**Current task:** None. The CEO backlog is complete (39/39) and released as v2.0.0.
-**Next step:** Pick from the open items below and add them to `production/backlog.md` as new tasks.
+**Current task:** 3.0, the dynasty update. T40 (one ladder) is done.
+**Next step:** T41, hide classic mode. Run `node tools/next-task.cjs`.
 **Blocked on:** Nothing.
 **Files in progress:** None.
 **Open questions:** When to schedule the Android wrapper and a physical device test.
@@ -27,7 +27,7 @@ Task: v2.0.0 released
 
 ## Open items
 
-- Two rank systems show at once in CEO runs: the company phase (Home studio … Global label) and the classic label rank and yearly goal (Bedroom Label, "Y1 goal"). The classic rank still sets roster slots and room tiers, so removing it needs a design pass.
+- The label panel still lists the classic lot's facilities in CEO runs (to fix with T57).
 - The top bar takes about a third of the screen at phone width.
 - Balance: in the twelve-seed sample, three careful runs folded and five of twelve reckless runs were fired ([CEO-BALANCE.json](../CEO-BALANCE.json)).
 - Android: the wrapper and a test on a real device ([Android guide](../docs/android.md)).
