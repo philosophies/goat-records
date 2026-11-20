@@ -244,7 +244,7 @@
     s.streams[key] = (Math.imul(s.streams[key], 1664525) + 1013904223) >>> 0;
     return s.streams[key] / 4294967296;
   }
-  const core = { clamp, log, pay, requireAction, busy, artist, roll, operatingYear, api: () => api };
+  const core = { clamp, log, pay, requireAction, busy, artist, roll, operatingYear, uniqueName, api: () => api };
   const SYS = SYSTEM_NAMES.filter((n) => factories[n]).map((n) => ({ name: n, ...factories[n](core, D) }));
   const L = SYS.find((x) => x.name === "label");
   const E = SYS.find((x) => x.name === "events");
@@ -272,26 +272,56 @@
   function slots(s) {
     return L.slots(s);
   }
+  // ---- People's names ----
+  /** Names reserved this week by people generated but not yet stored (a batch of candidates). */
+  const reservedNames = new WeakMap();
+  /** Every name in use at the label: artists, prospects, staff, executives, team members, directors. */
+  function peopleNames(s) {
+    const names = new Set(),
+      add = (list) => (list || []).forEach((x) => x?.name && names.add(x.name)),
+      c = s.company;
+    add(s.artists);
+    add(s.candidates);
+    add(Object.values(s.employees || {}));
+    Object.values(s.staffCandidates || {}).forEach(add);
+    for (const d of Object.values(c?.departments || {})) {
+      add([d.head]);
+      add(d.pool);
+    }
+    add(c?.team?.pool);
+    Object.values(c?.team?.candidates || {}).forEach(add);
+    add(c?.board?.directors);
+    const r = reservedNames.get(s);
+    if (r?.week === s.week) r.names.forEach((n) => names.add(n));
+    return names;
+  }
+  /**
+   * A name nobody at the label has, from one random number: the pair at that point of the
+   * NAME_FIRST × NAME_LAST list, or the next free one after it.
+   */
+  function uniqueName(s, r) {
+    const F = D.NAME_FIRST.length,
+      N = F * D.NAME_LAST.length,
+      taken = peopleNames(s),
+      start = Math.floor(r * N);
+    let name = null;
+    for (let k = 0; k < N && !name; k++) {
+      const i = (start + k) % N,
+        n = `${D.NAME_FIRST[i % F]} ${D.NAME_LAST[Math.floor(i / F)]}`;
+      if (!taken.has(n)) name = n;
+    }
+    name ??= `${D.NAME_FIRST[start % F]} ${D.NAME_LAST[Math.floor(start / F)]} ${s.nextId}`;
+    let res = reservedNames.get(s);
+    if (res?.week !== s.week) reservedNames.set(s, (res = { week: s.week, names: new Set() }));
+    res.names.add(name);
+    return name;
+  }
   function candidate(s) {
-    const names = [
-      "Mika Vale",
-      "Juniper Lane",
-      "Echo Reed",
-      "Nova Banks",
-      "Sage Rivers",
-      "Theo North",
-      "Aria Stone",
-      "Jules Hart",
-      "Remy Blue",
-      "Sky Monroe",
-      "Kit Wilder",
-      "Zion West",
-    ];
     const age = ["Youth", "Teen", "Adult"][Math.floor(rng(s) * 3)];
     return {
       inspiration: 60,
       id: s.nextId++,
-      name: names[Math.floor(rng(s) * names.length)] + " " + s.nextId,
+      name: uniqueName(s, rng(s)),
       age,
       audience: ["Youth", "Teen", "Adult"][Math.floor(rng(s) * 3)],
       genre: GENRES[Math.floor(rng(s) * 6)],
@@ -1011,23 +1041,9 @@
   function staffProspect(s, role, index = 0) {
     const b = RECRUIT_BUDGETS[index],
       skill = b.min + Math.floor(rng(s) * (b.max - b.min + 1));
-    const names = [
-      "Alex Mercer",
-      "Morgan Ellis",
-      "Robin Shaw",
-      "Drew Bell",
-      "Samira Cole",
-      "Avery Park",
-      "Noor Hayes",
-      "Casey West",
-      "Taylor Quinn",
-      "Jamie Brooks",
-      "Eden Cruz",
-      "Rowan Blake",
-    ];
     return {
       id: s.nextId++,
-      name: names[Math.floor(rng(s) * names.length)],
+      name: uniqueName(s, rng(s)),
       role,
       skill,
       cost: Math.round((ROLES[role].cost * (0.4 + skill / 100)) / 50) * 50,
