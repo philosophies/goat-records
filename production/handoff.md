@@ -1,34 +1,40 @@
 # Goat Records handoff
 
 <!-- STATUS -->
+
 Epic: CEO update
-Feature: Navigation and decision prompts
-Task: Review the cumulative build
+Feature: Release
+Task: v2.0.0 released
 <!-- /STATUS -->
 
 <!-- CHECKPOINT -->
-**Updated:** 2026-11-18
-**Branch:** `codex/cleaner-game-ui`
-**Current task:** The CEO backlog is complete (39/39). This branch includes T26–T38 and the navigation cleanup.
-**Next step:** Review the cumulative diff against `main`, then play a CEO run through an album release. Record any issues before merge or release.
-**Blocked on:** Owner review for merge and release.
+
+**Updated:** 2026-11-19
+**Branch:** `main`
+**Current task:** None. The CEO backlog is complete (39/39) and released as v2.0.0.
+**Next step:** Pick from the open items below and add them to `production/backlog.md` as new tasks.
+**Blocked on:** Nothing.
 **Files in progress:** None.
-**Open questions:** Whether to schedule the later Android wrapper and physical device test.
+**Open questions:** When to schedule the Android wrapper and a physical device test.
 <!-- /CHECKPOINT -->
 
 ## Resume here
 
-1. Check out `codex/cleaner-game-ui` from `origin`. Read [the project rules](../AGENTS.md), [current status](status.md), and [validation](../VALIDATION.md). Run `node tools/next-task.cjs` to check the backlog before starting a new task.
-2. Run `node run-checks.cjs` with Node 22 or newer. Open `index.html` directly or serve the repository root with `python -m http.server 8765 --bind 127.0.0.1`.
-3. Start a named CEO label, use the Office's **Company** section to reach the Boardroom, take a loan, sign an artist and finish a release. Check the same flow at phone width. **Out of town → Studios** opens recording locations. The Office and artist panels each show one section at a time. The production card shows one decision with an expandable rating breakdown.
-4. Before the next push, replace the checkpoint above and update `production/status.md`. Include the tests you ran and the first concrete action for the next session.
+1. Read [the project rules](../AGENTS.md), [current status](status.md) and [validation](../VALIDATION.md). Run `node tools/next-task.cjs` to see the backlog.
+2. Run `node run-checks.cjs` with Node 22 or newer. Open `index.html` directly, or serve the repository root with `python -m http.server 8765 --bind 127.0.0.1`.
+3. To play the CEO mode: press **New label**, keep CEO and name the label. Take the bank loan from the boardroom (the phase chip in the top bar, the front desk's "Short by" note, or the phone's Wallet), sign a local artist on a one-album deal and record from their panel.
+4. Before the next push, update this checkpoint and `production/status.md` with the tests you ran and the first action for the next session.
 
-This tracked handoff follows the [Game Studios checkpoint format](https://github.com/philosophies/Claude-Code-Game-Studios/blob/main/.claude/docs/templates/session-state.md). If the studio hooks are in use, copy this checkpoint to the local `production/session-state/active.md` so the session-start hook can read it.
+## Open items
 
-## Verification and limits
+- Two rank systems show at once in CEO runs: the company phase (Home studio … Global label) and the classic label rank and yearly goal (Bedroom Label, "Y1 goal"). The classic rank still sets roster slots and room tiers, so removing it needs a design pass.
+- Artist names carry a number ("Sage Rivers 2"). This has been true since 1.0 and keeps names unique.
+- The top bar takes about a third of the screen at phone width.
+- Balance: in the twelve-seed sample, three careful runs folded and five of twelve reckless runs were fired ([CEO-BALANCE.json](../CEO-BALANCE.json)).
+- Android: the wrapper and a test on a real device ([Android guide](../docs/android.md)).
 
-- The local simulation and interface suites passed. The compact production choices fit without scrolling at 390 × 800 and appeared in one row at 1280 px. The CEO build was played through release at desktop and phone widths.
-- Synthetic saves from v0.9.0, v1.0.0 and v1.1.0 converted and played ten weeks each. Conversion can keep a copy of the original through **Export classic backup**. Use an exported copy or a separate browser profile in playtests.
-- Chrome reported no installability or manifest errors. Offline reload, nested Back navigation, and launching the extracted ZIP were checked. The [Android guide](../docs/android.md) covers the later wrapper and physical device checks.
-- [The balance sample](../CEO-BALANCE.json) is reproducible with `node tests/ceo-balance.cjs`. Across twelve careful runs, zero were fired, three folded, and four reached an IPO by year 12. Five of twelve reckless runs were fired.
-- v1.1.0 remains the published version. The owner decides when to merge and release the CEO update.
+## Verification
+
+- All simulation and interface suites pass.
+- A new CEO label was played in Chrome at 1366 × 900 and 390 × 800: bank loan, a one-album signing, all five production stages, release, and six weeks after it, with no console errors. A funded phase-3 company was simulated for 60 weeks and every panel opened without errors.
+- Saves from v0.9.0, v1.0.0 and v1.1.0 convert and play ten weeks each. Chrome reports no installability errors, and the game reloads offline.

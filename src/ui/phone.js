@@ -214,7 +214,7 @@ function phoneWallet() {
     );
   }
   return phoneScreen(
-    `<dl class="wallet">${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`).join("")}</dl><button data-tab="finance">Full finances in the office</button>`,
+    `<dl class="wallet">${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`).join("")}</dl><div class="actions"><button data-tab="finance">Full finances in the office</button><button data-tab="board">Funding and the board</button></div>`,
   );
 }
 

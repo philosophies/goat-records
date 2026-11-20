@@ -49,6 +49,18 @@ run(
 );
 click({ tab: "office" });
 assert.match(html("content"), /BOARDROOM[\s\S]*No board yet[\s\S]*data-tab="board"/);
+// Funding is reachable before the office exists: from the company chip, the desk and the phone.
+click({ tab: "company" });
+assert.match(html("content"), /BOARDROOM[\s\S]*data-tab="board"/);
+run(`state.cash = 500; save(); render();`);
+click({ tab: "desk" });
+assert.match(
+  html("content"),
+  /Short by \$[\d,]+ even for one album\. <button class="link" data-tab="board">/,
+);
+click({ tab: "phone:wallet" });
+assert.match(html("content"), /data-tab="board">Funding and the board/);
+run(`state.cash = 200000; save(); render();`);
 click({ tab: "board" });
 assert.equal(element("drawerTitle").textContent, "Boardroom");
 let page = html("content");

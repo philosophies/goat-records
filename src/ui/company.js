@@ -61,7 +61,7 @@ function companyScreen() {
           "",
         )}</ul><p class="muted">The label moves up at the weekly settlement once every goal is met. A phase is never lost.</p>`
     : "";
-  return `<h2>Phase ${phase.id} · ${esc(phase.name)}</h2><p class="muted">Since week ${state.company.since}. Scouting reaches ${esc(G.REACH_SCOUTING[phase.reach].name)}.</p>${goals}${listingCard()}${acquisitionCards()}<h3>The road to a public company</h3><ol class="phase-ladder">${ladder}</ol>`;
+  return `<h2>Phase ${phase.id} · ${esc(phase.name)}</h2><p class="muted">Since week ${state.company.since}. Scouting reaches ${esc(G.REACH_SCOUTING[phase.reach].name)}.</p>${goals}${typeof GoatBoard !== "undefined" ? GoatBoard.summary() : ""}${listingCard()}${acquisitionCards()}<h3>The road to a public company</h3><ol class="phase-ladder">${ladder}</ol>`;
 }
 
 /** The office's name card: works in every run. */
