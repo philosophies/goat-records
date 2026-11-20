@@ -197,6 +197,12 @@ GoatUI.click.push((b) => {
         G.respond(state, d.dept, d.kind, d.kind === "sideline" ? $("sideline-" + d.dept).value : undefined),
       );
       return true;
+    case "secondAct":
+      act(() => {
+        state = G.secondAct(state, d.artist, $("secondActName").value);
+        resetView();
+      });
+      return true;
     case "grabAck":
       act(() => G.ackGrab(state));
       return true;
@@ -207,6 +213,21 @@ GoatUI.click.push((b) => {
   return false;
 });
 
+/** After being fired or ousted: a superstar may follow you to a new company. */
+function secondActCard() {
+  if (!state.company || !state.finished || !(state.fired || state.ousted)) return "";
+  const willing = G.willingToFollow(state);
+  // With nobody willing, the run's final review is the ending.
+  if (!willing.length) return "";
+  return `<div class="chart-alert second-act" role="dialog" aria-label="A second act"><div class="chart-award">★</div><div><span class="tag">A SECOND ACT</span><h2>${willing.length === 1 ? `${esc(willing[0].name)} will follow you` : "Your superstars will follow you"}</h2><p>Start a new company from a home studio with one of them, ${money(G.SECOND_ACT.cash)} from old contacts, and a fresh start at week one.</p><label>New company<input id="secondActName" maxlength="${G.RENAME.maxLength}" placeholder="Name it"></label><div class="actions">${willing
+    .map(
+      (a) =>
+        `<button class="primary" data-action="secondAct" data-artist="${a.id}">Start again with ${esc(a.name)}</button>`,
+    )
+    .join("")}</div></div></div>`;
+}
 GoatUI.banners.push({ render: grabCard });
+// Ahead of the run's final review: the offer comes first.
+GoatUI.banners.unshift({ render: secondActCard });
 
 const GoatStaff = { teamSection, departmentList, sheet: staffSheet };

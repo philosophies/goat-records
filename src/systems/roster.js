@@ -6,7 +6,7 @@
 
   /** @param {object} core engine helpers  @param {object} D data tables */
   function create(core, D) {
-    const { TIERS, TIER_SLOTS, TIER_RULES, FACE } = D;
+    const { TIERS, TIER_SLOTS, TIER_RULES, FACE, SECOND_ACT } = D;
     const { log, roll, clamp } = core;
     const tierById = Object.fromEntries(TIERS.map((t) => [t.id, t]));
     const ORDER = TIERS.map((t) => t.id);
@@ -193,6 +193,45 @@
       return income + endorsements(s);
     }
 
+    // ---- Second act (T47) ----
+    /** Superstars who would follow a fired or ousted CEO to a new company. */
+    function willingToFollow(s) {
+      return superstars(s).filter(
+        (a) => relationOf(a) >= SECOND_ACT.relation && (a.persona?.loyalty ?? 50) >= SECOND_ACT.loyalty,
+      );
+    }
+    /**
+     * Starts a new company after you were fired or ousted, with one superstar who follows you.
+     * Returns the new run's state; the old one is left as it was.
+     */
+    function secondAct(s, artistId, labelName) {
+      if (!s.company || !s.finished || !(s.fired || s.ousted))
+        throw Error("A second act follows being fired or ousted.");
+      const a = willingToFollow(s).find((x) => x.id === Number(artistId));
+      if (!a) throw Error("That artist will not follow you.");
+      const name = String(labelName || "").trim();
+      if (!name) throw Error("Name the new company.");
+      const game = core.api(),
+        n = game.create((s.seed ^ 0x5eca7) >>> 0, { labelName: name }),
+        b = JSON.parse(JSON.stringify(a));
+      Object.assign(b, {
+        id: n.nextId++,
+        tier: "superstar",
+        contract: { ...(b.contract || {}), remaining: SECOND_ACT.albums, term: SECOND_ACT.albums },
+      });
+      n.artists.push(b);
+      n.cash += SECOND_ACT.cash;
+      n.campaign.run = s.campaign?.run ?? n.campaign.run;
+      n.secondAct = {
+        count: (s.secondAct?.count || 0) + 1,
+        from: game.labelName(s),
+        artist: b.name,
+        week: s.week,
+      };
+      log(n, `A second act: ${b.name} left ${n.secondAct.from} to start ${name} with you.`);
+      return n;
+    }
+
     // ---- Caps ----
     function aTier(t) {
       return (/^[aeiou]/i.test(t.name) ? "an " : "a ") + t.name.toLowerCase();
@@ -275,6 +314,9 @@
         faceMultiplier,
         endorsements,
         addShock,
+        SECOND_ACT,
+        willingToFollow,
+        secondAct,
       },
     };
   }

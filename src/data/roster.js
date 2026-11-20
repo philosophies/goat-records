@@ -54,7 +54,12 @@
     },
   };
 
-  const data = { TIERS, TIER_SLOTS, TIER_RULES, FACE };
+  // A second act: when you are fired or ousted, a superstar whose relationship with you is at least
+  // `relation` and whose loyalty is at least `loyalty` will follow you to a new company. It starts at
+  // phase 1 with `cash` from the old contacts, and the superstar signs for `albums` albums.
+  const SECOND_ACT = { relation: 40, loyalty: 50, cash: 15000, albums: 2 };
+
+  const data = { TIERS, TIER_SLOTS, TIER_RULES, FACE, SECOND_ACT };
   root.GoatData = Object.assign(root.GoatData || {}, data);
   if (typeof module !== "undefined" && module.exports) module.exports = data;
 })(typeof globalThis !== "undefined" ? globalThis : this);
