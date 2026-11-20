@@ -156,6 +156,24 @@ assert.match(
   "the street is set to day or night",
 );
 
+// Room interiors: the finish follows the level, the kit follows the type.
+assert.deepEqual(
+  [1, 2, 3].map((l) => run(`GoatStreet.finish(${l})`)),
+  ["basic", "pro", "luxe"],
+);
+assert.deepEqual(
+  [1, 4, 7, 10].map((l) => run(`GoatStreet.finish(${l}, 10)`)),
+  ["basic", "pro", "luxe", "luxe"],
+  "works for a ten-level ladder too",
+);
+street = element("lot").innerHTML;
+assert.match(
+  street,
+  /street-floor room ft-room fin-luxe[^"]*"[\s\S]*?<span class="interior" aria-hidden="true"><i class="kit"><\/i><i class="light"><\/i><\/span>/,
+);
+assert.match(street, /ft-writers fin-luxe/);
+assert.match(street, /ft-vocal fin-pro/);
+
 console.log(
   "PASS street interface harness: building, floor, build and buy panels with their actions, buildings and floors replace the lot in CEO runs, plots, minimap, people on their floors, classic lot untouched",
 );

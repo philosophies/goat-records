@@ -548,3 +548,216 @@ body.ceo-run .scene.street-scene[data-time="night"] {
     opacity: 0.6;
   }
 }
+
+/* ---------- Room interiors (3.0, T44) ----------
+   Walls and lighting come from the finish (basic, pro, luxe); the kit comes from the room type. */
+body.ceo-run .street-floor .floor-hit {
+  overflow: hidden;
+  background: linear-gradient(#3a2f2a, #3a2f2a);
+  border-color: #000;
+  box-shadow: none;
+}
+body.ceo-run .street-floor.fin-pro .floor-hit {
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.18) 0 2px, transparent 2px 12px),
+    linear-gradient(#2b2422, #2b2422);
+}
+body.ceo-run .street-floor.fin-luxe .floor-hit {
+  background:
+    linear-gradient(transparent calc(100% - 9px), #e3b23c calc(100% - 9px) calc(100% - 8px), transparent 0),
+    radial-gradient(ellipse at 50% 0, rgba(227, 178, 60, 0.28), transparent 70%),
+    linear-gradient(#1a0d10, #2a1216);
+}
+.interior {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+/* The floor. */
+.interior::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 7px;
+  background: #241a15;
+}
+.fin-pro .interior::after {
+  background: repeating-linear-gradient(90deg, #5a3a22 0 10px, #4a2f1b 10px 11px);
+}
+.fin-luxe .interior::after {
+  background: linear-gradient(#7a0d13, #5a0a0e);
+}
+/* Lights: one bulb, track lights, or a warm glow with gold records on the wall. */
+.interior .light {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 6px;
+  height: 10px;
+  background: linear-gradient(#000 0 4px, #ffe08a 4px);
+  border-radius: 0 0 3px 3px;
+  box-shadow: 0 6px 14px 4px rgba(255, 224, 138, 0.25);
+}
+.fin-pro .interior .light {
+  left: 12%;
+  width: 76%;
+  height: 4px;
+  border-radius: 0;
+  background:
+    radial-gradient(circle, #ffe08a 0 1.5px, transparent 2px) 0 0 / 16px 4px,
+    #111;
+  box-shadow: 0 4px 16px 2px rgba(255, 224, 138, 0.18);
+}
+.fin-luxe .interior .light {
+  top: 18px;
+  left: calc(50% - 17px);
+  width: 34px;
+  height: 14px;
+  border-radius: 0;
+  background: radial-gradient(circle, #0b0a0a 0 1px, #e3b23c 1.5px 6px, transparent 6.5px) 0 0 / 17px 14px
+    repeat-x;
+  box-shadow: none;
+}
+/* The kit, bottom left, drawn per room type. */
+.interior .kit {
+  position: absolute;
+  left: 8px;
+  bottom: 7px;
+  width: 54px;
+  height: 26px;
+}
+/* Recording rooms and vocal booths: a microphone, plus a glass booth window from pro up. */
+.ft-room .kit,
+.ft-vocal .kit {
+  background:
+    radial-gradient(circle at 10px 5px, #c9c9c9 0 4px, transparent 4.5px),
+    linear-gradient(#8a8a8a, #8a8a8a) 9px 8px / 2px 18px no-repeat,
+    linear-gradient(#8a8a8a, #8a8a8a) 4px 24px / 12px 2px no-repeat;
+}
+.fin-pro.ft-room .kit,
+.fin-luxe.ft-room .kit,
+.fin-pro.ft-vocal .kit,
+.fin-luxe.ft-vocal .kit {
+  width: 70px;
+  background:
+    radial-gradient(circle at 10px 5px, #c9c9c9 0 4px, transparent 4.5px),
+    linear-gradient(#8a8a8a, #8a8a8a) 9px 8px / 2px 18px no-repeat,
+    linear-gradient(rgba(150, 200, 230, 0.35), rgba(150, 200, 230, 0.15)) 24px 0 / 44px 20px no-repeat,
+    linear-gradient(#000, #000) 22px 0 / 48px 22px no-repeat;
+}
+/* Mixing and radio: a console with lit knobs. */
+.ft-mix .kit,
+.ft-radio .kit {
+  width: 70px;
+  height: 14px;
+  background:
+    radial-gradient(circle, #ff5a5f 0 1.2px, transparent 1.6px) 3px 3px / 7px 5px,
+    linear-gradient(#1a1a1a, #333);
+  border-top: 3px solid #555;
+}
+.fin-luxe.ft-mix .kit,
+.fin-luxe.ft-radio .kit {
+  width: 96px;
+  background:
+    radial-gradient(circle, #e3b23c 0 1.2px, transparent 1.6px) 3px 3px / 7px 5px,
+    linear-gradient(#1a1a1a, #333);
+}
+/* Writers and the academy: a desk with a lamp; a board at the academy. */
+.ft-writers .kit,
+.ft-academy .kit {
+  background:
+    linear-gradient(#e3b23c, #e3b23c) 40px 2px / 8px 4px no-repeat,
+    linear-gradient(#777, #777) 43px 4px / 2px 10px no-repeat,
+    linear-gradient(#6b4a2e, #6b4a2e) 0 14px / 54px 4px no-repeat,
+    linear-gradient(#4a321f, #4a321f) 4px 18px / 3px 8px no-repeat,
+    linear-gradient(#4a321f, #4a321f) 46px 18px / 3px 8px no-repeat;
+}
+.ft-academy .kit::after {
+  content: "";
+  position: absolute;
+  left: 60px;
+  bottom: 10px;
+  width: 40px;
+  height: 22px;
+  background: #1e3a2a;
+  border: 2px solid #6b4a2e;
+}
+/* Rehearsal: a drum kit and an amp. */
+.ft-rehearsal .kit {
+  width: 70px;
+  background:
+    radial-gradient(circle at 18px 16px, #a3121a 0 9px, #f2ece0 9.5px 10.5px, transparent 11px),
+    radial-gradient(ellipse at 34px 6px, #e3b23c 0 7px, transparent 7.5px),
+    linear-gradient(#111, #111) 50px 4px / 18px 22px no-repeat,
+    radial-gradient(circle at 59px 15px, #444 0 6px, transparent 6.5px);
+}
+/* Lounge and bar: a sofa, or a counter with bottles. */
+.ft-lounge .kit {
+  width: 64px;
+  background:
+    linear-gradient(#7a0d13, #7a0d13) 0 8px / 64px 10px no-repeat,
+    linear-gradient(#5a0a0e, #5a0a0e) 0 0 / 8px 26px no-repeat,
+    linear-gradient(#5a0a0e, #5a0a0e) 56px 0 / 8px 26px no-repeat,
+    linear-gradient(#3a0608, #3a0608) 0 18px / 64px 8px no-repeat;
+}
+.ft-bar .kit {
+  width: 80px;
+  background:
+    linear-gradient(
+        90deg,
+        #2e7d4f 0 4px,
+        transparent 4px 8px,
+        #a3121a 8px 12px,
+        transparent 12px 16px,
+        #e3b23c 16px 20px,
+        transparent 20px
+      )
+      6px 0 / 24px 12px no-repeat,
+    linear-gradient(#5a3a22, #3a2416) 0 12px / 80px 14px no-repeat;
+}
+/* Merch: shelves of shirts. Archive: shelves of records. */
+.ft-merch .kit,
+.ft-archive .kit {
+  width: 70px;
+  height: 30px;
+  background:
+    linear-gradient(#5a3a22, #5a3a22) 0 12px / 70px 2px no-repeat,
+    linear-gradient(#5a3a22, #5a3a22) 0 28px / 70px 2px no-repeat,
+    linear-gradient(90deg, #f2ece0 0 8px, transparent 8px 12px, #a3121a 12px 20px, transparent 20px 24px) 2px
+      2px / 24px 10px repeat-x,
+    linear-gradient(90deg, #e3b23c 0 8px, transparent 8px 12px, #111 12px 20px, transparent 20px 24px) 2px
+      18px / 24px 10px repeat-x;
+}
+.ft-archive .kit {
+  background:
+    linear-gradient(#5a3a22, #5a3a22) 0 12px / 70px 2px no-repeat,
+    linear-gradient(#5a3a22, #5a3a22) 0 28px / 70px 2px no-repeat,
+    linear-gradient(90deg, #111 0 2px, #333 2px 3px) 2px 2px / 3px 10px repeat-x,
+    linear-gradient(90deg, #222 0 2px, #a3121a 2px 3px) 2px 18px / 3px 10px repeat-x;
+}
+/* The finest rooms get a second piece of kit. */
+.fin-luxe .kit::before {
+  content: "";
+  position: absolute;
+  right: -40px;
+  bottom: 0;
+  width: 14px;
+  height: 22px;
+  background:
+    radial-gradient(circle at 7px 6px, #2e7d4f 0 6px, transparent 6.5px),
+    linear-gradient(#5a3a22, #5a3a22) 4px 12px / 6px 10px no-repeat;
+}
+/* The pixel icon sits small in the corner now that the room shows its kit. */
+body.ceo-run .street-floor .floor-art {
+  position: absolute;
+  top: 16px;
+  right: 6px;
+  margin: 0;
+  transform: scale(0.75);
+  transform-origin: top right;
+}
+body.ceo-run .floor-hit .pips {
+  color: #e3b23c;
+}
