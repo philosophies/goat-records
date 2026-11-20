@@ -13,6 +13,7 @@
     "roster",
     "board",
     "events",
+    "parties",
   ];
   function optionalRequire(path) {
     try {

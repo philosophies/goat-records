@@ -451,7 +451,7 @@ Done when: tests for both outcomes; the ending screen offers the second act.
 
 ## M13 Album making
 
-### [ ] T48 · Listening parties
+### [x] T48 · Listening parties
 
 Depends on: T45
 Files: `src/data/label.js`, `src/engine.js`, `src/ui/*.js`, tests

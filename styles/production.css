@@ -219,3 +219,51 @@
     animation: none;
   }
 }
+
+/* Listening party report (CEO runs). */
+.party-report {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 8px 0;
+}
+.party-col small {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.party-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 6px;
+  font-size: 13px;
+  border-left: 3px solid var(--line);
+}
+.party-row.s-up {
+  border-left-color: var(--gold, #e3b23c);
+}
+.party-row.s-down {
+  border-left-color: var(--red-hi, #ff5a5f);
+}
+@media (max-width: 760px) {
+  .party-report {
+    grid-template-columns: 1fr;
+  }
+}
+.party {
+  margin: 12px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--gold, #e3b23c);
+}
+.party h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+.party .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
