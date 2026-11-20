@@ -52,6 +52,15 @@ function teamChooser(a, role) {
     search = G.TEAM_POOL.recruitCost * state.company.phase;
   return `<div class="card team-chooser"><span class="tag">CHOOSE A ${esc(role.name.toUpperCase())}</span><h3>${current ? `Replace ${esc(current.name)}` : `${esc(a.name)} needs a ${esc(role.name.toLowerCase())}`}</h3><p class="muted">${esc(role.text)} Chemistry multiplies their skill and is shown before you confirm.</p><h4>On the label</h4><ul class="team-list">${poolRows || '<li class="empty">Nobody free in this role.</li>'}</ul><h4>Candidates</h4><ul class="team-list">${candidateRows || '<li class="empty">Run a search to see candidates.</li>'}</ul><div class="actions"><button data-action="teamRecruit" data-role="${role.id}" ${disable(blocked() || state.cash < search)}>Run a search · ${money(search)}</button><button data-action="teamCancel">Close</button></div></div>`;
 }
+/** The artist's tier and what the next one needs. */
+function tierCard(a) {
+  const t = G.tierInfo(a),
+    next = G.nextTier(state, a),
+    need = next
+      ? `<p class="muted">Next: <b>${esc(next.name)}</b> · fame ${next.fame.have}/${next.fame.need} · hits ${next.hits.have}/${next.hits.need} · ${next.slot ? "a slot is free" : "no free slot at this phase"}</p>`
+      : '<p class="muted">The top tier.</p>';
+  return `<article class="card tier-card tier-${t.id}"><span class="tag">${esc(t.name.toUpperCase())}</span><p>Albums up to ${money(t.budget)} · ads up to rank ${t.adRank} · ${esc(t.tours.join(", "))} tours · a team of ${t.team}</p>${need}</article>`;
+}
 function teamSection(a) {
   if (!state.company?.team) return "";
   const slots = G.artistTeam(state, a.id)
@@ -68,7 +77,7 @@ function teamSection(a) {
     picked = teamPick?.artist === a.id && G.TEAM_ROLES.find((r) => r.id === teamPick.role);
   return section(
     "sec-people",
-    `<h2>Team and mood</h2>${moodCard(a)}<ul class="team-slots">${slots}</ul>${locked ? `<p class="muted">Later: ${locked}.</p>` : ""}${picked ? teamChooser(a, picked) : ""}`,
+    `<h2>Team and mood</h2>${tierCard(a)}${moodCard(a)}<ul class="team-slots">${slots}</ul>${locked ? `<p class="muted">Later: ${locked}.</p>` : ""}${picked ? teamChooser(a, picked) : ""}`,
   );
 }
 

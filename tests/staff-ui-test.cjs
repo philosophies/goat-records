@@ -55,6 +55,10 @@ const artistId = saved().artists[0].id;
 click({ tab: "artist:" + artistId + "~sec-team" });
 let page = html("content");
 assert.match(page, /Team and mood/);
+assert.match(
+  page,
+  /UP-AND-COMER[\s\S]*Albums up to \$4,000[\s\S]*Next: <b>Star<\/b> · fame \d+\/40 · hits 0\/1/,
+);
 assert.match(page, /WANTS [A-Z ]+ · /, "the mood card names the want");
 assert.match(page, /Ego<\/span><b>\d+<\/b>/);
 assert.match(page, /MANAGER[\s\S]*Empty[\s\S]*PRODUCER[\s\S]*Empty/);

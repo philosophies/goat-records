@@ -252,6 +252,8 @@ const { TEAM_ROLES, TEAM_POOL, CHEMISTRY } = G;
 function teamRun(phase = 1, seed = 31) {
   const s = ceo(seed, phase);
   G.sign(s, s.candidates[0].id);
+  // These tests are about teams, not tiers: a superstar can have a full team.
+  s.artists[0].tier = "superstar";
   return s;
 }
 function hireMember(s, role, pick = 0) {
@@ -427,6 +429,7 @@ function studioRun(seed = 18) {
   const s = ceo(seed, 4);
   s.cash = 900000;
   G.sign(s, s.candidates[0].id, 3);
+  s.artists[0].tier = "superstar";
   const a = s.artists[0];
   Object.assign(a, { age: "Adult", talent: 85, potential: 100, fans: 150, fame: 40, energy: 100 });
   G.record(s, { artistId: a.id, boothId: 0, genre: a.genre, audience: a.audience, title: "Team Test" });

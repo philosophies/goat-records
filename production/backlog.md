@@ -428,7 +428,7 @@ Done when: evidence for every room type at three levels.
 
 ## M12 Roster tiers and superstars
 
-### [ ] T45 · Roster tiers
+### [x] T45 · Roster tiers
 
 Depends on: T40
 Files: `src/data/roster.js` (new), `src/systems/roster.js` (new), tests
