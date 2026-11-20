@@ -91,6 +91,15 @@ function streetPeople(list = []) {
     .join("");
 }
 
+/**
+ * How a room is fitted out, from its level as a share of the top level: "basic" (bare walls and one
+ * bulb), "pro" (treated walls, wood floor, track lights, more kit) or "luxe" (gold records, warm
+ * light, carpet). Works for today's three levels and for longer ladders.
+ */
+function floorFinish(level, max = G.HQ.maxLevel) {
+  const share = level / Math.max(1, max);
+  return share > 2 / 3 ? "luxe" : share > 1 / 3 ? "pro" : "basic";
+}
 function streetFloor(b, floor, index, cast) {
   const room = floor.type === "room",
     name = room ? G.BOOTHS[floor.room].name : G.FACILITIES.find((f) => f.id === floor.type).name,
@@ -98,7 +107,8 @@ function streetFloor(b, floor, index, cast) {
     album = room ? state.albums.find((p) => !p.released && p.booth === floor.room) : null,
     tab = room ? `room:${floor.room}` : `floor:${b.id}:${index}`,
     accent = def?.accent || "#c9a227";
-  return `<div class="street-floor ${room ? "room" : "facility"} ${album ? "rec" : ""}" style="--accent:${accent}"><button class="floor-hit" data-tab="${tab}" aria-label="${esc(name)}${room ? (album ? ", recording " + esc(album.title) : ", free") : ", level " + floor.level}"><span class="plate">${esc(name)}</span>${def ? `<span class="floor-art">${pixelSvg(def.icon, accent, 28)}</span><span class="pips">${"●".repeat(floor.level)}${"○".repeat(G.HQ.maxLevel - floor.level)}</span>` : `<span class="desk mixing"></span>${album ? '<span class="on-air">REC</span>' : ""}`}</button><span class="floor-people">${streetPeople(cast[`${b.id}:${index}`])}</span></div>`;
+  const finish = floorFinish(floor.level || 1);
+  return `<div class="street-floor ${room ? "room" : "facility"} ft-${floor.type} fin-${finish} ${album ? "rec" : ""}" style="--accent:${accent}"><button class="floor-hit" data-tab="${tab}" aria-label="${esc(name)}${room ? (album ? ", recording " + esc(album.title) : ", free") : ", level " + floor.level}"><span class="interior" aria-hidden="true"><i class="kit"></i><i class="light"></i></span><span class="plate">${esc(name)}</span>${def ? `<span class="floor-art">${pixelSvg(def.icon, accent, 28)}</span><span class="pips">${"●".repeat(floor.level)}${"○".repeat(G.HQ.maxLevel - floor.level)}</span>` : `<span class="desk mixing"></span>${album ? '<span class="on-air">REC</span>' : ""}`}</button><span class="floor-people">${streetPeople(cast[`${b.id}:${index}`])}</span></div>`;
 }
 
 function streetBuilding(def) {
@@ -335,6 +345,7 @@ GoatUI.change.push(({ target }) => {
 
 const GoatStreet = {
   grade: buildingGrade,
+  finish: floorFinish,
   band: gradeBand,
   html: streetHtml,
   minimap: streetMinimap,

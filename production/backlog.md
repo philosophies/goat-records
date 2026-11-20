@@ -419,7 +419,7 @@ Files: `src/ui/street.js`, `styles/street.css`
 Do: new pixel art for each building that changes with level (signage, lights, trim); palms, lowriders and chain-link on the street; day and night.
 Done when: evidence for every building at levels 1, 5 and 10, day and night.
 
-### [ ] T44 · Room art
+### [x] T44 · Room art
 
 Depends on: T42
 Files: `src/ui/lot.js`, `src/ui/street.js`, `styles/*.css`
