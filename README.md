@@ -23,7 +23,7 @@ Read the [full rules](docs/rules.md) and [version history](CHANGELOG.md).
 
 Progress autosaves in the browser. Use **Export save** for a backup and **Import save** to restore one. When loading a classic save, you can continue with its original rules or convert it to CEO mode. The conversion keeps your label's history and makes the original available through **Export classic backup**.
 
-**New label** lets you name a CEO run or choose **Classic** to start a new run with the older rules.
+**New label** starts a new company under the name you choose.
 
 For a local server instead of opening the file directly: `python -m http.server 8765 --bind 127.0.0.1`, then visit http://127.0.0.1:8765/. File and localhost saves are stored separately.
 
@@ -31,16 +31,16 @@ On localhost or an HTTPS host, you can install the game from Chrome or Edge and 
 
 ## Project layout
 
-| Path | Contents |
-| --- | --- |
-| `src/engine.js` | Core rules |
-| `src/systems/` | Company, board, staff, events, campaign, locations, and promotion |
-| `src/data/` | Balance tables |
-| `src/app.js`, `src/ui/` | Interface: lot, places, clock, panels |
-| `styles/` | Stylesheets |
-| `tests/` | Simulation and interface checks, balance samples |
-| `design/`, `docs/` | Design notes, rules and architecture |
-| `production/` | Roadmap and test evidence |
+| Path                    | Contents                                                          |
+| ----------------------- | ----------------------------------------------------------------- |
+| `src/engine.js`         | Core rules                                                        |
+| `src/systems/`          | Company, board, staff, events, campaign, locations, and promotion |
+| `src/data/`             | Balance tables                                                    |
+| `src/app.js`, `src/ui/` | Interface: lot, places, clock, panels                             |
+| `styles/`               | Stylesheets                                                       |
+| `tests/`                | Simulation and interface checks, balance samples                  |
+| `design/`, `docs/`      | Design notes, rules and architecture                              |
+| `production/`           | Roadmap and test evidence                                         |
 
 Run `node run-checks.cjs` for every check (Node 22). `node tests/ceo-balance.cjs` reproduces the CEO balance sample.
 

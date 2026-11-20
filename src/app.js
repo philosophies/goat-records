@@ -94,8 +94,12 @@ function inStudioWaiting(p) {
 function productionPanels(waiting = false) {
   // Once the run is over, unfinished albums no longer take decisions.
   if (state.finished) return "";
-  const projects = state.albums.filter((p) => (!p.released || p.launchReview) && inStudioWaiting(p) === waiting);
-  const visible = waiting ? projects : [projects.find((p) => p.id === modalProject) || projects[0]].filter(Boolean);
+  const projects = state.albums.filter(
+    (p) => (!p.released || p.launchReview) && inStudioWaiting(p) === waiting,
+  );
+  const visible = waiting
+    ? projects
+    : [projects.find((p) => p.id === modalProject) || projects[0]].filter(Boolean);
   return visible
     .map((p) => {
       const d = p.production;
@@ -115,17 +119,23 @@ function productionPanels(waiting = false) {
       } else {
         const stage = G.STAGES[d.stage];
         const previews = stage.options.map((option, i) => ({ option, ...G.stagePreview(state, p, i) }));
-        const options = previews.map(({ option, parts }, i) => {
-          const base = parts.reduce((total, row) => total + row.value, 0);
-          return `<button data-action="stage" data-id="${p.id}" data-option="${i}" ${disable(locked)}><strong>${esc(option.name)}</strong><small>${esc(option.text)}</small><span class="stage-estimate">${clampRating(base - 8)}–${clampRating(base + 8)} / 100</span></button>`;
-        }).join("");
-        const details = previews.map(({ option, parts }) =>
-          `<div><b>${esc(option.name)}</b><div class="preview-parts">${parts.map((row) => `<span>${esc(row.name)} <b>${row.value >= 0 ? "+" : ""}${row.value}</b></span>`).join("")}</div></div>`,
-        ).join("");
+        const options = previews
+          .map(({ option, parts }, i) => {
+            const base = parts.reduce((total, row) => total + row.value, 0);
+            return `<button data-action="stage" data-id="${p.id}" data-option="${i}" ${disable(locked)}><strong>${esc(option.name)}</strong><small>${esc(option.text)}</small><span class="stage-estimate">${clampRating(base - 8)}–${clampRating(base + 8)} / 100</span></button>`;
+          })
+          .join("");
+        const details = previews
+          .map(
+            ({ option, parts }) =>
+              `<div><b>${esc(option.name)}</b><div class="preview-parts">${parts.map((row) => `<span>${esc(row.name)} <b>${row.value >= 0 ? "+" : ""}${row.value}</b></span>`).join("")}</div></div>`,
+          )
+          .join("");
         body = `<span class="tag">STAGE ${d.stage + 1} OF 5 · ${esc(stage.area)}</span><h2>${esc(p.title)} / ${esc(stage.name)}</h2><p>${esc(stage.question)}</p><div class="options stage-options">${options}</div><details class="decision-details"><summary>Rating breakdown</summary>${details}<p>${esc(a.name)} · ${esc(p.genre)} / ${esc(p.audience)} · Trend: ${esc(state.trend)}</p></details>`;
       }
       const promotion = !p.released && GoatUI.html("productionPanel", p);
-      if (promotion) body += `<details class="decision-details"><summary>Singles and promotion</summary>${promotion}</details>`;
+      if (promotion)
+        body += `<details class="decision-details"><summary>Singles and promotion</summary>${promotion}</details>`;
       return `<div id="project-${p.id}" class="production-panel"><div class="stage-steps" aria-label="Production progress">${G.STAGES.map((t, i) => `<span class="${i < d.stage ? "done" : i === d.stage ? "current" : ""}">${i < d.stage ? "✓" : i + 1} ${t.name}</span>`).join("")}</div>${body}</div>`;
     })
     .join("");
@@ -494,14 +504,20 @@ function annualAwards() {
 }
 function companyFinanceLines(row) {
   if (!row.companyRevenue) return "";
-  const income = G.COMPANY_REVENUE
-    .filter(({ id }) => Object.hasOwn(row.companyRevenue, id))
-    .map(({ id, name }) => name + " " + money(row.companyRevenue[id]));
-  if (row.companyRevenue.acquisitions) income.push("Acquired catalog " + money(row.companyRevenue.acquisitions));
+  const income = G.COMPANY_REVENUE.filter(({ id }) => Object.hasOwn(row.companyRevenue, id)).map(
+    ({ id, name }) => name + " " + money(row.companyRevenue[id]),
+  );
+  if (row.companyRevenue.acquisitions)
+    income.push("Acquired catalog " + money(row.companyRevenue.acquisitions));
   const costs = row.companyCosts;
   const overhead = costs
-    ? "<small>Included in overhead: rent " + money(costs.rent) + " · insurance " + money(costs.insurance) +
-      " · interest " + money(costs.interest) + "</small>"
+    ? "<small>Included in overhead: rent " +
+      money(costs.rent) +
+      " · insurance " +
+      money(costs.insurance) +
+      " · interest " +
+      money(costs.interest) +
+      "</small>"
     : "";
   return "<small>" + esc(income.join(" · ")) + "</small>" + overhead;
 }
@@ -595,8 +611,8 @@ function advanceOnce() {
     state.tours.some((t) => t.status === "active") ? G.advanceTourToNextActivity(state) : G.advance(state),
   );
 }
-const panelHistory = typeof window !== "undefined" && typeof window.history?.pushState === "function"
-  ? window.history : null;
+const panelHistory =
+  typeof window !== "undefined" && typeof window.history?.pushState === "function" ? window.history : null;
 
 function showPanel(id) {
   const place = GoatPlaces.resolve(id);
@@ -614,7 +630,10 @@ function openPanel(id) {
   if (panelHistory && GoatPlaces.sheet(GoatPlaces.resolve(id).id)) {
     const entry = panelHistory.state?.goatPanel;
     if (entry?.id !== id)
-      panelHistory.pushState({ ...panelHistory.state, goatPanel: { id, depth: (entry?.depth || 0) + 1 } }, "");
+      panelHistory.pushState(
+        { ...panelHistory.state, goatPanel: { id, depth: (entry?.depth || 0) + 1 } },
+        "",
+      );
   }
   showPanel(id);
 }
@@ -747,7 +766,8 @@ document.addEventListener("click", (e) => {
     // A screen opened from a card over the lot sets the card aside so the screen is usable.
     if (b.closest?.("#modal")) modalHidden = true;
     openPanel(b.dataset.tab);
-    if (b.dataset.tab.includes("~")) $("content").querySelector?.('.sheet-tabs [aria-pressed="true"]')?.focus();
+    if (b.dataset.tab.includes("~"))
+      $("content").querySelector?.('.sheet-tabs [aria-pressed="true"]')?.focus();
     return;
   }
   if (b.dataset.action === "closePanel") {
@@ -955,17 +975,11 @@ function resetView() {
   GoatClock.reset();
   GoatLot.reset();
 }
-function updateNewLabelMode() {
-  const ceo = $("newLabelMode").value === "ceo";
-  $("newLabelField").hidden = !ceo;
-  $("newLabelName").required = ceo;
-  $("newLabelName").setCustomValidity("");
-}
-$("newLabelMode").onchange = updateNewLabelMode;
+// New labels are always CEO runs; classic saves still load and can keep their rules.
 $("reset").onclick = () => {
   const input = $("newLabelName");
-  $("newLabelMode").value = "ceo";
-  updateNewLabelMode();
+  input.required = true;
+  input.setCustomValidity("");
   input.maxLength = G.RENAME.maxLength;
   input.value = G.labelName({});
   $("newLabelDialog").showModal();
@@ -977,16 +991,15 @@ $("newLabelDialog").onclose = render;
 $("newLabelName").oninput = () => $("newLabelName").setCustomValidity("");
 $("newLabelForm").onsubmit = (event) => {
   event.preventDefault();
-  const ceo = $("newLabelMode").value === "ceo";
   const input = $("newLabelName");
   const name = input.value.trim();
-  if (ceo && !name) {
+  if (!name) {
     input.setCustomValidity("Enter a label name.");
     input.reportValidity();
     return;
   }
   act(() => {
-    state = G.create(Date.now(), ceo ? { labelName: name } : { ceo: false });
+    state = G.create(Date.now(), { labelName: name });
     $("newLabelDialog").close();
     resetView();
   });
@@ -1075,8 +1088,10 @@ function validSave(s) {
         (s.artists.some((a) => a.id === s.event.artist) ||
           (s.event.type === "album" && s.albums.some((p) => p.id === s.event.album)) ||
           (s.company && s.event.type === "companyEvent") ||
-          (s.company?.board && s.event.type === "approval" &&
-            typeof s.event.approval?.kind === "string" && typeof s.event.approval?.key === "string") ||
+          (s.company?.board &&
+            s.event.type === "approval" &&
+            typeof s.event.approval?.kind === "string" &&
+            typeof s.event.approval?.key === "string") ||
           s.event.type === "awards") &&
         Array.isArray(s.event.options) &&
         s.event.options.every((o) => typeof o.label === "string" && typeof o.hint === "string")))
@@ -1179,13 +1194,24 @@ if (typeof window !== "undefined") {
 }
 refreshClassicBackupButton();
 GoatClock.init(state.week === 1 && !state.artists.length && !state.albums.length);
-if (startupSave && !state.company && !state.classicMode && typeof $("loadSaveDialog").showModal === "function")
+if (
+  startupSave &&
+  !state.company &&
+  !state.classicMode &&
+  typeof $("loadSaveDialog").showModal === "function"
+)
   offerLoadedSave(state, startupSave, false);
 else {
   save();
   restorePanel(panelHistory?.state?.goatPanel);
 }
-if (typeof location !== "undefined" && /^https?:$/.test(location.protocol) &&
-    typeof navigator !== "undefined" && navigator.serviceWorker) {
-  navigator.serviceWorker.register("sw.js").catch((error) => console.warn("Offline setup unavailable:", error.message));
+if (
+  typeof location !== "undefined" &&
+  /^https?:$/.test(location.protocol) &&
+  typeof navigator !== "undefined" &&
+  navigator.serviceWorker
+) {
+  navigator.serviceWorker
+    .register("sw.js")
+    .catch((error) => console.warn("Offline setup unavailable:", error.message));
 }
