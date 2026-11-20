@@ -382,3 +382,167 @@ Do:
 - Opening a panel pushes a history entry, so the Android back button (and the browser back button) closes the top panel instead of leaving the game.
 - Check for anything that would break inside a wrapper: absolute paths, network calls during play, features only available from `file://`. `docs/android.md` lists the steps a later Play Store build takes (a Trusted Web Activity or Capacitor) and what is already in place.
   Done when: Chrome's Lighthouse "installable" check passes when served locally; back closes the top panel in the harness; the game still opens from the ZIP via `index.html` (the service worker only registers over http/https).
+
+# 3.0: the dynasty update
+
+Design: `design/gdd/ceo-3.0.md`. CEO mode only; classic mode is hidden and gets no new features.
+
+## M10 One ladder
+
+### [ ] T40 · The phase replaces the label rank
+
+Depends on: T37
+Files: `src/data/company.js`, `src/systems/label.js`, `src/systems/campaign.js`, `src/app.js`, `src/ui/*.js`, tests
+Do: add slots, theme slots, room tier and development ceiling to each phase (design 1). In CEO runs `tier`, `slots`, theme slots and the ceiling read the phase. Hide the rank chip, rank requirements and the classic yearly goal in CEO runs; move their rewards into phase goals. The year review reports the phase.
+Done when: a CEO run shows one ladder in every panel (harness), phase changes unlock rooms and slots (tests), and the classic fingerprint is unchanged.
+
+### [ ] T41 · Hide classic mode
+
+Depends on: T40
+Files: `index.html`, `src/app.js`, `src/engine.js`, `README.md`, `docs/rules.md`, tests
+Do: the New label dialog only starts CEO runs. A classic save still loads and plays, with an offer to convert. Remove classic from player-facing docs.
+Done when: no route in the interface starts a classic run (harness); classic saves load.
+
+## M11 West Coast dynasty look
+
+### [ ] T42 · Theme: black, red and gold
+
+Depends on: T41
+Files: `styles/*.css`, `src/ui/*.js`, `icons/`, `index.html`
+Do: design 2. Palette, type, buttons, cards, HUD and dialogs; an original goat emblem; original slogans. No real label's name, logo or art.
+Done when: screenshots at desktop and phone width in `production/qa/evidence/`; text contrast at least 4.5:1.
+
+### [ ] T43 · Building art
+
+Depends on: T42
+Files: `src/ui/street.js`, `styles/street.css`
+Do: new pixel art for each building that changes with level (signage, lights, trim); palms, lowriders and chain-link on the street; day and night.
+Done when: evidence for every building at levels 1, 5 and 10, day and night.
+
+### [ ] T44 · Room art
+
+Depends on: T42
+Files: `src/ui/lot.js`, `src/ui/street.js`, `styles/*.css`
+Do: interiors for each room type that change with level (equipment, lighting, people working).
+Done when: evidence for every room type at three levels.
+
+## M12 Roster tiers and superstars
+
+### [ ] T45 · Roster tiers
+
+Depends on: T40
+Files: `src/data/roster.js` (new), `src/systems/roster.js` (new), tests
+Do: rising, star and superstar slots by phase (design 1); moving up needs fame and a hit, dropping follows a run of flops; tier caps on recording budget, marketing, tour scale and team size.
+Done when: tests for slots per phase, promotion, demotion and every cap.
+
+### [ ] T46 · The face of the company
+
+Depends on: T45
+Files: `src/systems/roster.js`, `src/data/events.js`, tests
+Do: superstar news moves company value, share price and revenue; superstar-only events (endorsements, scandals, feuds); a CEO relationship that swings sharply.
+Done when: tests show each effect and the swing size.
+
+### [ ] T47 · Second act
+
+Depends on: T46
+Files: `src/systems/roster.js`, `src/systems/board.js`, `src/systems/campaign.js`, `src/ui/*.js`, tests
+Do: on being fired or ousted, a superstar with enough relationship and loyalty may follow you to a new company: phase 1 again, keeping that superstar and a legacy bonus. With nobody willing, the run ends.
+Done when: tests for both outcomes; the ending screen offers the second act.
+
+## M13 Album making
+
+### [ ] T48 · Listening parties
+
+Depends on: T45
+Files: `src/data/label.js`, `src/engine.js`, `src/ui/*.js`, tests
+Do: design 4. After Mix & master: a party reports sentiment by audience and area; rework the weakest area, change the lead single, or release. Diminishing returns and a growing leak risk.
+Done when: tests for the report, each choice and the diminishing return; harness plays one party.
+
+## M14 Long progression
+
+### [ ] T49 · Artist levels
+
+Depends on: T45
+Files: `src/data/roster.js`, `src/systems/roster.js`, tests
+Do: XP from sessions, releases, tours and events; levels 1–30 with tier caps and milestone perks.
+
+### [ ] T50 · Building and floor levels to 10
+
+Depends on: T40
+Files: `src/data/company.js`, `src/systems/company.js`, tests
+Do: up to level 10 with rising costs, gated by phase; each level shows on the art (T43, T44).
+
+### [ ] T51 · Staff, executive and team growth
+
+Depends on: T49
+Files: `src/data/staff.js`, `src/systems/staff.js`, tests
+Do: XP from work, paid training, skill ceilings that rise with seniority, promotions.
+
+### [ ] T52 · Pacing pass
+
+Depends on: T49, T50, T51
+Files: `tests/ceo-balance.cjs`, `CEO-BALANCE.json`, data tables
+Do: report the year each measure peaks; tune so the strongest labels still grow after year 15.
+
+## M15 Stories
+
+### [ ] T53 · Authored cast
+
+Depends on: T45
+Files: `src/data/cast.js` (new), `src/engine.js`, `src/systems/staff.js`, tests
+Do: about 30 authored artists and 20 authored staff, executives and directors (name, look, genre, backstory, traits, arc); scouting draws from the cast by reach, with generated people only as a fallback.
+
+### [ ] T54 · Story engine
+
+Depends on: T53
+Files: `src/systems/stories.js` (new), `src/data/stories.js` (new), tests
+Do: arcs as chains of beats with flags, context conditions, cooldowns and follow-ups; a story log per character.
+
+### [ ] T55 · Story pack: artists
+
+Depends on: T54
+Do: at least 60 beats across the cast: debuts, rivalries, family, legal trouble, comebacks, collaborations.
+
+### [ ] T56 · Story pack: staff, executives, board and rivals
+
+Depends on: T54
+Do: at least 60 beats.
+
+### [ ] T57 · Every interactive moment fits its context
+
+Depends on: T55, T56
+Files: `docs/interactions.md` (new), event data, tests
+Do: list every event, decision, prompt and banner with when it may appear; fix any that can appear out of context; tests assert the conditions.
+
+### [ ] T58 · Story so far
+
+Depends on: T54
+Files: `src/ui/*.js`
+Do: each character's panel shows their story log as a short timeline.
+
+## M16 Long-term play
+
+### [ ] T59 · The first fifteen minutes
+
+Depends on: T41
+Do: short guided goals that teach the loop: loan, signing, recording, release.
+
+### [ ] T60 · Rival labels and feuds
+
+Depends on: T54
+Do: rival labels with CEOs, feuds, poaching and chart battles.
+
+### [ ] T61 · Music eras
+
+Depends on: T40
+Do: industry eras across a run that shift the revenue mix and the events on offer.
+
+### [ ] T62 · Legacy and challenges
+
+Depends on: T47
+Do: a hall of fame across runs, achievements and seeded challenge runs.
+
+### [ ] T63 · Late-game delegation
+
+Depends on: T51
+Do: automate routine work (renewals, tour booking, department autopilot) with clear limits.

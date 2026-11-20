@@ -1,13 +1,13 @@
 # Project workflow
 
-Goat Records is a record label management game in plain browser JavaScript. Open `index.html` directly, or serve it over HTTP or HTTPS to install the web app. Version 2.0 (the CEO update) is released.
+Goat Records is a record label management game in plain browser JavaScript. Open `index.html` directly, or serve it over HTTP or HTTPS to install the web app. Version 2.0 (the CEO update) is released. 3.0, the dynasty update, is planned in `design/gdd/ceo-3.0.md`.
 
 ## Rules
 
 - Do one task from `production/backlog.md` per session. `node tools/next-task.cjs` prints the next one.
 - Work on a branch named after the task (`t12-board-review`). Never commit to `main`, never create or move tags.
 - Run `node run-checks.cjs` before every commit. Every suite must pass. Never delete, skip or weaken a test to make it pass; fix the code.
-- 2.0 code runs only in CEO runs (`s.company` exists). Classic runs must keep playing exactly as 1.1.
+- CEO mode is the game. New work applies to CEO runs only (`s.company` exists). Classic mode is hidden and frozen: classic saves must keep loading and playing exactly as 1.1.
 - Gameplay numbers live in `src/data/*.js` tables, never inline. New systems follow `docs/architecture.md` (data file, system with `create(core, D)`, name in `SYSTEM_NAMES`, scripts in `index.html` in order).
 - Keep save compatibility. New state goes under `s.company`; `validSave` hooks accept saves without it. Describe material migration changes.
 - Use themes from music-business drama, Empire TV Tycoon, Game Dev Tycoon and Kairosoft games as inspiration only. No names, characters, logos, songs or art from them.
