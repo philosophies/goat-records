@@ -172,6 +172,28 @@ assert.match(html("milestones"), /POWER GRAB[\s\S]*The grab failed[\s\S]*data-ac
 click({ action: "grabAck" });
 assert.doesNotMatch(html("milestones"), /POWER GRAB/);
 
+// A second act: fired with a loyal superstar, the ending offers a new company with them.
+run(`state = G.create(77, { ceo: true, labelName: "Velvet Throne" }); state.company.phase = 4;
+  const a = { ...state.candidates[0], id: state.nextId++, name: "Kofi Banks", fame: 92, morale: 70, tier: "superstar", ceoRelation: 80, contract: { remaining: 0, term: 3 } };
+  state.artists.push(a); G.artistMood(state, a); a.persona.loyalty = 90;
+  state.finished = true; state.fired = true; state.outcome = "Fired."; save(); render();`);
+assert.match(
+  html("milestones"),
+  /A SECOND ACT[\s\S]*Kofi Banks will follow you[\s\S]*data-action="secondAct"/,
+);
+element("secondActName").value = "Second Wind";
+click({ action: "secondAct", artist: String(run("state.artists.at(-1).id")) });
+s = saved();
+assert.equal(s.finished, false);
+assert.equal(s.labelName, "Second Wind");
+assert.ok(s.artists.some((x) => x.name === "Kofi Banks"));
+assert.doesNotMatch(html("milestones"), /A SECOND ACT/);
+run(
+  `state.finished = true; state.fired = true; state.artists.forEach((x) => (x.ceoRelation = -10)); save(); render();`,
+);
+assert.doesNotMatch(html("milestones"), /A SECOND ACT/, "nobody follows: the final review is the ending");
+assert.match(html("milestones"), /RUN \d+ · FIRED/);
+
 console.log(
-  "PASS staff interface harness: grab responses and the outcome card, team section with slots, chooser with chemistry before hiring or assigning, removal, mood card and bonus, departments at the desk and in their panels, classic runs untouched",
+  "PASS staff interface harness: the second act card, grab responses and the outcome card, team section with slots, chooser with chemistry before hiring or assigning, removal, mood card and bonus, departments at the desk and in their panels, classic runs untouched",
 );

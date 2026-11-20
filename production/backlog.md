@@ -442,7 +442,7 @@ Files: `src/systems/roster.js`, `src/data/events.js`, tests
 Do: superstar news moves company value, share price and revenue; superstar-only events (endorsements, scandals, feuds); a CEO relationship that swings sharply.
 Done when: tests show each effect and the swing size.
 
-### [ ] T47 · Second act
+### [x] T47 · Second act
 
 Depends on: T46
 Files: `src/systems/roster.js`, `src/systems/board.js`, `src/systems/campaign.js`, `src/ui/*.js`, tests
