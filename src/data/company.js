@@ -10,10 +10,15 @@
   //   hits      albums with quality 75+
   // reach: how far scouting looks. boardSeats: seats once outside money is taken.
   // buildings: building ids that unlock in this phase (filled in with the buildings table).
+  // Each phase also carries what the classic label rank set (design 3.0, section 1):
+  //   ladder.slots       roster size      ladder.themeSlots  themes per album
+  //   ladder.tier        room tier and stage bonus (the development ceiling is 64 + tier × 4)
+  //   ladder.themes / ladder.cash   rewards on reaching the phase
   const PHASES = [
     {
       id: 1,
       name: "Home studio",
+      ladder: { slots: 2, themeSlots: 1, tier: 1, themes: 0, cash: 0 },
       startCash: 2000,
       reach: "local",
       boardSeats: 0,
@@ -23,6 +28,7 @@
     {
       id: 2,
       name: "Indie label",
+      ladder: { slots: 3, themeSlots: 1, tier: 1, themes: 2, cash: 6000 },
       reach: "city",
       boardSeats: 1,
       buildings: ["storefront"],
@@ -31,6 +37,7 @@
     {
       id: 3,
       name: "Regional label",
+      ladder: { slots: 5, themeSlots: 2, tier: 2, themes: 2, cash: 15000 },
       reach: "region",
       boardSeats: 3,
       buildings: ["studio", "office"],
@@ -39,6 +46,7 @@
     {
       id: 4,
       name: "National label",
+      ladder: { slots: 7, themeSlots: 2, tier: 3, themes: 2, cash: 30000 },
       reach: "country",
       boardSeats: 5,
       buildings: ["hq", "venue"],
@@ -47,6 +55,7 @@
     {
       id: 5,
       name: "Global label",
+      ladder: { slots: 8, themeSlots: 2, tier: 4, themes: 2, cash: 60000 },
       reach: "world",
       boardSeats: 7,
       buildings: ["media", "warehouse"],
@@ -55,6 +64,7 @@
     {
       id: 6,
       name: "Public company",
+      ladder: { slots: 10, themeSlots: 2, tier: 4, themes: 3, cash: 100000 },
       reach: "world",
       boardSeats: 9,
       buildings: ["overseas"],
@@ -251,8 +261,19 @@
   ];
 
   const data = {
-    PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING, RENAME, BUILDINGS,
-    COMPANY_REVENUE, COMPANY_COSTS, COMPANY_VALUE, IPO, ACQUISITIONS, CEO_MIGRATION,
+    PHASES,
+    REACHES,
+    PHASE_GOALS,
+    HIT_QUALITY,
+    REACH_SCOUTING,
+    RENAME,
+    BUILDINGS,
+    COMPANY_REVENUE,
+    COMPANY_COSTS,
+    COMPANY_VALUE,
+    IPO,
+    ACQUISITIONS,
+    CEO_MIGRATION,
   };
   root.GoatData = Object.assign(root.GoatData || {}, data);
   if (typeof module !== "undefined" && module.exports) module.exports = data;

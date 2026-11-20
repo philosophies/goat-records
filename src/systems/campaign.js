@@ -5,7 +5,16 @@
   /** @param {object} core engine helpers  @param {object} D data tables */
   function create(core, D) {
     const { clamp, log, roll, operatingYear } = core;
-    const { CAMPAIGN, CAMPAIGN_GOALS, CAMPAIGN_SCORE, CAMPAIGN_STARS, CEO_SCORE, LEGACY, LEGACY_BONUSES, RANKS } = D;
+    const {
+      CAMPAIGN,
+      CAMPAIGN_GOALS,
+      CAMPAIGN_SCORE,
+      CAMPAIGN_STARS,
+      CEO_SCORE,
+      LEGACY,
+      LEGACY_BONUSES,
+      RANKS,
+    } = D;
     const api = () => core.api();
     const bonusById = Object.fromEntries(LEGACY_BONUSES.map((b) => [b.id, b]));
     const STATUSES = ["met", "missed", "untracked", "none"];
@@ -198,7 +207,8 @@
     function yearEnd(s, year) {
       const c = s.campaign;
       if (!c || c.goals.some((g) => g.year === year)) return;
-      const goal = goalFor(year),
+      // CEO runs keep the yearly review but set goals through the company phase instead.
+      const goal = s.company ? null : goalFor(year),
         rows = yearNumbers(s, year);
       let record = { year, status: "none" };
       if (goal) {
@@ -211,7 +221,7 @@
         );
       }
       c.goals.push(record);
-      const next = year < c.years ? goalFor(year + 1) : null;
+      const next = year < c.years && !s.company ? goalFor(year + 1) : null;
       c.reviews.push({
         year,
         goal: goal?.name ?? null,
@@ -250,7 +260,7 @@
     /** Current goal and progress, or null after the last goal year. */
     function currentGoal(s) {
       const year = currentYear(s),
-        goal = goalFor(year);
+        goal = s.company ? null : goalFor(year);
       if (!goal || campaignOver(s)) return null;
       return { year, goal, reward: rewardText(goal), ...measure(s, goal) };
     }
@@ -360,17 +370,24 @@
       const ending = ceoEnding(s);
       const rows = [
         { name: "Company value", value: Math.min(K.valueCap, Math.floor(value / K.valuePerPoint)) },
-        { name: `Your stake · ${Math.round(share * 100)}%`, value: Math.min(K.ownedCap, Math.floor(value * share / K.ownedPerPoint)) },
+        {
+          name: `Your stake · ${Math.round(share * 100)}%`,
+          value: Math.min(K.ownedCap, Math.floor((value * share) / K.ownedPerPoint)),
+        },
         { name: `Hit albums · ${hits}`, value: Math.min(K.hitCap, hits) * K.perHit },
         { name: `Awards · ${s.awards}`, value: Math.min(K.awardCap, s.awards) * K.perAward },
-        { name: `Artists developed · ${s.campaign.developed.length}`, value: Math.min(K.developedCap, s.campaign.developed.length) * K.perDeveloped },
+        {
+          name: `Artists developed · ${s.campaign.developed.length}`,
+          value: Math.min(K.developedCap, s.campaign.developed.length) * K.perDeveloped,
+        },
         { name: "Kept the chair", value: !s.fired && !s.ousted && !isBankrupt(s) ? K.keptChair : 0 },
       ];
       const penalty = ending === "folded" ? K.foldPenalty : ending === "fired" ? K.firedPenalty : 0;
-      if (penalty) rows.push({
-        name: ending === "fired" ? "Removed as CEO" : "The label folded",
-        value: -Math.round(rows.reduce((total, row) => total + row.value, 0) * penalty),
-      });
+      if (penalty)
+        rows.push({
+          name: ending === "fired" ? "Removed as CEO" : "The label folded",
+          value: -Math.round(rows.reduce((total, row) => total + row.value, 0) * penalty),
+        });
       const total = rows.reduce((sum, row) => sum + row.value, 0);
       return { rows, total, stars: starsFor(total) };
     }
@@ -437,8 +454,11 @@
     /** Starts a new run from a finished one, carrying the chosen legacy bonuses. Returns the new state. */
     function newGamePlus(prev, choices = []) {
       if (!canNewGamePlus(prev))
-        throw Error(prev.company ? "New Game+ opens once the CEO run ends." :
-          "New Game+ opens after year 20, or after running out of cash once year one is complete.");
+        throw Error(
+          prev.company
+            ? "New Game+ opens once the CEO run ends."
+            : "New Game+ opens after year 20, or after running out of cash once year one is complete.",
+        );
       if (!Array.isArray(choices)) throw Error("Choose legacy bonuses from the list.");
       const ids = [...new Set(choices)];
       if (ids.some((id) => !bonusById[id])) throw Error("Unknown legacy bonus.");
@@ -476,9 +496,14 @@
               .filter((r) => prev.employees?.[r])
               .map((r) => JSON.parse(JSON.stringify(prev.employees[r])))
           : null,
-        heads: has("team") && prev.company ? Object.fromEntries(
-          Object.entries(prev.company.departments).filter(([, dept]) => dept.head).map(([id, dept]) => [id, dept.head]),
-        ) : null,
+        heads:
+          has("team") && prev.company
+            ? Object.fromEntries(
+                Object.entries(prev.company.departments)
+                  .filter(([, dept]) => dept.head)
+                  .map(([id, dept]) => [id, dept.head]),
+              )
+            : null,
       };
       const seed = Math.floor(roll(prev, "campaign new game") * 4294967296) >>> 0;
       return api().create(seed, { legacy, ceo: !!prev.company });

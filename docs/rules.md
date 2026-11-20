@@ -372,14 +372,14 @@ The current pending decision remains available during upgrade and counts toward 
 
 The company starts with $2,000, a home studio, and full ownership. The Company panel lists phase goals. Phases open new scouting territory, buildings and floors, departments, and weekly income. Rank still governs roster capacity, theme slots, and several classic recording and promotion unlocks.
 
-| Phase | Unlocks | New weekly income |
-| --- | --- | --- |
-| 1 Home studio | Apartment, local scouting, A&R | Beats and local downloads |
-| 2 Indie label | Storefront, city scouting, angel funding | Streams and merchandise |
-| 3 Regional label | Studio and office, regional scouting, venture funding | Distribution and radio |
-| 4 National label | Headquarters and venue, national scouting | Sync and brand partnerships |
-| 5 Global label | Media center and warehouse, worldwide scouting | Publishing and catalog royalties |
-| 6 Public company | IPO, overseas offices, acquisitions | Catalog purchases can add royalties |
+| Phase            | Unlocks                                               | New weekly income                   |
+| ---------------- | ----------------------------------------------------- | ----------------------------------- |
+| 1 Home studio    | Apartment, local scouting, A&R                        | Beats and local downloads           |
+| 2 Indie label    | Storefront, city scouting, angel funding              | Streams and merchandise             |
+| 3 Regional label | Studio and office, regional scouting, venture funding | Distribution and radio              |
+| 4 National label | Headquarters and venue, national scouting             | Sync and brand partnerships         |
+| 5 Global label   | Media center and warehouse, worldwide scouting        | Publishing and catalog royalties    |
+| 6 Public company | IPO, overseas offices, acquisitions                   | Catalog purchases can add royalties |
 
 For phases 2–5, the goals are fame, revenue over the last 52 weeks, releases, and hits. Where an outside board exists, it must approve the phase change. Phases never go backward. The office shows weekly income by source and rent, insurance, and interest in the expense breakdown.
 
@@ -451,3 +451,5 @@ A grab comes to a head 26 weeks after the gossip. With a board, it succeeds when
 **Final review.** A CEO run ends after 20 years, dismissal, or bankruptcy. Company value, your equity, hits, awards, artists developed, and whether you held the chair contribute to the grade. Any CEO ending allows a CEO New Game+ run with earned legacy points.
 
 **Classic conversion.** Earlier labels can stay in Classic or convert on load. Conversion keeps the year, cash, roster, records, and history, maps rank to company phase, moves rooms and facilities into buildings, and turns existing staff into department heads. Converted phases with board seats start at 60 confidence. Export the original from **Export classic backup**.
+
+**One ladder.** In CEO runs the company phase does the job the label rank does in classic saves: roster size (2, 3, 5, 7, 8 and 10 artists), themes per album (one, then two from phase 3), and the room tier (1, 1, 2, 3, 4, 4). Reaching a phase pays its backers ($6,000 at phase 2 up to $100,000 at phase 6) and finds two new themes (three at phase 6). There are no yearly goals; the yearly review still sums up each year.

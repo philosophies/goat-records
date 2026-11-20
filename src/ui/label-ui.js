@@ -60,6 +60,9 @@ function rankUnlocks(n) {
   return out;
 }
 function rankPanel() {
+  // CEO runs: the company phase is the ladder, shown in the company panel.
+  if (state.company)
+    return `<article class="card rank-card"><div><span class="tag">PHASE ${state.company.phase} / ${G.PHASES.length}</span><h2>${esc(G.companyPhase(state).name)}</h2><p>Roster ${G.slots(state)} · ${G.themeSlots(state) === 1 ? "one theme" : "two themes"} per album.</p><button data-tab="company">Goals for the next phase</button></div></article>`;
   const st = G.rankStatus(state);
   return `<article class="card rank-card"><div class="rank-badge" aria-hidden="true">${"★".repeat(st.rank)}<span>${"★".repeat(G.RANKS.length - st.rank)}</span></div><div><span class="tag">LABEL RANK ${st.rank} / ${G.RANKS.length}</span><h2>${esc(st.name)}</h2>${
     st.next

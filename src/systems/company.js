@@ -7,8 +7,22 @@
   /** @param {object} core engine helpers  @param {object} D data tables */
   function create(core, D) {
     const {
-      PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING, RENAME, LABEL_NAME, BUILDINGS,
-      COMPANY_REVENUE, COMPANY_COSTS, COMPANY_VALUE, FUNDING, VALUATION, IPO, ACQUISITIONS, CEO_MIGRATION,
+      PHASES,
+      REACHES,
+      PHASE_GOALS,
+      HIT_QUALITY,
+      REACH_SCOUTING,
+      RENAME,
+      LABEL_NAME,
+      BUILDINGS,
+      COMPANY_REVENUE,
+      COMPANY_COSTS,
+      COMPANY_VALUE,
+      FUNDING,
+      VALUATION,
+      IPO,
+      ACQUISITIONS,
+      CEO_MIGRATION,
     } = D;
     const { BOOTHS, FACILITIES, HQ } = D;
     const buildingById = Object.fromEntries(BUILDINGS.map((b) => [b.id, b])),
@@ -50,10 +64,14 @@
         ...s.hq.facilities.map(({ id, level }) => ({ type: id, level })),
       ];
       for (const floor of floors) {
-        const compatible = BUILDINGS.filter(({ id, floors, maxFloors }) =>
-          floors.includes(floor.type) && (buildings.get(id)?.floors.length || 0) < maxFloors);
-        const target = compatible.find((b) => b.phase <= phase && buildings.has(b.id)) ||
-          compatible.find((b) => b.phase <= phase) || compatible[0];
+        const compatible = BUILDINGS.filter(
+          ({ id, floors, maxFloors }) =>
+            floors.includes(floor.type) && (buildings.get(id)?.floors.length || 0) < maxFloors,
+        );
+        const target =
+          compatible.find((b) => b.phase <= phase && buildings.has(b.id)) ||
+          compatible.find((b) => b.phase <= phase) ||
+          compatible[0];
         if (!target) throw Error("A classic room could not be mapped to a building.");
         if (!buildings.has(target.id)) buildings.set(target.id, { id: target.id, floors: [] });
         buildings.get(target.id).floors.push(floor);
@@ -68,7 +86,9 @@
       s.ceoMode = true;
       delete s.classicMode;
       s.company = {
-        phase, since: s.week, history: [{ phase, week: s.week }],
+        phase,
+        since: s.week,
+        history: [{ phase, week: s.week }],
         buildings: convertedBuildings(s, phase),
       };
       game.migrate(s);
@@ -126,27 +146,68 @@
       if (!c.history.every((h) => h && Number.isInteger(h.phase) && isCount(h.week))) return false;
       if (c.shares !== undefined) {
         const shares = c.shares;
-        if (!shares || shares.total !== COMPANY_VALUE.shares || !isCount(shares.yours) ||
-          !isCount(shares.investors) || shares.yours + shares.investors !== shares.total ||
-          shares.yours !== Math.round((c.ownership ?? 1) * shares.total)) return false;
+        if (
+          !shares ||
+          shares.total !== COMPANY_VALUE.shares ||
+          !isCount(shares.yours) ||
+          !isCount(shares.investors) ||
+          shares.yours + shares.investors !== shares.total ||
+          shares.yours !== Math.round((c.ownership ?? 1) * shares.total)
+        )
+          return false;
       }
-      if (c.marketMood !== undefined &&
-        (!Number.isFinite(c.marketMood) || c.marketMood < COMPANY_VALUE.moodRange[0] ||
-          c.marketMood > COMPANY_VALUE.moodRange[1])) return false;
-      if (c.annualProfit !== undefined && (!Array.isArray(c.annualProfit) ||
-        c.annualProfit.length > IPO.profitYears ||
-        !c.annualProfit.every((row) => row && isCount(row.year) && Number.isFinite(row.profit)))) return false;
-      if (c.offering !== undefined && (!c.public || !c.offering || !isCount(c.offering.week) ||
-        !isCount(c.offering.proceeds) || !Number.isFinite(c.offering.price) ||
-        typeof c.offering.scene !== "boolean")) return false;
-      if (c.analyst !== undefined && (!c.public || !c.analyst || !isCount(c.analyst.dueWeek) ||
-        !isCount(c.analyst.revenue) ||
-        (c.analyst.last !== null && (!c.analyst.last || !isCount(c.analyst.last.revenue) ||
-          !isCount(c.analyst.last.target) || typeof c.analyst.last.met !== "boolean")))) return false;
-      if (c.acquisitions !== undefined && (!Array.isArray(c.acquisitions) ||
-        !c.acquisitions.every((row) => row && ACQUISITIONS.offers.some(({ id }) => id === row.id) &&
-          isCount(row.week) && isCount(row.revenue) && isCount(row.debt) && isCount(row.payment)) ||
-        new Set(c.acquisitions.map(({ id }) => id)).size !== c.acquisitions.length)) return false;
+      if (
+        c.marketMood !== undefined &&
+        (!Number.isFinite(c.marketMood) ||
+          c.marketMood < COMPANY_VALUE.moodRange[0] ||
+          c.marketMood > COMPANY_VALUE.moodRange[1])
+      )
+        return false;
+      if (
+        c.annualProfit !== undefined &&
+        (!Array.isArray(c.annualProfit) ||
+          c.annualProfit.length > IPO.profitYears ||
+          !c.annualProfit.every((row) => row && isCount(row.year) && Number.isFinite(row.profit)))
+      )
+        return false;
+      if (
+        c.offering !== undefined &&
+        (!c.public ||
+          !c.offering ||
+          !isCount(c.offering.week) ||
+          !isCount(c.offering.proceeds) ||
+          !Number.isFinite(c.offering.price) ||
+          typeof c.offering.scene !== "boolean")
+      )
+        return false;
+      if (
+        c.analyst !== undefined &&
+        (!c.public ||
+          !c.analyst ||
+          !isCount(c.analyst.dueWeek) ||
+          !isCount(c.analyst.revenue) ||
+          (c.analyst.last !== null &&
+            (!c.analyst.last ||
+              !isCount(c.analyst.last.revenue) ||
+              !isCount(c.analyst.last.target) ||
+              typeof c.analyst.last.met !== "boolean")))
+      )
+        return false;
+      if (
+        c.acquisitions !== undefined &&
+        (!Array.isArray(c.acquisitions) ||
+          !c.acquisitions.every(
+            (row) =>
+              row &&
+              ACQUISITIONS.offers.some(({ id }) => id === row.id) &&
+              isCount(row.week) &&
+              isCount(row.revenue) &&
+              isCount(row.debt) &&
+              isCount(row.payment),
+          ) ||
+          new Set(c.acquisitions.map(({ id }) => id)).size !== c.acquisitions.length)
+      )
+        return false;
       if (c.buildings === undefined) return true;
       if (!Array.isArray(c.buildings)) return false;
       const seen = new Set();
@@ -199,14 +260,18 @@
       const prior = rows.length >= 52 ? revenueFor(rows.slice(-52, -26)) : 0;
       const growth = prior ? revenueFor(rows.slice(-26)) / prior - 1 : 0;
       const albums = s.albums.filter((p) => p.released);
-      const hitRate = albums.length ? albums.filter((p) => p.quality >= HIT_QUALITY).length / albums.length : 0;
-      const multiple = VALUATION.multiple[s.company.phase - 1] +
+      const hitRate = albums.length
+        ? albums.filter((p) => p.quality >= HIT_QUALITY).length / albums.length
+        : 0;
+      const multiple =
+        VALUATION.multiple[s.company.phase - 1] +
         core.clamp(growth, ...COMPANY_VALUE.growthRange) * COMPANY_VALUE.growthFactor +
         hitRate * COMPANY_VALUE.hitRateFactor;
       const revenue = yearRevenue(s);
       const owned = s.company.acquisitions || [];
-      const catalogValue = albums.reduce((total, p) => total + (p.total || 0), 0) *
-        COMPANY_VALUE.catalogIncomeFactor + owned.reduce((total, row) => total + row.revenue * 52, 0);
+      const catalogValue =
+        albums.reduce((total, p) => total + (p.total || 0), 0) * COMPANY_VALUE.catalogIncomeFactor +
+        owned.reduce((total, row) => total + row.revenue * 52, 0);
       const debt = (s.company.loan?.balance || 0) + owned.reduce((total, row) => total + row.debt, 0);
       const value = Math.max(0, Math.round(revenue * multiple + catalogValue + s.cash - debt));
       const mood = s.company.marketMood ?? 1;
@@ -342,15 +407,17 @@
         catalog: catalog.length,
       };
       const income = Object.fromEntries(
-        COMPANY_REVENUE.filter((stream) => stream.phase <= s.company.phase)
-          .map(({ id, source, rate }) => [id, activity[source] * rate]),
+        COMPANY_REVENUE.filter((stream) => stream.phase <= s.company.phase).map(({ id, source, rate }) => [
+          id,
+          activity[source] * rate,
+        ]),
       );
       if (s.company.acquisitions?.length)
         income.acquisitions = s.company.acquisitions.reduce((total, row) => total + row.revenue, 0);
       return income;
     }
     function acquisitionDues(row) {
-      const interest = Math.round(row.debt * ACQUISITIONS.rate / 52);
+      const interest = Math.round((row.debt * ACQUISITIONS.rate) / 52);
       return { interest, total: Math.min(row.debt + interest, row.payment) };
     }
     function companyCosts(s) {
@@ -362,7 +429,8 @@
         rent: COMPANY_COSTS.rent[phaseIndex],
         insurance: COMPANY_COSTS.insurance[phaseIndex],
         // The board's existing loan payment already settles this amount as part of upkeep.
-        interest: (loan ? Math.min(loan.payment, Math.round(loan.balance * FUNDING.loan.rate / 52)) : 0) +
+        interest:
+          (loan ? Math.min(loan.payment, Math.round((loan.balance * FUNDING.loan.rate) / 52)) : 0) +
           dues.reduce((total, row) => total + row.interest, 0),
         acquisitionPayments: dues.reduce((total, row) => total + row.total, 0),
       };
@@ -385,12 +453,18 @@
       s.company.phase = p.id;
       s.company.since = s.week;
       s.company.history.push({ phase: p.id, week: s.week });
+      const found = [];
+      for (let i = 0; i < (p.ladder?.themes || 0); i++) {
+        const t = core.api().discoverTheme(s, "phase", true);
+        if (t) found.push(t);
+      }
+      s.cash += p.ladder?.cash || 0;
       log(s, `${labelName(s)} grows into phase ${p.id}: ${p.name}.`);
       s.notifications.push({
         id: s.nextId++,
         kind: "phase",
         title: `Phase ${p.id} · ${p.name}`,
-        body: `The label has outgrown its last phase. Scouting now reaches ${REACH_SCOUTING[p.reach].name}.`,
+        body: `The label has outgrown its last phase. Scouting now reaches ${REACH_SCOUTING[p.reach].name}. Roster ${p.ladder.slots}, ${p.ladder.themeSlots === 1 ? "one theme" : "two themes"} per album${p.ladder.cash ? `, $${p.ladder.cash.toLocaleString("en-US")} from backers` : ""}${found.length ? `, new themes: ${found.join(", ")}` : ""}.`,
         week: s.week,
       });
       return income;
@@ -399,12 +473,18 @@
     function acquisitionOffers(s) {
       if (!s.company || s.company.phase < ACQUISITIONS.phase) return [];
       const owned = new Set((s.company.acquisitions || []).map(({ id }) => id));
-      return ACQUISITIONS.offers.filter(({ id }) => !owned.has(id)).map((offer) => {
-        const rival = s.rivalCompanies.find(({ id }) => id === offer.company);
-        const artist = offer.kind === "label" ? s.rivalArtists[0] : null;
-        return { ...offer, name: rival?.name || offer.company, artist,
-          down: Math.ceil(offer.price * ACQUISITIONS.downPayment) };
-      });
+      return ACQUISITIONS.offers
+        .filter(({ id }) => !owned.has(id))
+        .map((offer) => {
+          const rival = s.rivalCompanies.find(({ id }) => id === offer.company);
+          const artist = offer.kind === "label" ? s.rivalArtists[0] : null;
+          return {
+            ...offer,
+            name: rival?.name || offer.company,
+            artist,
+            down: Math.ceil(offer.price * ACQUISITIONS.downPayment),
+          };
+        });
     }
 
     function buyAcquisition(s, id, financed = false) {
@@ -417,7 +497,7 @@
       const upfront = financed ? offer.down : offer.price;
       const debt = offer.price - upfront;
       const rate = ACQUISITIONS.rate / 52;
-      const payment = debt ? Math.ceil(debt * rate / (1 - (1 + rate) ** -ACQUISITIONS.termWeeks)) : 0;
+      const payment = debt ? Math.ceil((debt * rate) / (1 - (1 + rate) ** -ACQUISITIONS.termWeeks)) : 0;
       if (!game.payAcquisition(s, offer.id, offer.price, upfront)) return null;
       const row = { id, week: s.week, revenue: offer.revenue, debt, payment };
       (s.company.acquisitions ??= []).push(row);
@@ -427,7 +507,9 @@
         const terms = game.contractQuote(s, artist, term);
         s.rivalArtists = s.rivalArtists.filter(({ id }) => id !== artist.id);
         s.artists.push({
-          ...artist, wage: terms.wage, inspiration: artist.inspiration ?? 60,
+          ...artist,
+          wage: terms.wage,
+          inspiration: artist.inspiration ?? 60,
           contract: { term, remaining: term, royalty: terms.royalty, signedWeek: s.week },
         });
         log(s, `${artist.name} joins the label through the acquisition.`);
@@ -451,10 +533,19 @@
         { label: "Board confidence", have: company.board?.confidence || 0, need: IPO.boardConfidence },
       ];
       const valuation = companyValuation(s);
-      const mood = core.clamp(1 - (company.board?.scandals || 0) * IPO.scandalDiscount, ...COMPANY_VALUE.moodRange);
-      const proceeds = Math.round(valuation.value * mood * IPO.equity / (1 - IPO.equity));
-      const price = Math.round(proceeds / (company.shares.total * IPO.equity) * 100) / 100;
-      return { goals, ready: proceeds > 0 && goals.every(({ have, need }) => have >= need), proceeds, price, mood };
+      const mood = core.clamp(
+        1 - (company.board?.scandals || 0) * IPO.scandalDiscount,
+        ...COMPANY_VALUE.moodRange,
+      );
+      const proceeds = Math.round((valuation.value * mood * IPO.equity) / (1 - IPO.equity));
+      const price = Math.round((proceeds / (company.shares.total * IPO.equity)) * 100) / 100;
+      return {
+        goals,
+        ready: proceeds > 0 && goals.every(({ have, need }) => have >= need),
+        proceeds,
+        price,
+        mood,
+      };
     }
 
     function nextAnalystTarget(s, last = null) {
@@ -476,7 +567,10 @@
       company.analyst = nextAnalystTarget(s);
       s.cash += ipo.proceeds;
       core.api().recordPublicRound(s, IPO.equity, ipo.proceeds);
-      log(s, `${labelName(s)} rings the bell and raises $${ipo.proceeds.toLocaleString("en-US")} in its IPO.`);
+      log(
+        s,
+        `${labelName(s)} rings the bell and raises $${ipo.proceeds.toLocaleString("en-US")} in its IPO.`,
+      );
       return company.offering;
     }
 
@@ -498,10 +592,15 @@
       const met = revenue >= target;
       const direction = met ? 1 : -1;
       company.marketMood = core.clamp(
-        company.marketMood + direction * IPO.moodChange, ...COMPANY_VALUE.moodRange,
+        company.marketMood + direction * IPO.moodChange,
+        ...COMPANY_VALUE.moodRange,
       );
       const board = company.board;
-      board.analystConfidence = core.clamp((board.analystConfidence || 0) + direction * IPO.confidenceChange, -100, 100);
+      board.analystConfidence = core.clamp(
+        (board.analystConfidence || 0) + direction * IPO.confidenceChange,
+        -100,
+        100,
+      );
       company.analyst = nextAnalystTarget(s, { revenue, target, met });
       log(s, `Analysts: ${met ? "revenue beat" : "revenue missed"} the half-year target.`);
     }

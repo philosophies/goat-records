@@ -6,16 +6,18 @@ CEO mode is the game. Classic mode is hidden: new labels are always CEO runs, ol
 
 The company phase replaces the classic label rank in CEO runs. Each phase carries what the rank used to set:
 
-| Phase            | Superstar / star / rising slots | Theme slots | Room tier | Development ceiling |
-| ---------------- | ------------------------------- | ----------- | --------- | ------------------- |
-| 1 Home studio    | 0 / 1 / 2                       | 1           | 1         | +4                  |
-| 2 Indie label    | 0 / 1 / 3                       | 1           | 2         | +8                  |
-| 3 Regional label | 1 / 2 / 3                       | 2           | 3         | +12                 |
-| 4 National label | 1 / 3 / 4                       | 2           | 4         | +16                 |
-| 5 Major label    | 2 / 3 / 4                       | 2           | 5         | +20                 |
-| 6 Global label   | 3 / 4 / 4                       | 2           | 6         | +24                 |
+| Phase            | Roster (superstar / star / rising) | Theme slots | Room tier | Reward on reaching it |
+| ---------------- | ---------------------------------- | ----------- | --------- | --------------------- |
+| 1 Home studio    | 2 (0 / 0 / 2)                      | 1           | 1         | —                     |
+| 2 Indie label    | 3 (0 / 1 / 2)                      | 1           | 1         | $6,000 and 2 themes   |
+| 3 Regional label | 5 (1 / 1 / 3)                      | 2           | 2         | $15,000 and 2 themes  |
+| 4 National label | 7 (1 / 2 / 4)                      | 2           | 3         | $30,000 and 2 themes  |
+| 5 Global label   | 8 (2 / 2 / 4)                      | 2           | 4         | $60,000 and 2 themes  |
+| 6 Public company | 10 (2 / 3 / 5)                     | 2           | 4         | $100,000 and 3 themes |
 
-The rank chip, rank requirements and the classic yearly goal disappear from CEO runs. Their rewards (cash, themes, fame) move into phase goals. The year-end review reports the phase.
+The room tier lags a phase behind so album quality does not jump with every promotion. The development ceiling is 64 + tier × 4. The tier split of the roster arrives with roster tiers (section 3).
+
+The rank chip, rank requirements and the classic yearly goal disappear from CEO runs; their cash and theme rewards move to reaching a phase. The yearly review stays, without a goal.
 
 ## 2. Look: West Coast dynasty
 

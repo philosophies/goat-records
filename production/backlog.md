@@ -389,7 +389,7 @@ Design: `design/gdd/ceo-3.0.md`. CEO mode only; classic mode is hidden and gets 
 
 ## M10 One ladder
 
-### [ ] T40 · The phase replaces the label rank
+### [x] T40 · The phase replaces the label rank
 
 Depends on: T37
 Files: `src/data/company.js`, `src/systems/label.js`, `src/systems/campaign.js`, `src/app.js`, `src/ui/*.js`, tests
