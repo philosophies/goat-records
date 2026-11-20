@@ -14,6 +14,17 @@
   //   ladder.slots       roster size      ladder.themeSlots  themes per album
   //   ladder.tier        room tier and stage bonus (the development ceiling is 64 + tier × 4)
   //   ladder.themes / ladder.cash   rewards on reaching the phase
+  // The label's slogan by phase, shown in the company panel. Original lines in the spirit of a 1990s
+  // West Coast rap label; no real label's slogans.
+  const SLOGANS = [
+    "From the back bedroom to the block.",
+    "Pressed on the corner, played on the coast.",
+    "Every hook a hustle.",
+    "Coast to coast, gold on gold.",
+    "The whole world on our label.",
+    "Ring the bell. The goat is public.",
+  ];
+
   const PHASES = [
     {
       id: 1,
@@ -262,6 +273,7 @@
 
   const data = {
     PHASES,
+    SLOGANS,
     REACHES,
     PHASE_GOALS,
     HIT_QUALITY,
