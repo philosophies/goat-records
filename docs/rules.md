@@ -1,6 +1,6 @@
 # Game rules
 
-New labels start in CEO mode. Choose Classic in the New label dialog for the original rules. Earlier saves offer the choice of continuing in Classic or converting with a backup of the original.
+Every new label is a CEO run. Saves from before 2.0 can keep their original rules or convert, with a backup of the original.
 
 ## Getting around
 
@@ -370,7 +370,7 @@ The current pending decision remains available during upgrade and counts toward 
 
 ## CEO runs
 
-The company starts with $2,000, a home studio, and full ownership. The Company panel lists phase goals. Phases open new scouting territory, buildings and floors, departments, and weekly income. Rank still governs roster capacity, theme slots, and several classic recording and promotion unlocks.
+The company starts with $2,000, a home studio, and full ownership. The Company panel lists phase goals. Phases open new scouting territory, buildings and floors, departments, and weekly income. The phase also sets roster capacity, theme slots and the recording and promotion unlocks (see One ladder below).
 
 | Phase            | Unlocks                                               | New weekly income                   |
 | ---------------- | ----------------------------------------------------- | ----------------------------------- |

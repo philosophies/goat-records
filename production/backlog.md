@@ -396,7 +396,7 @@ Files: `src/data/company.js`, `src/systems/label.js`, `src/systems/campaign.js`,
 Do: add slots, theme slots, room tier and development ceiling to each phase (design 1). In CEO runs `tier`, `slots`, theme slots and the ceiling read the phase. Hide the rank chip, rank requirements and the classic yearly goal in CEO runs; move their rewards into phase goals. The year review reports the phase.
 Done when: a CEO run shows one ladder in every panel (harness), phase changes unlock rooms and slots (tests), and the classic fingerprint is unchanged.
 
-### [ ] T41 · Hide classic mode
+### [x] T41 · Hide classic mode
 
 Depends on: T40
 Files: `index.html`, `src/app.js`, `src/engine.js`, `README.md`, `docs/rules.md`, tests
