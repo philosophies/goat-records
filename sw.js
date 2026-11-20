@@ -1,6 +1,6 @@
 // Change the cache version whenever a shipped shell file changes.
 const CACHE_PREFIX = "goat-records-shell-";
-const CACHE_NAME = CACHE_PREFIX + "4";
+const CACHE_NAME = CACHE_PREFIX + "5";
 const APP_SHELL = [
   "index.html",
   "icons/goat-512.png",
@@ -22,6 +22,7 @@ const APP_SHELL = [
   "styles/ceo.css",
   "styles/street.css",
   "styles/phone.css",
+  "styles/dynasty.css",
   "src/data/core.js",
   "src/data/label.js",
   "src/data/campaign.js",
@@ -67,18 +68,23 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => Promise.all(
-      keys.filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME)
-        .map((key) => caches.delete(key)),
-    )).then(() => self.clients.claim()),
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME)
+            .map((key) => caches.delete(key)),
+        ),
+      )
+      .then(() => self.clients.claim()),
   );
 });
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
-  const isStartPage = event.request.mode === "navigate" &&
-    (url.href === scope || url.href === indexURL);
+  const isStartPage = event.request.mode === "navigate" && (url.href === scope || url.href === indexURL);
   if (!isStartPage && !shellURLs.has(url.href)) return;
   const key = isStartPage ? indexURL : url.href;
   event.respondWith(

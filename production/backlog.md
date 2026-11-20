@@ -405,7 +405,7 @@ Done when: no route in the interface starts a classic run (harness); classic sav
 
 ## M11 West Coast dynasty look
 
-### [ ] T42 · Theme: black, red and gold
+### [x] T42 · Theme: black, red and gold
 
 Depends on: T41
 Files: `styles/*.css`, `src/ui/*.js`, `icons/`, `index.html`

@@ -11,8 +11,8 @@ Task: v2.0.0 released
 
 **Updated:** 2026-11-20
 **Branch:** `main`
-**Current task:** 3.0, the dynasty update. T40 (one ladder) and T41 (classic hidden) are done.
-**Next step:** T42, the black, red and gold theme. Run `node tools/next-task.cjs`.
+**Current task:** 3.0, the dynasty update. T40–T42 are done (one ladder, classic hidden, the black, red and gold theme).
+**Next step:** T43, building art. Run `node tools/next-task.cjs`.
 **Blocked on:** Nothing.
 **Files in progress:** None.
 **Open questions:** When to schedule the Android wrapper and a physical device test.

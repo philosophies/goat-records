@@ -613,6 +613,7 @@
       afterSettlement,
       api: {
         PHASES,
+        SLOGANS: D.SLOGANS,
         REACHES,
         PHASE_GOALS,
         REACH_SCOUTING,

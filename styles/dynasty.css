@@ -1,0 +1,242 @@
+/* ---------- West Coast dynasty theme (3.0, CEO runs) ----------
+   A 1990s West Coast rap label in parody: black, blood red, gold and off-white, heavy condensed
+   headings, gold trim. Our own emblem and wording; no real label's name, logo or art.
+   Every text colour here keeps at least 4.5:1 contrast on its background (see T42 in the log). */
+body.ceo-run {
+  --bg: #0b0a0a;
+  --panel: #161313;
+  --panel-2: #211919;
+  --panel-3: #2a1d1d;
+  --line: #3e2b2b;
+  --ink: #f2ece0;
+  --muted: #c9bfb2;
+  --gold: #e3b23c;
+  --gold-deep: #8a6a1f;
+  --red: #a3121a;
+  --red-deep: #7a0d13;
+  --red-hi: #ff5a5f;
+  --lime: #e3b23c;
+  --orange: #ff5a5f;
+  --frame: #000;
+  --frame-hi: #8a6a1f;
+  --display: Impact, Haettenschweiler, "Arial Narrow Bold", "Franklin Gothic Bold", "Arial Black", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* Headings: tall, condensed, a little gold. */
+body.ceo-run h2,
+body.ceo-run .drawer-head h2,
+body.ceo-run .card h3,
+body.ceo-run .modal-card h2 {
+  font-family: var(--display);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+body.ceo-run .card h3 {
+  color: var(--ink);
+}
+body.ceo-run .tag {
+  background: var(--frame);
+  border-color: var(--gold-deep);
+  color: var(--gold);
+  letter-spacing: 0.12em;
+}
+
+/* Top bar: black with a red stripe and gold trim. */
+body.ceo-run .hudbar {
+  background: linear-gradient(#141010, #0b0a0a 70%);
+  border-bottom: 3px solid var(--gold-deep);
+  box-shadow: 0 3px 0 var(--red);
+}
+body.ceo-run #stats .stat {
+  background: var(--panel);
+  border-color: var(--frame);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+body.ceo-run #stats .stat small {
+  color: var(--gold);
+  letter-spacing: 0.1em;
+}
+body.ceo-run .brand b {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 19px;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  text-shadow: 2px 2px 0 var(--red-deep);
+}
+body.ceo-run .hud-rank,
+body.ceo-run .hud-rank .stars {
+  color: var(--muted);
+}
+body.ceo-run .company-chip,
+body.ceo-run .clock-reason {
+  background: var(--panel);
+  border-color: var(--gold-deep);
+  color: var(--gold);
+}
+
+/* The goat emblem: a gold goat head with curled horns on a red disc. */
+body.ceo-run .hudbar .logo {
+  width: 38px;
+  height: 38px;
+  font-size: 0;
+  border: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='19' fill='%23000'/%3E%3Ccircle cx='20' cy='20' r='17' fill='%23a3121a' stroke='%23e3b23c' stroke-width='2'/%3E%3Cpath d='M13 15c-6-1-7-8-2-9 2 3 3 5 5 7M27 15c6-1 7-8 2-9-2 3-3 5-5 7' fill='none' stroke='%23e3b23c' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M14 14h12l-1 9-3 6h-4l-3-6z' fill='%23f2ece0'/%3E%3Cpath d='M17 18h2v2h-2zM21 18h2v2h-2z' fill='%23000'/%3E%3Cpath d='M18 29h4l-2 5z' fill='%23e3b23c'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
+/* Buttons: black with gold trim; the main action is red. */
+body.ceo-run button,
+body.ceo-run .filebutton {
+  background: var(--panel-3);
+  color: var(--ink);
+  border-color: var(--frame);
+  box-shadow: inset 0 0 0 1px var(--gold-deep);
+}
+body.ceo-run button:hover:not(:disabled),
+body.ceo-run .filebutton:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+body.ceo-run .primary {
+  background: var(--red);
+  color: var(--ink);
+  border-color: var(--frame);
+  box-shadow:
+    inset 0 -3px 0 var(--red-deep),
+    inset 0 0 0 1px var(--red-hi);
+}
+body.ceo-run .primary:hover:not(:disabled) {
+  background: #c0141f;
+  color: #fff;
+}
+body.ceo-run button:disabled {
+  background: #1a1515;
+  color: #8f857a;
+  box-shadow: inset 0 0 0 1px #2c2222;
+}
+body.ceo-run input,
+body.ceo-run select {
+  background: var(--frame);
+  color: var(--ink);
+  border-color: var(--frame);
+  box-shadow: inset 0 0 0 1px var(--gold-deep);
+}
+
+/* Cards and panels. */
+body.ceo-run .card,
+body.ceo-run .empty {
+  background: var(--panel-2);
+  border-color: var(--frame);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+body.ceo-run .drawer,
+body.ceo-run #drawer {
+  background: var(--panel);
+}
+body.ceo-run .drawer-head {
+  background: linear-gradient(90deg, var(--red-deep), var(--red) 55%, var(--red-deep));
+  border-bottom: 3px solid var(--gold-deep);
+}
+body.ceo-run .sheet-tabs {
+  background: var(--panel);
+  border-bottom-color: var(--gold-deep);
+}
+body.ceo-run .sheet-tabs button[aria-pressed="true"] {
+  background: var(--frame);
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+/* The side column and production cards. */
+body.ceo-run .ticker .goal,
+body.ceo-run .ticker .activity-card,
+body.ceo-run .ticker .production-panel,
+body.ceo-run .search-budgets .card,
+body.ceo-run .employee-badge,
+body.ceo-run .album-addons label,
+body.ceo-run .inspiration-meter,
+body.ceo-run .tour-week-history > div,
+body.ceo-run .calculation,
+body.ceo-run .chart-row,
+body.ceo-run .production-panel .options button,
+body.ceo-run .options button {
+  background: var(--panel-2);
+  border-color: var(--frame);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+body.ceo-run .ticker .production-panel {
+  border-left-color: var(--gold);
+}
+body.ceo-run .ticker .activity-card.ready {
+  border-left-color: var(--gold);
+}
+body.ceo-run .ticker .activity-card.urgent {
+  border-left-color: var(--red-hi);
+  background: #2a1414;
+}
+body.ceo-run .chart-heading {
+  background: var(--red-deep);
+  color: var(--ink);
+}
+body.ceo-run .modal .production-panel {
+  background: linear-gradient(125deg, #2a1414, #161313);
+  border-color: var(--gold);
+}
+body.ceo-run .plan-quote,
+body.ceo-run .touring-status {
+  background: var(--panel-3);
+}
+
+/* Decision cards, banners and dialogs. */
+body.ceo-run .chart-alert,
+body.ceo-run .modal-card,
+body.ceo-run dialog {
+  background: var(--panel);
+  color: var(--ink);
+  border-color: var(--gold-deep);
+}
+body.ceo-run .chart-award {
+  background: var(--red);
+  color: var(--gold);
+  border-color: var(--frame);
+}
+body.ceo-run .meter i {
+  background: var(--gold);
+}
+body.ceo-run .meter.low i {
+  background: var(--red-hi);
+}
+
+/* Progress bars and links. */
+body.ceo-run .progress span,
+body.ceo-run .phase-goals .bar i {
+  background: linear-gradient(90deg, var(--red), var(--gold));
+}
+body.ceo-run a,
+body.ceo-run button.link {
+  color: var(--gold);
+}
+
+/* The label's slogan, shown in the company panel. */
+.slogan {
+  margin: 0 0 10px;
+  font-family: var(--display, sans-serif);
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* The street at dusk: a West Coast sunset behind the skyline. */
+body.ceo-run .scene.street-scene {
+  background: linear-gradient(#120b16 0%, #3b1426 40%, #8a2a2a 72%, #d0632c 90%, #e3b23c 100%);
+}
+body.ceo-run .scene.street-scene[data-phase="4"],
+body.ceo-run .scene.street-scene[data-phase="5"],
+body.ceo-run .scene.street-scene[data-phase="6"] {
+  background: linear-gradient(#0e0912 0%, #2f1020 40%, #7a2226 72%, #c4552a 90%, #e3b23c 100%);
+}

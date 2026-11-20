@@ -9,8 +9,9 @@ function companyGoalValue(key, n) {
 function listingCard() {
   const ipo = G.ipoRequirements(state);
   if (ipo) {
-    const goals = ipo.goals.map(({ label, have, need }) =>
-      `<li><span>${esc(label)}</span><b>${have} / ${need}</b></li>`).join("");
+    const goals = ipo.goals
+      .map(({ label, have, need }) => `<li><span>${esc(label)}</span><b>${have} / ${need}</b></li>`)
+      .join("");
     return `<h3>Initial public offering</h3><ul class="board-terms">${goals}</ul><p>Sell 25% of the company to raise ${money(ipo.proceeds)} at $${ipo.price.toFixed(2)} per share.</p><button class="primary" data-action="goPublic" ${disable(!ipo.ready || blocked())}>Go public</button>`;
   }
   const analyst = state.company.analyst;
@@ -28,10 +29,13 @@ function ipoScene() {
 function acquisitionCards() {
   const offers = G.acquisitionOffers(state);
   if (!offers.length) return "";
-  return `<h3>Acquisitions</h3><div class="grid">${offers.map((offer) => {
-    const noRosterSpace = offer.kind === "label" && (!offer.artist || state.artists.length >= G.slots(state));
-    return `<article class="card"><h4>${esc(offer.name)} · ${offer.kind === "catalog" ? "catalog" : "label"}</h4><p>${money(offer.revenue)}/week in catalog royalties.${offer.artist ? ` ${esc(offer.artist.name)} joins your roster.` : ""}</p><div class="actions"><button data-action="buyAcquisition" data-offer="${offer.id}" ${disable(blocked() || noRosterSpace || state.cash < offer.price)}>Buy for ${money(offer.price)}</button><button data-action="buyAcquisition" data-offer="${offer.id}" data-financed="true" ${disable(blocked() || noRosterSpace || state.cash < offer.down)}>Finance · ${money(offer.down)} down</button></div></article>`;
-  }).join("")}</div>`;
+  return `<h3>Acquisitions</h3><div class="grid">${offers
+    .map((offer) => {
+      const noRosterSpace =
+        offer.kind === "label" && (!offer.artist || state.artists.length >= G.slots(state));
+      return `<article class="card"><h4>${esc(offer.name)} · ${offer.kind === "catalog" ? "catalog" : "label"}</h4><p>${money(offer.revenue)}/week in catalog royalties.${offer.artist ? ` ${esc(offer.artist.name)} joins your roster.` : ""}</p><div class="actions"><button data-action="buyAcquisition" data-offer="${offer.id}" ${disable(blocked() || noRosterSpace || state.cash < offer.price)}>Buy for ${money(offer.price)}</button><button data-action="buyAcquisition" data-offer="${offer.id}" data-financed="true" ${disable(blocked() || noRosterSpace || state.cash < offer.down)}>Finance · ${money(offer.down)} down</button></div></article>`;
+    })
+    .join("")}</div>`;
 }
 
 function companyChip() {
@@ -61,7 +65,7 @@ function companyScreen() {
           "",
         )}</ul><p class="muted">The label moves up at the weekly settlement once every goal is met. A phase is never lost.</p>`
     : "";
-  return `<h2>Phase ${phase.id} · ${esc(phase.name)}</h2><p class="muted">Since week ${state.company.since}. Scouting reaches ${esc(G.REACH_SCOUTING[phase.reach].name)}.</p>${goals}${typeof GoatBoard !== "undefined" ? GoatBoard.summary() : ""}${listingCard()}${acquisitionCards()}<h3>The road to a public company</h3><ol class="phase-ladder">${ladder}</ol>`;
+  return `<p class="slogan">${esc(G.SLOGANS[phase.id - 1] || "")}</p><h2>Phase ${phase.id} · ${esc(phase.name)}</h2><p class="muted">Since week ${state.company.since}. Scouting reaches ${esc(G.REACH_SCOUTING[phase.reach].name)}.</p>${goals}${typeof GoatBoard !== "undefined" ? GoatBoard.summary() : ""}${listingCard()}${acquisitionCards()}<h3>The road to a public company</h3><ol class="phase-ladder">${ladder}</ol>`;
 }
 
 /** The office's name card: works in every run. */
