@@ -463,3 +463,11 @@ A tier caps what the company spends on the artist: up-and-comers record on budge
 The relationship runs from −100 to 100. A new superstar starts at 25, more if loyal; each week it drifts toward (morale − 60) ÷ 2. Event choices swing it half again as hard as for other artists: sneaker deals, public call-outs, a vanity imprint, rumours.
 
 **A second act.** Being fired or ousted ends the company, but not always the run. A superstar whose relationship with you is 40 or more and whose loyalty is 50 or more will follow you: you start a new company at phase 1 with them (on a fresh two-album deal), $15,000 from old contacts and a fresh start at week one. With nobody willing, the run's final review is the end.
+
+**Pre-release listening parties.** Once every stage is done, you can play the album to a room of fans before it goes out ($800 for an up-and-comer, $2,500 for a star, $6,000 for a superstar). The report rates each audience and each album area as Loved it, Liked it, Mixed or Cold; the album's own audience hears it best. Then pick one:
+
+- **Rework** the coldest area: 1.5× the party cost and one more week in the studio, for +6 (+3 after a second party).
+- **Change the lead single:** +2 to Reach, once per album.
+- **Keep it as it is.**
+
+An album can take two parties. Each one risks a leak (5%, then 15%); a leaked album sells at 85%. This is separate from the "Fan listening party" release-day strategy.
