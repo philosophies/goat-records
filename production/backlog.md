@@ -435,7 +435,7 @@ Files: `src/data/roster.js` (new), `src/systems/roster.js` (new), tests
 Do: rising, star and superstar slots by phase (design 1); moving up needs fame and a hit, dropping follows a run of flops; tier caps on recording budget, marketing, tour scale and team size.
 Done when: tests for slots per phase, promotion, demotion and every cap.
 
-### [ ] T46 · The face of the company
+### [x] T46 · The face of the company
 
 Depends on: T45
 Files: `src/systems/roster.js`, `src/data/events.js`, tests

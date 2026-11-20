@@ -1,6 +1,7 @@
 (function (root) {
   "use strict";
-  function create({ clamp, log, pay, roll }, { COMPANY_EVENTS, COMPANY_EVENT_INTERVAL }) {
+  function create(core, { COMPANY_EVENTS, COMPANY_EVENT_INTERVAL }) {
+    const { clamp, log, pay, roll } = core;
     const byId = new Map(COMPANY_EVENTS.map((event) => [event.id, event]));
 
     function matches(subject, rules) {
@@ -24,10 +25,15 @@
         !Object.values(s.company.departments).some(({ head }) => head && matches(head, executive))
       )
         return null;
-      const project = album && s.albums.find((p) =>
-        !p.released && p.production && matches(p, album) &&
-        (!artist || s.artists.some((a) => a.id === p.artist && matches(a, artist))),
-      );
+      const project =
+        album &&
+        s.albums.find(
+          (p) =>
+            !p.released &&
+            p.production &&
+            matches(p, album) &&
+            (!artist || s.artists.some((a) => a.id === p.artist && matches(a, artist))),
+        );
       if (album && !project) return null;
       const performer = project
         ? s.artists.find((a) => a.id === project.artist)
@@ -37,8 +43,9 @@
     }
 
     function select(s) {
-      const entries = COMPANY_EVENTS.map((event) => ({ event, target: eligible(s, event) }))
-        .filter(({ target }) => target);
+      const entries = COMPANY_EVENTS.map((event) => ({ event, target: eligible(s, event) })).filter(
+        ({ target }) => target,
+      );
       if (!entries.length) return null;
       const total = entries.reduce((n, { event }) => n + event.weight, 0);
       let pick = roll(s, "company-events:draw") * total;
@@ -47,8 +54,17 @@
     }
 
     function effect(s, entry, effects) {
-      const { cash = 0, fame = 0, confidence = 0, morale = 0, artistFame = 0, delayAlbum = 0, loan } =
-        effects || {};
+      const {
+        cash = 0,
+        fame = 0,
+        confidence = 0,
+        morale = 0,
+        artistFame = 0,
+        delayAlbum = 0,
+        loan,
+      } = effects || {};
+      const { reputation = 0, relation = 0, brand } = effects || {};
+      if (reputation) s.reputation = clamp(s.reputation + reputation);
       s.cash += cash;
       s.fame = Math.max(0, s.fame + fame);
       const board = s.company.board;
@@ -60,6 +76,8 @@
       if (artist) {
         artist.morale = clamp(artist.morale + morale);
         artist.fame = clamp(artist.fame + artistFame);
+        if (relation) core.api?.()?.shiftRelation?.(s, artist, relation);
+        if (brand) core.api?.()?.addShock?.(s, artist, brand.mult, brand.weeks, `${artist.name} in the news`);
       }
       const album = s.albums.find((p) => p.id === entry.album && !p.released && p.production);
       if (album && delayAlbum) {
@@ -95,8 +113,11 @@
       const choice = byId.get(entry.eventId)?.choices[option.choice];
       if (!s.company) return false;
       if (option.defer) return true;
-      return !!choice && (choice.cost || 0) <= Math.max(0, s.cash) &&
-        (!s.company.loan || (!choice.effects?.loan && !choice.failure?.loan));
+      return (
+        !!choice &&
+        (choice.cost || 0) <= Math.max(0, s.cash) &&
+        (!s.company.loan || (!choice.effects?.loan && !choice.failure?.loan))
+      );
     }
 
     function resolve(s, entry, option) {
@@ -139,16 +160,26 @@
 
     function validSave(s) {
       if (!s.company) return true;
-      const validEntry = (e) => !!e && byId.has(e.eventId) && Number.isInteger(e.dueWeek) &&
-        e.dueWeek > s.week && [e.artist, e.album].every((id) => id == null || Number.isInteger(id));
+      const validEntry = (e) =>
+        !!e &&
+        byId.has(e.eventId) &&
+        Number.isInteger(e.dueWeek) &&
+        e.dueWeek > s.week &&
+        [e.artist, e.album].every((id) => id == null || Number.isInteger(id));
       const deferred = s.company.deferredEvents;
       if (deferred !== undefined && (!Array.isArray(deferred) || !deferred.every(validEntry))) return false;
       if (!Array.isArray(s.eventQueue)) return false;
-      return [s.event, ...s.eventQueue].every((e) =>
-        e?.type !== "companyEvent" ||
-        (validEntry(e) && Array.isArray(e.options) && e.options.length > 0 &&
-          e.options.every((o) => o && (o.defer === true ||
-            (Number.isInteger(o.choice) && !!byId.get(e.eventId).choices[o.choice])))),
+      return [s.event, ...s.eventQueue].every(
+        (e) =>
+          e?.type !== "companyEvent" ||
+          (validEntry(e) &&
+            Array.isArray(e.options) &&
+            e.options.length > 0 &&
+            e.options.every(
+              (o) =>
+                o &&
+                (o.defer === true || (Number.isInteger(o.choice) && !!byId.get(e.eventId).choices[o.choice])),
+            )),
       );
     }
 

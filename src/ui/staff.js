@@ -59,7 +59,11 @@ function tierCard(a) {
     need = next
       ? `<p class="muted">Next: <b>${esc(next.name)}</b> · fame ${next.fame.have}/${next.fame.need} · hits ${next.hits.have}/${next.hits.need} · ${next.slot ? "a slot is free" : "no free slot at this phase"}</p>`
       : '<p class="muted">The top tier.</p>';
-  return `<article class="card tier-card tier-${t.id}"><span class="tag">${esc(t.name.toUpperCase())}</span><p>Albums up to ${money(t.budget)} · ads up to rank ${t.adRank} · ${esc(t.tours.join(", "))} tours · a team of ${t.team}</p>${need}</article>`;
+  const face =
+    t.id === "superstar"
+      ? `<p><b>The face of the company.</b> Relationship with you: <b>${G.relationOf(a)}</b>/100 · endorsements ${money(Math.round((a.fame || 0) * (G.FACE.endorse[state.company.phase - 1] || 0) * (G.relationOf(a) >= 0 ? 1 : 0.5)))}/week · ${G.relationOf(a) >= 0 ? "lifts" : "drags down"} company value.</p>`
+      : "";
+  return `<article class="card tier-card tier-${t.id}"><span class="tag">${esc(t.name.toUpperCase())}</span>${face}<p>Albums up to ${money(t.budget)} · ads up to rank ${t.adRank} · ${esc(t.tours.join(", "))} tours · a team of ${t.team}</p>${need}</article>`;
 }
 function teamSection(a) {
   if (!state.company?.team) return "";

@@ -11,8 +11,8 @@ Task: v2.0.0 released
 
 **Updated:** 2026-11-20
 **Branch:** `main`
-**Current task:** 3.0, the dynasty update. T40–T45 are done (one ladder, classic hidden, the theme, building and room art, roster tiers).
-**Next step:** T46, superstars as the face of the company. Run `node tools/next-task.cjs`.
+**Current task:** 3.0, the dynasty update. T40–T46 are done (one ladder, classic hidden, the theme, building and room art, roster tiers, superstars as the face of the company).
+**Next step:** T47, the second act. Run `node tools/next-task.cjs`.
 **Blocked on:** Nothing.
 **Files in progress:** None.
 **Open questions:** When to schedule the Android wrapper and a physical device test.

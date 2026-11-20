@@ -35,7 +35,26 @@
     hitQuality: 75,
   };
 
-  const data = { TIERS, TIER_SLOTS, TIER_RULES };
+  // Superstars are the face of the company (design 3).
+  //   endorse      weekly endorsement income per point of a superstar's fame, by phase
+  //   brand        company value lift per superstar at fame 100 (a feud with the CEO turns it to −half)
+  //   relation     the CEO relationship (−100…100): where a new superstar starts, how fast it drifts toward
+  //                (morale − 60) ÷ 2 each week, and how much sharper event swings are for superstars
+  //   shock        each week a superstar may make news: good news lifts value and pays out, bad news
+  //                cuts value, costs money and strains the relationship; good news is likelier when the
+  //                relationship is warm
+  const FACE = {
+    endorse: [0, 0, 10, 15, 25, 40],
+    brand: 0.06,
+    relation: { start: 25, loyaltyWeight: 0.2, drift: 0.1, swing: 1.5 },
+    shock: {
+      chance: 0.03,
+      good: { mult: 0.08, weeks: 8, cashPerPhase: 4000 },
+      bad: { mult: -0.1, weeks: 8, cashPerPhase: -3000, relation: -10 },
+    },
+  };
+
+  const data = { TIERS, TIER_SLOTS, TIER_RULES, FACE };
   root.GoatData = Object.assign(root.GoatData || {}, data);
   if (typeof module !== "undefined" && module.exports) module.exports = data;
 })(typeof globalThis !== "undefined" ? globalThis : this);

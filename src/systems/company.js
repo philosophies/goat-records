@@ -273,7 +273,9 @@
         albums.reduce((total, p) => total + (p.total || 0), 0) * COMPANY_VALUE.catalogIncomeFactor +
         owned.reduce((total, row) => total + row.revenue * 52, 0);
       const debt = (s.company.loan?.balance || 0) + owned.reduce((total, row) => total + row.debt, 0);
-      const value = Math.max(0, Math.round(revenue * multiple + catalogValue + s.cash - debt));
+      // Superstars are the face of the company: their standing and their news move its value.
+      const face = core.api().faceMultiplier?.(s) ?? 1;
+      const value = Math.max(0, Math.round((revenue * multiple + catalogValue) * face + s.cash - debt));
       const mood = s.company.marketMood ?? 1;
       const shares = s.company.shares || { total: COMPANY_VALUE.shares };
       const sharePrice = Math.round((value / shares.total) * mood * 100) / 100;
