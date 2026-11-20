@@ -191,8 +191,12 @@
         for (let k = 1; k <= weeks; k++) base += p.lastNetIncome * Math.pow(0.88, k);
         out.estimate = Math.round(base * gain);
       }
+      const capped = p && s.company ? core.api().tierBlocks?.(s, rosterArtist(s, p.artist), "ad", ad) : null;
       if (out.locked)
-        out.reason = `Reach label rank ${ad.rank} (${core.api().RANKS[ad.rank - 1].name}) first.`;
+        out.reason = s.company
+          ? `Reach ${core.api().ladderLabel(s, ad.rank)} first.`
+          : `Reach label rank ${ad.rank} (${core.api().RANKS[ad.rank - 1].name}) first.`;
+      else if (capped) out.reason = capped;
       else if (!p || !p.released) out.reason = "Ads are for released albums.";
       else if (!earning(p)) out.reason = "This album's earning run is over.";
       else if (activeAd(s, p.id)) out.reason = "This album already has an ad running.";

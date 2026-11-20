@@ -3,7 +3,17 @@
   const isNode = typeof module !== "undefined" && module.exports;
   // Game systems live in src/systems/<name>.js with tables in src/data/<name>.js.
   // Each is optional: a missing file is skipped. In the browser they load as script tags first.
-  const SYSTEM_NAMES = ["label", "campaign", "locations", "promotion", "company", "staff", "board", "events"];
+  const SYSTEM_NAMES = [
+    "label",
+    "campaign",
+    "locations",
+    "promotion",
+    "company",
+    "staff",
+    "roster",
+    "board",
+    "events",
+  ];
   function optionalRequire(path) {
     try {
       return require(path);
@@ -405,7 +415,12 @@
   }
   function sign(s, id, term = 3) {
     requireAction(s);
-    if (s.artists.length >= slots(s)) throw Error("Roster full. Raise your label rank to unlock more slots.");
+    if (s.artists.length >= slots(s))
+      throw Error(
+        s.company
+          ? "Roster full. The next phase opens more slots."
+          : "Roster full. Raise your label rank to unlock more slots.",
+      );
     const a = s.candidates.find((x) => x.id === Number(id));
     if (!a) throw Error("Candidate unavailable.");
     if (s.reputation < 30) throw Error("This artist needs label reputation of at least 30.");
@@ -1850,6 +1865,7 @@
       throw Error(`This lineup requires ${q.mode.minEnergy} energy for each label artist.`);
     if (s.cash < q.upfront + q.weekly)
       throw Error("Booking requires the upfront fee plus one week of tour operating cash.");
+    if (s.company) hooks.each("approveTour", s, q);
     pay(s, q.upfront);
     const t = {
       id: s.nextId++,

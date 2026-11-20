@@ -6,8 +6,7 @@
 
   /** @param {object} core engine helpers  @param {object} D data tables */
   function create(core, D) {
-    const { DEPARTMENTS, ROLE_DEPARTMENT, EXEC_POOL, EXEC_PAY, DEPT_STAFF, PHASES } =
-      D;
+    const { DEPARTMENTS, ROLE_DEPARTMENT, EXEC_POOL, EXEC_PAY, DEPT_STAFF, PHASES } = D;
     const { TEAM_ROLES, TEAM_EFFECTS, TEAM_POOL, TEAM_STYLES, CHEMISTRY, GENRES } = D;
     const { TRAITS, WANTS, WANT_MORALE, WALKOUT, GRAB, GRAB_END, CEO_INFLUENCE, RESPONSES } = D;
     const WANT_IDS = Object.keys(WANTS);
@@ -166,8 +165,14 @@
         const employee = s.employees[role];
         if (!dept || !employee) continue;
         s.company.departments[dept].head = {
-          ...defaults, id: s.company.nextExecId++, dept, name: employee.name, skill: employee.skill,
-          salary: employee.wage, hiredWeek: s.week, legacyRole: role,
+          ...defaults,
+          id: s.company.nextExecId++,
+          dept,
+          name: employee.name,
+          skill: employee.skill,
+          salary: employee.wage,
+          hiredWeek: s.week,
+          legacyRole: role,
         };
       }
       s.staff = [];
@@ -281,6 +286,11 @@
       if (m.artists.length >= TEAM_POOL.maxArtists)
         throw Error(`${m.name} already serves ${TEAM_POOL.maxArtists} artists.`);
       const current = teamMember(s, a.id, m.role);
+      if (!current) {
+        const size = s.company.team.pool.filter((x) => x.artists.includes(a.id)).length,
+          capped = core.api().tierBlocks?.(s, a, "team", size + 1);
+        if (capped) throw Error(capped);
+      }
       if (current) current.artists = current.artists.filter((id) => id !== a.id);
       m.artists.push(a.id);
       log(s, `${m.name} is now ${a.name}'s ${r.name.toLowerCase()}.`);
