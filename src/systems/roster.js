@@ -6,8 +6,8 @@
 
   /** @param {object} core engine helpers  @param {object} D data tables */
   function create(core, D) {
-    const { TIERS, TIER_SLOTS, TIER_RULES } = D;
-    const { log } = core;
+    const { TIERS, TIER_SLOTS, TIER_RULES, FACE } = D;
+    const { log, roll, clamp } = core;
     const tierById = Object.fromEntries(TIERS.map((t) => [t.id, t]));
     const ORDER = TIERS.map((t) => t.id);
 
@@ -53,6 +53,10 @@
     function move(s, a, id, why) {
       const from = tierOf(a);
       a.tier = id;
+      if (id === "superstar" && !Number.isFinite(a.ceoRelation))
+        a.ceoRelation = Math.round(
+          FACE.relation.start + ((a.persona?.loyalty ?? 50) - 50) * FACE.relation.loyaltyWeight,
+        );
       log(
         s,
         `${a.name} ${ORDER.indexOf(id) > ORDER.indexOf(from) ? "moves up" : "drops"} to ${tierById[id].name}${why ? ": " + why : ""}.`,
@@ -113,6 +117,82 @@
       return s;
     }
 
+    // ---- The face of the company (T46) ----
+    function superstars(s) {
+      return s.company ? s.artists.filter((a) => tierOf(a) === "superstar") : [];
+    }
+    function relationOf(a) {
+      return Number.isFinite(a.ceoRelation) ? a.ceoRelation : FACE.relation.start;
+    }
+    /** Moves the CEO relationship; superstars swing harder. Returns the new value. */
+    function shiftRelation(s, a, n) {
+      const swing = tierOf(a) === "superstar" ? FACE.relation.swing : 1;
+      a.ceoRelation = Math.round(clamp(relationOf(a) + n * swing, -100, 100));
+      return a.ceoRelation;
+    }
+    function face(s) {
+      if (!s.company) return null;
+      s.company.face ??= { shocks: [] };
+      return s.company.face;
+    }
+    /** News that moves company value for a while: { artist, mult, until, text }. */
+    function addShock(s, a, mult, weeks, text) {
+      face(s).shocks.push({ artist: a?.id ?? null, mult, until: s.week + weeks, text });
+    }
+    /** Company value multiplier from the superstars' standing and their recent news. */
+    function faceMultiplier(s) {
+      if (!s.company) return 1;
+      const brand = superstars(s).reduce(
+        (n, a) => n + FACE.brand * ((a.fame || 0) / 100) * (relationOf(a) >= 0 ? 1 : -0.5),
+        0,
+      );
+      const news = (face(s).shocks || [])
+        .filter((x) => x.until >= s.week)
+        .reduce((n, x) => n * (1 + x.mult), 1);
+      return Math.max(0.5, (1 + brand) * news);
+    }
+    function endorsements(s) {
+      const rate = FACE.endorse[(s.company?.phase || 1) - 1] || 0;
+      return superstars(s).reduce(
+        (n, a) => n + Math.round((a.fame || 0) * rate * (relationOf(a) >= 0 ? 1 : 0.5)),
+        0,
+      );
+    }
+    function faceWeek(s) {
+      const f = face(s);
+      f.shocks = f.shocks.filter((x) => x.until >= s.week);
+      let income = 0;
+      for (const a of superstars(s)) {
+        const target = ((a.morale ?? 75) - 60) / 2;
+        a.ceoRelation = Math.round(relationOf(a) + (target - relationOf(a)) * FACE.relation.drift);
+        if (roll(s, "face") >= FACE.shock.chance) continue;
+        const warm = (relationOf(a) + 100) / 200,
+          good = roll(s, "face") < 0.3 + 0.5 * warm,
+          S = good ? FACE.shock.good : FACE.shock.bad,
+          cash = S.cashPerPhase * s.company.phase;
+        addShock(
+          s,
+          a,
+          S.mult,
+          S.weeks,
+          good ? `${a.name} is everywhere this month` : `${a.name} is in the wrong kind of headlines`,
+        );
+        s.cash += cash;
+        if (S.relation) shiftRelation(s, a, S.relation);
+        s.notifications.push({
+          id: s.nextId++,
+          kind: good ? "tier" : "deadline",
+          title: good ? `${a.name} lifts the label` : `${a.name} drags the label down`,
+          body: good
+            ? `A sold-out night and a viral moment. Company value is up ${Math.round(S.mult * 100)}% for ${S.weeks} weeks, and $${cash.toLocaleString("en-US")} in bookings came in.`
+            : `Bad press around your superstar. Company value is down ${Math.round(-S.mult * 100)}% for ${S.weeks} weeks, and damage control cost $${(-cash).toLocaleString("en-US")}.`,
+          week: s.week,
+        });
+        income += 0;
+      }
+      return income + endorsements(s);
+    }
+
     // ---- Caps ----
     function aTier(t) {
       return (/^[aeiou]/i.test(t.name) ? "an " : "a ") + t.name.toLowerCase();
@@ -147,11 +227,24 @@
     }
     function weekly(s) {
       promote(s);
-      return 0;
+      if (!s.company) return 0;
+      const income = faceWeek(s);
+      s.cash += income;
+      return income;
     }
     function validSave(s) {
       if (!s.company) return true;
-      return s.artists.every((a) => a.tier === undefined || !!tierById[a.tier]);
+      const f = s.company.face;
+      if (
+        f !== undefined &&
+        !(f && Array.isArray(f.shocks) && f.shocks.every((x) => Number.isFinite(x.mult)))
+      )
+        return false;
+      return s.artists.every(
+        (a) =>
+          (a.tier === undefined || !!tierById[a.tier]) &&
+          (a.ceoRelation === undefined || (Number.isFinite(a.ceoRelation) && Math.abs(a.ceoRelation) <= 100)),
+      );
     }
 
     return {
@@ -175,6 +268,13 @@
         promoteTiers: promote,
         tierAfterRelease: onRelease,
         tierBlocks,
+        FACE,
+        superstars,
+        relationOf,
+        shiftRelation,
+        faceMultiplier,
+        endorsements,
+        addShock,
       },
     };
   }
