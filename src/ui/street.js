@@ -4,16 +4,41 @@
 "use strict";
 
 const BUILDING_LOOKS = {
-  apartment: { wall: "#7a5c4a", trim: "#3a2a22" },
-  storefront: { wall: "#5d4a6e", trim: "#2b2133" },
-  studio: { wall: "#3f4f6e", trim: "#1d2536" },
-  office: { wall: "#56606e", trim: "#262b33" },
-  hq: { wall: "#2b2733", trim: "#b08d3c" },
-  venue: { wall: "#6e2f45", trim: "#2e1320" },
-  media: { wall: "#2f5f63", trim: "#13292b" },
-  warehouse: { wall: "#6b6152", trim: "#2d2922" },
-  overseas: { wall: "#38465c", trim: "#b08d3c" },
+  apartment: { wall: "#7a4a3a", trim: "#2a1a14", roof: "tank" },
+  storefront: { wall: "#5a2a2e", trim: "#1c0f10", roof: "none" },
+  studio: { wall: "#2c2a30", trim: "#0b0a0a", roof: "onair" },
+  office: { wall: "#4a4f57", trim: "#16181c", roof: "antenna" },
+  hq: { wall: "#1a1414", trim: "#e3b23c", roof: "spire" },
+  venue: { wall: "#6e1a24", trim: "#2a0a0f", roof: "marquee" },
+  media: { wall: "#26393d", trim: "#0e1719", roof: "dish" },
+  warehouse: { wall: "#5b5246", trim: "#221f1a", roof: "none" },
+  overseas: { wall: "#2e3442", trim: "#e3b23c", roof: "flags" },
 };
+/**
+ * How built-up a building looks: the sum of its floor levels, up to 10. Grades 1–3 have a
+ * painted sign, 4–6 a neon sign and lit windows, 7–10 gold trim, marquee bulbs and a rooftop billboard.
+ */
+function buildingGrade(owned) {
+  return Math.max(
+    1,
+    Math.min(
+      10,
+      owned.floors.reduce((n, f) => n + (f.level || 1), 0),
+    ),
+  );
+}
+function gradeBand(grade) {
+  return grade >= 7 ? "gold" : grade >= 4 ? "neon" : "plain";
+}
+/** Rooftop details by building type, and the billboard on the grandest buildings. */
+function roofArt(def, look, band) {
+  const prop = look.roof === "none" ? "" : `<i class="roof-prop roof-${look.roof}" aria-hidden="true"></i>`,
+    board =
+      band === "gold"
+        ? `<span class="roof-billboard" aria-hidden="true"><i class="emblem"></i>${esc(G.labelName(state))}</span>`
+        : "";
+  return prop || board ? `<div class="roof-art">${prop}${board}</div>` : "";
+}
 
 /** Where everyone stands: { "<building>:<floor>": [person] } plus the people with no floor. */
 function streetCast() {
@@ -90,12 +115,14 @@ function streetBuilding(def) {
       .reverse()
       .join(""),
     room = owned.floors.length < def.maxFloors;
+  const grade = buildingGrade(owned),
+    band = gradeBand(grade);
   const first = state.company.buildings[0]?.id === def.id,
     hits = first ? Math.min(6, state.albums.filter((p) => p.released && (p.quality || 0) >= 75).length) : 0,
     records = hits
       ? `<span class="gold-records" aria-label="${hits} hit album${hits === 1 ? "" : "s"}">${"<i></i>".repeat(hits)}</span>`
       : "";
-  return `<section class="street-building" id="bldg-${def.id}" style="${style}"><button class="building-sign" data-tab="building:${def.id}">${esc(def.name)}<small>${owned.floors.length}/${def.maxFloors} floors</small>${records}</button>${room ? `<button class="floor-add" data-tab="buildfloor:${def.id}" aria-label="Build a floor on the ${esc(def.name)}">+ Floor</button>` : ""}${floors}<div class="building-door" aria-hidden="true"></div></section>`;
+  return `<section class="street-building bldg-${def.id} band-${band}" id="bldg-${def.id}" data-grade="${grade}" style="${style}">${roofArt(def, look, band)}<button class="building-sign" data-tab="building:${def.id}">${esc(def.name)}<small>${owned.floors.length}/${def.maxFloors} floors · grade ${grade}</small>${records}</button>${room ? `<button class="floor-add" data-tab="buildfloor:${def.id}" aria-label="Build a floor on the ${esc(def.name)}">+ Floor</button>` : ""}${floors}<div class="building-door door-${def.id}" aria-hidden="true"></div></section>`;
 }
 
 /** The buildings in street order: everything owned, then the next one for sale, then one locked plot. */
@@ -107,8 +134,21 @@ function streetLineup() {
   return [...owned, ...forSale, ...locked];
 }
 
+/** Street furniture between buildings: palms, a lowrider out front, chain-link by empty plots. */
+function streetProp(def, i, lineup) {
+  const owned = state.company.buildings.some((b) => b.id === def.id),
+    next = lineup[i + 1];
+  if (!next) return '<i class="street-prop palm tall" aria-hidden="true"></i>';
+  if (i === 0) return '<i class="street-prop lowrider" aria-hidden="true"></i>';
+  if (!state.company.buildings.some((b) => b.id === next.id))
+    return '<i class="street-prop fence" aria-hidden="true"></i>';
+  return `<i class="street-prop palm ${owned && i % 2 ? "tall" : ""}" aria-hidden="true"></i>`;
+}
 function streetHtml() {
-  return `<div class="street-row">${streetLineup().map(streetBuilding).join("")}</div>`;
+  const lineup = streetLineup();
+  return `<div class="street-row"><i class="street-prop palm tall" aria-hidden="true"></i>${lineup
+    .map((d, i) => streetBuilding(d) + streetProp(d, i, lineup))
+    .join("")}</div>`;
 }
 function streetMinimap() {
   return `<div class="street-map"><select aria-label="Jump to a building" id="streetJump"><option value="">Jump to a building</option>${streetLineup()
@@ -294,6 +334,8 @@ GoatUI.change.push(({ target }) => {
 });
 
 const GoatStreet = {
+  grade: buildingGrade,
+  band: gradeBand,
   html: streetHtml,
   minimap: streetMinimap,
   input: streetInput,
