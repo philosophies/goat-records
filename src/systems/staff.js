@@ -6,7 +6,7 @@
 
   /** @param {object} core engine helpers  @param {object} D data tables */
   function create(core, D) {
-    const { DEPARTMENTS, ROLE_DEPARTMENT, EXEC_POOL, EXEC_PAY, DEPT_STAFF, EXEC_FIRST, EXEC_LAST, PHASES } =
+    const { DEPARTMENTS, ROLE_DEPARTMENT, EXEC_POOL, EXEC_PAY, DEPT_STAFF, PHASES } =
       D;
     const { TEAM_ROLES, TEAM_EFFECTS, TEAM_POOL, TEAM_STYLES, CHEMISTRY, GENRES } = D;
     const { TRAITS, WANTS, WANT_MORALE, WALKOUT, GRAB, GRAB_END, CEO_INFLUENCE, RESPONSES } = D;
@@ -51,7 +51,7 @@
         skill = between(s, EXEC_POOL.skill[reach]);
       return {
         id: s.company.nextExecId++,
-        name: `${EXEC_FIRST[Math.floor(roll(s, "staff") * EXEC_FIRST.length)]} ${EXEC_LAST[Math.floor(roll(s, "staff") * EXEC_LAST.length)]}`,
+        name: core.uniqueName(s, roll(s, "staff")),
         dept: deptId,
         skill,
         salary: salaryFor(skill),
@@ -195,7 +195,7 @@
         second = roll(s, "team") < 0.5 ? pick(GENRES.filter((g) => g !== first)) : null;
       return {
         id: s.company.team.nextId++,
-        name: `${pick(EXEC_FIRST)} ${pick(EXEC_LAST)}`,
+        name: core.uniqueName(s, roll(s, "team")),
         role: roleId,
         skill,
         salary: TEAM_POOL.salary + skill * TEAM_POOL.perSkill,

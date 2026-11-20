@@ -223,42 +223,6 @@
     counter: { name: "Counter", costPerPhase: 2000, perContact: 5 },
   };
 
-  const EXEC_FIRST = [
-    "Avery",
-    "Marcus",
-    "Dana",
-    "Tiana",
-    "Andre",
-    "Simone",
-    "Victor",
-    "Kendra",
-    "Malik",
-    "Renee",
-    "Jordan",
-    "Celeste",
-    "Darius",
-    "Imani",
-    "Felix",
-    "Noelle",
-  ];
-  const EXEC_LAST = [
-    "Holloway",
-    "Price",
-    "Okafor",
-    "Vance",
-    "Sterling",
-    "Brooks",
-    "Delgado",
-    "Whitfield",
-    "Carver",
-    "Monroe",
-    "Ashby",
-    "Rowe",
-    "Banks",
-    "Calloway",
-    "Reyes",
-    "Thorne",
-  ];
 
   const data = {
     DEPARTMENTS,
@@ -279,8 +243,6 @@
     EXEC_POOL,
     EXEC_PAY,
     DEPT_STAFF,
-    EXEC_FIRST,
-    EXEC_LAST,
   };
   root.GoatData = Object.assign(root.GoatData || {}, data);
   if (typeof module !== "undefined" && module.exports) module.exports = data;

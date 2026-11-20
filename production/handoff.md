@@ -28,7 +28,6 @@ Task: v2.0.0 released
 ## Open items
 
 - Two rank systems show at once in CEO runs: the company phase (Home studio … Global label) and the classic label rank and yearly goal (Bedroom Label, "Y1 goal"). The classic rank still sets roster slots and room tiers, so removing it needs a design pass.
-- Artist names carry a number ("Sage Rivers 2"). This has been true since 1.0 and keeps names unique.
 - The top bar takes about a third of the screen at phone width.
 - Balance: in the twelve-seed sample, three careful runs folded and five of twelve reckless runs were fired ([CEO-BALANCE.json](../CEO-BALANCE.json)).
 - Android: the wrapper and a test on a real device ([Android guide](../docs/android.md)).

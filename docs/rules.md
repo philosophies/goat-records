@@ -51,6 +51,8 @@ Releasing a combo levels it up, to a maximum of level 5. Each level above 1 adds
 
 The label is called Goat Records until you rename it in the office. A rename costs 15 fame while fans catch up; the new name shows on the roof sign, the charts, award results and the news.
 
+No two people at the label share a name: artists, prospects, staff, executives, team members and directors each have their own.
+
 ## Classic headquarters
 
 Facilities are built on a tile lot that grows with rank. One of each facility can be built, and each can be upgraded to level 3; an upgrade costs the build price × the current level. Upkeep is paid weekly per level. Moving a facility costs $500, and moving onto a built tile swaps the two. Closing a facility refunds nothing.

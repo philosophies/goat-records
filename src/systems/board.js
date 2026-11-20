@@ -19,8 +19,6 @@
       VALUATION,
       FUNDING,
       PHASES,
-      EXEC_FIRST,
-      EXEC_LAST,
     } = D;
     const { clamp } = core;
     const { log, requireAction, roll } = core;
@@ -105,12 +103,11 @@
         prefs = BACKERS[kind === "ipo" ? "venture" : kind],
         open = prefs.filter((t) => !used.has(t)),
         pool = open.length ? open : prefs,
-        type = pool[Math.floor(roll(s, "board") * pool.length)],
-        pick = (list) => list[Math.floor(roll(s, "board") * list.length)];
+        type = pool[Math.floor(roll(s, "board") * pool.length)];
       return {
         id: b.nextId++,
         type,
-        name: `${pick(EXEC_FIRST)} ${pick(EXEC_LAST)}`,
+        name: core.uniqueName(s, roll(s, "board")),
         patience: directorById[type].patience,
         relationship: 0,
         satisfaction: 50,
@@ -584,10 +581,9 @@
         b = board(s);
       if (!f || (f.types && !f.types.includes(d.type))) throw Error(`${d.name} is not asking for that.`);
       if (kind === "candidate") {
-        const reach = PHASES[phase(s) - 1].reach,
-          pick = (list) => list[Math.floor(roll(s, "board") * list.length)];
+        const reach = PHASES[phase(s) - 1].reach;
         core.api().appointHead(s, target, {
-          name: `${pick(EXEC_FIRST)} ${pick(EXEC_LAST)}`,
+          name: core.uniqueName(s, roll(s, "board")),
           skill: D.EXEC_POOL.skill[reach][0],
           loyalty: 30,
           favorOf: d.id,
