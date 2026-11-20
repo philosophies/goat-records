@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.0.0
+The CEO update. New labels now start in CEO mode: you run the company from a broke home studio that can only find local artists to a global label that can go public. The company grows through six phases with goals for fame, revenue, releases and hits, and builds up in separate buildings along a side-scrolling street instead of one lot. A phone holds the Inbox, Calendar, Contacts, Wallet and Settings. The label can be named and renamed.
+
+Departments (A&R, Marketing, Promotion, Live, Business Affairs, Finance, Creative) each need a head, and heads with ambition and influence may try a power grab: gossip first, then a co-CEO or, at worst, your chair. Each artist has a team (manager, producer, A&R rep, publicist, stylist, tour manager, business manager) whose chemistry changes records, fame and tours, plus traits and a main want that drive morale and walk-outs.
+
+A bank loan brings no board. An angel or venture round brings directors with their own agendas, a yearly review that sets your budget, perks and creative freedom, and the chance of a no-confidence vote. Being fired ends the run. Directors can be lobbied with meetings, promises and favors. Opportunities, crises and office politics arrive in the Inbox with deadlines. Revenue streams open by phase; the company has a value and shares, can list through an IPO with analyst targets, and can buy catalogs and smaller labels. CEO runs end with their own grade and New Game+ bonuses.
+
+Classic mode is still offered and plays as 1.1. Classic saves can keep their rules or convert to CEO mode, with a backup of the original. The game can be installed as a web app and plays offline.
+
 ## v1.1.0
 The menu bar is gone. Everything opens from a person or place on the lot. Tap an artist for their stats, contract, gigs, hot streak, albums, a new album and tour booking. Tap a staff member for their role and replacements. The lobby has a front desk for scouting and hiring and a trophy case for the awards; a new office holds campaign goals, finances and the discography; each recording room starts an album there; a + slot builds the next room; the roof sign shows rank, headquarters, pairings and the combo notebook. On the street, the billboard shows the charts and promotion, the newsstand the industry wire, and the tour bus the tours. Every recording location stands along the street, with its level and rent, and can start an album there. A roster in the side panel lists everyone, including artists on tour. The goal and "on fire" chips in the top bar open the office and the billboard.
 
