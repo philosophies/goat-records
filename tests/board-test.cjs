@@ -28,8 +28,8 @@ test("A new CEO run owns all of itself, owes nothing and has no board", () => {
   assert.equal(s.company.loan, null);
   assert.equal(G.board(s), null);
   assert.equal(G.seats(s), 0);
-  assert.equal(G.create(41).company, undefined, "classic runs have no funding");
-  assert.deepEqual(G.fundingOffers(G.create(41)), []);
+  assert.equal(G.create(41, { ceo: false }).company, undefined, "classic runs have no funding");
+  assert.deepEqual(G.fundingOffers(G.create(41, { ceo: false })), []);
 });
 
 test("Offers open by phase: a loan always, an angel in phase 2, venture rounds in phases 3–5", () => {
@@ -581,9 +581,11 @@ test("Spending under the budget is tracked and costs nothing", () => {
   assert.equal(s.company.board.budgetLeft, 10000 - DRIVE);
   assert.equal(G.overspendPoints(s), 0);
   const cash = s.cash;
+  const operatingIncome = Object.values(G.companyRevenue(s)).reduce((sum, amount) => sum + amount, 0);
+  const weeklyCosts = G.upkeep(s);
   settle(s);
   assert.equal(s.company.board.spent, DRIVE, "weekly costs are not budget spending");
-  assert.ok(s.cash < cash);
+  assert.equal(s.cash, cash - weeklyCosts + operatingIncome);
 });
 
 test("Spending exactly to the budget needs no approval and costs no confidence", () => {

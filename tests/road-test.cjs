@@ -33,7 +33,7 @@ function step(s) {
   G.advance(s);
 }
 function ready(seed = 18, addOns = []) {
-  const s = G.create(seed);
+  const s = G.create(seed, { ceo: false });
   s.cash = 500000;
   s.fame = 200;
   s.rank = 4;
@@ -73,7 +73,7 @@ test("Six rooms progress monotonically in equipment, crew, build cost and upkeep
   assert.equal(G.BOOTHS.length, 6);
   for (let i = 1; i < 6; i++)
     for (const k of ["equipment", "team", "cost", "upkeep"]) assert.ok(G.BOOTHS[i][k] > G.BOOTHS[i - 1][k]);
-  const s = G.create(2);
+  const s = G.create(2, { ceo: false });
   s.cash = 100000;
   assert.throws(() => G.build(s, 5), /label rank/);
   s.fame = 200;
@@ -108,7 +108,7 @@ test("Every add-on adds exactly one elapsed production week across all package c
   }
 });
 test("A Star Producer is paid once for this album and does not boost later projects for free", () => {
-  const s = G.create(3);
+  const s = G.create(3, { ceo: false });
   s.cash = 100000;
   G.sign(s, s.candidates[0].id);
   const a = s.artists[0];
@@ -126,7 +126,7 @@ test("A Star Producer is paid once for this album and does not boost later proje
   assert.deepEqual(copy.albums[0].addOns, []);
 });
 test("Invalid or duplicate add-ons do not charge or mutate a plan", () => {
-  const s = G.create(3);
+  const s = G.create(3, { ceo: false });
   G.sign(s, s.candidates[0].id);
   const a = s.artists[0],
     before = JSON.stringify(s);

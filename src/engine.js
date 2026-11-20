@@ -3,7 +3,7 @@
   const isNode = typeof module !== "undefined" && module.exports;
   // Game systems live in src/systems/<name>.js with tables in src/data/<name>.js.
   // Each is optional: a missing file is skipped. In the browser they load as script tags first.
-  const SYSTEM_NAMES = ["label", "campaign", "locations", "promotion", "company", "staff", "board"];
+  const SYSTEM_NAMES = ["label", "campaign", "locations", "promotion", "company", "staff", "board", "events"];
   function optionalRequire(path) {
     try {
       return require(path);
@@ -247,6 +247,7 @@
   const core = { clamp, log, pay, requireAction, busy, artist, roll, operatingYear, api: () => api };
   const SYS = SYSTEM_NAMES.filter((n) => factories[n]).map((n) => ({ name: n, ...factories[n](core, D) }));
   const L = SYS.find((x) => x.name === "label");
+  const E = SYS.find((x) => x.name === "events");
   // Hook helpers: every system may implement any hook; missing hooks are skipped.
   const hooks = {
     each: (name, ...args) => {
@@ -331,8 +332,9 @@
     };
     scout(s);
     if (options.legacy) s.legacy = options.legacy;
-    // A CEO run (2.0) is opt-in until the cutover; the company system sets it up in its init hook.
-    if (options.ceo) s.ceoMode = true;
+    // The company system sets up new CEO runs. Classic mode is an explicit choice.
+    if (options.ceo === false) s.classicMode = true;
+    else s.ceoMode = true;
     if (options.labelName) api.renameLabel(s, options.labelName, true);
     initializeManagement(s);
     log(
@@ -752,21 +754,32 @@
       throw Error(
         o.extension ? "Not enough cash or the 18-week extension limit was reached." : "Not enough cash.",
       );
-    if (o.cost) pay(s, o.cost);
-    const a = s.artists.find((a) => a.id === e.artist);
-    apply(s, a, o, true);
-    if (s.company) hooks.each("eventChoice", s, e, o);
-    if (e.type === "ceo") applyCEOChoice(s, e, o);
-    if (o.rosterMorale) for (const a of s.artists) a.morale = clamp(a.morale + o.rosterMorale);
-    if (e.type === "tourDay") applyDailyTourChoice(s, e, o);
-    else if (e.type === "tour") applyTourChoice(s, e, o);
-    if (e.album) {
-      const p = s.albums.find((p) => p.id === e.album);
-      if (o.extension) p.salesWeeks = Math.min(18, p.salesWeeks + o.extension);
-      if (o.mult) p.boosts.push({ start: s.week + 1, until: s.week + (o.boostWeeks || 3), mult: o.mult });
+    if (e.type === "companyEvent") {
+      try {
+        E.resolve(s, e, o);
+      } catch (error) {
+        // An over-budget choice opens an approval request. Return to the original decision afterward.
+        if (s.event?.type !== "approval") throw error;
+        s.eventQueue.unshift(e);
+        return;
+      }
+    } else {
+      if (o.cost) pay(s, o.cost);
+      const a = s.artists.find((a) => a.id === e.artist);
+      apply(s, a, o, true);
+      if (s.company) hooks.each("eventChoice", s, e, o);
+      if (e.type === "ceo") applyCEOChoice(s, e, o);
+      if (o.rosterMorale) for (const a of s.artists) a.morale = clamp(a.morale + o.rosterMorale);
+      if (e.type === "tourDay") applyDailyTourChoice(s, e, o);
+      else if (e.type === "tour") applyTourChoice(s, e, o);
+      if (e.album) {
+        const p = s.albums.find((p) => p.id === e.album);
+        if (o.extension) p.salesWeeks = Math.min(18, p.salesWeeks + o.extension);
+        if (o.mult) p.boosts.push({ start: s.week + 1, until: s.week + (o.boostWeeks || 3), mult: o.mult });
+      }
+      if (o.delay) s.effects.push({ ...o.delay, week: s.week + o.delay.after, artist: e.artist });
+      log(s, `${e.title}: ${o.label}.`);
     }
-    if (o.delay) s.effects.push({ ...o.delay, week: s.week + o.delay.after, artist: e.artist });
-    log(s, `${e.title}: ${o.label}.`);
     s.event = s.eventQueue.shift() || null;
     if (!s.event && s.pendingTourWeek) {
       s.pendingTourWeek = false;
@@ -780,8 +793,10 @@
     if (productionBlock(s))
       throw Error("Complete the ready album decision or release review before advancing.");
     const opening = s.cash,
+      companyCosts = api.companyCosts?.(s),
       weeklyOverhead = upkeep(s);
     s.week++;
+    E?.expire(s);
     s.tourDayInWeek = 0;
     s.cash -= weeklyOverhead;
     for (let a of s.artists) {
@@ -856,9 +871,26 @@
         s,
         "Annual awards entries close at the end of this operating year. Submit one eligible album per genre.",
       );
-    const income = Object.fromEntries(SYS.map((x) => [x.name, x.weekly?.(s) || 0])),
+    const companyRevenue = s.company ? api.companyRevenue?.(s) : null;
+    const income = Object.fromEntries(SYS.map((x) =>
+      [x.name, x.weekly?.(s, x.name === "company" ? companyRevenue : undefined) || 0])),
       hqIncome = income.label || 0,
       otherIncome = Object.values(income).reduce((n, v) => n + v, 0) - hqIncome;
+    s.financeHistory.push({
+      week: s.week,
+      openingCash: opening,
+      overhead: weeklyOverhead,
+      closingCash: s.cash,
+      cashChange: s.cash - opening,
+      hqIncome,
+      otherIncome,
+      ...(companyRevenue ? { companyRevenue, companyCosts } : {}),
+      albumIncome: s.albums
+        .filter((p) => p.lastSalesWeek === s.week)
+        .reduce((n, p) => n + (p.lastNetIncome || 0), 0),
+    });
+    s.financeHistory = s.financeHistory.slice(-52);
+    if (s.company) hooks.each("afterSettlement", s);
     if (s.week % 4 === 0) {
       s.trend = GENRES[Math.floor(rng(s) * 6)];
       log(s, `Market update: ${s.trend} is trending. New rival releases have entered the chart.`);
@@ -866,11 +898,11 @@
     if (s.cash >= 0) s.debtWeeks = 0;
     else s.debtWeeks = (s.debtWeeks || 0) + 1;
     const graceWeeks = D.DEBT?.graceWeeks ?? 0;
-    if (s.cash < 0 && s.debtWeeks > graceWeeks) {
+    if (!s.finished && s.cash < 0 && s.debtWeeks > graceWeeks) {
       s.finished = true;
       s.bankrupt = true;
       s.outcome = "The label ran out of cash. Try fewer salaries or smaller recording budgets.";
-    } else {
+    } else if (!s.finished) {
       if (s.cash < 0) {
         const left = graceWeeks - s.debtWeeks + 1;
         if (s.debtWeeks === 1)
@@ -886,26 +918,14 @@
           `Cash is below $0. ${left} week${left === 1 ? "" : "s"} left to recover before the label folds.`,
         );
       }
-      if (s.week % 4 === 0) {
+      if (s.company && E) E.queue(s);
+      else if (s.week % 4 === 0) {
         const e = makeEvent(s);
         if (e) s.eventQueue.push(e);
       }
       s.event = s.eventQueue.shift() || null;
       finalizeRun(s);
     }
-    s.financeHistory.push({
-      week: s.week,
-      openingCash: opening,
-      overhead: weeklyOverhead,
-      closingCash: s.cash,
-      cashChange: s.cash - opening,
-      hqIncome,
-      otherIncome,
-      albumIncome: s.albums
-        .filter((p) => p.lastSalesWeek === s.week)
-        .reduce((n, p) => n + (p.lastNetIncome || 0), 0),
-    });
-    s.financeHistory = s.financeHistory.slice(-52);
     return s;
   }
   function staffSkill(s, role) {
@@ -1070,6 +1090,7 @@
     initializeRoad(s);
     initializeIndustry(s);
     hooks.each("init", s);
+    hooks.each("afterInit", s);
     return s;
   }
   function paidScout(s, index) {
@@ -1517,6 +1538,7 @@
     }
   }
   function eventOptionAvailable(s, o, e = s.event) {
+    if (e?.type === "companyEvent") return E.available(s, o, e);
     const p = e?.album ? s.albums.find((p) => p.id === e.album) : null;
     return (!o.cost || s.cash >= o.cost) && (!o.extension || (p && p.salesWeeks < 18));
   }
@@ -2065,7 +2087,7 @@
   // Labels no longer stop after year one; loading an older save resumes it (campaign system).
   // These remain for labels still marked finished at the old year-one checkpoint.
   function canContinueCareer(s) {
-    return s.finished && s.cash >= 0 && s.week >= 53 && !api.campaignOver?.(s);
+    return !s.company && s.finished && s.cash >= 0 && s.week >= 53 && !api.campaignOver?.(s);
   }
   function continueCareer(s) {
     if (!canContinueCareer(s)) throw Error("Complete the first year with cash remaining to continue.");

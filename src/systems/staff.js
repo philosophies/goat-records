@@ -155,7 +155,22 @@
     /** Skill a CEO run's department head lends to a 1.x role effect; 0 without a head. */
     function headSkill(s, role) {
       const id = ROLE_DEPARTMENT[role];
-      return (id && s.company?.departments?.[id]?.head?.skill) || 0;
+      const departments = s.company?.departments;
+      if (!departments) return 0;
+      const inherited = Object.values(departments).find(({ head }) => head?.legacyRole === role)?.head;
+      return inherited?.skill || departments[id]?.head?.skill || 0;
+    }
+    function convertClassicStaff(s, assignments, defaults) {
+      for (const role of s.staff) {
+        const dept = assignments[role];
+        const employee = s.employees[role];
+        if (!dept || !employee) continue;
+        s.company.departments[dept].head = {
+          ...defaults, id: s.company.nextExecId++, dept, name: employee.name, skill: employee.skill,
+          salary: employee.wage, hiredWeek: s.week, legacyRole: role,
+        };
+      }
+      s.staff = [];
     }
     // ---- Artist teams (design 3.5) ----
     function teamRole(id) {
@@ -734,6 +749,7 @@
         EXEC_PAY,
         DEPT_STAFF,
         ROLE_DEPARTMENT,
+        convertClassicStaff,
         TEAM_ROLES,
         TEAM_POOL,
         CHEMISTRY,

@@ -274,7 +274,7 @@ Done when: tests cover each ending; the UI shows the outcome card.
 
 ## M7 Opportunities and crises
 
-### [ ] T26 · Event framework 2.0
+### [x] T26 · Event framework 2.0
 
 Depends on: T01
 Files: `src/data/events.js` (new), `src/systems/events.js` (new), `src/engine.js`, `index.html`, `tests/events-test.cjs` (new)
@@ -285,21 +285,21 @@ Do:
 - In CEO runs it feeds the existing event queue; 1.1 events stay for 1.1 runs.
   Done when: tests cover the condition checks, the deadline expiry (worst choice applied), every effect type and determinism for a seed.
 
-### [ ] T27 · Opportunities pack
+### [x] T27 · Opportunities pack
 
 Depends on: T26, T16
 Files: `src/data/events.js`, `tests/events-test.cjs`
 Do: at least 14 opportunities across phases (sync licensing, brand deals, festival slots, viral moments, catalog buys, distribution deals, a streaming exclusive, a remix contest, a documentary, a feature request from a star). Each choice has a tested effect.
 Done when: every event fires in a test that sets up its conditions, and every choice is checked.
 
-### [ ] T28 · Crises pack
+### [x] T28 · Crises pack
 
 Depends on: T26
 Files: `src/data/events.js`, `tests/events-test.cjs`
 Do: at least 16 crises (leak, arrest, lawsuit, sample clearance, poaching, payout cut, studio damage, artist walk-out, tax audit, bad review storm, tour cancellation, a manager stealing, a rival diss track, a contract dispute, burnout, a market slump).
 Done when: as T27.
 
-### [ ] T29 · Politics pack
+### [x] T29 · Politics pack
 
 Depends on: T26, T22
 Files: `src/data/events.js`, `tests/events-test.cjs`
@@ -308,7 +308,7 @@ Done when: as T27.
 
 ## M8 Money and the IPO
 
-### [ ] T30 · Revenue streams by phase
+### [x] T30 · Revenue streams by phase
 
 Depends on: T02, T26
 Files: `src/data/company.js`, `src/systems/company.js`, `tests/company-test.cjs`
@@ -318,14 +318,14 @@ Do:
 - Each shows in the weekly finance history. Add bigger costs that grow with phase (rent, insurance, interest).
   Done when: tests cover each stream's unlock and the finance history lines.
 
-### [ ] T31 · Company value and shares
+### [x] T31 · Company value and shares
 
 Depends on: T30, T18
 Files: `src/systems/company.js`, `tests/company-test.cjs`
 Do: company value and share price from design 4; `s.company.shares` (total, yours, investors). Show them in the Wallet.
 Done when: tests check the formula on fixed inputs and that rounds dilute correctly.
 
-### [ ] T32 · The IPO and analysts
+### [x] T32 · The IPO and analysts
 
 Depends on: T31, T20
 Files: `src/systems/company.js`, `src/systems/board.js`, `src/ui/company.js`, `tests/company-test.cjs`
@@ -335,7 +335,7 @@ Do:
 - Half-yearly analyst targets; beating or missing them moves the share price and confidence. Reviews become twice-yearly. An IPO scene (bell ringing) on the street.
   Done when: tests cover the requirements, the price, the targets and the review cadence.
 
-### [ ] T33 · Acquisitions
+### [x] T33 · Acquisitions
 
 Depends on: T31
 Files: `src/systems/company.js`, `src/data/company.js`, `tests/company-test.cjs`
@@ -344,35 +344,35 @@ Done when: tests cover a cash purchase, a debt purchase and a board veto.
 
 ## M9 Finish
 
-### [ ] T34 · Run ending and grade
+### [x] T34 · Run ending and grade
 
 Depends on: T32, T25
 Files: `src/systems/campaign.js`, `src/data/campaign.js`, `tests/campaign-test.cjs`
 Do: CEO runs score company value, ownership share, hits, awards, artists developed and kept-the-chair (design 3.11). "Fired" and "Folded" endings each have their own final review text. Being fired is game over: the final review, then a new label, with legacy points as after any ended run. Legacy points and New Game+ work for CEO runs.
 Done when: tests cover each ending's score and New Game+ carry-over.
 
-### [ ] T35 · CEO balance sample
+### [x] T35 · CEO balance sample
 
 Depends on: T34, T27, T28, T29
 Files: `tests/ceo-balance.cjs` (new), `CEO-BALANCE.json` (generated)
 Do: script three policies (careful, average, reckless) through 20-year CEO runs, 12 seeds each. Record phase reached by year, fired, folded, IPO year, final grade. Tune data until careful rarely gets fired, reckless often does, and strong play can go public by year 12.
 Done when: the JSON is committed and the numbers are listed in `VALIDATION.md` under "Unreleased".
 
-### [ ] T36 · 1.x saves convert to CEO runs
+### [x] T36 · 1.x saves convert to CEO runs
 
 Depends on: T06, T13, T20
 Files: `src/systems/company.js`, `src/systems/staff.js`, `src/systems/board.js`, `tests/migration-2-test.cjs` (new)
 Do: the Migration section of the design: rank → phase, facilities → floors, 1.x staff → department heads, the board at confidence 60. Offer it on load as a choice: "Continue in classic mode" or "Convert to CEO mode". Keep the original as a backup.
 Done when: tests convert saves from 0.9, 1.0 and 1.1 fixtures and play 10 weeks without errors.
 
-### [ ] T37 · Cutover: CEO mode by default
+### [x] T37 · Cutover: CEO mode by default
 
 Depends on: T35, T36, T17, T23, T11
 Files: `src/engine.js`, `src/app.js`, all affected tests, `README.md`, `docs/rules.md`
 Do: new runs default to CEO mode (classic stays available from the New label dialog). Update tests that assumed 1.1 defaults. Rewrite README and rules for 2.0.
 Done when: all checks pass and a full browser play-test (desktop and phone) is noted in `VALIDATION.md` under "Unreleased". Do not add a version heading; the owner releases 2.0.
 
-### [ ] T38 · Installable now, Play Store ready later
+### [x] T38 · Installable now, Play Store ready later
 
 Depends on: T07
 Files: `manifest.webmanifest` (new), `sw.js` (new), `icons/` (new), `index.html`, `src/app.js`, `docs/android.md` (new)

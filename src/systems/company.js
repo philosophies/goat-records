@@ -6,7 +6,10 @@
 
   /** @param {object} core engine helpers  @param {object} D data tables */
   function create(core, D) {
-    const { PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING, RENAME, LABEL_NAME, BUILDINGS } = D;
+    const {
+      PHASES, REACHES, PHASE_GOALS, HIT_QUALITY, REACH_SCOUTING, RENAME, LABEL_NAME, BUILDINGS,
+      COMPANY_REVENUE, COMPANY_COSTS, COMPANY_VALUE, FUNDING, VALUATION, IPO, ACQUISITIONS, CEO_MIGRATION,
+    } = D;
     const { BOOTHS, FACILITIES, HQ } = D;
     const buildingById = Object.fromEntries(BUILDINGS.map((b) => [b.id, b])),
       facilityById = Object.fromEntries(FACILITIES.map((f) => [f.id, f]));
@@ -14,7 +17,11 @@
     const isCount = (n) => Number.isInteger(n) && n >= 0;
 
     function init(s) {
-      if (!s.ceoMode || s.company) return s;
+      if (s.company) {
+        if (s.company.shares === undefined) syncShares(s);
+        return s;
+      }
+      if (!s.ceoMode) return s;
       s.company = {
         phase: 1,
         since: s.week,
@@ -22,6 +29,7 @@
         // The bedroom booth (recording room 0) is the apartment's first floor.
         buildings: [{ id: "apartment", floors: [{ type: "room", room: 0, level: 1 }] }],
       };
+      syncShares(s);
       s.cash = PHASES[0].startCash;
       // The first prospects were drawn before the company existed: hold them to the local scene too.
       const lim = scoutLimits(s);
@@ -33,6 +41,40 @@
         a.fee = q.fee;
         a.wage = q.wage;
       }
+      return s;
+    }
+    function convertedBuildings(s, phase) {
+      const buildings = new Map();
+      const floors = [
+        ...s.booths.map(({ id }) => ({ type: "room", room: id, level: 1 })),
+        ...s.hq.facilities.map(({ id, level }) => ({ type: id, level })),
+      ];
+      for (const floor of floors) {
+        const compatible = BUILDINGS.filter(({ id, floors, maxFloors }) =>
+          floors.includes(floor.type) && (buildings.get(id)?.floors.length || 0) < maxFloors);
+        const target = compatible.find((b) => b.phase <= phase && buildings.has(b.id)) ||
+          compatible.find((b) => b.phase <= phase) || compatible[0];
+        if (!target) throw Error("A classic room could not be mapped to a building.");
+        if (!buildings.has(target.id)) buildings.set(target.id, { id: target.id, floors: [] });
+        buildings.get(target.id).floors.push(floor);
+      }
+      return [...buildings.values()];
+    }
+    function convertClassicSave(source) {
+      if (source.company || source.ceoMode) throw Error("This save is already a CEO run.");
+      const game = core.api();
+      const s = game.migrate(JSON.parse(JSON.stringify(source)));
+      const phase = CEO_MIGRATION.phaseByRank[game.rank(s) - 1];
+      s.ceoMode = true;
+      delete s.classicMode;
+      s.company = {
+        phase, since: s.week, history: [{ phase, week: s.week }],
+        buildings: convertedBuildings(s, phase),
+      };
+      game.migrate(s);
+      game.convertClassicStaff(s, CEO_MIGRATION.departments, CEO_MIGRATION.executive);
+      if (PHASES[phase - 1].boardSeats) game.startConvertedBoard(s, CEO_MIGRATION.boardConfidence);
+      log(s, `The label moved to CEO mode in phase ${phase}.`);
       return s;
     }
     /** The label's own name: the player's choice, or the default. Works in every run. */
@@ -55,7 +97,10 @@
       core.requireAction(s);
       const clean = cleanName(name),
         old = labelName(s);
-      if (clean === old) throw Error(`The label is already called ${old}.`);
+      if (clean === old) {
+        if (free) return clean;
+        throw Error(`The label is already called ${old}.`);
+      }
       const cost = free ? 0 : Math.min(RENAME.fame, s.fame);
       s.fame -= cost;
       s.labelName = clean;
@@ -79,6 +124,29 @@
       if (!Number.isInteger(c.phase) || c.phase < 1 || c.phase > PHASES.length) return false;
       if (!isCount(c.since) || !Array.isArray(c.history)) return false;
       if (!c.history.every((h) => h && Number.isInteger(h.phase) && isCount(h.week))) return false;
+      if (c.shares !== undefined) {
+        const shares = c.shares;
+        if (!shares || shares.total !== COMPANY_VALUE.shares || !isCount(shares.yours) ||
+          !isCount(shares.investors) || shares.yours + shares.investors !== shares.total ||
+          shares.yours !== Math.round((c.ownership ?? 1) * shares.total)) return false;
+      }
+      if (c.marketMood !== undefined &&
+        (!Number.isFinite(c.marketMood) || c.marketMood < COMPANY_VALUE.moodRange[0] ||
+          c.marketMood > COMPANY_VALUE.moodRange[1])) return false;
+      if (c.annualProfit !== undefined && (!Array.isArray(c.annualProfit) ||
+        c.annualProfit.length > IPO.profitYears ||
+        !c.annualProfit.every((row) => row && isCount(row.year) && Number.isFinite(row.profit)))) return false;
+      if (c.offering !== undefined && (!c.public || !c.offering || !isCount(c.offering.week) ||
+        !isCount(c.offering.proceeds) || !Number.isFinite(c.offering.price) ||
+        typeof c.offering.scene !== "boolean")) return false;
+      if (c.analyst !== undefined && (!c.public || !c.analyst || !isCount(c.analyst.dueWeek) ||
+        !isCount(c.analyst.revenue) ||
+        (c.analyst.last !== null && (!c.analyst.last || !isCount(c.analyst.last.revenue) ||
+          !isCount(c.analyst.last.target) || typeof c.analyst.last.met !== "boolean")))) return false;
+      if (c.acquisitions !== undefined && (!Array.isArray(c.acquisitions) ||
+        !c.acquisitions.every((row) => row && ACQUISITIONS.offers.some(({ id }) => id === row.id) &&
+          isCount(row.week) && isCount(row.revenue) && isCount(row.debt) && isCount(row.payment)) ||
+        new Set(c.acquisitions.map(({ id }) => id)).size !== c.acquisitions.length)) return false;
       if (c.buildings === undefined) return true;
       if (!Array.isArray(c.buildings)) return false;
       const seen = new Set();
@@ -105,9 +173,8 @@
     function companyPhase(s) {
       return s.company ? PHASES[s.company.phase - 1] : null;
     }
-    /** Income over the last 52 settled weeks: album sales plus every system's weekly income. */
-    function yearRevenue(s) {
-      return (s.financeHistory || []).reduce(
+    function revenueFor(rows) {
+      return rows.reduce(
         (n, w) =>
           n +
           Math.max(0, w.albumIncome || 0) +
@@ -115,6 +182,37 @@
           Math.max(0, w.otherIncome || 0),
         0,
       );
+    }
+    /** Income over the last 52 settled weeks: album sales plus every system's weekly income. */
+    function yearRevenue(s) {
+      return revenueFor((s.financeHistory || []).slice(-52));
+    }
+    function syncShares(s) {
+      const total = COMPANY_VALUE.shares;
+      const yours = Math.round((s.company.ownership ?? 1) * total);
+      s.company.shares = { total, yours, investors: total - yours };
+      return s.company.shares;
+    }
+    function companyValuation(s) {
+      if (!s.company) return null;
+      const rows = s.financeHistory || [];
+      const prior = rows.length >= 52 ? revenueFor(rows.slice(-52, -26)) : 0;
+      const growth = prior ? revenueFor(rows.slice(-26)) / prior - 1 : 0;
+      const albums = s.albums.filter((p) => p.released);
+      const hitRate = albums.length ? albums.filter((p) => p.quality >= HIT_QUALITY).length / albums.length : 0;
+      const multiple = VALUATION.multiple[s.company.phase - 1] +
+        core.clamp(growth, ...COMPANY_VALUE.growthRange) * COMPANY_VALUE.growthFactor +
+        hitRate * COMPANY_VALUE.hitRateFactor;
+      const revenue = yearRevenue(s);
+      const owned = s.company.acquisitions || [];
+      const catalogValue = albums.reduce((total, p) => total + (p.total || 0), 0) *
+        COMPANY_VALUE.catalogIncomeFactor + owned.reduce((total, row) => total + row.revenue * 52, 0);
+      const debt = (s.company.loan?.balance || 0) + owned.reduce((total, row) => total + row.debt, 0);
+      const value = Math.max(0, Math.round(revenue * multiple + catalogValue + s.cash - debt));
+      const mood = s.company.marketMood ?? 1;
+      const shares = s.company.shares || { total: COMPANY_VALUE.shares };
+      const sharePrice = Math.round((value / shares.total) * mood * 100) / 100;
+      return { value, sharePrice, mood, multiple, revenue, growth, hitRate, catalogValue, debt };
     }
     function metric(s, key) {
       const released = s.albums.filter((p) => p.released);
@@ -126,7 +224,7 @@
     }
     /** Goals for the next phase: { next, goals: [{ key, name, have, need, met }], met } or null. */
     function phaseProgress(s) {
-      if (!s.company || s.company.phase >= PHASES.length) return null;
+      if (!s.company || s.company.phase >= IPO.phase) return null;
       const next = PHASES[s.company.phase],
         goals = Object.entries(next.goals).map(([key, need]) => {
           const have = metric(s, key);
@@ -233,9 +331,56 @@
     function boardApproved(s) {
       return core.api().approvesPhase?.(s) ?? true;
     }
-    function weekly(s) {
+    function companyRevenue(s) {
+      if (!s.company) return {};
+      const catalog = s.albums.filter((album) => album.released);
+      const activity = {
+        studio: 1,
+        activeCatalog: catalog.filter((album) => album.age < album.salesWeeks).length,
+        roster: s.artists.filter((artist) => artist.contract?.remaining > 0).length,
+        hits: catalog.filter((album) => album.quality >= HIT_QUALITY).length,
+        catalog: catalog.length,
+      };
+      const income = Object.fromEntries(
+        COMPANY_REVENUE.filter((stream) => stream.phase <= s.company.phase)
+          .map(({ id, source, rate }) => [id, activity[source] * rate]),
+      );
+      if (s.company.acquisitions?.length)
+        income.acquisitions = s.company.acquisitions.reduce((total, row) => total + row.revenue, 0);
+      return income;
+    }
+    function acquisitionDues(row) {
+      const interest = Math.round(row.debt * ACQUISITIONS.rate / 52);
+      return { interest, total: Math.min(row.debt + interest, row.payment) };
+    }
+    function companyCosts(s) {
+      if (!s.company) return null;
+      const phaseIndex = s.company.phase - 1;
+      const loan = s.company.loan;
+      const dues = (s.company.acquisitions || []).map(acquisitionDues);
+      return {
+        rent: COMPANY_COSTS.rent[phaseIndex],
+        insurance: COMPANY_COSTS.insurance[phaseIndex],
+        // The board's existing loan payment already settles this amount as part of upkeep.
+        interest: (loan ? Math.min(loan.payment, Math.round(loan.balance * FUNDING.loan.rate / 52)) : 0) +
+          dues.reduce((total, row) => total + row.interest, 0),
+        acquisitionPayments: dues.reduce((total, row) => total + row.total, 0),
+      };
+    }
+    function companyUpkeep(s) {
+      const costs = companyCosts(s);
+      return costs ? costs.rent + costs.insurance + costs.acquisitionPayments : 0;
+    }
+    function weekly(s, revenues = companyRevenue(s)) {
+      if (!s.company) return 0;
+      for (const row of s.company.acquisitions || []) {
+        const due = acquisitionDues(row);
+        row.debt = Math.max(0, row.debt + due.interest - due.total);
+      }
+      const income = Object.values(revenues).reduce((total, value) => total + value, 0);
+      s.cash += income;
       const progress = phaseProgress(s);
-      if (!progress?.met || !boardApproved(s)) return 0;
+      if (!progress?.met || !boardApproved(s)) return income;
       const p = progress.next;
       s.company.phase = p.id;
       s.company.since = s.week;
@@ -248,13 +393,125 @@
         body: `The label has outgrown its last phase. Scouting now reaches ${REACH_SCOUTING[p.reach].name}.`,
         week: s.week,
       });
-      return 0;
+      return income;
+    }
+
+    function acquisitionOffers(s) {
+      if (!s.company || s.company.phase < ACQUISITIONS.phase) return [];
+      const owned = new Set((s.company.acquisitions || []).map(({ id }) => id));
+      return ACQUISITIONS.offers.filter(({ id }) => !owned.has(id)).map((offer) => {
+        const rival = s.rivalCompanies.find(({ id }) => id === offer.company);
+        const artist = offer.kind === "label" ? s.rivalArtists[0] : null;
+        return { ...offer, name: rival?.name || offer.company, artist,
+          down: Math.ceil(offer.price * ACQUISITIONS.downPayment) };
+      });
+    }
+
+    function buyAcquisition(s, id, financed = false) {
+      core.requireAction(s);
+      const offer = acquisitionOffers(s).find((item) => item.id === id);
+      if (!offer) throw Error("That acquisition is unavailable.");
+      const game = core.api();
+      if (offer.kind === "label" && (!offer.artist || s.artists.length >= game.slots(s)))
+        throw Error("A label acquisition needs a free roster slot and an available artist.");
+      const upfront = financed ? offer.down : offer.price;
+      const debt = offer.price - upfront;
+      const rate = ACQUISITIONS.rate / 52;
+      const payment = debt ? Math.ceil(debt * rate / (1 - (1 + rate) ** -ACQUISITIONS.termWeeks)) : 0;
+      if (!game.payAcquisition(s, offer.id, offer.price, upfront)) return null;
+      const row = { id, week: s.week, revenue: offer.revenue, debt, payment };
+      (s.company.acquisitions ??= []).push(row);
+      if (offer.artist) {
+        const artist = offer.artist;
+        const term = ACQUISITIONS.termAlbums;
+        const terms = game.contractQuote(s, artist, term);
+        s.rivalArtists = s.rivalArtists.filter(({ id }) => id !== artist.id);
+        s.artists.push({
+          ...artist, wage: terms.wage, inspiration: artist.inspiration ?? 60,
+          contract: { term, remaining: term, royalty: terms.royalty, signedWeek: s.week },
+        });
+        log(s, `${artist.name} joins the label through the acquisition.`);
+      }
+      log(s, `${labelName(s)} acquires ${offer.name}${offer.kind === "catalog" ? "'s catalog" : ""}.`);
+      return row;
+    }
+
+    function ipoRequirements(s) {
+      const company = s.company;
+      if (company?.phase !== IPO.phase || company.public) return null;
+      const years = company.annualProfit || [];
+      let streak = 0;
+      for (const { profit } of [...years].reverse()) {
+        if (profit <= 0) break;
+        streak++;
+      }
+      const goals = [
+        { label: "Consecutive profitable years", have: streak, need: IPO.profitYears },
+        { label: "CFO skill", have: company.departments.finance.head?.skill || 0, need: IPO.cfoSkill },
+        { label: "Board confidence", have: company.board?.confidence || 0, need: IPO.boardConfidence },
+      ];
+      const valuation = companyValuation(s);
+      const mood = core.clamp(1 - (company.board?.scandals || 0) * IPO.scandalDiscount, ...COMPANY_VALUE.moodRange);
+      const proceeds = Math.round(valuation.value * mood * IPO.equity / (1 - IPO.equity));
+      const price = Math.round(proceeds / (company.shares.total * IPO.equity) * 100) / 100;
+      return { goals, ready: proceeds > 0 && goals.every(({ have, need }) => have >= need), proceeds, price, mood };
+    }
+
+    function nextAnalystTarget(s, last = null) {
+      const revenue = revenueFor(s.financeHistory.slice(-IPO.analystWeeks));
+      return { dueWeek: s.week + IPO.analystWeeks, revenue: Math.ceil(revenue * IPO.revenueStretch), last };
+    }
+
+    function goPublic(s) {
+      core.requireAction(s);
+      const ipo = ipoRequirements(s);
+      if (!ipo?.ready) throw Error("The label does not meet the IPO requirements.");
+      const company = s.company;
+      company.public = true;
+      company.phase = PHASES.length;
+      company.since = s.week;
+      company.history.push({ phase: company.phase, week: s.week });
+      company.marketMood = ipo.mood;
+      company.offering = { week: s.week, proceeds: ipo.proceeds, price: ipo.price, scene: true };
+      company.analyst = nextAnalystTarget(s);
+      s.cash += ipo.proceeds;
+      core.api().recordPublicRound(s, IPO.equity, ipo.proceeds);
+      log(s, `${labelName(s)} rings the bell and raises $${ipo.proceeds.toLocaleString("en-US")} in its IPO.`);
+      return company.offering;
+    }
+
+    function acknowledgeIPO(s) {
+      if (s.company?.offering) s.company.offering.scene = false;
+    }
+
+    function afterSettlement(s) {
+      if (!s.company) return;
+      const company = s.company;
+      if (s.week > 1 && s.week % 52 === 1 && s.financeHistory.length === 52) {
+        const profit = s.financeHistory.reduce((total, row) => total + (row.cashChange || 0), 0);
+        const year = core.operatingYear(s.week - 1);
+        company.annualProfit = [...(company.annualProfit || []), { year, profit }].slice(-IPO.profitYears);
+      }
+      if (!company.analyst || !company.public || s.week < company.analyst.dueWeek || s.finished) return;
+      const revenue = revenueFor(s.financeHistory.slice(-IPO.analystWeeks));
+      const target = company.analyst.revenue;
+      const met = revenue >= target;
+      const direction = met ? 1 : -1;
+      company.marketMood = core.clamp(
+        company.marketMood + direction * IPO.moodChange, ...COMPANY_VALUE.moodRange,
+      );
+      const board = company.board;
+      board.analystConfidence = core.clamp((board.analystConfidence || 0) + direction * IPO.confidenceChange, -100, 100);
+      company.analyst = nextAnalystTarget(s, { revenue, target, met });
+      log(s, `Analysts: ${met ? "revenue beat" : "revenue missed"} the half-year target.`);
     }
 
     return {
       init,
       validSave,
+      upkeep: companyUpkeep,
       weekly,
+      afterSettlement,
       api: {
         PHASES,
         REACHES,
@@ -263,6 +520,17 @@
         companyPhase,
         phaseProgress,
         yearRevenue,
+        companyValuation,
+        syncShares,
+        convertClassicSave,
+        ipoRequirements,
+        goPublic,
+        acknowledgeIPO,
+        acquisitionOffers,
+        buyAcquisition,
+        COMPANY_REVENUE,
+        companyRevenue,
+        companyCosts,
         boardApproved,
         scoutLimits,
         scoutLocked,

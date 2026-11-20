@@ -189,6 +189,9 @@ function phoneContacts() {
 
 function phoneWallet() {
   const last = state.financeHistory?.at(-1),
+    valuation = G.companyValuation(state),
+    shares = state.company?.shares,
+    debt = (valuation?.debt || 0) + Math.max(0, -state.cash),
     rows = [
       ["Cash", money(state.cash)],
       ["Weekly costs", money(G.upkeep(state)) + "/week"],
@@ -200,14 +203,18 @@ function phoneWallet() {
           ? money(state.company.board.budgetLeft)
           : "— (no board)",
       ],
-      ["Debt", state.cash < 0 ? money(-state.cash) : "None"],
-      [
-        "Share price",
-        state.company?.shares?.price ? money(state.company.shares.price) : "— (private company)",
-      ],
+      ["Debt", debt ? money(debt) : "None"],
     ];
+  if (valuation && shares) {
+    rows.push(
+      ["Company value", money(valuation.value)],
+      [state.company.public ? "Share price" : "Estimated share price", "$" + valuation.sharePrice.toFixed(2)],
+      ["Your shares", shares.yours.toLocaleString("en-US") + " / " + shares.total.toLocaleString("en-US")],
+      ["Investor shares", shares.investors.toLocaleString("en-US")],
+    );
+  }
   return phoneScreen(
-    `<dl class="wallet">${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`).join("")}</dl><button data-tab="finance">Full finances in the office</button>`,
+    `<dl class="wallet">${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`).join("")}</dl><div class="actions"><button data-tab="finance">Full finances in the office</button><button data-tab="board">Funding and the board</button></div>`,
   );
 }
 

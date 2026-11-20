@@ -102,7 +102,7 @@
     function newDirector(s, kind) {
       const b = s.company.board,
         used = new Set(b.directors.map((d) => d.type)),
-        prefs = BACKERS[kind],
+        prefs = BACKERS[kind === "ipo" ? "venture" : kind],
         open = prefs.filter((t) => !used.has(t)),
         pool = open.length ? open : prefs,
         type = pool[Math.floor(roll(s, "board") * pool.length)],
@@ -116,6 +116,32 @@
         satisfaction: 50,
         since: s.week,
       };
+    }
+    function recordPublicRound(s, equity, amount) {
+      const company = s.company;
+      const b = board(s);
+      company.ownership = Math.round(company.ownership * (1 - equity) * 10000) / 10000;
+      core.api().syncShares(s);
+      const seats = PHASES[phase(s) - 1].boardSeats - b.directors.length;
+      for (let index = 0; index < seats; index++) b.directors.push(newDirector(s, "ipo"));
+      company.rounds.push({ kind: "ipo", name: "IPO", phase: phase(s), week: s.week, equity, amount, seats });
+      b.nextReview = s.week + reviewInterval(s);
+      boardWeek(s);
+    }
+    function startConvertedBoard(s, initialConfidence) {
+      const b = s.company.board = {
+        directors: [], nextId: 1, since: s.week, budget: firstBudget(s), spent: 0,
+        freedom: "medium", perks: [], probation: false, reviews: [],
+        nextReview: s.week + reviewInterval(s),
+      };
+      b.budgetLeft = b.budget;
+      for (let index = 0; index < PHASES[phase(s) - 1].boardSeats; index++) {
+        const director = newDirector(s, "venture");
+        director.relationship = initialConfidence - director.satisfaction;
+        b.directors.push(director);
+      }
+      setTargets(s);
+      boardWeek(s);
     }
     /** Takes the offer of a kind at a term (0 or 1 for equity deals). Returns what changed. */
     function takeFunding(s, kind, term = 0) {
@@ -136,6 +162,7 @@
         return offer;
       }
       s.company.ownership = Math.round(s.company.ownership * (1 - offer.equity) * 10000) / 10000;
+      core.api().syncShares(s);
       const fresh = !s.company.board;
       s.company.board ??= { directors: [], nextId: 1, since: s.week };
       const added = Array.from({ length: offer.seats }, () => newDirector(s, kind));
@@ -213,6 +240,10 @@
       if (d.relationship)
         reasons.push({ key: "relationship", name: "Your relationship", points: d.relationship });
       if (d.promises) reasons.push({ key: "promises", name: "Promises", points: d.promises });
+      if (board(s)?.eventConfidence)
+        reasons.push({ key: "events", name: "Company events", points: board(s).eventConfidence });
+      if (board(s)?.analystConfidence)
+        reasons.push({ key: "analysts", name: "Analyst results", points: board(s).analystConfidence });
       const over = overspendPoints(s);
       if (over) reasons.push({ key: "overspend", name: "Over budget", points: over });
       reasons.sort((a, b) => Math.abs(b.points) - Math.abs(a.points));
@@ -410,6 +441,30 @@
           `This $${n.toLocaleString("en-US")} payment goes past the period budget.`,
         );
     }
+    function acquisitionVotes(s) {
+      const directors = board(s).directors;
+      return directors.filter((d) => satisfaction(s, d).value >= APPROVAL.grant).length;
+    }
+    function payAcquisition(s, id, price, upfront) {
+      if (s.cash < upfront) throw Error("Not enough cash for the acquisition.");
+      const b = board(s);
+      if (b && price > b.budget - (b.spent || 0) && !approved(s, "acquisition", id)) {
+        s.event = {
+          type: "approval",
+          title: "The board must approve the acquisition",
+          body: "The proposed purchase exceeds the remaining budget. A majority must vote in favor.",
+          approval: { kind: "acquisition", key: id },
+          options: [
+            { label: "Call the vote", hint: "Each director votes according to their satisfaction.", approve: true },
+            { label: "Drop it", hint: "Keep the current budget." },
+          ],
+        };
+        return false;
+      }
+      s.cash -= upfront;
+      onSpend(s, price);
+      return true;
+    }
     function approveSigning(s, a, q) {
       const b = board(s);
       if (!b?.budget || freedomOf(s) !== "low") return;
@@ -435,13 +490,17 @@
       if (e.type !== "approval" || !o.approve) return;
       const b = board(s),
         c = b.confidence ?? confidence(s);
-      if (c >= APPROVAL.grant) {
+      const acquisition = e.approval.kind === "acquisition";
+      const yes = acquisition ? acquisitionVotes(s) : 0;
+      if (acquisition ? yes > b.directors.length / 2 : c >= APPROVAL.grant) {
         b.approvals = [
           ...(b.approvals || []).filter((x) => x.week === s.week),
           { ...e.approval, week: s.week },
         ];
         log(s, "The board approved the request. Go ahead this week.");
-      } else log(s, `The board said no (confidence ${c}).`);
+      } else log(s, acquisition
+        ? `The board vetoed the acquisition (${yes} of ${b.directors.length} in favor).`
+        : `The board said no (confidence ${c}).`);
     }
     // ---- Lobbying and promises (T22) ----
     function director(s, id) {
@@ -616,6 +675,10 @@
         isCount(c.board.nextId) &&
         c.board.directors.every(validDirector) &&
         (c.board.scandals === undefined || isCount(c.board.scandals)) &&
+        (c.board.eventConfidence === undefined ||
+          (Number.isFinite(c.board.eventConfidence) && Math.abs(c.board.eventConfidence) <= 100)) &&
+        (c.board.analystConfidence === undefined ||
+          (Number.isFinite(c.board.analystConfidence) && Math.abs(c.board.analystConfidence) <= 100)) &&
         (c.board.nextReview === undefined || isCount(c.board.nextReview)) &&
         (c.board.spent === undefined || isCount(c.board.spent)) &&
         (c.board.approvals === undefined || Array.isArray(c.board.approvals)) &&
@@ -638,10 +701,12 @@
       upkeep: (s) => loanPayment(s) + perkCost(s),
       weekly: (s) => {
         loanWeek(s);
+        return 0;
+      },
+      afterSettlement: (s) => {
         boardWeek(s);
         const b = board(s);
         if (b && !s.finished && s.week >= b.nextReview) runReview(s);
-        return 0;
       },
       onScandal,
       onSpend,
@@ -659,6 +724,9 @@
         valuation,
         fundingOffers,
         takeFunding,
+        recordPublicRound,
+        startConvertedBoard,
+        payAcquisition,
         loanPayment,
         repayLoan,
         METRICS,

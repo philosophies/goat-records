@@ -30,7 +30,7 @@ const context = vm.createContext({
   Blob,
   URL,
 });
-require("./load-interface.cjs")(context);
+require("./load-interface.cjs")(context, { classic: true });
 const saved = () => JSON.parse(stored),
   html = () => element("content").innerHTML;
 function click(data) {
@@ -44,23 +44,27 @@ assert.equal(
   "Out of town",
   "the old Locations link opens the street overview",
 );
-assert.match(element("lotTown").innerHTML, /data-tab="location:barn"[\s\S]*Barn Loft[\s\S]*Lv 1 · \$600/);
+assert.doesNotMatch(element("lotTown").innerHTML, /data-tab="location:barn"/);
+assert.match(html(), /data-tab="location:barn">Barn Loft <small>\$600 rent/);
 assert.match(html(), /Recording locations/);
 for (const l of vm.runInContext("G.LOCATIONS", context)) assert.ok(html().includes(l.name), l.name);
 assert.match(html(), /Locked · rank 2/);
+click({ tab: "location:barn" });
 assert.match(html(), /Signature theme: <b>\?<\/b>/);
 assert.ok(!html().includes("Working Class"), "signature theme hidden before the first visit");
 assert.match(html(), /<svg class="pixel"/);
 assert.match(html(), /Level 1 of 9/);
+click({ tab: "street~sec-gigs" });
 assert.match(html(), /Paid gigs/);
 
 // Sign an artist; their sheet shows the location field and the gig button.
 click({ tab: "scout" });
 click({ action: "sign", id: saved().candidates[0].id });
-click({ tab: "artist:" + saved().artists[0].id });
+click({ tab: "artist:" + saved().artists[0].id + "~sec-record" });
 assert.match(html(), /Recording location<select id="albumLocation" data-album-field>/);
 assert.match(html(), /Barn Loft · \$600 rent · level 1/);
 assert.match(html(), /<option value="rooftop" disabled[^>]*>Rooftop Loft · rank 2/);
+click({ tab: "artist:" + saved().artists[0].id });
 assert.match(html(), /Paid gig<select id="gig-\d+" data-gig-artist/);
 assert.match(html(), /Play gig · about \$[\d,]+/);
 
@@ -84,6 +88,7 @@ listeners.change({ target: { id: "gig-" + a.id, value: "wedding", dataset: { gig
 assert.match(html(), /<option value="wedding" selected>Wedding/);
 
 // Record at the Barn Loft: the quote line, then the rent on the album cost.
+click({ tab: "artist:" + a.id + "~sec-record" });
 element("artist").value = a.id;
 element("booth").value = 0;
 element("genre").value = "Country";
@@ -107,18 +112,21 @@ assert.ok(saved().themes.includes("Working Class"));
 // Starting an album returns to the lot; the artist's sheet shows the record and no gigs.
 click({ tab: "artist:" + a.id });
 assert.match(html(), /Gigs are not possible while recording or touring/);
+click({ tab: "artist:" + a.id + "~sec-record" });
 assert.match(html(), /IN THE STUDIO/);
 // The location's own sheet: booked while the album is in production.
 click({ tab: "location:barn" });
 assert.equal(element("drawerTitle").textContent, "Barn Loft");
 assert.match(html(), /Booked by/);
-assert.match(element("lotTown").innerHTML, /data-tab="location:barn"[\s\S]*?Booked/);
+click({ tab: "street" });
+assert.match(html(), /data-tab="location:barn">Barn Loft <small>Booked/);
 
-// The Locations screen now shows the visit and the signature theme.
+// The locations directory shows the visit; the location shows the signature theme.
 click({ tab: "locations" });
+assert.match(html(), /1 of 10 visited/);
+click({ tab: "location:barn" });
 assert.match(html(), /Working Class/);
 assert.match(html(), /Booked · in production/);
-assert.match(html(), /1 of 10 visited/);
 assert.equal(vm.runInContext("validSave(JSON.parse(JSON.stringify(state)))", context), true);
 assert.equal(
   vm.runInContext(

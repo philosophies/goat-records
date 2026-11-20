@@ -61,6 +61,10 @@ const PLACE_ALIASES = {
 };
 /** Resolves a sheet id or an older screen name: { id, section }. */
 function resolvePlace(id) {
+  if (id.includes("~")) {
+    const [place, section] = id.split("~");
+    return { id: place, section };
+  }
   if (id === "studio") {
     // The album form now lives in each recording room: open the first free one.
     const free = state.booths.find((b) => !state.albums.some((p) => !p.released && p.booth === b.id));
@@ -72,18 +76,23 @@ function resolvePlace(id) {
 function section(id, html) {
   return `<section id="${id}" class="sheet-section">${html}</section>`;
 }
+function sheetSections(items) {
+  const selected = items.find(([id]) => id === sheetSection) || items[0];
+  const links = items.map(([id, label]) =>
+    `<button data-tab="${esc(tab)}~${id}" aria-pressed="${id === selected[0]}">${label}</button>`,
+  ).join("");
+  return `<nav class="sheet-tabs" aria-label="Panel sections">${links}</nav>${section(selected[0], selected[2]())}`;
+}
 function panelHtml(id) {
   return GoatUI.panels.find((p) => p.id === id)?.render() || "";
 }
 const PLACES = {
   desk: {
     title: () => "Front desk",
-    render: () =>
-      `<p class="place-intro">The front desk in the lobby. Scout new artists and hire the team here; tap a staff member on the lot to see them on their own.</p>${section("sec-scout", scouting())}${
-        state.company?.departments && typeof GoatStaff !== "undefined"
-          ? section("sec-team", GoatStaff.departmentList())
-          : section("sec-team", `<h2>Your team</h2>${staff()}`)
-      }`,
+    render: () => sheetSections([
+      ["sec-scout", "Scouting", scouting],
+      ["sec-team", "Staff", () => state.company?.departments ? GoatStaff.departmentList() : staff()],
+    ]),
   },
   trophies: {
     title: () => "Trophy case",
@@ -92,24 +101,36 @@ const PLACES = {
   },
   office: {
     title: () => "Office",
-    render: () =>
-      `${state.company ? section("sec-company", panelHtml("company")) : ""}${state.company && typeof GoatBoard !== "undefined" ? section("sec-board", GoatBoard.summary()) : ""}${section("sec-campaign", panelHtml("campaign"))}${section("sec-finance", finance())}${section("sec-catalog", catalog())}${section("sec-name", companyNameCard())}`,
+    render: () => sheetSections([
+      ...(state.company ? [["sec-company", "Company", () => GoatBoard.summary() + panelHtml("company")]] : []),
+      ["sec-campaign", "Goals", () => panelHtml("campaign")],
+      ["sec-finance", "Finances", finance],
+      ["sec-catalog", "Catalog", catalog],
+      ["sec-name", "Label name", companyNameCard],
+    ]),
   },
   billboard: {
     title: () => "Billboard",
-    render: () => `${section("sec-charts", charts())}${section("sec-promotion", panelHtml("promotion"))}`,
+    render: () => sheetSections([
+      ["sec-charts", "Charts", charts],
+      ["sec-promotion", "Promotion", () => panelHtml("promotion")],
+    ]),
   },
   newsstand: { title: () => "Newsstand", render: () => journal() },
   bus: { title: () => "Tour bus", render: () => road() },
   label: {
     title: () => G.labelName(state),
-    render: () =>
-      `${section("sec-label", panelHtml("hq"))}${section("sec-notebook", GoatUI.html("studioSections"))}`,
+    render: () => sheetSections([
+      ["sec-label", "Headquarters", () => panelHtml("hq")],
+      ["sec-notebook", "Combo notebook", () => GoatUI.html("studioSections")],
+    ]),
   },
   street: {
     title: () => "Out of town",
-    render: () =>
-      `<p class="place-intro">Every recording location the label can rent. Tap one on the street to book an album there.</p>${panelHtml("locations")}`,
+    render: () => sheetSections([
+      ["sec-locations", "Studios", locationsScreen],
+      ["sec-gigs", "Paid gigs", gigsScreen],
+    ]),
   },
   newroom: { title: () => "Build a recording room", render: () => newRoomSheet() },
 };
@@ -165,11 +186,11 @@ function recordSection(a) {
   let body;
   if (p) {
     const d = p.production;
-    body = `<div class="card"><span class="tag">IN THE STUDIO · ${esc(G.BOOTHS[p.booth]?.name || "")}</span><h3>${esc(p.title)}</h3><p>${d ? `${d.stage}/5 decisions · ${d.releaseReady ? "ready for the final review" : d.cooldown ? d.cooldown + " week(s) to the next step" : "a decision is waiting"}` : p.remaining + " weeks until release"}</p>${d && !d.cooldown ? '<button class="primary" data-action="showModal">Open album decisions</button>' : ""}${GoatUI.html("productionPanel", p)}</div>`;
+    body = `<div class="card"><span class="tag">IN THE STUDIO · ${esc(G.BOOTHS[p.booth]?.name || "")}</span><h3>${esc(p.title)}</h3><p>${d ? `${d.stage}/5 decisions · ${d.releaseReady ? "ready for the final review" : d.cooldown ? d.cooldown + " week(s) to the next step" : "a decision is waiting"}` : p.remaining + " weeks until release"}</p>${d && !d.cooldown ? `<button class="primary" data-action="showModal" data-project="${p.id}">Open album decisions</button>` : ""}${GoatUI.html("productionPanel", p)}</div>`;
   } else if (tour)
     body = `<div class="empty">On tour with ${esc(tour.title)}. Albums wait until the tour ends.</div>`;
   else if (!a.contract.remaining)
-    body = '<div class="empty">The contract is complete. Renew it above to record again.</div>';
+    body = `<div class="empty">The contract is complete. <button data-tab="artist:${a.id}~sec-artist">Review contract</button></div>`;
   else if (!insp.canRecord)
     body = `<div class="empty">Inspiration ${Math.round(insp.value)}/100. Recording needs 25; it recovers about 10 a week between albums.</div>`;
   else if (!freeRoom)
@@ -189,7 +210,13 @@ function tourSection(a) {
 }
 function artistSheet(a) {
   const albums = state.albums.filter((p) => p.artist === a.id);
-  return `<p class="place-intro">${pixelSvg(G.ARTIST_SPRITE, G.GENRE_COLORS[a.genre] || "#ccc", 22)} ${esc(artistStatus(a))} · ${esc(a.genre)} · Level ${G.level(a)}/10</p>${section("sec-artist", artistCard(a))}${typeof GoatStaff !== "undefined" ? GoatStaff.teamSection(a) : ""}${recordSection(a)}${tourSection(a)}${section("sec-albums", `<h2>Albums</h2>${albums.length ? catalogList(albums) : '<div class="empty">No albums yet.</div>'}`)}`;
+  return sheetSections([
+    ["sec-artist", "Overview", () => artistCard(a)],
+    ["sec-record", "Record", () => recordSection(a)],
+    ["sec-tour", "Touring", () => tourSection(a)],
+    ...(state.company ? [["sec-team", "Team", () => GoatStaff.teamSection(a)]] : []),
+    ["sec-albums", "Albums", () => albums.length ? catalogList(albums) : '<div class="empty">No albums yet.</div>'],
+  ]);
 }
 
 /* ---------------- Rooms ---------------- */
@@ -258,11 +285,7 @@ function lotTown() {
     `<button class="town-spot prop bus-spot ${tours.length ? "away" : ""}" data-tab="bus" aria-label="Tour bus${tours.length ? ", on tour" : ""}">${pixelSvg(TOUR_BUS, "#f3a64b", 56)}<span class="town-plate">Tour bus</span><small>${tours.length ? "On tour · " + esc(tours.map((t) => t.artistName).join(", ")) : "Parked"}</small></button>`,
     townProp("street", ROAD_SIGN, "#f3d25b", 32, "Out of town", "All locations"),
   ];
-  const spots = G.locationList(state).map(
-    (l) =>
-      `<button class="town-spot location ${l.locked ? "locked" : ""} ${l.booked ? "booked" : ""}" data-tab="location:${l.id}" style="--accent:${l.accent}" aria-label="${esc(l.name)}${l.locked ? ", opens at rank " + l.rank : l.booked ? ", booked" : ", level " + l.level}">${locPixels(l.icon, l.accent, 34)}<span class="town-plate">${esc(l.name)}</span><small>${l.locked ? "Rank " + l.rank : l.booked ? "Booked" : "Lv " + l.level + " · " + money(l.rentNow)}</small></button>`,
-  );
-  return `<div class="town" role="group" aria-label="The street and recording locations">${props.join("")}<span class="town-gap" aria-hidden="true"></span>${spots.join("")}</div>`;
+  return `<div class="town" role="group" aria-label="Street destinations">${props.join("")}</div>`;
 }
 
 const GoatPlaces = { resolve: resolvePlace, sheet: placeSheet, roster: rosterStrip, town: lotTown };

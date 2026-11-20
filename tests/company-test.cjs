@@ -11,16 +11,16 @@ const { PHASES } = G;
 const roundTrip = (s) => JSON.parse(JSON.stringify(s));
 
 test("A classic run has no company and keeps the 1.1 start", () => {
-  const s = G.create(7);
+  const s = G.create(7, { ceo: false });
   assert.equal(s.company, undefined);
   assert.equal(s.ceoMode, undefined);
   assert.equal(G.companyPhase(s), null);
-  assert.equal(s.cash, G.create(7).cash);
+  assert.equal(s.cash, G.create(7, { ceo: false }).cash);
   assert.ok(s.cash > PHASES[0].startCash, "classic runs keep their larger starting cash");
 });
 
-test("A CEO run starts in the home studio with $2,000", () => {
-  const s = G.create(7, { ceo: true });
+test("New runs default to the CEO home studio with $2,000", () => {
+  const s = G.create(7, { labelName: "Goat Records" });
   assert.equal(s.ceoMode, true);
   assert.deepEqual(s.company, {
     phase: 1,
@@ -33,6 +33,7 @@ test("A CEO run starts in the home studio with $2,000", () => {
     ownership: 1,
     rounds: [],
     loan: null,
+    shares: { total: 10000, yours: 10000, investors: 0 },
   });
   assert.equal(s.cash, PHASES[0].startCash);
   assert.equal(s.cash, 2000);
@@ -50,7 +51,7 @@ test("Phases are numbered 1-6 with goals that only grow", () => {
 });
 
 test("CEO and classic saves pass the load checks after a round trip", () => {
-  for (const s of [G.create(3), G.create(3, { ceo: true })]) {
+  for (const s of [G.create(3, { ceo: false }), G.create(3, { ceo: true })]) {
     const copy = roundTrip(s);
     assert.equal(G.validSystemsSave(copy), true);
     G.migrate(copy);
@@ -132,7 +133,7 @@ test("Phase progress lists the next phase's goals with what the label has", () =
   );
   assert.equal(pr.met, false);
   assert.equal(pr.goals.find((g) => g.key === "hits").met, true, "phase 2 needs no hits");
-  assert.equal(G.phaseProgress(G.create(21)), null, "classic runs have no phase progress");
+  assert.equal(G.phaseProgress(G.create(21, { ceo: false })), null, "classic runs have no phase progress");
 });
 
 test("Revenue counts the last 52 weeks of income and ignores losses", () => {
@@ -195,7 +196,7 @@ test("The last phase has no next goals", () => {
 });
 
 test("A classic run never changes phase", () => {
-  const s = G.create(21);
+  const s = G.create(21, { ceo: false });
   readyForPhase2(s);
   week(s);
   assert.equal(s.company, undefined);
@@ -258,7 +259,7 @@ test("Prospects from events stay within the label's reach", () => {
 });
 
 test("Classic scouting is unchanged: no reach tags, no caps, no locks", () => {
-  const s = G.create(35);
+  const s = G.create(35, { ceo: false });
   s.cash = 10 ** 7;
   assert.equal(G.scoutLimits(s), null);
   assert.equal(G.scoutLocked(s, 2), "");
@@ -269,12 +270,12 @@ test("Classic scouting is unchanged: no reach tags, no caps, no locks", () => {
     assert.ok(s.candidates.every((a) => a.reach === undefined));
   }
   assert.ok(top > G.REACH_SCOUTING.local.talentMax);
-  assert.deepEqual(G.create(35).candidates, G.create(35).candidates, "same seed, same prospects");
+  assert.deepEqual(G.create(35, { ceo: false }).candidates, G.create(35, { ceo: false }).candidates, "same seed, same prospects");
 });
 
 test("A label is Goat Records unless named, and a new run can be named for free", () => {
-  assert.equal(G.labelName(G.create(51)), "Goat Records");
-  assert.equal(G.create(51).labelName, undefined, "classic saves gain no name field");
+  assert.equal(G.labelName(G.create(51, { ceo: false })), "Goat Records");
+  assert.equal(G.create(51, { ceo: false }).labelName, undefined, "classic saves gain no name field");
   const s = G.create(51, { ceo: true, labelName: "  Dynasty   Sound " });
   assert.equal(G.labelName(s), "Dynasty Sound");
   assert.equal(s.fame, 0);
@@ -318,7 +319,7 @@ test("The label's name appears on its chart entries", () => {
 });
 
 test("Renaming costs fame, is logged and checks the name", () => {
-  const s = G.create(53);
+  const s = G.create(53, { ceo: false });
   s.fame = 100;
   G.renameLabel(s, "Gold Standard");
   assert.equal(G.labelName(s), "Gold Standard");
@@ -374,7 +375,7 @@ test("Buildings open by phase, cost money and are bought once", () => {
     s.company.buildings.some((b) => b.id === "studio"),
     false,
   );
-  assert.throws(() => G.buyBuilding(G.create(62), "storefront"), /CEO run/);
+  assert.throws(() => G.buyBuilding(G.create(62, { ceo: false }), "storefront"), /CEO run/);
 });
 
 test("Floors take only their building's types, up to its height, each facility once", () => {
@@ -521,8 +522,225 @@ test("Floors above each other, or side by side next door, pair up", () => {
 });
 
 test("A classic run still reads its lot tiles", () => {
-  const s = G.create(73);
+  const s = G.create(73, { ceo: false });
   assert.equal(G.facilitiesOf(s), s.hq.facilities);
+});
+
+test("Each company revenue stream opens in its specified phase", () => {
+  const s = ceo(74);
+  s.cash = 100000;
+  G.sign(s, s.candidates[0].id);
+  s.albums.push({ released: true, age: 1, salesWeeks: 12, quality: 79 });
+  const streamIds = [
+    ["beats", "downloads"],
+    ["streams", "merch"],
+    ["distribution", "radio"],
+    ["sync", "brand"],
+    ["publishing", "catalog"],
+    [],
+  ];
+  for (const phase of G.PHASES) {
+    s.company.phase = phase.id;
+    const income = G.companyRevenue(s);
+    assert.deepEqual(Object.keys(income), streamIds.slice(0, phase.id).flat());
+    for (const id of Object.keys(income)) assert.ok(income[id] > 0, id);
+  }
+  s.albums[0].age = s.albums[0].salesWeeks;
+  assert.equal(G.companyRevenue(s).streams, 0);
+  assert.ok(G.companyRevenue(s).catalog > 0);
+});
+
+test("Weekly settlement itemizes company income and growing costs without charging interest twice", () => {
+  const s = ceo(75);
+  s.cash = 100000;
+  s.company.phase = 4;
+  G.takeFunding(s, "loan");
+  const costs = G.companyCosts(s);
+  const overhead = G.upkeep(s);
+  const income = G.companyRevenue(s);
+  const totalIncome = Object.values(income).reduce((sum, value) => sum + value, 0);
+  assert.ok(costs.rent > 0 && costs.insurance > 0 && costs.interest > 0);
+  G.advance(s);
+  const row = s.financeHistory.at(-1);
+  assert.deepEqual(row.companyRevenue, income);
+  assert.deepEqual(row.companyCosts, costs);
+  assert.equal(row.otherIncome, totalIncome);
+  assert.equal(row.cashChange, totalIncome - overhead);
+
+  const classic = G.create(76, { ceo: false });
+  G.advance(classic);
+  assert.equal(classic.financeHistory.at(-1).companyRevenue, undefined);
+  assert.equal(classic.financeHistory.at(-1).companyCosts, undefined);
+});
+
+test("Company value uses trailing revenue, growth, hit rate, catalog, cash, debt and market mood", () => {
+  const s = ceo(77);
+  s.company.phase = 2;
+  s.cash = 1000;
+  s.company.loan = { amount: 600, balance: 600, payment: 50 };
+  s.company.marketMood = 1.2;
+  s.financeHistory = Array.from({ length: 52 }, (_, index) => ({ albumIncome: index < 26 ? 80 : 120 }));
+  s.albums.push(
+    { released: true, quality: 80, total: 750 },
+    { released: true, quality: 60, total: 250 },
+    { released: false, quality: 100, total: 2000 },
+  );
+  assert.deepEqual(G.companyValuation(s), {
+    value: 15750, sharePrice: 1.89, mood: 1.2, multiple: 2.875,
+    revenue: 5200, growth: 0.5, hitRate: 0.5, catalogValue: 400, debt: 600,
+  });
+  assert.equal(G.companyValuation(G.create(77, { ceo: false })), null);
+});
+
+test("Funding updates share ownership and older CEO saves derive it from existing ownership", () => {
+  const s = ceo(78);
+  s.company.phase = 2;
+  const angel = G.takeFunding(s, "angel", 0);
+  s.company.phase = 3;
+  const venture = G.takeFunding(s, "venture", 0);
+  const yours = Math.round(10000 * (1 - angel.equity) * (1 - venture.equity));
+  assert.deepEqual(s.company.shares, { total: 10000, yours, investors: 10000 - yours });
+  const oldSave = roundTrip(s);
+  delete oldSave.company.shares;
+  assert.ok(G.validSystemsSave(oldSave));
+  assert.deepEqual(G.migrate(oldSave).company.shares, s.company.shares);
+  oldSave.company.shares.yours++;
+  assert.equal(G.validSystemsSave(oldSave), false);
+});
+
+function ipoFixture() {
+  const s = ceo(79);
+  s.cash = 2000000;
+  s.company.phase = 2;
+  G.takeFunding(s, "angel", 0);
+  s.company.phase = 5;
+  G.appointHead(s, "finance", { skill: 60 });
+  s.company.annualProfit = [{ year: 1, profit: 1 }, { year: 2, profit: 1 }, { year: 3, profit: 1 }];
+  s.company.board.confidence = 60;
+  s.financeHistory = Array.from({ length: 52 }, (_, i) =>
+    ({ week: 106 + i, albumIncome: 50000, cashChange: 10000 }));
+  s.week = 157;
+  return s;
+}
+
+test("An IPO requires phase five, three profitable years, a skilled CFO and confident directors", () => {
+  for (const miss of [
+    (s) => { s.company.phase = 4; },
+    (s) => { s.company.annualProfit[1].profit = 0; },
+    (s) => { s.company.departments.finance.head = null; },
+    (s) => { s.company.departments.finance.head.skill = 59; },
+    (s) => { s.company.board.confidence = 59; },
+  ]) {
+    const s = ipoFixture();
+    miss(s);
+    assert.ok(!G.ipoRequirements(s)?.ready);
+    assert.throws(() => G.goPublic(s), /IPO requirements/);
+  }
+  const s = ipoFixture();
+  s.company.board.scandals = 4;
+  const value = G.companyValuation(s).value;
+  const ownership = s.company.ownership;
+  const cash = s.cash;
+  const offered = G.goPublic(s);
+  assert.equal(offered.proceeds, Math.round(value * 0.9 / 3));
+  assert.equal(offered.price, Math.round((offered.proceeds / 2500) * 100) / 100);
+  assert.equal(s.cash, cash + offered.proceeds);
+  assert.equal(s.company.phase, 6);
+  assert.equal(s.company.ownership, Math.round(ownership * 0.75 * 10000) / 10000);
+  assert.equal(G.seats(s), 9);
+  assert.equal(s.company.board.nextReview, s.week + 26);
+  assert.equal(s.company.analyst.dueWeek, s.week + 26);
+  assert.equal(s.company.analyst.revenue, 1378000);
+  assert.equal(offered.scene, true);
+  G.acknowledgeIPO(s);
+  assert.equal(offered.scene, false);
+  assert.equal(G.validSystemsSave(roundTrip(s)), true);
+  assert.throws(() => G.goPublic(s), /IPO requirements/);
+});
+
+test("Annual profit comes from settlements and analysts move sentiment at half-year reviews", () => {
+  const s = ipoFixture();
+  s.week = 156;
+  s.financeHistory.pop();
+  week(s);
+  assert.equal(s.company.annualProfit.at(-1).year, 3);
+  assert.ok(s.company.annualProfit.at(-1).profit > 0);
+  s.company.board.confidence = 60;
+  G.goPublic(s);
+  G.acknowledgeIPO(s);
+  const first = s.company.analyst.dueWeek;
+  s.week = first - 1;
+  s.financeHistory = Array.from({ length: 51 }, () => ({ albumIncome: 100000, cashChange: 10000 }));
+  week(s);
+  assert.equal(s.company.analyst.last.met, true);
+  assert.equal(s.company.marketMood, 1.05);
+  assert.equal(s.company.board.analystConfidence, 5);
+  assert.equal(s.company.board.nextReview, first + 26);
+  s.week = first + 25;
+  s.financeHistory = Array.from({ length: 51 }, () => ({ albumIncome: 100, cashChange: 100 }));
+  week(s);
+  assert.equal(s.company.analyst.last.met, false);
+  assert.equal(s.company.marketMood, 1);
+  assert.equal(s.company.board.analystConfidence, 0);
+  assert.equal(s.company.board.nextReview, first + 52);
+});
+
+test("Catalog purchases earn weekly royalties and cannot be bought twice", () => {
+  const s = ceo(80);
+  assert.deepEqual(G.acquisitionOffers(s), []);
+  s.company.phase = 6;
+  s.cash = 1000000;
+  const offer = G.acquisitionOffers(s)[0];
+  const cash = s.cash;
+  const owned = G.buyAcquisition(s, offer.id);
+  assert.equal(s.cash, cash - offer.price);
+  assert.equal(owned.debt, 0);
+  assert.throws(() => G.buyAcquisition(s, offer.id), /unavailable/);
+  G.advance(s);
+  assert.equal(s.financeHistory.at(-1).companyRevenue.acquisitions, offer.revenue);
+  assert.ok(G.validSystemsSave(roundTrip(s)));
+});
+
+test("Financing a small label transfers its artist and repays acquisition debt weekly", () => {
+  const s = ceo(81);
+  s.company.phase = 6;
+  s.cash = 1000000;
+  const offer = G.acquisitionOffers(s).find(({ kind }) => kind === "label");
+  const cash = s.cash;
+  const owned = G.buyAcquisition(s, offer.id, true);
+  assert.equal(s.cash, cash - offer.down);
+  assert.equal(owned.debt, offer.price - offer.down);
+  assert.equal(s.artists[0].id, offer.artist.id);
+  assert.equal(s.artists[0].contract.remaining, 3);
+  assert.ok(!s.rivalArtists.some(({ id }) => id === offer.artist.id));
+  const debt = owned.debt;
+  G.advance(s);
+  assert.ok(owned.debt < debt);
+  assert.equal(G.companyValuation(s).debt, owned.debt);
+  assert.equal(s.financeHistory.at(-1).companyCosts.acquisitionPayments, owned.payment);
+});
+
+test("A majority can veto a purchase above budget even under high creative freedom", () => {
+  const s = ipoFixture();
+  G.goPublic(s);
+  const board = s.company.board;
+  board.freedom = "high";
+  board.budget = 1;
+  for (const director of board.directors) director.promises = -100;
+  const offer = G.acquisitionOffers(s)[0];
+  const cash = s.cash;
+  const spent = board.spent;
+  assert.equal(G.buyAcquisition(s, offer.id), null);
+  G.choose(s, 0);
+  assert.ok(s.news.some((line) => line.includes("vetoed the acquisition")));
+  assert.equal(s.cash, cash);
+  assert.equal(s.company.acquisitions, undefined);
+  for (const director of board.directors) director.promises = 100;
+  assert.equal(G.buyAcquisition(s, offer.id), null);
+  G.choose(s, 0);
+  assert.ok(G.buyAcquisition(s, offer.id));
+  assert.equal(s.cash, cash - offer.price);
+  assert.equal(board.spent, spent + offer.price);
 });
 
 console.log(`${count} company tests passed.`);

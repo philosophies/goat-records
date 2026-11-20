@@ -31,7 +31,7 @@ const context = vm.createContext({
   Blob,
   URL,
 });
-require("./load-interface.cjs")(context);
+require("./load-interface.cjs")(context, { classic: true });
 const run = (code) => vm.runInContext(code, context);
 const saved = () => JSON.parse(stored);
 function click(data) {
@@ -58,9 +58,14 @@ assert.match(html("content"), /Public company/);
 click({ tab: "office" });
 assert.match(
   html("content"),
-  /id="sec-company"[\s\S]*Goals for phase 2[\s\S]*id="sec-campaign"/,
+  /id="sec-company"[\s\S]*Goals for phase 2/,
   "the office leads with the company",
 );
+
+assert.doesNotMatch(html("content"), /id="sec-campaign"/);
+click({ tab: "office~sec-campaign" });
+assert.match(html("content"), /id="sec-campaign"/);
+assert.doesNotMatch(html("content"), /id="sec-company"/);
 
 // Meet phase 2's goals and settle a week: the chip and a phase card update.
 click({ tab: "company" });
@@ -79,7 +84,7 @@ assert.match(html("milestones"), /COMPANY GROWTH[\s\S]*Phase 2 · Indie label/);
 
 // The office renames the label; the roof sign and panel title follow.
 run(`state.albums = state.albums.filter((p) => p.id < 800); save(); render();`);
-click({ tab: "office" });
+click({ tab: "office~sec-name" });
 assert.match(html("content"), /COMPANY NAME[\s\S]*Goat Records/);
 element("labelNameInput").value = "Velvet Throne";
 click({ action: "renameLabel" });
@@ -88,7 +93,7 @@ assert.equal(element("brandName").textContent, "VELVET THRONE", "the top bar car
 click({ tab: "label" });
 assert.equal(element("drawerTitle").textContent, "Velvet Throne");
 element("labelNameInput").value = "";
-click({ tab: "office" });
+click({ tab: "office~sec-name" });
 click({ action: "renameLabel" });
 assert.equal(saved().labelName, "Velvet Throne", "an empty name is refused");
 

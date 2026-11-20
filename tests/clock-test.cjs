@@ -3,7 +3,7 @@ const assert = require("node:assert/strict"),
   G = require("../src/engine.js"),
   { clockState, clockReasons, clockLabel, CLOCK_TICK_MS } = require("../src/ui/clock.js");
 
-const fresh = G.create(11);
+const fresh = G.create(11, { ceo: false });
 let c = clockState(fresh, { speed: 0 });
 assert.deepEqual([c.run, c.reason, c.held], [false, "paused", false], "a new label is paused");
 assert.equal(clockLabel(c, true), "Paused · press 1× to start the clock");
@@ -59,7 +59,7 @@ c = waiting({ event: { type: "artist" } }, { speed: 0 });
 assert.deepEqual([c.run, c.held], [false, false], "a player pause is never resumed automatically");
 
 // Across a real album, the clock holds exactly when the engine blocks advancing.
-const s = G.create(5);
+const s = G.create(5, { ceo: false });
 s.cash = 100000;
 G.sign(s, s.candidates[0].id);
 const a = s.artists[0];

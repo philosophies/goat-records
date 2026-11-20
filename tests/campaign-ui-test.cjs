@@ -65,7 +65,7 @@ assert.match(p.html("content"), /goal-active[\s\S]*Reach Indie Imprint/);
 assert.match(p.html("content"), /Score so far/);
 
 // The yearly review banner appears after the year boundary and is dismissed with Continue.
-const year = G.create(31);
+const year = G.create(31, { ceo: false });
 year.week = 52;
 G.advance(year);
 clear(year);
@@ -79,7 +79,7 @@ assert.equal(p.saved().campaign.reviews[0].seen, true);
 assert.match(p.html("hud"), /Y2 goal · A Top 40 album/);
 
 // A finished run: final review, legacy picker and New Game+.
-const done = G.create(32);
+const done = G.create(32, { ceo: false });
 done.awards = 40;
 done.week = 20 * 52;
 G.advance(done);
@@ -107,7 +107,7 @@ assert.equal(p.html("content"), "", "a new run starts on the lot with menus clos
 assert.match(p.html("hud"), /Y1 goal/);
 
 // Dropping below $0 shows a warning card first; the run carries on during the grace period.
-const red = G.create(34);
+const red = G.create(34, { ceo: false });
 red.cash = 0;
 G.advance(red);
 clear(red);
@@ -116,7 +116,7 @@ assert.equal(red.finished, false);
 assert.match(p.html("milestones"), /CASH WARNING[\s\S]*IN THE RED[\s\S]*within 4 weeks/);
 
 // An early bankruptcy offers no New Game+.
-const broke = G.create(33);
+const broke = G.create(33, { ceo: false });
 broke.cash = 0;
 broke.debtWeeks = G.DEBT.graceWeeks;
 G.advance(broke);

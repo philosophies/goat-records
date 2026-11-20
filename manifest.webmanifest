@@ -1,0 +1,16 @@
+{
+  "id": "./",
+  "name": "Goat Records",
+  "short_name": "Goat Records",
+  "description": "Run a record label from a home studio to a public company.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#151b3d",
+  "theme_color": "#151b3d",
+  "icons": [
+    { "src": "icons/goat-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/goat-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

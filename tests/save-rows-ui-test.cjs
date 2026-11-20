@@ -30,7 +30,7 @@ const context = vm.createContext({
 });
 require("./load-interface.cjs")(context);
 const G = context.LabelGame,
-  s = G.create(41);
+  s = G.create(41, { ceo: false });
 s.cash = 1e6;
 s.rank = 6;
 G.sign(s, s.candidates[0].id);

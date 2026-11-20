@@ -5,7 +5,7 @@
   /** @param {object} core engine helpers  @param {object} D data tables */
   function create(core, D) {
     const { clamp, log, roll, operatingYear } = core;
-    const { CAMPAIGN, CAMPAIGN_GOALS, CAMPAIGN_SCORE, CAMPAIGN_STARS, LEGACY, LEGACY_BONUSES, RANKS } = D;
+    const { CAMPAIGN, CAMPAIGN_GOALS, CAMPAIGN_SCORE, CAMPAIGN_STARS, CEO_SCORE, LEGACY, LEGACY_BONUSES, RANKS } = D;
     const api = () => core.api();
     const bonusById = Object.fromEntries(LEGACY_BONUSES.map((b) => [b.id, b]));
     const STATUSES = ["met", "missed", "untracked", "none"];
@@ -294,6 +294,7 @@
 
     /** Score breakdown as calculation rows, the total and the star grade (1–5). */
     function finalScore(s) {
+      if (s.company) return ceoScore(s);
       const K = CAMPAIGN_SCORE,
         albums = released(s),
         rank = api().rank(s),
@@ -345,6 +346,34 @@
       );
       return { rows, total, stars: starsFor(total) };
     }
+    function ceoEnding(s) {
+      if (!s.finished) return null;
+      if (s.fired || s.ousted) return "fired";
+      if (isBankrupt(s)) return "folded";
+      return "complete";
+    }
+    function ceoScore(s) {
+      const K = CEO_SCORE;
+      const value = api().companyValuation(s).value;
+      const share = s.company.ownership ?? 1;
+      const hits = released(s).filter((p) => p.hit || p.quality >= D.HIT_QUALITY).length;
+      const ending = ceoEnding(s);
+      const rows = [
+        { name: "Company value", value: Math.min(K.valueCap, Math.floor(value / K.valuePerPoint)) },
+        { name: `Your stake · ${Math.round(share * 100)}%`, value: Math.min(K.ownedCap, Math.floor(value * share / K.ownedPerPoint)) },
+        { name: `Hit albums · ${hits}`, value: Math.min(K.hitCap, hits) * K.perHit },
+        { name: `Awards · ${s.awards}`, value: Math.min(K.awardCap, s.awards) * K.perAward },
+        { name: `Artists developed · ${s.campaign.developed.length}`, value: Math.min(K.developedCap, s.campaign.developed.length) * K.perDeveloped },
+        { name: "Kept the chair", value: !s.fired && !s.ousted && !isBankrupt(s) ? K.keptChair : 0 },
+      ];
+      const penalty = ending === "folded" ? K.foldPenalty : ending === "fired" ? K.firedPenalty : 0;
+      if (penalty) rows.push({
+        name: ending === "fired" ? "Removed as CEO" : "The label folded",
+        value: -Math.round(rows.reduce((total, row) => total + row.value, 0) * penalty),
+      });
+      const total = rows.reduce((sum, row) => sum + row.value, 0);
+      return { rows, total, stars: starsFor(total) };
+    }
     function starsFor(total) {
       return Math.max(1, CAMPAIGN_STARS.filter((t) => total >= t).length);
     }
@@ -363,6 +392,7 @@
         run: c.run,
         finished: s.finished,
         bankrupt: isBankrupt(s),
+        ending: s.company ? ceoEnding(s) : null,
         complete: campaignOver(s),
         yearsPlayed: Math.min(c.years, operatingYear(s.week) - (campaignOver(s) ? 1 : 0)),
         score,
@@ -397,16 +427,18 @@
     }
     /** True when the run ended because the label folded. Older saves have no flag: a finished run below $0 folded. */
     function isBankrupt(s) {
+      if (s.company && (s.fired || s.ousted)) return false;
       return !!s.finished && (s.bankrupt ?? s.cash < 0);
     }
     /** New Game+ opens when a run ends at its last year, or by bankruptcy after year one. */
     function canNewGamePlus(s) {
-      return !!s.finished && (isBankrupt(s) ? s.week > WEEKS : campaignOver(s));
+      return !!s.finished && (!!s.company || (isBankrupt(s) ? s.week > WEEKS : campaignOver(s)));
     }
     /** Starts a new run from a finished one, carrying the chosen legacy bonuses. Returns the new state. */
     function newGamePlus(prev, choices = []) {
       if (!canNewGamePlus(prev))
-        throw Error("New Game+ opens after year 20, or after running out of cash once year one is complete.");
+        throw Error(prev.company ? "New Game+ opens once the CEO run ends." :
+          "New Game+ opens after year 20, or after running out of cash once year one is complete.");
       if (!Array.isArray(choices)) throw Error("Choose legacy bonuses from the list.");
       const ids = [...new Set(choices)];
       if (ids.some((id) => !bonusById[id])) throw Error("Unknown legacy bonus.");
@@ -427,6 +459,7 @@
             stars: review.score.stars,
             years: review.yearsPlayed,
             bankrupt: review.bankrupt,
+            ...(review.ending ? { ending: review.ending } : {}),
           },
         ].slice(-20),
         themes: has("themes") ? [...prev.themes] : null,
@@ -443,9 +476,12 @@
               .filter((r) => prev.employees?.[r])
               .map((r) => JSON.parse(JSON.stringify(prev.employees[r])))
           : null,
+        heads: has("team") && prev.company ? Object.fromEntries(
+          Object.entries(prev.company.departments).filter(([, dept]) => dept.head).map(([id, dept]) => [id, dept.head]),
+        ) : null,
       };
       const seed = Math.floor(roll(prev, "campaign new game") * 4294967296) >>> 0;
-      return api().create(seed, { legacy });
+      return api().create(seed, { legacy, ceo: !!prev.company });
     }
     /** Applies legacy bonuses to a newly created label. */
     function applyLegacy(s, L) {
@@ -458,10 +494,13 @@
         const b = bonusById[id];
         if (b.cash) s.cash += b.cash;
         if (b.rank) s.rank = Math.max(s.rank || 1, b.rank);
-        if (b.facility && !s.hq.facilities.some((f) => f.id === b.facility))
+        if (b.facility && s.company) addLegacyFloor(s, { type: b.facility, level: 1 });
+        else if (b.facility && !s.hq.facilities.some((f) => f.id === b.facility))
           s.hq.facilities.push({ id: b.facility, x: 0, y: 0, level: 1, builtWeek: s.week });
-        if (Number.isInteger(b.booth) && !s.booths.some((x) => x.id === b.booth))
+        if (Number.isInteger(b.booth) && !s.booths.some((x) => x.id === b.booth)) {
           s.booths.push({ id: b.booth, hits: 0, prestige: 0 });
+          if (s.company) addLegacyFloor(s, { type: "room", room: b.booth, level: 1 });
+        }
         if (id === "themes" && L.themes)
           for (const t of L.themes)
             if (D.THEMES.some((x) => x.name === t) && !s.themes.includes(t)) s.themes.push(t);
@@ -472,12 +511,20 @@
             s.employees[e.role] = { ...e, id: s.nextId++ };
           }
       }
+      if (s.company && L.heads) {
+        for (const [id, head] of Object.entries(L.heads)) {
+          const { plot, contacts, calmUntil, ...veteran } = head;
+          s.company.departments[id].head = { ...veteran, id: s.company.nextExecId++, hiredWeek: s.week };
+        }
+      }
       // A free search is paid for and then run, so it uses the normal scouting rules.
       for (const id of c.legacy) {
         const b = bonusById[id];
         if (Number.isInteger(b.scout)) {
-          s.cash += D.SCOUT_BUDGETS[b.scout].cost;
-          api().paidScout(s, b.scout);
+          const available = api().scoutLimits(s)?.budget ?? b.scout;
+          const budget = Math.min(available, b.scout);
+          s.cash += D.SCOUT_BUDGETS[budget].cost;
+          api().paidScout(s, budget);
         }
       }
       c.peakCash = Math.max(c.peakCash, s.cash);
@@ -486,6 +533,12 @@
         s,
         `Run ${c.run} begins${c.legacy.length ? " with legacy bonuses: " + c.legacy.map((id) => bonusById[id].name).join(", ") : ""}.`,
       );
+    }
+    function addLegacyFloor(s, floor) {
+      const buildings = s.company.buildings;
+      const apartment = buildings[0];
+      if (apartment.floors.length < D.BUILDINGS[0].maxFloors) apartment.floors.push(floor);
+      else buildings.push({ id: "storefront", floors: [floor] });
     }
 
     /* ---------------- New games, loading and validation ---------------- */
@@ -520,11 +573,12 @@
           log(s, "Year-one results recorded. The label continues into the 20-year campaign.");
         }
       }
-      if (s.legacy) {
-        applyLegacy(s, s.legacy);
-        delete s.legacy;
-      }
       return s;
+    }
+    function afterInit(s) {
+      if (!s.legacy) return;
+      applyLegacy(s, s.legacy);
+      delete s.legacy;
     }
     const isRows = (rows) =>
       Array.isArray(rows) &&
@@ -558,6 +612,7 @@
 
     return {
       init,
+      afterInit,
       validSave,
       yearEnd,
       weekly,

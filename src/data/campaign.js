@@ -118,6 +118,21 @@
 
   // Minimum final score for each star grade, 1 to 5.
   const CAMPAIGN_STARS = [0, 1200, 2400, 3600, 4800];
+  const CEO_SCORE = {
+    valuePerPoint: 20000,
+    valueCap: 2200,
+    ownedPerPoint: 20000,
+    ownedCap: 1700,
+    perHit: 25,
+    hitCap: 40,
+    perAward: 60,
+    awardCap: 20,
+    perDeveloped: 50,
+    developedCap: 20,
+    keptChair: 450,
+    foldPenalty: 0.25,
+    firedPenalty: 0.15,
+  };
 
   // Legacy points earned per final score point, and the bonuses they buy for the next run.
   const LEGACY = { scorePerPoint: 250 };
@@ -166,7 +181,7 @@
     },
   ];
 
-  const data = { CAMPAIGN, CAMPAIGN_GOALS, CAMPAIGN_SCORE, CAMPAIGN_STARS, LEGACY, LEGACY_BONUSES };
+  const data = { CAMPAIGN, CAMPAIGN_GOALS, CAMPAIGN_SCORE, CAMPAIGN_STARS, CEO_SCORE, LEGACY, LEGACY_BONUSES };
   root.GoatData = Object.assign(root.GoatData || {}, data);
   if (typeof module !== "undefined" && module.exports) module.exports = data;
 })(typeof globalThis !== "undefined" ? globalThis : this);

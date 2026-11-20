@@ -24,7 +24,7 @@ function toYearEnd(s, year) {
   return s;
 }
 function fresh(seed = 3) {
-  const s = G.create(seed);
+  const s = G.create(seed, { ceo: false });
   s.cash = 200000;
   return s;
 }
@@ -53,7 +53,7 @@ function fakeAlbum(s, { year = 1, best = null, quality = 60 } = {}) {
 const goal = (s, year) => s.campaign.goals.find((g) => g.year === year);
 
 test("A new label starts run 1 of a 20-year campaign with the Reach Indie Imprint goal", () => {
-  const s = G.create(1);
+  const s = G.create(1, { ceo: false });
   assert.equal(s.campaign.run, 1);
   assert.equal(s.campaign.years, 20);
   assert.equal(G.CAMPAIGN_GOALS.length, 20);
@@ -176,7 +176,7 @@ test("A theme reward pays cash instead once every theme is known", () => {
 });
 
 test("A label below $0 gets a warning and a grace period before the run ends", () => {
-  const s = G.create(9);
+  const s = G.create(9, { ceo: false });
   s.cash = 0;
   G.advance(s);
   clear(s);
@@ -266,7 +266,7 @@ test("The final score follows the data formula and stars follow the thresholds",
   const broke = G.finalScore(s),
     subtotal = broke.rows.slice(0, -1).reduce((n, r) => n + r.value, 0);
   assert.equal(broke.rows.at(-1).value, -Math.round(subtotal * K.bankruptPenalty));
-  const empty = G.create(12);
+  const empty = G.create(12, { ceo: false });
   assert.equal(G.finalScore(empty).stars, 1);
   empty.awards = 100;
   empty.fame = 99999;
@@ -333,7 +333,7 @@ test("New Game+ starts run 2 with the chosen legacy bonuses", () => {
   const all = G.LEGACY_BONUSES.map((b) => b.id),
     cost = G.LEGACY_BONUSES.reduce((n, b) => n + b.cost, 0);
   const s = G.newGamePlus(prev, all),
-    base = G.create(1);
+    base = G.create(1, { ceo: false });
   assert.equal(s.week, 1);
   assert.equal(s.finished, false);
   assert.equal(s.campaign.run, 2);
@@ -369,7 +369,7 @@ test("New Game+ without bonuses keeps only the run count, history and banked poi
   assert.deepEqual(s.combos, {});
   assert.equal(G.rank(s), 1);
   assert.equal(s.staff.length, 0);
-  assert.equal(s.cash, G.create(2).cash);
+  assert.equal(s.cash, G.create(2, { ceo: false }).cash);
   s.week = 20 * 52;
   s.campaign.bank = 0;
   G.advance(s);
@@ -495,10 +495,61 @@ test("validSave accepts old and current saves and rejects malformed campaign dat
 });
 
 test("Seeded campaigns stay reproducible", () => {
-  assert.deepEqual(G.create(42), G.create(42));
+  assert.deepEqual(G.create(42, { ceo: false }), G.create(42, { ceo: false }));
   const a = finishedRun(21),
     b = finishedRun(21);
   assert.deepEqual(G.newGamePlus(a, ["scouts"]), G.newGamePlus(b, ["scouts"]));
+});
+
+test("CEO scores distinguish completion, dismissal, and folding", () => {
+  const original = G.create(81, { ceo: true });
+  original.week = 53;
+  original.company.ownership = 0.75;
+  G.syncShares(original);
+  original.cash = 400000;
+  original.awards = 2;
+  original.campaign.developed = [{ name: "New Artist" }];
+  original.albums.push({ released: true, title: "A hit", quality: 80, total: 0 });
+  original.finished = true;
+  for (const [ending, flags, total] of [
+    ["complete", { week: 1041 }, 680],
+    ["fired", { fired: true }, 195],
+    ["fired", { ousted: true }, 195],
+    ["folded", { bankrupt: true }, 172],
+  ]) {
+    const s = { ...original, ...flags };
+    const review = G.finalReview(s);
+    assert.equal(review.ending, ending);
+    assert.equal(review.score.total, total);
+    assert.equal(review.score.stars, 1);
+    assert.equal(review.score.rows.find(({ name }) => name === "Kept the chair").value,
+      ending === "complete" ? 450 : 0);
+    assert.equal(G.canContinueCareer(s), false);
+    assert.equal(review.canNewGamePlus, true);
+  }
+});
+
+test("CEO New Game+ works after an early exit and carries cash, buildings and executive bonuses", () => {
+  const prev = G.create(82, { ceo: true });
+  prev.cash = 100000;
+  prev.company.phase = 3;
+  G.appointHead(prev, "finance", { skill: 67 });
+  prev.company.departments.finance.head.plot = { due: 20 };
+  prev.campaign.bank = 25;
+  prev.finished = true;
+  prev.fired = true;
+  const s = G.newGamePlus(prev, ["seed", "facility", "studio", "scouts", "team"]);
+  assert.ok(s.company);
+  assert.equal(s.cash, 17000);
+  assert.equal(s.company.phase, 1);
+  assert.ok(G.facilitiesOf(s).some(({ id }) => id === "writers"));
+  assert.ok(s.company.buildings.some((building) => building.floors.some((floor) => floor.room === 1)));
+  assert.equal(s.company.departments.finance.head.skill, 67);
+  assert.equal(s.company.departments.finance.head.plot, undefined);
+  assert.equal(s.campaign.history.at(-1).ending, "fired");
+  assert.ok(G.validSystemsSave(s));
+  assert.equal(s.campaign.run, 2);
+  assert.equal(s.campaign.bank, G.legacyPoints(prev) - 20);
 });
 
 console.log(`${count} campaign tests passed.`);

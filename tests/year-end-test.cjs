@@ -5,7 +5,7 @@ const assert = require("node:assert/strict"),
 // A rank goal is met when the last requirement is reached at the year's final settlement.
 const goal = G.CAMPAIGN_GOALS.find((g) => g.type === "rank" && g.need >= 3);
 assert.ok(goal, "the goal ladder has a rank goal");
-const s = G.create(5);
+const s = G.create(5, { ceo: false });
 s.week = goal.year * 52;
 s.rank = goal.need - 1;
 s.cash = 1e6;

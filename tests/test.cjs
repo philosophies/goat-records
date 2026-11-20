@@ -30,9 +30,9 @@ const next = (s) => {
   resolveProduction(s);
   G.advance(s);
 };
-test("Seeded candidate generation is reproducible", () => assert.deepEqual(G.create(42), G.create(42)));
+test("Seeded candidate generation is reproducible", () => assert.deepEqual(G.create(42, { ceo: false }), G.create(42, { ceo: false })));
 test("Roster capacity is enforced and expands with label rank, not fame alone", () => {
-  let s = G.create(4);
+  let s = G.create(4, { ceo: false });
   G.sign(s, s.candidates[0].id);
   G.sign(s, s.candidates[0].id);
   assert.throws(() => G.sign(s, s.candidates[0].id), /Roster full/);
@@ -45,14 +45,14 @@ test("Roster capacity is enforced and expands with label rank, not fame alone", 
   assert.equal(G.slots(s), 6);
 });
 test("Insufficient funds cannot mutate a signing", () => {
-  let s = G.create(1);
+  let s = G.create(1, { ceo: false });
   s.cash = 0;
   let before = JSON.stringify(s);
   assert.throws(() => G.sign(s, s.candidates[0].id), /cash/);
   assert.equal(JSON.stringify(s), before);
 });
 test("Album and booth reservations, production, revenue and hit legacy", () => {
-  let s = G.create(1);
+  let s = G.create(1, { ceo: false });
   G.sign(s, s.candidates[0].id);
   G.sign(s, s.candidates[0].id);
   let a = s.artists[0];
@@ -78,14 +78,14 @@ test("Album and booth reservations, production, revenue and hit legacy", () => {
   assert.equal(s.booths[0].prestige, 12);
 });
 test("Youth artists receive a six-week production schedule", () => {
-  let s = G.create(3);
+  let s = G.create(3, { ceo: false });
   G.sign(s, s.candidates[0].id);
   s.artists[0].age = "Youth";
   G.record(s, { artistId: s.artists[0].id, boothId: 0, genre: "Pop", audience: "Youth" });
   assert.equal(s.albums[0].duration, 6);
 });
 test("Events pause actions; choices schedule persistent consequences", () => {
-  let s = G.create(8);
+  let s = G.create(8, { ceo: false });
   G.sign(s, s.candidates[0].id);
   while (s.week < 8) next(s);
   assert.ok(s.event);
@@ -108,7 +108,7 @@ test("Events pause actions; choices schedule persistent consequences", () => {
   assert.ok(s.news.some((x) => x.includes("lasting connections")));
 });
 test("PR staff mitigates immediate trust damage", () => {
-  let s = G.create(7);
+  let s = G.create(7, { ceo: false });
   G.sign(s, s.candidates[0].id);
   G.hire(s, "Public Relations");
   s.event = { artist: s.artists[0].id, title: "Test", options: [{ label: "Choice", trust: -10 }] };
@@ -120,7 +120,7 @@ test("PR staff mitigates immediate trust damage", () => {
   );
 });
 test("Released catalog survives a contract ending", () => {
-  let s = G.create(9);
+  let s = G.create(9, { ceo: false });
   G.sign(s, s.candidates[0].id);
   G.record(s, { artistId: s.artists[0].id, boothId: 0, genre: "Pop", audience: "Adult" });
   while (!s.albums[0].released) next(s);
@@ -131,7 +131,7 @@ test("Released catalog survives a contract ending", () => {
   assert.ok(s.albums[0].total > n);
 });
 test("Awards are not automatically granted each quarter", () => {
-  let s = G.create(12);
+  let s = G.create(12, { ceo: false });
   s.albums.push({
     id: 99,
     artist: 99,
@@ -151,7 +151,7 @@ test("Awards are not automatically granted each quarter", () => {
   assert.equal(s.awards, 0);
 });
 test("Negative cash past the grace period ends the game and prevents further actions", () => {
-  let s = G.create(5);
+  let s = G.create(5, { ceo: false });
   s.cash = 0;
   s.debtWeeks = G.DEBT.graceWeeks;
   G.advance(s);
@@ -159,7 +159,7 @@ test("Negative cash past the grace period ends the game and prevents further act
   assert.throws(() => G.advance(s), /ended/);
 });
 function play(seed) {
-  let s = G.create(seed);
+  let s = G.create(seed, { ceo: false });
   G.sign(s, s.candidates.toSorted((a, b) => b.talent - a.talent)[0].id);
   G.hire(s, "Producer");
   // Plays the first operating year; the campaign continues after it, so the sample stops at week 53.
@@ -205,7 +205,7 @@ test("Fifty seeded first years either fold or carry on into year two", () => {
 });
 
 test("Five stages require decisions, reviews and elapsed weeks before release", () => {
-  let s = G.migrate(G.create(41));
+  let s = G.migrate(G.create(41, { ceo: false }));
   G.sign(s, s.candidates[0].id);
   G.record(s, { artistId: s.artists[0].id, boothId: 0, genre: "Pop", audience: "Adult" });
   let p = s.albums[0];
@@ -229,7 +229,7 @@ test("Five stages require decisions, reviews and elapsed weeks before release", 
   assert.throws(() => G.releaseAlbum(s, p.id), /not found/);
 });
 test("Expertise, artist state, studio and current trend change previews", () => {
-  let s = G.migrate(G.create(4));
+  let s = G.migrate(G.create(4, { ceo: false }));
   G.sign(s, s.candidates[0].id);
   G.record(s, { artistId: s.artists[0].id, boothId: 0, genre: "Pop", audience: "Adult" });
   let p = s.albums[0];
@@ -245,7 +245,7 @@ test("Expertise, artist state, studio and current trend change previews", () => 
 });
 test("Level-based reshuffles are capped, persisted and never reroll fixed contributions", () => {
   for (const xp of [0, 3, 6, 12]) {
-    let s = G.migrate(G.create(31));
+    let s = G.migrate(G.create(31, { ceo: false }));
     G.sign(s, s.candidates[0].id);
     s.artists[0].xp = xp;
     G.record(s, { artistId: s.artists[0].id, boothId: 0, genre: "Pop", audience: "Adult" });
@@ -268,7 +268,7 @@ test("Level-based reshuffles are capped, persisted and never reroll fixed contri
   }
 });
 test("Old saves preserve released albums and migrate active albums", () => {
-  let s = G.create(2);
+  let s = G.create(2, { ceo: false });
   G.sign(s, s.candidates[0].id);
   G.record(s, { artistId: s.artists[0].id, boothId: 0, genre: "Rap", audience: "Teen" });
   delete s.albums[0].production;
@@ -280,7 +280,7 @@ test("Old saves preserve released albums and migrate active albums", () => {
 });
 test("Release strategy and specialist expertise affect their target ratings", () => {
   function ready() {
-    let s = G.migrate(G.create(18));
+    let s = G.migrate(G.create(18, { ceo: false }));
     G.sign(s, s.candidates[0].id);
     G.record(s, { artistId: s.artists[0].id, boothId: 0, genre: "Pop", audience: "Adult" });
     while (!s.albums[0].production.releaseReady) next(s);
@@ -300,7 +300,7 @@ test("Release strategy and specialist expertise affect their target ratings", ()
   assert.ok(copy.albums[0].launchMultiplier > 0);
 });
 test("Training grants XP and migration credits prior releases only once", () => {
-  let s = G.create(18);
+  let s = G.create(18, { ceo: false });
   G.sign(s, s.candidates[0].id);
   G.train(s, s.artists[0].id);
   assert.equal(s.artists[0].xp, 1);

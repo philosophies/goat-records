@@ -13,13 +13,16 @@ const element = (id) => {
       disabled: false,
       classList: { toggle() {} },
       dataset: {},
+      showModal() { this.open = true; },
+      close() { this.open = false; this.onclose?.(); },
+      select() {},
+      setCustomValidity() {},
     });
   return elements.get(id);
 };
 let stored = null;
 const context = vm.createContext({
   console,
-  LabelGame: require("../src/engine.js"),
   document: {
     getElementById: element,
     querySelectorAll: () => [],
@@ -31,7 +34,7 @@ const context = vm.createContext({
   Blob,
   URL,
 });
-require("./load-interface.cjs")(context);
+require("./load-interface.cjs")(context, { classic: true });
 const run = (code) => vm.runInContext(code, context);
 const saved = () => JSON.parse(stored);
 function click(data) {
@@ -44,7 +47,18 @@ assert.equal(element("phoneButton").hidden, true, "no phone in a classic run");
 click({ tab: "phone" });
 assert.equal(element("drawer").hidden, true, "the phone does not open in a classic run");
 
-run(`state = G.create(91, { ceo: true }); save(); render();`);
+element("reset").onclick();
+assert.equal(element("newLabelDialog").open, true);
+assert.equal(element("newLabelMode").value, "ceo");
+element("cancelNewLabel").onclick();
+assert.equal(element("newLabelDialog").open, false);
+assert.equal(saved().company, undefined);
+element("reset").onclick();
+element("newLabelName").value = "Test Records";
+element("newLabelForm").onsubmit({ preventDefault() {} });
+assert.equal(element("newLabelDialog").open, false);
+assert.equal(saved().labelName, "Test Records");
+assert.equal(saved().company.phase, 1);
 assert.equal(element("phoneButton").hidden, false);
 assert.doesNotMatch(html("phoneButton"), /phone-badge/, "nothing waiting, no badge");
 click({ tab: "phone" });
@@ -94,14 +108,32 @@ assert.match(html("content"), /Nobody matches/);
 click({ tab: "phone:wallet" });
 assert.match(
   html("content"),
-  /Cash<\/dt><dd>\$[\d,]+<\/dd>[\s\S]*Budget left this period<\/dt><dd>— \(no board\)[\s\S]*Share price<\/dt><dd>— \(private company\)/,
+  /Cash<\/dt><dd>\$[\d,]+<\/dd>[\s\S]*Budget left this period<\/dt><dd>— \(no board\)[\s\S]*Estimated share price/,
 );
+assert.match(html("content"), /Your shares<\/dt><dd>10,000 \/ 10,000/);
 click({ tab: "phone:settings" });
 assert.match(html("content"), /data-action="phoneSpeed" data-speed="2"/);
 click({ action: "phoneSpeed", speed: "2" });
 assert.equal(run("GoatClock.speed"), 2);
 click({ action: "phoneSpeed", speed: "0" });
 assert.equal(run("GoatClock.speed"), 0);
+
+run(`state = G.create(91, { ceo: true });
+  state.cash = 100000; G.sign(state, state.candidates[0].id);
+  state.artists[0].morale = 60; state.week = 12; G.advance(state); save(); render();`);
+click({ tab: "phone:inbox" });
+assert.match(html("content"), /A studio slot opens[\s\S]*Deadline in 2/);
+click({ action: "showModal" });
+click({ action: "choose", id: "3" });
+assert.equal(saved().event, null);
+assert.equal(saved().company.deferredEvents[0].dueWeek, 15);
+element("reset").onclick();
+element("newLabelMode").value = "classic";
+element("newLabelMode").onchange();
+assert.equal(element("newLabelField").hidden, true);
+element("newLabelForm").onsubmit({ preventDefault() {} });
+assert.equal(saved().classicMode, true);
+assert.equal(saved().company, undefined);
 
 console.log(
   "PASS phone interface harness: Calendar, Contacts with search, Wallet and Settings apps, corner button and badge, Inbox, classic runs without a phone",

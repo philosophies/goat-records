@@ -181,7 +181,7 @@ function workArtists(s, f) {
   }
 }
 function run(seed, f) {
-  const s = G.create(seed);
+  const s = G.create(seed, { ceo: false });
   G.paidScout(s, f.national ? 2 : 0);
   signArtists(s, f);
   while (!s.finished) {

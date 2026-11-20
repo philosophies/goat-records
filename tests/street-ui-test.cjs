@@ -31,7 +31,7 @@ const context = vm.createContext({
   Blob,
   URL,
 });
-require("./load-interface.cjs")(context);
+require("./load-interface.cjs")(context, { classic: true });
 const run = (code) => vm.runInContext(code, context);
 const saved = () => JSON.parse(stored);
 function click(data) {
@@ -58,8 +58,8 @@ assert.equal(
   "owned buildings plus one locked plot",
 );
 assert.equal(html("lotRoof"), "", "no classic roof sign on the street");
-assert.match(html("lotGround"), /data-action="streetJump" data-id="apartment"/);
-assert.match(html("lotGround"), /data-action="streetJump" data-id="storefront"/);
+assert.match(html("lotGround"), /id="streetJump"[\s\S]*value="apartment"/);
+assert.match(html("lotGround"), /id="streetJump"[\s\S]*value="storefront"/);
 
 // Grow the label: plots for sale, bought buildings with floors, people on their floors.
 run(`state.company.phase = 3; G.buildFloor(state, "apartment", "writers");
@@ -90,7 +90,7 @@ assert.match(
 // Tapping someone on the street opens their panel; the minimap jump is handled.
 click({ tab: "artist:" + rec.id });
 assert.equal(element("drawerTitle").textContent, rec.name);
-click({ action: "streetJump", id: "storefront" });
+listeners.change({ target: { id: "streetJump", value: "storefront" } });
 
 // Panels: buy a plot, build floors, open and upgrade a facility floor, all by clicks.
 click({ tab: "buy:studio" });

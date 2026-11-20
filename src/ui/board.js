@@ -94,7 +94,7 @@ function lobbyControls(d) {
   return `<div class="lobby"><button data-action="boardMeet" data-director="${d.id}" ${disable(blocked() || met)}>${met ? "Met this week" : `Meet (+${G.LOBBY.meet})`}</button>${promise}${favors}</div>`;
 }
 function directorCard(d) {
-  return `<article class="card director"><div class="director-head">${directorPortrait(d.type)}<div><b>${esc(d.name)}</b><small>${esc(d.archetype)} · relationship ${d.relationship > 0 ? "+" : ""}${d.relationship}</small></div><span class="score">${d.value}</span></div>${meter(d.value)}<ul class="reasons">${reasonsList(d.reasons)}</ul>${lobbyControls(d)}</article>`;
+  return `<article class="card director"><div class="director-head">${directorPortrait(d.type)}<div><b>${esc(d.name)}</b><small>${esc(d.archetype)} · relationship ${d.relationship > 0 ? "+" : ""}${d.relationship}</small></div><span class="score">${d.value}</span></div>${meter(d.value)}<details class="decision-details"><summary>Score and lobbying</summary><ul class="reasons">${reasonsList(d.reasons)}</ul>${lobbyControls(d)}</details></article>`;
 }
 function boardScreen() {
   if (!state.company) return '<div class="empty">The boardroom is part of a CEO run.</div>';

@@ -2,7 +2,7 @@ const vm = require("node:vm"),
   fs = require("node:fs"),
   assert = require("node:assert/strict"),
   G = require("../src/engine.js");
-const s = G.create(7);
+const s = G.create(7, { ceo: false });
 s.cash = 100000;
 G.sign(s, s.candidates[0].id);
 const a = s.artists[0];
@@ -61,10 +61,10 @@ function click(dataset) {
 }
 click({ tab: "charts" });
 assert.match(el("content").innerHTML, /Industry Top 300/);
-assert.match(el("content").innerHTML, /page 1\/6/);
+assert.match(el("content").innerHTML, /page 1\/20/);
 click({ action: "chartPage", id: 1 });
-assert.match(el("content").innerHTML, /page 2\/6/);
-assert.match(el("content").innerHTML, /#51/);
+assert.match(el("content").innerHTML, /page 2\/20/);
+assert.match(el("content").innerHTML, /#16/);
 listeners.change({ target: { id: "chartFilter", value: "own" } });
 assert.match(el("content").innerHTML, /Annual Entry/);
 click({ tab: "journal" });

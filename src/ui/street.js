@@ -111,12 +111,9 @@ function streetHtml() {
   return `<div class="street-row">${streetLineup().map(streetBuilding).join("")}</div>`;
 }
 function streetMinimap() {
-  return `<nav class="street-map" aria-label="Jump to a building">${streetLineup()
-    .map((d) => {
-      const owned = state.company.buildings.some((b) => b.id === d.id);
-      return `<button class="map-chip ${owned ? "owned" : ""}" data-action="streetJump" data-id="${d.id}">${esc(d.name)}</button>`;
-    })
-    .join("")}</nav>`;
+  return `<div class="street-map"><select aria-label="Jump to a building" id="streetJump"><option value="">Jump to a building</option>${streetLineup()
+    .map((d) => `<option value="${d.id}">${esc(d.name)}</option>`)
+    .join("")}</select></div>`;
 }
 
 /** Scrolls the street so a building is in view. */
@@ -275,8 +272,7 @@ function streetSheet(id) {
 
 GoatUI.click.push((b) => {
   const d = b.dataset;
-  if (d.action === "streetJump") streetJump(d.id);
-  else if (d.action === "floorUpgrade") act(() => G.upgradeFloor(state, d.building, Number(d.index)));
+  if (d.action === "floorUpgrade") act(() => G.upgradeFloor(state, d.building, Number(d.index)));
   else if (d.action === "floorBuild")
     act(() => {
       G.buildFloor(state, d.building, d.type, d.room === undefined ? undefined : Number(d.room));
@@ -288,6 +284,12 @@ GoatUI.click.push((b) => {
       openPanel("building:" + d.building);
     });
   else return false;
+  return true;
+});
+GoatUI.change.push(({ target }) => {
+  if (target.id !== "streetJump") return false;
+  if (target.value) streetJump(target.value);
+  target.value = "";
   return true;
 });
 

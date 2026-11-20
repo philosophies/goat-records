@@ -1,13 +1,13 @@
 # Project workflow
 
-Goat Records is a record label management game in plain browser JavaScript: no build step, no dependencies. It runs by opening `index.html`. Version 1.1 is released; version 2.0 (the CEO update) is being built task by task.
+Goat Records is a record label management game in plain browser JavaScript. Open `index.html` directly, or serve it over HTTP or HTTPS to install the web app. Version 2.0 (the CEO update) is released.
 
 ## Rules
 
 - Do one task from `production/backlog.md` per session. `node tools/next-task.cjs` prints the next one.
 - Work on a branch named after the task (`t12-board-review`). Never commit to `main`, never create or move tags.
 - Run `node run-checks.cjs` before every commit. Every suite must pass. Never delete, skip or weaken a test to make it pass; fix the code.
-- 2.0 code runs only in CEO runs (`s.company` exists). A run without it must play exactly as 1.1 until task T37.
+- 2.0 code runs only in CEO runs (`s.company` exists). Classic runs must keep playing exactly as 1.1.
 - Gameplay numbers live in `src/data/*.js` tables, never inline. New systems follow `docs/architecture.md` (data file, system with `create(core, D)`, name in `SYSTEM_NAMES`, scripts in `index.html` in order).
 - Keep save compatibility. New state goes under `s.company`; `validSave` hooks accept saves without it. Describe material migration changes.
 - Use themes from music-business drama, Empire TV Tycoon, Game Dev Tycoon and Kairosoft games as inspiration only. No names, characters, logos, songs or art from them.
@@ -17,11 +17,12 @@ Goat Records is a record label management game in plain browser JavaScript: no b
 
 ## Each session
 
-1. Read `production/status.md` and the task. Read only the design sections the task names (`design/gdd/ceo-2.0.md`).
+1. Read [the handoff](production/handoff.md), `production/status.md`, and the task. Read the relevant design sections in `design/gdd/ceo-2.0.md`.
 2. Make the change and the tests the task lists.
 3. `node run-checks.cjs` until it passes.
 4. Mark the task `[x]` in `production/backlog.md` (`[~]` if unfinished, with a note). Add a row to the log in `production/status.md`: date, task, what changed, what is left, questions for the owner.
-5. Commit with a Conventional Commit message ending in the task id, e.g. `feat: board review sets the yearly budget (T20)`, then push the branch.
+5. Before pushing, update `production/handoff.md` with the current branch, next action, verification, and any blockers. Replace the checkpoint and keep it short.
+6. Commit with a Conventional Commit message ending in the task id when one exists, e.g. `feat: board review sets the yearly budget (T20)`, then push the branch.
 
 ## Map of the code
 
