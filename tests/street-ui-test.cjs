@@ -125,6 +125,37 @@ assert.match(html("content"), /data-action="buildingBuy" data-building="hq" disa
 click({ tab: "floor:studio:9" });
 assert.equal(element("drawer").hidden, true, "a missing floor opens nothing");
 
+// Building art: grade from floor levels, the finish band, rooftop details, props, day and night.
+run(`state = G.create(21, { ceo: true }); state.company.phase = 6; state.cash = 1e9;
+  G.buyBuilding(state, "studio"); save(); render();`);
+assert.equal(run(`GoatStreet.grade({ floors: [{ level: 1 }] })`), 1);
+assert.equal(run(`GoatStreet.grade({ floors: [{ level: 3 }, { level: 2 }] })`), 5);
+assert.equal(
+  run(`GoatStreet.grade({ floors: Array.from({ length: 8 }, () => ({ level: 3 })) })`),
+  10,
+  "capped at 10",
+);
+assert.deepEqual(
+  [1, 3, 4, 6, 7, 10].map((g) => run(`GoatStreet.band(${g})`)),
+  ["plain", "plain", "neon", "neon", "gold", "gold"],
+);
+let street = element("lot").innerHTML;
+assert.match(street, /class="street-building bldg-apartment band-plain" id="bldg-apartment" data-grade="1"/);
+assert.match(street, /roof-prop roof-tank/);
+assert.match(street, /street-prop lowrider/);
+assert.match(street, /street-prop palm/);
+run(
+  `state.company.buildings[0].floors[0].level = 3; state.company.buildings[0].floors.push({ type: "writers", level: 3 }); state.company.buildings[0].floors.push({ type: "vocal", level: 2 }); render();`,
+);
+street = element("lot").innerHTML;
+assert.match(street, /bldg-apartment band-gold" id="bldg-apartment" data-grade="8"/);
+assert.match(street, /roof-billboard/);
+assert.match(
+  ["day", "night"].join(" "),
+  new RegExp(element("scene").dataset.time),
+  "the street is set to day or night",
+);
+
 console.log(
   "PASS street interface harness: building, floor, build and buy panels with their actions, buildings and floors replace the lot in CEO runs, plots, minimap, people on their floors, classic lot untouched",
 );

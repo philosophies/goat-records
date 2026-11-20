@@ -387,7 +387,11 @@ function renderStreet() {
   const lot = $("lot"),
     left = lot.scrollLeft || 0;
   $("scene").classList?.toggle("street-scene", true);
-  if ($("scene").dataset) $("scene").dataset.phase = String(state.company.phase);
+  if ($("scene").dataset) {
+    $("scene").dataset.phase = String(state.company.phase);
+    // Weekdays play out in daylight; from day 5 the street is lit for the night.
+    $("scene").dataset.time = GoatClock.day() >= 5 ? "night" : "day";
+  }
   document.body?.classList.toggle("ceo-run", true);
   lot.classList?.toggle("street-mode", true);
   if (lot.setAttribute) {

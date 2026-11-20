@@ -269,3 +269,282 @@
   width: 100%;
   text-align: left;
 }
+
+/* ---------- Building art (3.0, T43) ----------
+   Each building has its own details. The grade (sum of floor levels, 1–10) sets the finish:
+   plain painted signs, then neon with lit windows, then gold trim, marquee bulbs and a billboard. */
+.street-building {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0) 30%),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.1) 0 2px, transparent 2px 12px), var(--wall);
+}
+.bldg-apartment {
+  /* Brick courses and a fire escape down one side. */
+  background:
+    linear-gradient(
+      90deg,
+      transparent calc(100% - 14px),
+      rgba(0, 0, 0, 0.35) calc(100% - 14px) calc(100% - 12px),
+      transparent calc(100% - 12px)
+    ),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.22) 0 2px, transparent 2px 9px),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.12) 0 2px, transparent 2px 18px), var(--wall);
+}
+.bldg-studio {
+  /* Acoustic panels. */
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 14px, rgba(0, 0, 0, 0.25) 14px 16px),
+    var(--wall);
+}
+.bldg-office,
+.bldg-overseas {
+  /* A glass curtain wall. */
+  background:
+    repeating-linear-gradient(90deg, rgba(160, 200, 220, 0.12) 0 22px, rgba(0, 0, 0, 0.35) 22px 24px),
+    var(--wall);
+}
+.bldg-hq {
+  /* Black glass with gold mullions. */
+  background:
+    repeating-linear-gradient(90deg, rgba(227, 178, 60, 0.25) 0 2px, transparent 2px 26px),
+    linear-gradient(#241a1a, #0b0a0a);
+}
+.bldg-warehouse {
+  /* Corrugated metal. */
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.07) 0 4px, rgba(0, 0, 0, 0.2) 4px 8px), var(--wall);
+}
+.bldg-venue {
+  background: radial-gradient(circle at 50% 0, rgba(255, 90, 95, 0.25), transparent 60%), var(--wall);
+}
+
+/* Doors: an awning over the shop, a roll-up door at the warehouse, a marquee at the venue. */
+.building-door {
+  position: relative;
+}
+.door-storefront::before,
+.door-venue::before {
+  content: "";
+  position: absolute;
+  left: -22px;
+  right: -22px;
+  top: -12px;
+  height: 10px;
+  background: repeating-linear-gradient(90deg, #a3121a 0 8px, #f2ece0 8px 16px);
+  border: 2px solid #000;
+}
+.door-venue::before {
+  background: #e3b23c;
+  box-shadow: 0 0 6px #e3b23c;
+}
+.door-warehouse {
+  width: 60px;
+  background: repeating-linear-gradient(0deg, #3a352d 0 3px, #514a3f 3px 6px);
+}
+
+/* Rooftops. */
+.roof-art {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 40px;
+  pointer-events: none;
+}
+.roof-prop {
+  position: absolute;
+  bottom: 0;
+}
+.roof-tank {
+  left: 18px;
+  width: 26px;
+  height: 30px;
+  background:
+    linear-gradient(#5c4033, #3d2a20) top / 100% 20px no-repeat,
+    linear-gradient(90deg, #2a1a14 0 3px, transparent 3px 23px, #2a1a14 23px) bottom / 100% 10px no-repeat;
+  border-radius: 6px 6px 0 0;
+}
+.roof-onair {
+  right: 16px;
+  width: 34px;
+  height: 14px;
+  background: #3a0a0e;
+  border: 2px solid #000;
+}
+.roof-onair::after {
+  content: "ON AIR";
+  position: absolute;
+  inset: 0;
+  font:
+    700 7px/10px Verdana,
+    sans-serif;
+  color: #ff5a5f;
+  text-align: center;
+}
+.roof-antenna {
+  left: 50%;
+  width: 3px;
+  height: 36px;
+  background: #b9b9b9;
+  box-shadow:
+    -6px 10px 0 -1px #8a8a8a,
+    6px 18px 0 -1px #8a8a8a;
+}
+.roof-spire {
+  left: calc(50% - 6px);
+  width: 12px;
+  height: 38px;
+  background: linear-gradient(#e3b23c, #8a6a1f);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.roof-dish {
+  right: 22px;
+  width: 30px;
+  height: 22px;
+  background: radial-gradient(circle at 70% 30%, #d8d8d8 0 40%, #8a8a8a 41% 60%, transparent 61%);
+}
+.roof-marquee {
+  left: 10px;
+  right: 10px;
+  height: 14px;
+  background:
+    radial-gradient(circle, #ffe08a 0 2px, transparent 3px) 0 0 / 10px 14px,
+    #2a0a0f;
+  border: 2px solid #000;
+}
+.roof-flags {
+  left: 20px;
+  width: 60px;
+  height: 30px;
+  background:
+    linear-gradient(#a3121a, #a3121a) 4px 2px / 16px 10px no-repeat,
+    linear-gradient(#e3b23c, #e3b23c) 26px 2px / 16px 10px no-repeat,
+    linear-gradient(#f2ece0, #f2ece0) 48px 2px / 12px 10px no-repeat,
+    linear-gradient(90deg, #b9b9b9 0 2px, transparent 2px 22px) 2px 0 / 22px 30px repeat-x;
+}
+.roof-billboard {
+  position: absolute;
+  right: 6px;
+  bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 70%;
+  padding: 3px 6px;
+  overflow: hidden;
+  background: #0b0a0a;
+  border: 2px solid #e3b23c;
+  color: #e3b23c;
+  font:
+    700 9px/1 Verdana,
+    sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.roof-billboard .emblem {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border-radius: 50%;
+  background: radial-gradient(circle, #f2ece0 0 30%, #a3121a 31% 70%, #e3b23c 71%);
+}
+
+/* Grades: plain → neon → gold. */
+.band-neon .building-sign {
+  background: #0b0a0a;
+  color: #ff5a5f;
+  text-shadow:
+    0 0 4px #ff5a5f,
+    0 0 8px #a3121a;
+  box-shadow: inset 0 0 0 2px #a3121a;
+}
+.band-gold {
+  border-color: #e3b23c;
+  box-shadow:
+    inset 0 0 0 2px rgba(227, 178, 60, 0.35),
+    0 0 0 1px #000;
+}
+.band-gold .building-sign {
+  background: linear-gradient(#f3cf6a, #b98a1f);
+  color: #0b0a0a;
+  box-shadow: inset 0 0 0 2px #0b0a0a;
+}
+.band-gold .building-sign::after {
+  content: "";
+  display: block;
+  height: 4px;
+  margin: 3px -6px -4px;
+  background:
+    radial-gradient(circle, #fff3c4 0 1.5px, transparent 2px) 0 0 / 8px 4px,
+    #0b0a0a;
+}
+
+/* Street furniture. */
+.street-prop {
+  flex: none;
+  align-self: flex-end;
+  pointer-events: none;
+}
+.street-prop.palm {
+  width: 34px;
+  height: calc(var(--floor-h) * 2.4);
+  margin: 0 -14px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 120' preserveAspectRatio='xMidYMax meet'%3E%3Cpath d='M16 120c1-30 2-60 1-96h3c1 36 0 66-1 96z' fill='%235a3a22'/%3E%3Cpath d='M17 24C9 14 2 16 0 22c6-5 11-3 17 2zM17 24c8-10 15-8 17-2-6-5-11-3-17 2zM17 24C12 12 14 4 20 2c-4 6-3 13-3 22zM17 24c-10-2-15 4-15 10 3-6 8-8 15-10zM17 24c10-2 15 4 15 10-3-6-8-8-15-10z' fill='%231e3a1a'/%3E%3C/svg%3E")
+    bottom / contain no-repeat;
+}
+.street-prop.palm.tall {
+  height: calc(var(--floor-h) * 3.4);
+}
+.street-prop.lowrider {
+  width: 88px;
+  height: 30px;
+  margin: 0 -18px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 88 30'%3E%3Cpath d='M4 20h80v-4l-8-2-10-8H30l-10 8H8l-4 2z' fill='%23a3121a' stroke='%23000' stroke-width='1.5'/%3E%3Cpath d='M33 8h14v6H26zM50 8h14l6 6H50z' fill='%23e3d9c4' opacity='.6'/%3E%3Cpath d='M6 18h76' stroke='%23e3b23c' stroke-width='1'/%3E%3Ccircle cx='20' cy='22' r='6' fill='%23111' stroke='%23e3b23c' stroke-width='2'/%3E%3Ccircle cx='68' cy='22' r='6' fill='%23111' stroke='%23e3b23c' stroke-width='2'/%3E%3C/svg%3E")
+    bottom / contain no-repeat;
+}
+.street-prop.fence {
+  width: 40px;
+  height: 46px;
+  margin: 0 -14px;
+  background:
+    repeating-linear-gradient(45deg, rgba(200, 200, 200, 0.5) 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(-45deg, rgba(200, 200, 200, 0.5) 0 1px, transparent 1px 7px);
+  border-top: 2px solid #8a8a8a;
+}
+
+/* Day and night. */
+body.ceo-run .scene.street-scene[data-time="day"] {
+  background: linear-gradient(#6fb3d9 0%, #a9d3e6 45%, #f2d4a2 80%, #e8a868 100%);
+}
+body.ceo-run .scene.street-scene[data-time="night"] {
+  --lit: 1;
+  background:
+    radial-gradient(1px 1px at 10% 12%, #fff, transparent),
+    radial-gradient(1px 1px at 30% 6%, #fff, transparent),
+    radial-gradient(1px 1px at 55% 15%, #fff, transparent),
+    radial-gradient(1px 1px at 80% 8%, #fff, transparent),
+    linear-gradient(#07050c 0%, #1a0d22 50%, #3b1426 85%, #6e1a24 100%);
+}
+.scene.street-scene[data-time="night"] .band-neon .building-sign,
+.scene.street-scene[data-time="night"] .band-gold .building-sign {
+  filter: brightness(1.2);
+}
+.scene.street-scene[data-time="night"] .street-building {
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.45);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .scene.street-scene[data-time="night"] .band-neon .building-sign {
+    animation: neon-hum 4s steps(1) infinite;
+  }
+}
+@keyframes neon-hum {
+  0%,
+  92%,
+  100% {
+    opacity: 1;
+  }
+  94% {
+    opacity: 0.6;
+  }
+}

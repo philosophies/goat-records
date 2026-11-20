@@ -235,8 +235,3 @@ body.ceo-run button.link {
 body.ceo-run .scene.street-scene {
   background: linear-gradient(#120b16 0%, #3b1426 40%, #8a2a2a 72%, #d0632c 90%, #e3b23c 100%);
 }
-body.ceo-run .scene.street-scene[data-phase="4"],
-body.ceo-run .scene.street-scene[data-phase="5"],
-body.ceo-run .scene.street-scene[data-phase="6"] {
-  background: linear-gradient(#0e0912 0%, #2f1020 40%, #7a2226 72%, #c4552a 90%, #e3b23c 100%);
-}

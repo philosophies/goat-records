@@ -412,7 +412,7 @@ Files: `styles/*.css`, `src/ui/*.js`, `icons/`, `index.html`
 Do: design 2. Palette, type, buttons, cards, HUD and dialogs; an original goat emblem; original slogans. No real label's name, logo or art.
 Done when: screenshots at desktop and phone width in `production/qa/evidence/`; text contrast at least 4.5:1.
 
-### [ ] T43 · Building art
+### [x] T43 · Building art
 
 Depends on: T42
 Files: `src/ui/street.js`, `styles/street.css`
