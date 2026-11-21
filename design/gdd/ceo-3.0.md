@@ -47,7 +47,19 @@ Nothing should peak early. Artists, buildings, staff and executives level up in 
 - Buildings and floors: up to level 10, gated by phase.
 - Staff, executives and team members: XP from work, training at a cost, skill ceilings that rise with seniority.
 
-The balance script reports the year each measure peaks.
+The balance script reports the year each measure peaks. In the twelve-seed sample (`tests/ceo-balance.cjs`, `CEO-BALANCE.json`), the median year each measure first reaches its highest value in a full 20-year run:
+
+| Measure                       | Careful | Average |
+| ----------------------------- | ------: | ------: |
+| Best artist level             |      20 |      20 |
+| Top three artists' craft      |      19 |      1¹ |
+| Average facility floor level  |      14 |      15 |
+| Average department head skill |      19 |      20 |
+| Company value                 |      20 |      20 |
+
+¹ The average policy never pays for development, so its artists' craft does not grow.
+
+What keeps the top end growing: artist levels past 10 lift potential; floor levels 4–10 take 12–52 weeks of renovation, one floor per building at a time; staff skill points cost more from 70, training adds 1 from 75 and stops at 90.
 
 ## 6. Stories
 

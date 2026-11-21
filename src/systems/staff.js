@@ -674,11 +674,15 @@
       prepare(s, x);
       x.xp += n;
       const ceiling = skillCeiling(s, x);
-      while (x.xp >= GROWTH.xpPerPoint && x.skill < ceiling) {
-        x.xp -= GROWTH.xpPerPoint;
+      while (x.xp >= pointCost(x.skill) && x.skill < ceiling) {
+        x.xp -= pointCost(x.skill);
         x.skill++;
       }
-      x.xp = Math.min(x.xp, GROWTH.xpPerPoint);
+      x.xp = Math.min(x.xp, pointCost(x.skill));
+    }
+    /** XP for the next skill point. */
+    function pointCost(skill) {
+      return GROWTH.pointCost.find((b) => skill < b.below)?.xp ?? GROWTH.pointCost.at(-1).xp;
     }
     function goingRate(kind, skill) {
       return kind === "head" ? salaryFor(skill) : TEAM_POOL.salary + skill * TEAM_POOL.perSkill;
@@ -731,11 +735,11 @@
         nextRank: next ? { name: next.name, inWeeks: next.weeks - (s.week - x.hiredWeek) } : null,
         ceiling,
         xp: x.xp,
-        xpPerPoint: GROWTH.xpPerPoint,
+        xpPerPoint: pointCost(x.skill),
         train: {
           cost: Math.round(x.salary * T.weeksOfPay),
           wait,
-          gain: Math.min(T.skill, ceiling - x.skill),
+          gain: x.skill >= T.stopAt ? 0 : Math.min(x.skill >= T.slowAbove ? 1 : T.skill, ceiling - x.skill),
         },
         promotion: promo && {
           title: `${promo.title} ${deptById[id].head}`,

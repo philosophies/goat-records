@@ -476,6 +476,8 @@ An album can take two parties. Each one risks a leak (5%, then 15%); a leaked al
 
 The tier caps the level: up-and-comers stop at 12, stars at 22, superstars go to 30. XP keeps counting past the cap, so a promoted artist jumps straight to the level they have earned.
 
+Past level 10, every two levels add 1 to the artist's potential (up to 100), so a long career keeps raising how far development can take their craft.
+
 | Level | Perk                 | Effect                       |
 | ----: | -------------------- | ---------------------------- |
 |     5 | Studio regular       | +1 to every production stage |
@@ -489,19 +491,21 @@ The tier caps the level: up-and-comers stop at 12, stars at 22, superstars go to
 
 Levels past 3 count for less: a floor at level 4–10 counts as 3.4, 3.8, 4.2, 4.6, 5, 5.4 and 5.8 levels toward its effect. Stage bonuses are rounded to whole points.
 
+Levels 4–10 also take renovation work: 12, 16, 20, 26, 32, 40 and 52 weeks. A building renovates one floor at a time, and the floor keeps working at its old level until the work is done.
+
 A building's grade is the average level of its facility floors (recording rooms do not count). Grades 1–3 look plain, 4–6 get neon and 7–10 go gold; a floor's interior is basic to level 3, fitted out at 4–6 and luxurious from 7.
 
-**Staff growth.** Department heads and artist team members get better with work. Heads earn 1 XP a week and 2 for every album the label releases; team members earn 1 XP a week while working with an artist and 4 when that artist releases an album. Every 12 XP is a skill point.
+**Staff growth.** Department heads and artist team members get better with work. Heads earn 1 XP a week and 1 for every album the label releases; team members earn 1 XP a week while working with an artist and 4 when that artist releases an album. A skill point costs 12 XP below skill 70, then 24 in the 70s, 40 in the 80s and 64 from 90.
 
 Skill can only grow to a ceiling: the skill a person was hired with, plus a margin that rises with time at the label.
 
 | Time at the label | Rank        | Ceiling          |
 | ----------------- | ----------- | ---------------- |
-| From hiring       | New         | hired skill + 8  |
-| 26 weeks          | Experienced | hired skill + 16 |
-| 104 weeks         | Seasoned    | hired skill + 24 |
-| 208 weeks         | Veteran     | hired skill + 32 |
+| From hiring       | New         | hired skill + 6  |
+| 52 weeks          | Experienced | hired skill + 12 |
+| 156 weeks         | Seasoned    | hired skill + 18 |
+| 312 weeks         | Veteran     | hired skill + 24 |
 
-Reaching a new rank raises pay to the going rate for the person's current skill. Training costs six weeks of their pay and adds 2 skill within the ceiling, once every 13 weeks.
+Reaching a new rank raises pay to the going rate for the person's current skill. Training costs six weeks of their pay and adds 2 skill within the ceiling (1 from skill 75), once every 26 weeks. Nobody trains past 90; beyond that only experience counts.
 
 Heads can be promoted twice: to Senior (experienced and skill 60) for +6 ceiling, a 20% raise, +10 loyalty and −10 ambition, then to Executive (seasoned and skill 75) for +6 ceiling, a 25% raise and the same loyalty and ambition change. Promoting a plotting head to calm a power grab also gives the Senior title.

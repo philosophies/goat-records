@@ -105,7 +105,7 @@ function streetFloor(b, floor, index, cast) {
     tab = room ? `room:${floor.room}` : `floor:${b.id}:${index}`,
     accent = def?.accent || "#c9a227";
   const finish = floorFinish(floor.level || 1);
-  return `<div class="street-floor ${room ? "room" : "facility"} ft-${floor.type} fin-${finish} ${album ? "rec" : ""}" style="--accent:${accent}"><button class="floor-hit" data-tab="${tab}" aria-label="${esc(name)}${room ? (album ? ", recording " + esc(album.title) : ", free") : ", level " + floor.level}"><span class="interior" aria-hidden="true"><i class="kit"></i><i class="light"></i></span><span class="plate">${esc(name)}</span>${def ? `<span class="floor-art">${pixelSvg(def.icon, accent, 28)}</span><span class="pips" title="Level ${floor.level} of ${G.floorLevelCap(state)} at this phase">${"●".repeat(floor.level)}${"○".repeat(Math.max(0, G.floorLevelCap(state) - floor.level))}</span>` : `<span class="desk mixing"></span>${album ? '<span class="on-air">REC</span>' : ""}`}</button><span class="floor-people">${streetPeople(cast[`${b.id}:${index}`])}</span></div>`;
+  return `<div class="street-floor ${room ? "room" : "facility"} ft-${floor.type} fin-${finish} ${album ? "rec" : ""}" style="--accent:${accent}"><button class="floor-hit" data-tab="${tab}" aria-label="${esc(name)}${room ? (album ? ", recording " + esc(album.title) : ", free") : ", level " + floor.level}"><span class="interior" aria-hidden="true"><i class="kit"></i><i class="light"></i></span><span class="plate">${esc(name)}${floor.renovating ? " · RENOVATING" : ""}</span>${def ? `<span class="floor-art">${pixelSvg(def.icon, accent, 28)}</span><span class="pips" title="Level ${floor.level} of ${G.floorLevelCap(state)} at this phase">${"●".repeat(floor.level)}${"○".repeat(Math.max(0, G.floorLevelCap(state) - floor.level))}</span>` : `<span class="desk mixing"></span>${album ? '<span class="on-air">REC</span>' : ""}`}</button><span class="floor-people">${streetPeople(cast[`${b.id}:${index}`])}</span></div>`;
 }
 
 function streetBuilding(def) {
@@ -242,11 +242,15 @@ function floorSheet(buildingId, index) {
       return `${active.includes(p) ? "✓" : "·"} ${esc(p.name)} with ${esc(other.name)}`;
     })
     .join(" · ")}</p><div class="actions">${
-    floor.level >= G.FLOOR_LEVELS.max
-      ? '<span class="muted">Top level.</span>'
-      : floor.level >= cap
-        ? `<span class="muted">Level ${floor.level + 1} opens at phase ${opens}.</span>`
-        : `<button data-action="floorUpgrade" data-building="${buildingId}" data-index="${index}" ${disable(blocked() || state.cash < cost)}>Upgrade to level ${floor.level + 1} · ${money(cost)} · then ${money(def.upkeep * (floor.level + 1))}/week</button>`
+    floor.renovating
+      ? `<span class="muted">Renovating to level ${floor.renovating.to} · ${Math.max(0, floor.renovating.done - state.week)} week(s) left. It works at level ${floor.level} until then.</span>`
+      : floor.level >= G.FLOOR_LEVELS.max
+        ? '<span class="muted">Top level.</span>'
+        : ownedBuilding(buildingId)?.floors.some((f) => f.renovating)
+          ? '<span class="muted">Another floor in this building is being renovated. One at a time.</span>'
+          : floor.level >= cap
+            ? `<span class="muted">Level ${floor.level + 1} opens at phase ${opens}.</span>`
+            : `<button data-action="floorUpgrade" data-building="${buildingId}" data-index="${index}" ${disable(blocked() || state.cash < cost)}>Upgrade to level ${floor.level + 1} · ${money(cost)}${G.FLOOR_LEVELS.weeks[floor.level] ? ` · ${G.FLOOR_LEVELS.weeks[floor.level]} weeks of work` : ""} · then ${money(def.upkeep * (floor.level + 1))}/week</button>`
   }</div>`;
 }
 

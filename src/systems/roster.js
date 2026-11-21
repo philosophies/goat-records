@@ -155,6 +155,12 @@
         .filter((p) => p.level <= lv)
         .reduce((t, p) => ({ stage: t.stage + p.stage, sales: t.sales + p.sales }), { stage: 0, sales: 0 });
     }
+    /** Long careers lift an artist's potential, so craft can keep growing late in a run. */
+    function trainingAdjust(s, a) {
+      const lv = artistLevel(a);
+      if (!s.company || !lv) return {};
+      return { potentialBonus: Math.floor(Math.max(0, lv - LEVELS.potentialFrom) / LEVELS.potentialEvery) };
+    }
     function stageParts(s, p) {
       if (!s.company) return [];
       const a = s.artists.find((x) => x.id === p.artist),
@@ -359,6 +365,7 @@
       onRelease,
       stageParts,
       salesMultiplier,
+      trainingAdjust,
       approveSigning,
       approvePlan,
       approveTour,

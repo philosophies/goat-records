@@ -71,6 +71,9 @@
     ),
     cap: { rising: 12, star: 22, superstar: 30 },
     hitXp: 3,
+    // From `potentialFrom`, every `potentialEvery` levels add 1 to the artist's potential (up to 100).
+    potentialFrom: 10,
+    potentialEvery: 2,
     perks: [
       { level: 5, name: "Studio regular", stage: 1, sales: 0 },
       { level: 10, name: "Crowd favourite", stage: 0, sales: 0.04 },

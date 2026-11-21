@@ -1195,6 +1195,7 @@
     const adjust = SYS.map((x) => x.trainingAdjust?.(s, a) || {}),
       hq = {
         ceilingBonus: adjust.reduce((n, x) => n + (x.ceilingBonus || 0), 0),
+        potentialBonus: adjust.reduce((n, x) => n + (x.potentialBonus || 0), 0),
         discount: Math.min(
           0.6,
           adjust.reduce((n, x) => n + (x.discount || 0), 0),
@@ -1202,7 +1203,10 @@
       },
       cap = Math.max(
         a.talent,
-        Math.min(a.potential ?? 85, 64 + tier(s) * 4 + level(a) * 2 + careerTier(a) * 2 + hq.ceilingBonus),
+        Math.min(
+          Math.min(100, (a.potential ?? 85) + hq.potentialBonus),
+          64 + tier(s) * 4 + level(a) * 2 + careerTier(a) * 2 + hq.ceilingBonus,
+        ),
       );
     const gain = Math.min(
       cap - a.talent,

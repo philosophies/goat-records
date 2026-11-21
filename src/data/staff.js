@@ -224,7 +224,6 @@
   };
 
   // Staff growth (3.0, design 5): department heads and artist team members get better with work.
-  //   xpPerPoint   XP for each skill point
   //   weekXp       XP each week on the job (team members only while working with an artist)
   //   releaseXp    XP when an album comes out: every head, and the team members working with that artist
   //   seniority    ranks by weeks on the job; a person's skill can grow to their starting skill + ceiling
@@ -232,17 +231,24 @@
   //   promotion    heads only: each title needs a seniority rank and skill; it adds to the ceiling,
   //                raises pay and loyalty, and calms ambition
   //   Pay rises to the going rate for the new skill each time a person reaches a new seniority rank.
+  //   pointCost    XP for each skill point by skill band: below 70, 70s, 80s, 90+ (the top is slow)
   const GROWTH = {
-    xpPerPoint: 12,
-    weekXp: { head: 1, member: 1 },
-    releaseXp: { head: 2, member: 4 },
-    seniority: [
-      { weeks: 0, name: "New", ceiling: 8 },
-      { weeks: 26, name: "Experienced", ceiling: 16 },
-      { weeks: 104, name: "Seasoned", ceiling: 24 },
-      { weeks: 208, name: "Veteran", ceiling: 32 },
+    pointCost: [
+      { below: 70, xp: 12 },
+      { below: 80, xp: 24 },
+      { below: 90, xp: 40 },
+      { below: 101, xp: 64 },
     ],
-    training: { weeksOfPay: 6, skill: 2, cooldown: 13 },
+    weekXp: { head: 1, member: 1 },
+    releaseXp: { head: 1, member: 4 },
+    seniority: [
+      { weeks: 0, name: "New", ceiling: 6 },
+      { weeks: 52, name: "Experienced", ceiling: 12 },
+      { weeks: 156, name: "Seasoned", ceiling: 18 },
+      { weeks: 312, name: "Veteran", ceiling: 24 },
+    ],
+    // `skill` points per session, 1 from `slowAbove`; no training from `stopAt` (only experience)
+    training: { weeksOfPay: 6, skill: 2, slowAbove: 75, stopAt: 90, cooldown: 26 },
     promotion: [
       { title: "Senior", seniority: 1, skill: 60, ceiling: 6, raise: 0.2, loyalty: 10, ambition: -10 },
       { title: "Executive", seniority: 2, skill: 75, ceiling: 6, raise: 0.25, loyalty: 10, ambition: -10 },

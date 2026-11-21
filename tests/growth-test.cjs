@@ -50,26 +50,35 @@ function weeks(s, n) {
   }
 }
 
-test("heads gain a skill point every 12 XP, one XP a week", () => {
+test("heads gain skill from weekly XP, and points cost more near the top", () => {
   const { s, head } = ceo();
   head.skill = 40;
   head.startSkill = 40;
-  weeks(s, GROWTH.xpPerPoint);
+  const low = GROWTH.pointCost[0].xp;
+  weeks(s, low);
   assert.equal(head.skill, 41);
   assert.equal(head.xp, 0);
+  const costs = [60, 75, 85, 95].map((skill) => {
+    Object.assign(head, { skill, startSkill: skill - 6, xp: 0 });
+    return G.growthInfo(s, "head", "ar").xpPerPoint;
+  });
+  assert.deepEqual(
+    costs,
+    GROWTH.pointCost.map((b) => b.xp),
+  );
 });
 
 test("skill stops at the ceiling until seniority raises it", () => {
   const { s, head } = ceo();
   Object.assign(head, { skill: 40, startSkill: 40 });
-  weeks(s, 24);
+  weeks(s, GROWTH.seniority[1].weeks - 2);
   const first = GROWTH.seniority[0].ceiling;
   assert.ok(head.skill <= 40 + first);
   head.skill = 40 + first;
-  head.xp = GROWTH.xpPerPoint;
+  head.xp = GROWTH.pointCost[0].xp;
   weeks(s, 1);
   assert.equal(head.skill, 40 + first, "at the ceiling");
-  assert.equal(head.xp, GROWTH.xpPerPoint, "XP waits");
+  assert.equal(head.xp, GROWTH.pointCost[0].xp, "XP waits");
   weeks(s, 1);
   assert.equal(G.growthInfo(s, "head", "ar").rank, GROWTH.seniority[1].name);
   assert.equal(G.skillCeiling(s, head), 40 + GROWTH.seniority[1].ceiling);
@@ -116,11 +125,11 @@ test("team members grow only while working with an artist, and more on releases"
   assert.equal(m.xp, 6 + GROWTH.releaseXp.member);
   staff.onRelease(s, p);
   assert.equal(m.skill, 31, "a second release tips it over a point");
-  assert.equal(m.xp, 6 + 2 * GROWTH.releaseXp.member - GROWTH.xpPerPoint);
+  assert.equal(m.xp, 6 + 2 * GROWTH.releaseXp.member - GROWTH.pointCost[0].xp);
   assert.equal(head.xp, 2 * GROWTH.releaseXp.head);
 });
 
-test("training costs six weeks of pay, adds two points within the ceiling, then waits", () => {
+test("training costs six weeks of pay, adds two points (one from 80) within the ceiling, then waits", () => {
   const { s, head } = ceo();
   Object.assign(head, { skill: 50, startSkill: 50 });
   const cash = s.cash,
@@ -128,7 +137,15 @@ test("training costs six weeks of pay, adds two points within the ceiling, then 
   G.trainPerson(s, "head", "ar");
   assert.equal(cash - s.cash, cost);
   assert.equal(head.skill, 52);
-  assert.throws(() => G.trainPerson(s, "head", "ar"), /train again in 13 week/);
+  assert.throws(
+    () => G.trainPerson(s, "head", "ar"),
+    new RegExp(`train again in ${GROWTH.training.cooldown} week`),
+  );
+  head.trainedWeek = s.week - GROWTH.training.cooldown;
+  head.skill = 80;
+  head.startSkill = 80;
+  G.trainPerson(s, "head", "ar");
+  assert.equal(head.skill, 81, "one point at 80 and above");
   head.trainedWeek = s.week - GROWTH.training.cooldown;
   head.skill = G.skillCeiling(s, head);
   assert.throws(() => G.trainPerson(s, "head", "ar"), /at their ceiling/);
