@@ -220,7 +220,15 @@
       if (!s.company?.buildings) return s.hq.facilities;
       return s.company.buildings.flatMap((b, x) =>
         b.floors
-          .map((f, y) => ({ id: f.type, level: f.level, x, y, building: b.id, builtWeek: f.builtWeek ?? 0 }))
+          .map((f, y) => ({
+            id: f.type,
+            level: core.api().floorEffect?.(f.level) ?? f.level,
+            floorLevel: f.level,
+            x,
+            y,
+            building: b.id,
+            builtWeek: f.builtWeek ?? 0,
+          }))
           .filter((f) => byId[f.id]),
       );
     }
@@ -284,10 +292,11 @@
         out.trainingDiscount += syn.trainingDiscount || 0;
       }
       out.trainingDiscount = Math.min(0.6, out.trainingDiscount);
+      for (const st of out.stages) st.value = Math.round(st.value);
       return out;
     }
     function hqUpkeep(s) {
-      return facilitiesOf(s).reduce((n, f) => n + byId[f.id].upkeep * f.level, 0);
+      return facilitiesOf(s).reduce((n, f) => n + byId[f.id].upkeep * (f.floorLevel ?? f.level), 0);
     }
     /** Weekly shop and bar takings plus archive residuals, before upkeep. */
     function hqIncome(s) {

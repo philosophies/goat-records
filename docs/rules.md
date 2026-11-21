@@ -484,3 +484,9 @@ The tier caps the level: up-and-comers stop at 12, stars at 22, superstars go to
 |    20 | Icon                 | Album sales +4%              |
 |    25 | Living legend        | +1 to every production stage |
 |    30 | Greatest of all time | +1 to every stage, sales +6% |
+
+**Floor levels.** Facility floors in CEO buildings go up to level 10. The phase sets the highest level: 3 at phase 1, then 4, 5, 7, 8 and 10 at phase 6. Upgrading from level n costs the build price × n up to level 3, then × (1 + 0.25 × (n − 3)) more, so the step to level 10 costs 22.5 × the build price. Upkeep is the facility's upkeep × its level.
+
+Levels past 3 count for less: a floor at level 4–10 counts as 3.4, 3.8, 4.2, 4.6, 5, 5.4 and 5.8 levels toward its effect. Stage bonuses are rounded to whole points.
+
+A building's grade is the average level of its facility floors (recording rooms do not count). Grades 1–3 look plain, 4–6 get neon and 7–10 go gold; a floor's interior is basic to level 3, fitted out at 4–6 and luxurious from 7.

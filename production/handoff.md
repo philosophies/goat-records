@@ -11,8 +11,8 @@ Task: v2.0.0 released
 
 **Updated:** 2026-11-21
 **Branch:** `main`
-**Current task:** 3.0, the dynasty update. T40–T49 are done (one ladder, classic hidden, the theme, building and room art, roster tiers, superstars, the second act, listening parties, artist levels).
-**Next step:** T50, building and floor levels to 10. Run `node tools/next-task.cjs`.
+**Current task:** 3.0, the dynasty update. T40–T50 are done (one ladder, classic hidden, the theme, building and room art, roster tiers, superstars, the second act, listening parties, artist levels, floor levels).
+**Next step:** T51, staff, executive and team growth. Run `node tools/next-task.cjs`.
 **Blocked on:** Nothing.
 **Files in progress:** None.
 **Open questions:** When to schedule the Android wrapper and a physical device test.

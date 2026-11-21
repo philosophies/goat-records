@@ -270,7 +270,11 @@ test("Classic scouting is unchanged: no reach tags, no caps, no locks", () => {
     assert.ok(s.candidates.every((a) => a.reach === undefined));
   }
   assert.ok(top > G.REACH_SCOUTING.local.talentMax);
-  assert.deepEqual(G.create(35, { ceo: false }).candidates, G.create(35, { ceo: false }).candidates, "same seed, same prospects");
+  assert.deepEqual(
+    G.create(35, { ceo: false }).candidates,
+    G.create(35, { ceo: false }).candidates,
+    "same seed, same prospects",
+  );
 });
 
 test("A label is Goat Records unless named, and a new run can be named for free", () => {
@@ -435,7 +439,7 @@ test("Facility floors level up to the top level at the usual upgrade price", () 
   cash = s.cash;
   G.upgradeFloor(s, "apartment", 1);
   assert.equal(s.cash, cash - base * 2);
-  assert.throws(() => G.upgradeFloor(s, "apartment", 1), /top level/);
+  assert.throws(() => G.upgradeFloor(s, "apartment", 1), /Level 4 opens at phase 2/);
   assert.throws(() => G.upgradeFloor(s, "apartment", 0), /do not level up/);
   assert.throws(() => G.upgradeFloor(s, "apartment", 5), /No such floor/);
 });
@@ -461,7 +465,7 @@ test("Save checks guard the buildings", () => {
     false,
   );
   assert.equal(
-    bad((c) => (c.buildings[0].floors[0].level = 9)),
+    bad((c) => (c.buildings[0].floors[0].level = 11)),
     false,
   );
   assert.equal(
@@ -586,8 +590,15 @@ test("Company value uses trailing revenue, growth, hit rate, catalog, cash, debt
     { released: false, quality: 100, total: 2000 },
   );
   assert.deepEqual(G.companyValuation(s), {
-    value: 15750, sharePrice: 1.89, mood: 1.2, multiple: 2.875,
-    revenue: 5200, growth: 0.5, hitRate: 0.5, catalogValue: 400, debt: 600,
+    value: 15750,
+    sharePrice: 1.89,
+    mood: 1.2,
+    multiple: 2.875,
+    revenue: 5200,
+    growth: 0.5,
+    hitRate: 0.5,
+    catalogValue: 400,
+    debt: 600,
   });
   assert.equal(G.companyValuation(G.create(77, { ceo: false })), null);
 });
@@ -615,21 +626,38 @@ function ipoFixture() {
   G.takeFunding(s, "angel", 0);
   s.company.phase = 5;
   G.appointHead(s, "finance", { skill: 60 });
-  s.company.annualProfit = [{ year: 1, profit: 1 }, { year: 2, profit: 1 }, { year: 3, profit: 1 }];
+  s.company.annualProfit = [
+    { year: 1, profit: 1 },
+    { year: 2, profit: 1 },
+    { year: 3, profit: 1 },
+  ];
   s.company.board.confidence = 60;
-  s.financeHistory = Array.from({ length: 52 }, (_, i) =>
-    ({ week: 106 + i, albumIncome: 50000, cashChange: 10000 }));
+  s.financeHistory = Array.from({ length: 52 }, (_, i) => ({
+    week: 106 + i,
+    albumIncome: 50000,
+    cashChange: 10000,
+  }));
   s.week = 157;
   return s;
 }
 
 test("An IPO requires phase five, three profitable years, a skilled CFO and confident directors", () => {
   for (const miss of [
-    (s) => { s.company.phase = 4; },
-    (s) => { s.company.annualProfit[1].profit = 0; },
-    (s) => { s.company.departments.finance.head = null; },
-    (s) => { s.company.departments.finance.head.skill = 59; },
-    (s) => { s.company.board.confidence = 59; },
+    (s) => {
+      s.company.phase = 4;
+    },
+    (s) => {
+      s.company.annualProfit[1].profit = 0;
+    },
+    (s) => {
+      s.company.departments.finance.head = null;
+    },
+    (s) => {
+      s.company.departments.finance.head.skill = 59;
+    },
+    (s) => {
+      s.company.board.confidence = 59;
+    },
   ]) {
     const s = ipoFixture();
     miss(s);
@@ -642,7 +670,7 @@ test("An IPO requires phase five, three profitable years, a skilled CFO and conf
   const ownership = s.company.ownership;
   const cash = s.cash;
   const offered = G.goPublic(s);
-  assert.equal(offered.proceeds, Math.round(value * 0.9 / 3));
+  assert.equal(offered.proceeds, Math.round((value * 0.9) / 3));
   assert.equal(offered.price, Math.round((offered.proceeds / 2500) * 100) / 100);
   assert.equal(s.cash, cash + offered.proceeds);
   assert.equal(s.company.phase, 6);

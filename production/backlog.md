@@ -466,7 +466,7 @@ Depends on: T45
 Files: `src/data/roster.js`, `src/systems/roster.js`, tests
 Do: XP from sessions, releases, tours and events; levels 1–30 with tier caps and milestone perks.
 
-### [ ] T50 · Building and floor levels to 10
+### [x] T50 · Building and floor levels to 10
 
 Depends on: T40
 Files: `src/data/company.js`, `src/systems/company.js`, tests

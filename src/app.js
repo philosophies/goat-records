@@ -80,6 +80,14 @@ function paintHTML(id, html) {
   $(id).innerHTML = html;
 }
 const disable = (condition) => (condition ? "disabled" : "");
+/** The goal line in a CEO run: the year of the run and what the next phase still needs. */
+function ceoGoalLine(s) {
+  const year = `Year ${G.operatingYear(s.week)} of ${s.campaign?.years || 20}.`,
+    p = G.phaseProgress(s);
+  if (!p) return `${year} Top phase reached.`;
+  const left = p.goals.filter((g) => !g.met).map((g) => g.name.toLowerCase());
+  return `${year} Next phase: ${p.next.name} (${left.length ? "needs " + left.join("; ") : "all goals met"}).`;
+}
 /** Career XP toward the next level, or why there is no next level. */
 const xpText = (L) => `${L.xp}${L.next !== null ? " / " + L.next : L.capped ? " · TIER CAP" : " · MAX"}`;
 const blocked = () => state.finished || !!state.event;
@@ -690,7 +698,11 @@ function render() {
       : state.tours.some((t) => t.status === "active")
         ? "Next activity ›"
         : "Next week ›";
-  $("goal").textContent = s.finished ? s.outcome : G.campaignGoalText(s) + " " + rankLine();
+  $("goal").textContent = s.finished
+    ? s.outcome
+    : s.company
+      ? ceoGoalLine(s)
+      : G.campaignGoalText(s) + " " + rankLine();
   // The campaign system shows the run's final review as a card, so no separate outcome card.
   paintHTML("outcome", "");
   paintHTML(

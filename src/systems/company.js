@@ -24,7 +24,7 @@
       ACQUISITIONS,
       CEO_MIGRATION,
     } = D;
-    const { BOOTHS, FACILITIES, HQ } = D;
+    const { BOOTHS, FACILITIES, HQ, FLOOR_LEVELS } = D;
     const buildingById = Object.fromEntries(BUILDINGS.map((b) => [b.id, b])),
       facilityById = Object.fromEntries(FACILITIES.map((f) => [f.id, f]));
     const { log } = core;
@@ -222,7 +222,7 @@
             !def.floors.includes(f.type) ||
             !Number.isInteger(f.level) ||
             f.level < 1 ||
-            f.level > HQ.maxLevel
+            f.level > FLOOR_LEVELS.max
           )
             return false;
           if (f.type === "room" && !BOOTHS[f.room]) return false;
@@ -379,7 +379,20 @@
       );
       return floor;
     }
-    /** Raises a facility floor one level, at the facility's usual upgrade price. */
+    /** The highest floor level the company's phase allows. */
+    function floorLevelCap(s) {
+      return FLOOR_LEVELS.byPhase[Math.min(FLOOR_LEVELS.byPhase.length, s.company?.phase || 1) - 1];
+    }
+    /** What raising a floor from its current level costs. */
+    function floorUpgradeCost(floor) {
+      const n = floor.level;
+      return Math.round(facilityById[floor.type].cost * n * (1 + FLOOR_LEVELS.costStep * Math.max(0, n - 3)));
+    }
+    /** How strongly a floor at this level counts toward its facility's effects. */
+    function floorEffect(level) {
+      return FLOOR_LEVELS.effect[Math.max(1, Math.min(FLOOR_LEVELS.max, level)) - 1];
+    }
+    /** Raises a facility floor one level, up to the phase's cap; costs rise past level 3. */
     function upgradeFloor(s, buildingId, index) {
       core.requireAction(s);
       requireCeo(s);
@@ -387,8 +400,12 @@
         floor = owned?.floors[Number(index)];
       if (!floor) throw Error("No such floor.");
       if (floor.type === "room") throw Error("Recording rooms do not level up.");
-      if (floor.level >= HQ.maxLevel) throw Error("This floor is at its top level.");
-      core.pay(s, facilityById[floor.type].cost * floor.level);
+      if (floor.level >= FLOOR_LEVELS.max) throw Error("This floor is at its top level.");
+      if (floor.level >= floorLevelCap(s))
+        throw Error(
+          `Level ${floor.level + 1} opens at phase ${FLOOR_LEVELS.byPhase.findIndex((n) => n > floor.level) + 1}.`,
+        );
+      core.pay(s, floorUpgradeCost(floor));
       floor.level++;
       log(s, `${facilityById[floor.type].name} upgraded to level ${floor.level}.`);
       return floor;
@@ -645,6 +662,10 @@
         buyBuilding,
         buildFloor,
         upgradeFloor,
+        FLOOR_LEVELS,
+        floorLevelCap,
+        floorUpgradeCost,
+        floorEffect,
       },
     };
   }

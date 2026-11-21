@@ -69,6 +69,10 @@ assert.equal(run("state.albums.at(-1).party.pending"), false);
 assert.equal(run("state.albums.at(-1).production.releaseReady"), false);
 assert.match(element("activities").innerHTML + element("studioQueue").innerHTML, /week\(s\)/);
 
+// The goal line in a CEO run names the year and the next phase, not the classic campaign.
+assert.match(element("goal").textContent, /^Year 1 of \d+\. Next phase: .+ \((needs .+|all goals met)\)\.$/);
+assert.doesNotMatch(element("goal").textContent, /Final year|label rank/);
+
 // Classic saves never show a party.
 run(`state = G.create(5, { ceo: false }); render();`);
 assert.doesNotMatch(

@@ -18,14 +18,11 @@ const BUILDING_LOOKS = {
  * How built-up a building looks: the sum of its floor levels, up to 10. Grades 1–3 have a
  * painted sign, 4–6 a neon sign and lit windows, 7–10 gold trim, marquee bulbs and a rooftop billboard.
  */
+/** A building's grade (1–10): the average level of its facility floors, so it grows with them. */
 function buildingGrade(owned) {
-  return Math.max(
-    1,
-    Math.min(
-      10,
-      owned.floors.reduce((n, f) => n + (f.level || 1), 0),
-    ),
-  );
+  const levels = owned.floors.filter((f) => f.type !== "room").map((f) => f.level || 1);
+  if (!levels.length) return 1;
+  return Math.max(1, Math.min(10, Math.round(levels.reduce((n, x) => n + x, 0) / levels.length)));
 }
 function gradeBand(grade) {
   return grade >= 7 ? "gold" : grade >= 4 ? "neon" : "plain";
@@ -96,7 +93,7 @@ function streetPeople(list = []) {
  * bulb), "pro" (treated walls, wood floor, track lights, more kit) or "luxe" (gold records, warm
  * light, carpet). Works for today's three levels and for longer ladders.
  */
-function floorFinish(level, max = G.HQ.maxLevel) {
+function floorFinish(level, max = G.FLOOR_LEVELS.max) {
   const share = level / Math.max(1, max);
   return share > 2 / 3 ? "luxe" : share > 1 / 3 ? "pro" : "basic";
 }
@@ -108,7 +105,7 @@ function streetFloor(b, floor, index, cast) {
     tab = room ? `room:${floor.room}` : `floor:${b.id}:${index}`,
     accent = def?.accent || "#c9a227";
   const finish = floorFinish(floor.level || 1);
-  return `<div class="street-floor ${room ? "room" : "facility"} ft-${floor.type} fin-${finish} ${album ? "rec" : ""}" style="--accent:${accent}"><button class="floor-hit" data-tab="${tab}" aria-label="${esc(name)}${room ? (album ? ", recording " + esc(album.title) : ", free") : ", level " + floor.level}"><span class="interior" aria-hidden="true"><i class="kit"></i><i class="light"></i></span><span class="plate">${esc(name)}</span>${def ? `<span class="floor-art">${pixelSvg(def.icon, accent, 28)}</span><span class="pips">${"●".repeat(floor.level)}${"○".repeat(G.HQ.maxLevel - floor.level)}</span>` : `<span class="desk mixing"></span>${album ? '<span class="on-air">REC</span>' : ""}`}</button><span class="floor-people">${streetPeople(cast[`${b.id}:${index}`])}</span></div>`;
+  return `<div class="street-floor ${room ? "room" : "facility"} ft-${floor.type} fin-${finish} ${album ? "rec" : ""}" style="--accent:${accent}"><button class="floor-hit" data-tab="${tab}" aria-label="${esc(name)}${room ? (album ? ", recording " + esc(album.title) : ", free") : ", level " + floor.level}"><span class="interior" aria-hidden="true"><i class="kit"></i><i class="light"></i></span><span class="plate">${esc(name)}</span>${def ? `<span class="floor-art">${pixelSvg(def.icon, accent, 28)}</span><span class="pips" title="Level ${floor.level} of ${G.floorLevelCap(state)} at this phase">${"●".repeat(floor.level)}${"○".repeat(Math.max(0, G.floorLevelCap(state) - floor.level))}</span>` : `<span class="desk mixing"></span>${album ? '<span class="on-air">REC</span>' : ""}`}</button><span class="floor-people">${streetPeople(cast[`${b.id}:${index}`])}</span></div>`;
 }
 
 function streetBuilding(def) {
@@ -236,16 +233,20 @@ function floorSheet(buildingId, index) {
     def = facilityDef(floor.type),
     pairs = G.SYNERGIES.filter((s) => s.pair.includes(floor.type)),
     active = G.activeSynergies(state),
-    cost = def.cost * floor.level;
-  return `<div class="facility-head" style="--accent:${def.accent}">${pixelSvg(def.icon, def.accent, 56, def.name)}<div><span class="tag">FLOOR ${index + 1} · ${esc(buildingDef(buildingId).name.toUpperCase())} · LEVEL ${floor.level} / ${G.HQ.maxLevel} · ${money(def.upkeep * floor.level)}/week</span><h3>${esc(def.name)}</h3><p>${esc(def.text)}</p></div></div><p class="muted">Pairings (a floor directly above or below, or the same floor next door): ${pairs
+    cost = G.floorUpgradeCost(floor),
+    cap = G.floorLevelCap(state),
+    opens = G.FLOOR_LEVELS.byPhase.findIndex((n) => n > floor.level) + 1;
+  return `<div class="facility-head" style="--accent:${def.accent}">${pixelSvg(def.icon, def.accent, 56, def.name)}<div><span class="tag">FLOOR ${index + 1} · ${esc(buildingDef(buildingId).name.toUpperCase())} · LEVEL ${floor.level} / ${G.FLOOR_LEVELS.max} · ${money(def.upkeep * floor.level)}/week</span><h3>${esc(def.name)}</h3><p>${esc(def.text)}${floor.level > 3 ? ` At level ${floor.level} it counts as ${G.floorEffect(floor.level)} levels.` : ""}</p></div></div><p class="muted">Pairings (a floor directly above or below, or the same floor next door): ${pairs
     .map((p) => {
       const other = facilityDef(p.pair.find((id) => id !== floor.type));
       return `${active.includes(p) ? "✓" : "·"} ${esc(p.name)} with ${esc(other.name)}`;
     })
     .join(" · ")}</p><div class="actions">${
-    floor.level < G.HQ.maxLevel
-      ? `<button data-action="floorUpgrade" data-building="${buildingId}" data-index="${index}" ${disable(blocked() || state.cash < cost)}>Upgrade to level ${floor.level + 1} · ${money(cost)}</button>`
-      : '<span class="muted">Top level.</span>'
+    floor.level >= G.FLOOR_LEVELS.max
+      ? '<span class="muted">Top level.</span>'
+      : floor.level >= cap
+        ? `<span class="muted">Level ${floor.level + 1} opens at phase ${opens}.</span>`
+        : `<button data-action="floorUpgrade" data-building="${buildingId}" data-index="${index}" ${disable(blocked() || state.cash < cost)}>Upgrade to level ${floor.level + 1} · ${money(cost)} · then ${money(def.upkeep * (floor.level + 1))}/week</button>`
   }</div>`;
 }
 
