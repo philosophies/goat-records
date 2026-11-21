@@ -126,6 +126,16 @@ run(
 click({ tab: "floor:studio:0" });
 assert.match(html("content"), /Level \d+ opens at phase \d/);
 assert.doesNotMatch(html("content"), /data-action="floorUpgrade"/);
+// Levels past 3 take renovation weeks; the floor says so and the building waits.
+run(`globalThis.oldPhase = state.company.phase; state.company.phase = 6; state.cash = 1e9;
+  const st = state.company.buildings.find((b) => b.id === "studio"); st.floors[0].level = 3; render();`);
+click({ tab: "floor:studio:0" });
+assert.match(html("content"), /Upgrade to level 4 · \$[\d,]+ · 12 weeks of work/);
+click({ action: "floorUpgrade", building: "studio", index: "0" });
+assert.equal(saved().company.buildings.find((b) => b.id === "studio").floors[0].renovating.to, 4);
+assert.match(html("content"), /Renovating to level 4 · 12 week\(s\) left\. It works at level 3 until then\./);
+assert.match(element("lot").innerHTML, /VOCAL BOOTH · RENOVATING|Vocal Booth · RENOVATING/);
+run(`state.company.phase = oldPhase; render();`);
 click({ tab: "buy:hq" });
 assert.match(html("content"), /OPENS AT PHASE 4[\s\S]*Reach phase 4, National label/);
 assert.match(html("content"), /data-action="buildingBuy" data-building="hq" disabled/);

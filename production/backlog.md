@@ -478,7 +478,7 @@ Depends on: T49
 Files: `src/data/staff.js`, `src/systems/staff.js`, tests
 Do: XP from work, paid training, skill ceilings that rise with seniority, promotions.
 
-### [ ] T52 · Pacing pass
+### [x] T52 · Pacing pass
 
 Depends on: T49, T50, T51
 Files: `tests/ceo-balance.cjs`, `CEO-BALANCE.json`, data tables

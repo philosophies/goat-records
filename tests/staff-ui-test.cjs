@@ -159,7 +159,7 @@ s = saved();
 assert.equal(s.company.departments.ar.head.name, execs[0].name);
 page = html("content");
 assert.match(page, /HEAD OF A&amp;R[\s\S]*Ambition/);
-assert.match(page, /New · skill can reach \d+ · XP 0\/12 · experienced in 26 wk/);
+assert.match(page, /New · skill can reach \d+ · XP 0\/12 · experienced in 52 wk/);
 assert.match(
   page,
   /data-action="staffPromote"[^>]*disabled[^>]*>Promote to Senior Head of A&amp;R · needs experienced, skill 60/,
@@ -167,7 +167,7 @@ assert.match(
 const skillBefore = saved().company.departments.ar.head.skill;
 click({ action: "staffTrain", kind: "head", id: "ar" });
 assert.equal(saved().company.departments.ar.head.skill, skillBefore + 2);
-assert.match(html("content"), /Training in 13 wk/);
+assert.match(html("content"), /Training in 26 wk/);
 page = html("content");
 assert.match(page, /0 of 2 staff/);
 click({ action: "deptStaffAdd", dept: "ar" });

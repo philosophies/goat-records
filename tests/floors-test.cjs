@@ -17,12 +17,21 @@ function ceo(phase = 6) {
   return { s, floor: s.company.buildings[0].floors.find((f) => f.type === "writers") };
 }
 const writers = G.FACILITIES.find((f) => f.id === "writers");
+/** Upgrades a floor and, when that starts a renovation, waits it out. */
+function up(s, building, index) {
+  G.upgradeFloor(s, building, index);
+  const f = s.company.buildings.find((b) => b.id === building).floors[index];
+  if (f.renovating) {
+    s.week = f.renovating.done;
+    G.finishRenovations(s);
+  }
+}
 
 test("each phase caps the floor level, up to 10 at phase 6", () => {
   assert.deepEqual(FLOOR_LEVELS.byPhase.at(-1), 10);
   FLOOR_LEVELS.byPhase.forEach((cap, i) => {
     const { s, floor } = ceo(i + 1);
-    while (floor.level < cap) G.upgradeFloor(s, "apartment", s.company.buildings[0].floors.indexOf(floor));
+    while (floor.level < cap) up(s, "apartment", s.company.buildings[0].floors.indexOf(floor));
     assert.equal(floor.level, cap);
     const index = s.company.buildings[0].floors.indexOf(floor);
     assert.throws(() => G.upgradeFloor(s, "apartment", index), cap === 10 ? /top level/ : /opens at phase/);
@@ -36,7 +45,7 @@ test("upgrades cost more past level 3, and upkeep follows the level", () => {
   while (floor.level < 10) {
     const cash = s.cash,
       quote = G.floorUpgradeCost(floor);
-    G.upgradeFloor(s, "apartment", index);
+    up(s, "apartment", index);
     assert.equal(cash - s.cash, quote);
     paid.push(quote);
   }
@@ -61,6 +70,45 @@ test("later levels count for less, and stage bonuses stay whole numbers", () => 
   for (let i = 1; i < 10; i++) assert.ok(seen[i] >= seen[i - 1]);
   assert.ok(seen[3] - seen[2] < seen[2] - seen[1], "level 4 adds less than level 3");
   assert.equal(G.floorEffect(3), 3);
+});
+
+test("levels past 3 take renovation weeks, one floor per building at a time", () => {
+  const { s } = ceo();
+  G.buyBuilding(s, "studio");
+  G.buildFloor(s, "studio", "vocal");
+  G.buildFloor(s, "studio", "mix");
+  const studio = s.company.buildings.find((b) => b.id === "studio"),
+    floors = studio.floors,
+    w = floors.findIndex((f) => f.type === "vocal"),
+    v = floors.findIndex((f) => f.type === "mix"),
+    floor = floors[w];
+  floor.level = 3;
+  floors[v].level = 3;
+  const start = s.week,
+    before = G.hqBonuses(s).stages.reduce((n, x) => n + x.value, 0);
+  G.upgradeFloor(s, "studio", w);
+  assert.deepEqual(floor.renovating, { to: 4, done: start + FLOOR_LEVELS.weeks[3] });
+  assert.equal(floor.level, 3, "works at its old level meanwhile");
+  assert.equal(
+    G.hqBonuses(s).stages.reduce((n, x) => n + x.value, 0),
+    before,
+  );
+  assert.throws(() => G.upgradeFloor(s, "studio", w), /Already renovating to level 4/);
+  assert.throws(() => G.upgradeFloor(s, "studio", v), /One at a time/);
+  s.week = start + FLOOR_LEVELS.weeks[3] - 1;
+  G.finishRenovations(s);
+  assert.equal(floor.level, 3);
+  s.week++;
+  G.finishRenovations(s);
+  assert.equal(floor.level, 4);
+  assert.equal(floor.renovating, undefined);
+  G.upgradeFloor(s, "studio", v);
+  assert.ok(floors[v].renovating);
+  assert.ok(G.validSystemsSave(roundTrip(s)));
+  const bad = roundTrip(s);
+  bad.company.buildings.find((b) => b.id === "studio").floors[v].renovating.to = 9;
+  assert.equal(G.validSystemsSave(bad), false);
+  assert.deepEqual(FLOOR_LEVELS.weeks.slice(0, 3), [0, 0, 0]);
 });
 
 test("saves accept floors up to 10 and refuse more", () => {

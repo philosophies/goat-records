@@ -222,7 +222,14 @@
             !def.floors.includes(f.type) ||
             !Number.isInteger(f.level) ||
             f.level < 1 ||
-            f.level > FLOOR_LEVELS.max
+            f.level > FLOOR_LEVELS.max ||
+            (f.renovating !== undefined &&
+              !(
+                f.renovating &&
+                f.renovating.to === f.level + 1 &&
+                f.renovating.to <= FLOOR_LEVELS.max &&
+                Number.isInteger(f.renovating.done)
+              ))
           )
             return false;
           if (f.type === "room" && !BOOTHS[f.room]) return false;
@@ -400,15 +407,37 @@
         floor = owned?.floors[Number(index)];
       if (!floor) throw Error("No such floor.");
       if (floor.type === "room") throw Error("Recording rooms do not level up.");
+      if (floor.renovating) throw Error(`Already renovating to level ${floor.renovating.to}.`);
       if (floor.level >= FLOOR_LEVELS.max) throw Error("This floor is at its top level.");
+      if (owned.floors.some((f) => f.renovating))
+        throw Error("Another floor in this building is being renovated. One at a time.");
       if (floor.level >= floorLevelCap(s))
         throw Error(
           `Level ${floor.level + 1} opens at phase ${FLOOR_LEVELS.byPhase.findIndex((n) => n > floor.level) + 1}.`,
         );
       core.pay(s, floorUpgradeCost(floor));
+      const weeks = FLOOR_LEVELS.weeks[floor.level] || 0;
+      if (weeks) {
+        floor.renovating = { to: floor.level + 1, done: s.week + weeks };
+        log(
+          s,
+          `${facilityById[floor.type].name}: renovation to level ${floor.level + 1} starts, ${weeks} weeks.`,
+        );
+        return floor;
+      }
       floor.level++;
       log(s, `${facilityById[floor.type].name} upgraded to level ${floor.level}.`);
       return floor;
+    }
+    /** Finishes renovations that are due. */
+    function renovationWeek(s) {
+      for (const b of s.company?.buildings || [])
+        for (const f of b.floors)
+          if (f.renovating && s.week >= f.renovating.done) {
+            f.level = f.renovating.to;
+            delete f.renovating;
+            log(s, `${facilityById[f.type].name} reopens at level ${f.level}.`);
+          }
     }
 
     /** Whether the board lets the label move up. Always true with no board. */
@@ -460,6 +489,7 @@
     }
     function weekly(s, revenues = companyRevenue(s)) {
       if (!s.company) return 0;
+      renovationWeek(s);
       for (const row of s.company.acquisitions || []) {
         const due = acquisitionDues(row);
         row.debt = Math.max(0, row.debt + due.interest - due.total);
@@ -666,6 +696,7 @@
         floorLevelCap,
         floorUpgradeCost,
         floorEffect,
+        finishRenovations: renovationWeek,
       },
     };
   }

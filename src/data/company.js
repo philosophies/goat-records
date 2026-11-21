@@ -276,12 +276,15 @@
   //   effect    how strongly a floor at each level (1–10) counts, as a multiple of one level's effect;
   //             the first three are full steps, later ones smaller so nothing peaks early
   //   costStep  upgrading from level n costs the build cost × n, × (1 + costStep × (n − 3)) from level 3
+  //   weeks     renovation time to reach each level (1–10); levels 1–3 are instant. A building renovates
+  //             one floor at a time, and the floor keeps working at its old level until the work is done.
   //   Upkeep stays the facility's upkeep × the floor's level.
   const FLOOR_LEVELS = {
     max: 10,
     byPhase: [3, 4, 5, 7, 8, 10],
     effect: [1, 2, 3, 3.4, 3.8, 4.2, 4.6, 5, 5.4, 5.8],
     costStep: 0.25,
+    weeks: [0, 0, 0, 12, 16, 20, 26, 32, 40, 52],
   };
 
   const data = {

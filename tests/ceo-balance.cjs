@@ -6,9 +6,9 @@ const G = require("../src/engine");
 const { COMPANY_EVENTS } = require("../src/data/events");
 
 const policies = {
-  careful: { artists: 4, reserve: 1400, budget: 12000, funding: 0, lobby: true },
-  average: { artists: 3, reserve: 850, budget: 8000, funding: 0, lobby: false },
-  reckless: { artists: 4, reserve: 600, budget: 12000, funding: 1, lobby: false },
+  careful: { artists: 4, reserve: 1400, budget: 12000, funding: 0, lobby: true, grow: 1 },
+  average: { artists: 3, reserve: 850, budget: 8000, funding: 0, lobby: false, grow: 0.5 },
+  reckless: { artists: 4, reserve: 600, budget: 12000, funding: 1, lobby: false, grow: 0 },
 };
 const events = new Map(COMPANY_EVENTS.map((event) => [event.id, event]));
 
@@ -188,13 +188,74 @@ function manage(s, name, policy) {
   if (!s.event && G.ipoRequirements(s)?.ready) G.goPublic(s);
 }
 
+/**
+ * Long-term growth (3.0): build and level facility floors, hire, train and promote department heads.
+ * `grow` is how freely a policy spends on it (0 never; 1 whenever there is plenty of cash).
+ */
+function grow(s, policy) {
+  if (!policy.grow || s.event) return;
+  const spare = (n) => s.cash > (n * 1.5) / policy.grow + 20000;
+  for (const b of s.company.buildings) {
+    const def = G.BUILDINGS.find((x) => x.id === b.id);
+    const built = new Set(G.allFloors(s).map((f) => f.floor.type));
+    const type = def.floors.find((t) => t !== "room" && !built.has(t));
+    if (type && b.floors.length < def.maxFloors && spare(G.floorQuote(s, b.id, type)))
+      action(() => G.buildFloor(s, b.id, type));
+    if (s.event) return;
+  }
+  for (const { building, index, floor } of G.allFloors(s)) {
+    if (floor.type === "room" || floor.level >= G.floorLevelCap(s)) continue;
+    if (s.company.buildings.find((b) => b.id === building).floors.some((f) => f.renovating)) continue;
+    if (spare(G.floorUpgradeCost(floor))) action(() => G.upgradeFloor(s, building, index));
+    if (s.event) return;
+  }
+  for (const d of G.DEPARTMENTS) {
+    if (s.event || !G.departmentOpen(s, d.id)) continue;
+    const dept = s.company.departments[d.id];
+    if (!dept.head && spare(4000)) {
+      if (!dept.pool.length && s.week % 8 === 1) action(() => G.recruitExecs(s, d.id));
+      const best = dept.pool.toSorted((a, b) => b.skill - a.skill)[0];
+      // Only a head the label can pay for half a year.
+      if (best && spare(best.salary * 26)) action(() => G.hireHead(s, d.id, best.id));
+    }
+    if (!dept.head || s.event) continue;
+    const g = G.growthInfo(s, "head", d.id);
+    if (g.promotion?.ready) action(() => G.promoteHead(s, d.id));
+    else if (!g.train.wait && g.train.gain > 0 && spare(g.train.cost))
+      action(() => G.trainPerson(s, "head", d.id));
+  }
+}
+
+/** Yearly progress readings for the pacing report. */
+function measure(s) {
+  const levels = s.artists.map((a) => G.level(a)).toSorted((a, b) => b - a),
+    floors = G.allFloors(s)
+      .filter((f) => f.floor.type !== "room")
+      .map((f) => f.floor.level),
+    heads = Object.values(s.company.departments || {})
+      .map((d) => d.head?.skill)
+      .filter(Number.isFinite),
+    talent = s.artists.map((a) => a.talent).toSorted((a, b) => b - a);
+  const avg = (list) =>
+    list.length ? Math.round((list.reduce((n, x) => n + x, 0) / list.length) * 10) / 10 : 0;
+  return {
+    artistLevel: levels[0] || 0,
+    topThreeLevel: avg(levels.slice(0, 3)),
+    craft: avg(talent.slice(0, 3)),
+    floorLevel: Math.max(0, ...floors),
+    averageFloor: avg(floors),
+    headSkill: avg(heads),
+    value: Math.round(G.companyValuation?.(s)?.value ?? 0),
+  };
+}
+
 function work(s, name, policy) {
   for (const a of s.artists) {
     if (s.event) return;
     if (G.busy(s, a.id) || !a.contract.remaining) continue;
-    if (policy.lobby && a.talent < a.potential && s.cash > 12000) {
+    if (policy.lobby && s.cash > 12000) {
       const training = G.trainingInfo(s, a);
-      if (training.available) action(() => G.train(s, a.id));
+      if (training.gain > 0 && !training.wait && a.energy >= 30) action(() => G.train(s, a.id));
       if (s.event) return;
     }
     const booth = s.booths.find((b) => !s.albums.some((p) => !p.released && p.booth === b.id));
@@ -225,13 +286,16 @@ function work(s, name, policy) {
 
 function run(seed, name, policy) {
   const s = G.create(seed, { ceo: true });
-  const phaseByYear = [];
+  const phaseByYear = [],
+    progress = [];
   while (!s.finished) {
     clearDecisions(s, name);
     if (s.finished) break;
     fund(s, name, policy);
     lobby(s, policy.lobby || (name === "reckless" && s.company.ownership > 0.5));
     manage(s, name, policy);
+    clearDecisions(s, name);
+    grow(s, policy);
     clearDecisions(s, name);
     produce(s);
     work(s, name, policy);
@@ -246,12 +310,17 @@ function run(seed, name, policy) {
     }
     const year = G.operatingYear(s.week);
     G.advance(s);
-    if (year !== G.operatingYear(s.week) || s.finished) phaseByYear[year - 1] = s.company.phase;
+    if (year !== G.operatingYear(s.week) || s.finished) {
+      phaseByYear[year - 1] = s.company.phase;
+      progress[year - 1] = measure(s);
+    }
   }
   const f = G.finalReview(s);
   return {
     seed,
     phaseByYear,
+    progress,
+    peaks: peakYears(progress),
     phase: s.company.phase,
     ending: f.ending,
     year: f.yearsPlayed,
@@ -267,6 +336,18 @@ function run(seed, name, policy) {
   };
 }
 
+/** The year each measure first reaches its highest value in the run. */
+function peakYears(progress) {
+  const keys = Object.keys(progress[0] || {});
+  return Object.fromEntries(
+    keys.map((k) => {
+      const values = progress.map((x) => x?.[k] ?? 0),
+        top = Math.max(...values);
+      return [k, values.findIndex((v) => v >= top) + 1];
+    }),
+  );
+}
+
 const quick = process.argv.includes("--quick");
 const report = { seeds: quick ? 2 : 12, policies: {} };
 for (const [name, policy] of Object.entries(policies)) {
@@ -274,10 +355,16 @@ for (const [name, policy] of Object.entries(policies)) {
   const fired = runs.filter((r) => r.ending === "fired").length;
   const folded = runs.filter((r) => r.ending === "folded").length;
   const listedByYear12 = runs.filter((r) => r.ipoYear && r.ipoYear <= 12).length;
-  report.policies[name] = { fired, folded, listedByYear12, runs };
+  const full = runs.filter((r) => r.year >= 20);
+  const median = (list) => list.toSorted((a, b) => a - b)[Math.floor(list.length / 2)] ?? null;
+  const peaks = full.length
+    ? Object.fromEntries(Object.keys(full[0].peaks).map((k) => [k, median(full.map((r) => r.peaks[k]))]))
+    : {};
+  report.policies[name] = { fired, folded, listedByYear12, medianPeakYear: peaks, runs };
   console.log(
     `${name}: ${fired} fired, ${folded} folded, ${listedByYear12} listed by year 12 · phases ${runs.map((r) => r.phase).join(", ")}`,
   );
+  console.log(`  median peak year (20-year runs): ${JSON.stringify(peaks)}`);
   if (quick) console.log(runs);
 }
 if (!quick)
