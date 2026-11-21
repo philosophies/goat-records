@@ -48,7 +48,7 @@ Add new public functions to the engine API through the system object; `LabelGame
 
 ## Interface
 
-- `src/ui/registry.js` — `GoatUI`, the plug-in points listed in the file: full screens (`registerPanel`), album form fields, studio sections, artist and catalog card rows, production rows, status chips, banners, click and change handlers.
+- `src/ui/registry.js` — `GoatUI`, the plug-in points listed in the file: full screens (`registerPanel`), album form fields, studio sections, artist and catalog card rows, production rows, status chips, banners (one with a button covers the lot and pauses the clock, unless marked `data-ticker`), click and change handlers.
 - `src/ui/places.js` — where every panel lives. `GoatPlaces.resolve(id)` maps an older screen id (`scout`, `finance`, `studio`…) to its place and section; `GoatPlaces.sheet(id)` builds the panel for a place (`desk`, `office`, `billboard`, `bus`…) or a person or room (`artist:<id>`, `staffer:<role>`, `room:<id>`, `location:<id>`). A registered screen no place shows is still opened on its own. It also draws the roster and the street.
 - `src/ui/<name>.js` — feature screens. They register with `GoatUI` and use the page helpers from `app.js` at render time (`G`, `state`, `$`, `esc`, `money`, `act`, `render`, `disable`, `blocked`).
 - `src/app.js` — page shell, the built-in panel pieces (album form, tour form, room card, catalog list, team role), saving and loading.

@@ -110,11 +110,11 @@ test("each month of the ledger sums to that month's cash change", () => {
     if (w === 9) G.train(s, a.id); // money spent during the week
     for (const p of s.albums.filter((x) => !x.released && x.production)) {
       const d = p.production;
-      if (d.releaseReady) G.releaseAlbum(s, p.id, p.title);
-      else if (!d.cooldown) {
+      while (!d.cooldown && !d.releaseReady && (d.stage < 5 || d.review)) {
         if (!d.review) G.decideStage(s, p.id, 0);
         G.continueProduction(s, p.id);
       }
+      if (d.releaseReady) G.releaseAlbum(s, p.id, p.title);
     }
     s.albums.forEach((p) => (p.launchReview = false));
     G.advance(s);

@@ -90,19 +90,22 @@ function clearDecisions(s, name) {
 function produce(s) {
   for (const p of s.albums) {
     if (p.launchReview) p.launchReview = false; // Same acknowledgement as the release card.
-    if (p.released || p.production.cooldown || s.event) continue;
-    if (p.production.releaseReady) {
-      G.releaseAlbum(s, p.id, p.title, "fans");
-      p.launchReview = false;
-      continue;
+    // The run's first album can take several stages in one week (the starter checklist's fast album).
+    for (let step = 0; step < 6; step++) {
+      if (p.released || p.production.cooldown || s.event) break;
+      if (p.production.releaseReady) {
+        G.releaseAlbum(s, p.id, p.title, "fans");
+        p.launchReview = false;
+        break;
+      }
+      if (!p.production.review) {
+        const option = [0, 1, 2].toSorted(
+          (a, b) => G.stagePreview(s, p, b).expected - G.stagePreview(s, p, a).expected,
+        )[0];
+        G.decideStage(s, p.id, option);
+      }
+      G.continueProduction(s, p.id);
     }
-    if (!p.production.review) {
-      const option = [0, 1, 2].toSorted(
-        (a, b) => G.stagePreview(s, p, b).expected - G.stagePreview(s, p, a).expected,
-      )[0];
-      G.decideStage(s, p.id, option);
-    }
-    G.continueProduction(s, p.id);
   }
 }
 

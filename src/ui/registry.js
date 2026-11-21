@@ -19,7 +19,8 @@ const GoatUI = {
   hud: [],
   /**
    * Notices (rank-ups and similar): { render() }. A banner with a data-action button is shown as
-   * a card over the lot and pauses the clock; one without is shown in the side ticker.
+   * a card over the lot and pauses the clock; one without, or one marked data-ticker, is shown in the
+   * side ticker.
    */
   banners: [],
   /**

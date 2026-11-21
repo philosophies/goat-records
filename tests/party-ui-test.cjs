@@ -45,7 +45,7 @@ run(`state = G.create(21, { ceo: true }); state.cash = 1e6;
     while (state.event) G.choose(state, state.event.options.length - 1);
     for (const x of [...(state.company?.inbox || [])]) G.decide(state, x.id, 0);
     const d = p.production;
-    if (!d.cooldown && !d.releaseReady) { if (!d.review) G.decideStage(state, p.id, 0); G.continueProduction(state, p.id); }
+    while (!d.cooldown && !d.releaseReady && (d.stage < 5 || d.review)) { if (!d.review) G.decideStage(state, p.id, 0); G.continueProduction(state, p.id); }
     if (!d.releaseReady) G.advance(state);
   }
   while (state.event) G.choose(state, state.event.options.length - 1);
@@ -72,6 +72,21 @@ assert.match(element("activities").innerHTML + element("studioQueue").innerHTML,
 // The goal line in a CEO run names the year and the next phase, not the classic campaign.
 assert.match(element("goal").textContent, /^Year 1 of \d+\. Next phase: .+ \((needs .+|all goals met)\)\.$/);
 assert.doesNotMatch(element("goal").textContent, /Final year|label rank/);
+
+// The starter checklist sits in the side ticker, can be skipped, and comes back from Settings.
+run(`state.company.onboarding = { on: true, done: ["sign"], tips: [] }; render();`);
+assert.match(
+  element("notices").innerHTML,
+  /Getting started[\s\S]*class="done"><span>✓<\/span> Sign your first artist[\s\S]*○<\/span> Finish the first recording stage <small>\$500<\/small>/,
+);
+assert.doesNotMatch(element("milestones").innerHTML, /Getting started/, "it does not cover the street");
+click({ action: "starter", on: "no" });
+assert.equal(run("state.company.onboarding.on"), false);
+assert.doesNotMatch(element("notices").innerHTML, /Getting started/);
+click({ tab: "phone:settings" });
+assert.match(element("content").innerHTML, /data-action="starter" data-on="yes">Show the checklist/);
+click({ action: "starter", on: "yes" });
+assert.equal(run("state.company.onboarding.on"), true);
 
 // Classic saves never show a party.
 run(`state = G.create(5, { ceo: false }); render();`);

@@ -51,8 +51,8 @@ run(`state = G.create(33, { ceo: true }); state.cash = 5e6; state.company.phase 
     while (state.event) G.choose(state, state.event.options.length - 1);
     for (const x of [...(state.company.inbox || [])]) G.decide(state, x.id, 0);
     const d = p.production;
+    while (!d.cooldown && !d.releaseReady && (d.stage < 5 || d.review)) { if (!d.review) G.decideStage(state, p.id, 0); G.continueProduction(state, p.id); }
     if (d.releaseReady) { G.releaseAlbum(state, p.id, p.title); p.launchReview = false; break; }
-    if (!d.cooldown) { if (!d.review) G.decideStage(state, p.id, 0); G.continueProduction(state, p.id); }
     G.advance(state);
   }
   for (let i = 0; i < 3; i++) { while (state.event) G.choose(state, state.event.options.length - 1); G.advance(state); }
