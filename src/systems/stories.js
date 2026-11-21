@@ -230,8 +230,10 @@
         run = { arc: arc.id, next: beat.id, flags: {}, week: s.week, done: false };
         if (who.kind === "artist") run.artist = who.ref;
         else Object.assign(run, { kind: who.kind, ref: who.ref });
-        if (arc.rival && s.rivalCompanies?.length)
-          run.rival = s.rivalCompanies[Math.floor(roll(s, "stories") * s.rivalCompanies.length)].id;
+        // Stories name one of the run's own rival labels when it has them.
+        const authored = (s.rivalCompanies || []).filter((r) => r.authored),
+          pool = authored.length ? authored : s.rivalCompanies || [];
+        if (arc.rival && pool.length) run.rival = pool[Math.floor(roll(s, "stories") * pool.length)].id;
         b.arcs.push(run);
       }
       const options = beat.choices.map((c, i) => {

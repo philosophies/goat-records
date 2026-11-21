@@ -342,3 +342,20 @@ small.backstory {
   background: none;
   min-height: 0;
 }
+
+/* Rival labels (CEO runs). */
+.rival-card.feud {
+  border-left: 4px solid var(--red-hi, #ff5a5f);
+}
+.rival-roster {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 8px;
+}
+.rival-roster li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+}
