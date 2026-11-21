@@ -308,3 +308,8 @@ button.promo-chip:hover {
     font-size: 7px;
   }
 }
+
+/* CEO runs add the trophy case to the street: five places in one row. */
+body.ceo-run .town {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}

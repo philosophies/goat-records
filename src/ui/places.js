@@ -300,6 +300,20 @@ function lotTown() {
     `<button class="town-spot prop bus-spot ${tours.length ? "away" : ""}" data-tab="bus" aria-label="Tour bus${tours.length ? ", on tour" : ""}">${pixelSvg(TOUR_BUS, "#f3a64b", 56)}<span class="town-plate">Tour bus</span><small>${tours.length ? "On tour · " + esc(tours.map((t) => t.artistName).join(", ")) : "Parked"}</small></button>`,
     townProp("street", ROAD_SIGN, "#f3d25b", 32, "Out of town", "All locations"),
   ];
+  // CEO runs have no lobby, so the trophy case stands on the street.
+  if (state.company)
+    props.splice(
+      2,
+      0,
+      townProp(
+        "trophies",
+        TROPHY,
+        "#f3d25b",
+        30,
+        "Trophy case",
+        `${state.awards} award${state.awards === 1 ? "" : "s"}`,
+      ),
+    );
   return `<div class="town" role="group" aria-label="Street destinations">${props.join("")}</div>`;
 }
 

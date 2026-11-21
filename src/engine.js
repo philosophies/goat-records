@@ -484,7 +484,12 @@
     requireAction(s);
     id = Number(id);
     if (!BOOTHS[id] || s.booths.some((x) => x.id === id)) throw Error("Booth unavailable.");
-    if (tier(s) < BOOTHS[id].labelTier) throw Error("Raise your label rank to unlock this room.");
+    if (tier(s) < BOOTHS[id].labelTier)
+      throw Error(
+        s.company
+          ? "Move the company up a phase to unlock this room."
+          : "Raise your label rank to unlock this room.",
+      );
     pay(s, BOOTHS[id].cost);
     s.booths.push({ id, hits: 0, prestige: 0 });
     log(s, `${BOOTHS[id].name} opened.`);
@@ -498,7 +503,9 @@
     if (info.wait) throw Error(`Development available in ${info.wait} week(s).`);
     if (info.gain <= 0)
       throw Error(
-        "Development ceiling reached. Earn artist levels, raise your label rank, or scout higher potential.",
+        s.company
+          ? "Development ceiling reached. Earn artist levels, move the company up a phase, or scout higher potential."
+          : "Development ceiling reached. Earn artist levels, raise your label rank, or scout higher potential.",
       );
     if (a.energy < 30) throw Error("Artist needs rest.");
     pay(s, info.cost);
@@ -1595,7 +1602,9 @@
     };
   }
   function enqueueAlbumEvents(s) {
-    for (const p of s.albums.filter((p) => p.released)) {
+    // In CEO runs an album's cards are about its artist, so they stop when the artist leaves.
+    const here = (p) => !s.company || s.artists.some((a) => a.id === p.artist);
+    for (const p of s.albums.filter((p) => p.released && here(p))) {
       if (p.lastSalesWeek === s.week && [3, 6, 9, 12].includes(p.age) && !p.eventsSeen.includes(p.age)) {
         p.eventsSeen.push(p.age);
         s.eventQueue.push(albumEvent(s, p, p.age));
@@ -1603,7 +1612,7 @@
     }
     if (s.week % 13 === 0) {
       const active = s.albums.filter(
-        (p) => p.released && (p.age < p.salesWeeks || p.lastSalesWeek === s.week),
+        (p) => p.released && here(p) && (p.age < p.salesWeeks || p.lastSalesWeek === s.week),
       );
       if (active.length)
         s.eventQueue.push(albumEvent(s, active[Math.floor(rng(s) * active.length)], "calendar"));
@@ -2800,7 +2809,7 @@
       year,
       artist: null,
       title: `Year ${year} · Silver Groove Awards ceremony`,
-      body: "Genre winners have been decided from eligible operating-year releases. Visit the trophy case in the lobby to inspect nominees, scores and results. Attendance does not change the judging.",
+      body: `Genre winners have been decided from eligible operating-year releases. Visit the trophy case ${s.company ? "on the street" : "in the lobby"} to inspect nominees, scores and results. Attendance does not change the judging.`,
       options: [
         {
           label: "Attend the industry ceremony",

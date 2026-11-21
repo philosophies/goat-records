@@ -134,8 +134,28 @@ function synergyText(p) {
   if (p.trainingDiscount) out.push(`development fees −${Math.round(p.trainingDiscount * 100)}%`);
   return out.join(", ");
 }
+/** CEO runs: the company's facility floors by building, with levels, upkeep and pairings. */
+function companyHeadquarters() {
+  const floors = G.allFloors(state).filter((f) => f.floor.type !== "room"),
+    active = G.activeSynergies(state),
+    cap = G.floorLevelCap(state),
+    building = (id) => G.BUILDINGS.find((b) => b.id === id)?.name || id;
+  const rows = floors
+    .map(({ building: b, index, floor }) => {
+      const def = facilityDef(floor.type);
+      return `<div class="build-option facility-row" style="--accent:${def.accent}">${pixelSvg(def.icon, def.accent, 30)}<div><b>${esc(def.name)}</b> <span class="tag">LEVEL ${floor.level} / ${G.FLOOR_LEVELS.max}</span><small>${esc(building(b))}, floor ${index + 1} · ${money(def.upkeep * floor.level)}/week${floor.renovating ? ` · renovating to level ${floor.renovating.to}` : ""}</small></div><button data-tab="floor:${b}:${index}">Open</button></div>`;
+    })
+    .join("");
+  const pairs = active
+    .map(
+      (p) => `<li class="met"><span>✓</span><b>${esc(p.name)}</b><small>${esc(synergyText(p))}</small></li>`,
+    )
+    .join("");
+  return `${rankPanel()}<div class="sectionhead"><h2>Facilities</h2><span class="muted">${floors.length} floor${floors.length === 1 ? "" : "s"} · levels up to ${cap} at this phase</span></div><p class="muted">Facilities are floors in your buildings on the street. Tap a building to add a floor, or a floor to upgrade it. A floor directly above or below, or on the same floor next door, can pair up for an extra bonus.</p><div class="build-list facility-list">${rows || '<div class="empty">No facility floors yet. Add one from a building on the street.</div>'}</div>${pairs ? `<h2>Pairings in effect</h2><ul class="rank-checks">${pairs}</ul>` : ""}`;
+}
 /** Facility list: what is built, what can be built, pairings and the rank ladder. */
 function headquarters() {
+  if (state.company?.buildings) return companyHeadquarters();
   const [w, h] = G.lotSize(state),
     r = G.rank(state),
     active = G.activeSynergies(state);

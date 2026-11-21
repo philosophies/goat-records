@@ -8,23 +8,23 @@ There are no menus. Everything opens from a person or place on the lot, in a pan
 
 Use the section buttons at the top of a busy panel to switch views. Find recording locations under **Out of town → Studios**, and start an album from an artist’s **Record** section or a studio. Production shows one decision at a time. Open **Rating breakdown** to see what goes into each estimate.
 
-| Tap                                     | Opens                                                                                                                    |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| An artist (on the lot or in the roster) | Their stats, contract, inspiration, gigs and hot streak; record an album; book a tour; their albums with singles and ads |
-| A staff member                          | Their role, skill and wage, a recruitment drive and replacements                                                         |
-| Roof sign                               | Label rank and its goals, headquarters overview, pairings, combo notebook                                                |
-| Front desk (lobby)                      | Scouting and hiring                                                                                                      |
-| Trophy case (lobby)                     | Annual award entries and results                                                                                         |
-| Office                                  | Campaign goals and final review, finances, discography, the label's name                                                 |
-| A recording room                        | Its equipment and record; start an album there                                                                           |
-| + Room                                  | Build another recording room                                                                                             |
-| A facility tile                         | Build, upgrade, move or close it                                                                                         |
-| Billboard                               | Top 300 chart and promotion                                                                                              |
-| Newsstand                               | Industry wire and label news                                                                                             |
-| Tour bus                                | Active tours, booking and tour history                                                                                   |
-| Out of town sign                        | Every recording location and the gig table                                                                               |
-| A recording location                    | Its level, boosts, genre fit and theme; record an album there                                                            |
-| Goal or "on fire" chip                  | The office or the billboard                                                                                              |
+| Tap                                            | Opens                                                                                                                    |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| An artist (on the lot or in the roster)        | Their stats, contract, inspiration, gigs and hot streak; record an album; book a tour; their albums with singles and ads |
+| A staff member                                 | Their role, skill and wage, a recruitment drive and replacements                                                         |
+| Roof sign                                      | Label rank and its goals, headquarters overview, pairings, combo notebook                                                |
+| Front desk (lobby)                             | Scouting and hiring                                                                                                      |
+| Trophy case (lobby; on the street in CEO runs) | Annual award entries and results                                                                                         |
+| Office                                         | Campaign goals and final review, finances, discography, the label's name                                                 |
+| A recording room                               | Its equipment and record; start an album there                                                                           |
+| + Room                                         | Build another recording room                                                                                             |
+| A facility tile                                | Build, upgrade, move or close it                                                                                         |
+| Billboard                                      | Top 300 chart and promotion                                                                                              |
+| Newsstand                                      | Industry wire and label news                                                                                             |
+| Tour bus                                       | Active tours, booking and tour history                                                                                   |
+| Out of town sign                               | Every recording location and the gig table                                                                               |
+| A recording location                           | Its level, boosts, genre fit and theme; record an album there                                                            |
+| Goal or "on fire" chip                         | The office or the billboard                                                                                              |
 
 ## Label ranks
 
@@ -519,3 +519,5 @@ A beat is offered with a 45% chance in a week once three weeks have passed since
 Every authored artist has their own story, and six stories can happen to anyone: debut nerves, a lawsuit over old work, a feature for a big name, a comeback after two flops, a superstar's ego and burnout on tour. Every beat offers at least one choice that costs nothing, and each card lists every effect in numbers. A story choice that costs 6 or more trust is a public scandal and counts with the board; smaller trust losses stay private. If a paid choice needs the board's approval, the card waits until the approval is settled.
 
 Stories are not only about artists. Department heads (a new head's reorganisation, a rival's job offer, taking credit, burnout, expenses, mentoring, lunching with the board, and one story for each department, plus stories for four authored heads), team members (a producer's signature sound, a manager's side deal, a publicist's rumour, a stylist's bill, a broken-down van), directors (cost cuts, a hologram tour, artist welfare, an old guard's taste, an investor wanting out, an industry dinner) and the label itself (a rival's insult, merger talks, an exposé, a street team, the landlord, a charity gala, a rival's award speech, a financial news interview) all get them. These choices can change a head's or team member's skill, loyalty, ambition or influence, a director's regard for you, the board's confidence and the label's standing with a rival label. The label's own stories wait only for the three-week gap; a person's wait eight weeks between beats. Head and director cards show their latest story beats.
+
+**Where things are in a CEO run.** The street holds every place: buildings and their floors, the billboard, newsstand, trophy case, tour bus and the road out of town; the front desk opens from the roster. The label's sign opens the phase card, the list of facility floors with their levels, and the combo notebook. Album checkpoint cards stop once the album's artist has left the label. Every card, notice and screen in a CEO run speaks of phases rather than label ranks; `docs/interactions.md` lists when each card and notice can appear.

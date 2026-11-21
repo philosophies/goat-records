@@ -329,9 +329,10 @@
       run.next = st.next ?? null;
       if (!run.next) run.done = true;
       const key = who?.key || (e.subject ? `${e.subject.kind}:${e.subject.ref}` : `artist:${e.artist}`);
-      (b.log[key] ??= []).push({ week: s.week, arc: arc.id, title: e.title, choice: choice.label });
+      // The card's own label, with names filled in.
+      (b.log[key] ??= []).push({ week: s.week, arc: arc.id, title: e.title, choice: o.label });
       b.log[key] = b.log[key].slice(-STORY_RULES.logSize);
-      log(s, `${e.title}: ${choice.label}.`);
+      log(s, `${e.title}: ${o.label}.`);
     }
     /** Whose story a card is, for its tag: a person's name, or the label's. */
     function storyCardName(s, e) {
