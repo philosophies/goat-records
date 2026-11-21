@@ -91,6 +91,14 @@ p.launchReview = false;
 assert.ok(productionHeld());
 // Story beats and board approvals name themselves in the pause line.
 assert.deepEqual(clockReasons({ ...fresh, event: { type: "story" } }).slice(0, 1), ["artist story"]);
+assert.deepEqual(
+  clockReasons({ ...fresh, event: { type: "story", subject: { kind: "company" } } }).slice(0, 1),
+  ["label story"],
+);
+assert.deepEqual(
+  clockReasons({ ...fresh, event: { type: "story", subject: { kind: "head" } } }).slice(0, 1),
+  ["staff story"],
+);
 assert.deepEqual(clockReasons({ ...fresh, event: { type: "approval" } }).slice(0, 1), ["board approval"]);
 console.log(
   `PASS clock: speeds and tick length, holds for events, album decisions, results, milestones, rank-ups and open menus, resume rules, and ${checks} engine agreement checks.`,

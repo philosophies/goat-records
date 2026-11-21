@@ -46,7 +46,10 @@ click({ tab: "office" });
 assert.doesNotMatch(html("content"), /sec-company/);
 
 // Start a CEO run.
-run(`state = G.create(41, { ceo: true }); save(); render();`);
+// Story beats are tested on their own; keep them out of this harness.
+run(
+  `state = G.create(41, { ceo: true }); state.company.stories = { arcs: [], log: {}, lastWeek: 1e9 }; save(); render();`,
+);
 assert.match(html("hud"), /class="company-chip" data-tab="company"[^>]*>Phase 1 · Home studio · 1\/4 goals/);
 click({ tab: "company" });
 assert.equal(element("drawerTitle").textContent, "Company");

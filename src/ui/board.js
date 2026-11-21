@@ -97,7 +97,7 @@ function directorCard(d) {
   return `<article class="card director"><div class="director-head">${directorPortrait(d.type)}<div><b>${esc(d.name)}</b><small>${esc(d.archetype)} · relationship ${d.relationship > 0 ? "+" : ""}${d.relationship}</small></div><span class="score">${d.value}</span></div>${castBlurb(
     state.company.board.directors.find((x) => x.id === d.id),
     "p",
-  )}${meter(d.value)}<details class="decision-details"><summary>Score and lobbying</summary><ul class="reasons">${reasonsList(d.reasons)}</ul>${lobbyControls(d)}</details></article>`;
+  )}${storyLines(`director:${d.id}`, 2)}${meter(d.value)}<details class="decision-details"><summary>Score and lobbying</summary><ul class="reasons">${reasonsList(d.reasons)}</ul>${lobbyControls(d)}</details></article>`;
 }
 function boardScreen() {
   if (!state.company) return '<div class="empty">The boardroom is part of a CEO run.</div>';

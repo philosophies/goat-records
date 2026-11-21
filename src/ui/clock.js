@@ -18,7 +18,11 @@ function clockReasons(state, ui = {}) {
         : state.event.type === "awards"
           ? "awards night"
           : state.event.type === "story"
-            ? "artist story"
+            ? state.event.subject?.kind === "company"
+              ? "label story"
+              : state.event.subject
+                ? "staff story"
+                : "artist story"
             : state.event.type === "approval"
               ? "board approval"
               : "industry event",
