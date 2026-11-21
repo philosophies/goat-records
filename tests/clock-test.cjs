@@ -89,6 +89,9 @@ assert.ok(p.released);
 assert.equal(clockState(s, { speed: 1 }).reason, "release results");
 p.launchReview = false;
 assert.ok(productionHeld());
+// Story beats and board approvals name themselves in the pause line.
+assert.deepEqual(clockReasons({ ...fresh, event: { type: "story" } }).slice(0, 1), ["artist story"]);
+assert.deepEqual(clockReasons({ ...fresh, event: { type: "approval" } }).slice(0, 1), ["board approval"]);
 console.log(
   `PASS clock: speeds and tick length, holds for events, album decisions, results, milestones, rank-ups and open menus, resume rules, and ${checks} engine agreement checks.`,
 );

@@ -280,3 +280,11 @@ small.backstory {
 .cast-card {
   border-left: 4px solid var(--cast, var(--gold, #e3b23c));
 }
+.story-log {
+  margin: 4px 0 0;
+  padding-left: 16px;
+  font-size: 13px;
+}
+.story-log small {
+  color: var(--muted);
+}

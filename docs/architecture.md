@@ -8,29 +8,41 @@ Plain browser JavaScript, no build step. `index.html` loads scripts in this orde
 - `src/data/<name>.js` — balance tables. Each file merges its tables into `GoatData`.
 - `src/systems/<name>.js` — optional game systems. Each file exports `create(core, data)` (and registers that function as `GoatSystems[name]` in the browser). The engine loads the names listed in `SYSTEM_NAMES`. New runs use CEO systems by default. `G.create(seed, { ceo: false })` starts a classic run.
 
-`core` gives a system `clamp`, `log`, `pay`, `requireAction`, `busy`, `artist`, `operatingYear`, `roll(s, key)` (a separate seeded random stream per key, so a new system never changes existing seeded outcomes) and `api()` (the engine's public API, for calls at run time).
+`core` gives a system `clamp`, `log`, `pay`, `requireAction`, `busy`, `artist`, `operatingYear`, `roll(s, key)` (a separate seeded random stream per key, so a new system never changes existing seeded outcomes), `uniqueName(s, r)`, `peopleNames(s)` and `reserveName(s, name)` (names already in use, and holding one for the week), and `api()` (the engine's public API, for calls at run time).
 
 ### System hooks
 
 A system object may implement any of these. All are optional.
 
-| Hook | Called | Returns |
-| --- | --- | --- |
-| `init(s)` | New game and every load (migration) | — |
-| `validSave(s)` | Save import and page load | `false` to reject |
-| `validatePlan(s, plan)` | Before an album is paid for | throws to reject |
-| `planCost(s, plan)` | Album quote and start | extra cost |
-| `onRecord(s, album, plan)` | Album started | — |
-| `stageParts(s, album, stage)` | Each production stage preview | calculation rows `{name, value}` |
-| `launchParts(s, album, i)` | Release ratings (0 Critics, 1 Fan response, 2 Market impact) | rows |
-| `onRelease(s, album)` | Album released | — |
-| `salesMultiplier(s, album, artist)` | Weekly album sales | multiplier |
-| `upkeep(s)` | Weekly overhead | cost |
-| `weekly(s)` | Weekly settlement, after charts | income paid this week |
-| `trainingAdjust(s, artist)` | Development quote | `{ceilingBonus, discount}` |
-| `afterTraining(s, artist)` | After a development session | — |
-| `afterTour(s, tour, completed)` | Tour ends | — |
-| `yearEnd(s, year)` | After the annual awards at a year boundary | — |
+| Hook                                              | Called                                                       | Returns                                    |
+| ------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------ |
+| `init(s)`                                         | New game and every load (migration)                          | —                                          |
+| `validSave(s)`                                    | Save import and page load                                    | `false` to reject                          |
+| `validatePlan(s, plan)`                           | Before an album is paid for                                  | throws to reject                           |
+| `planCost(s, plan)`                               | Album quote and start                                        | extra cost                                 |
+| `onRecord(s, album, plan)`                        | Album started                                                | —                                          |
+| `stageParts(s, album, stage)`                     | Each production stage preview                                | calculation rows `{name, value}`           |
+| `launchParts(s, album, i)`                        | Release ratings (0 Critics, 1 Fan response, 2 Market impact) | rows                                       |
+| `onRelease(s, album)`                             | Album released                                               | —                                          |
+| `salesMultiplier(s, album, artist)`               | Weekly album sales                                           | multiplier                                 |
+| `upkeep(s)`                                       | Weekly overhead                                              | cost                                       |
+| `weekly(s)`                                       | Weekly settlement, after charts                              | income paid this week                      |
+| `trainingAdjust(s, artist)`                       | Development quote                                            | `{ceilingBonus, potentialBonus, discount}` |
+| `afterTraining(s, artist)`                        | After a development session                                  | —                                          |
+| `afterTour(s, tour, completed)`                   | Tour ends                                                    | —                                          |
+| `yearEnd(s, year)`                                | After the annual awards at a year boundary                   | —                                          |
+| `approveSigning(s, artist, quote)`                | Before a CEO-run signing is paid for                         | throws to refuse                           |
+| `approvePlan(s, plan, artist)`                    | Before a CEO-run album is paid for                           | throws to refuse                           |
+| `approveTour(s, quote)`                           | Before a CEO-run tour is paid for                            | throws to refuse                           |
+| `beforeSpend(s, amount)`, `onSpend(s, amount)`    | Around every CEO-run payment                                 | throws to refuse / —                       |
+| `beforeRenew(s, artist)`                          | Before a contract renewal                                    | throws to refuse                           |
+| `eventChoice(s, event, option)`                   | After a non-company event choice is applied (CEO runs)       | —                                          |
+| `onScandal(s, artist, effects)`                   | An event costs an artist trust (CEO runs)                    | —                                          |
+| `trustLoss(s, artist)`                            | Share of an event's trust loss that reaches the artist       | multiplier                                 |
+| `tourGate(s, tour)`, `tourDrain(s, tour, artist)` | Tour ticket revenue and energy drain                         | multipliers                                |
+| `roleSkill(s, role)`                              | Skill behind a 1.x staff role effect                         | skill                                      |
+
+Event types in a CEO run's queue: `companyEvent` (quarterly opportunities and crises, from the events system), `approval` (board approvals) and `story` (story beats, from the stories system). A `story` event carries `arc`, `beat` and `artist`; each option carries `storyChoice`, the index of the authored choice.
 
 Add new public functions to the engine API through the system object; `LabelGame.systems` lists loaded systems.
 

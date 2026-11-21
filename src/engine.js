@@ -15,6 +15,7 @@
     "events",
     "parties",
     "cast",
+    "stories",
   ];
   function optionalRequire(path) {
     try {

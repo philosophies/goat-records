@@ -54,7 +54,22 @@ click({ tab: "artist:" + id });
 const page = element("content").innerHTML;
 assert.match(page, /THEIR STORY/);
 assert.ok(page.includes("Look:") && page.includes("Watch for:"));
-// A generated artist has no story card.
+// A story beat plays as a decision card with the artist's name, then lands in the story log.
+run(`state.albums.push({ id: 990, artist: ${id}, released: true, quality: 82, releaseWeek: state.week, title: "Hit" });
+  G.playStory(state, G.storyDue(state).find((x) => x.arc.id === "first-hit"));
+  state.event = state.eventQueue.shift(); render();`);
+click({ action: "showModal" });
+assert.match(element("event").innerHTML, /S STORY · TIME IS PAUSED/);
+assert.match(element("event").innerHTML, /hears the song everywhere/);
+click({ action: "choose", id: "1" });
+assert.equal(run("state.event"), null);
+click({ tab: "artist:" + id });
+assert.match(
+  element("content").innerHTML,
+  /Story so far[\s\S]*hears the song everywhere · <i>Give them a week off to enjoy it<\/i>/,
+);
+// A generated artist with no story yet has no story card.
+run(`state.company.stories = { arcs: [], log: {}, lastWeek: -9 };`);
 run(`state.artists.forEach((a) => delete a.castId); render();`);
 click({ tab: "artist:" + id });
 assert.doesNotMatch(element("content").innerHTML, /THEIR STORY/);
