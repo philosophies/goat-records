@@ -8,7 +8,7 @@
   function create(core, D) {
     const { DEPARTMENTS, ROLE_DEPARTMENT, EXEC_POOL, EXEC_PAY, DEPT_STAFF, PHASES } = D;
     const { TEAM_ROLES, TEAM_EFFECTS, TEAM_POOL, TEAM_STYLES, CHEMISTRY, GENRES } = D;
-    const { TRAITS, WANTS, WANT_MORALE, WALKOUT, GRAB, GRAB_END, CEO_INFLUENCE, RESPONSES } = D;
+    const { TRAITS, WANTS, WANT_MORALE, WALKOUT, GRAB, GRAB_END, CEO_INFLUENCE, RESPONSES, GROWTH } = D;
     const WANT_IDS = Object.keys(WANTS);
     const teamRoleById = Object.fromEntries(TEAM_ROLES.map((r) => [r.id, r]));
     const { log, pay, requireAction, roll, busy, clamp } = core;
@@ -541,7 +541,8 @@
       x.contacts ??= [];
       if (kind === "promote") {
         x.salary = Math.round(x.salary * (1 + R.raise));
-        x.title = "Senior " + deptById[id].head;
+        if ((x.promotions || 0) < 1) x.title = "Senior " + deptById[id].head;
+        x.promotions = Math.max(x.promotions || 0, 1);
         x.ambition = Math.max(0, x.ambition + R.ambition);
         x.calmUntil = s.week + R.calmWeeks;
         delete x.plot;
@@ -640,6 +641,156 @@
     function ackGrab(s) {
       if (s.company?.grabOutcome) s.company.grabOutcome.seen = true;
     }
+    // ---- Growth (T51): XP from work, seniority, training and promotions ----
+    /** Fills in growth fields on people from older saves and new hires. */
+    function prepare(s, x) {
+      x.startSkill ??= x.skill;
+      x.hiredWeek ??= s.week;
+      x.xp ??= 0;
+      x.promotions ??= x.title?.startsWith("Senior") ? 1 : 0;
+      x.seniority ??= seniorityIndex(s, x);
+      return x;
+    }
+    function headsList(s) {
+      return Object.entries(s.company?.departments || {})
+        .filter(([, d]) => d.head)
+        .map(([id, d]) => ({ id, x: d.head }));
+    }
+    function seniorityIndex(s, x) {
+      const weeks = s.week - (x.hiredWeek ?? s.week);
+      let i = 0;
+      GROWTH.seniority.forEach((r, k) => weeks >= r.weeks && (i = k));
+      return i;
+    }
+    /** The highest skill this person can reach now. */
+    function skillCeiling(s, x) {
+      const promo = GROWTH.promotion.slice(0, x.promotions || 0).reduce((n, p) => n + p.ceiling, 0);
+      return Math.min(
+        100,
+        (x.startSkill ?? x.skill) + GROWTH.seniority[seniorityIndex(s, x)].ceiling + promo,
+      );
+    }
+    function addXp(s, x, n) {
+      prepare(s, x);
+      x.xp += n;
+      const ceiling = skillCeiling(s, x);
+      while (x.xp >= GROWTH.xpPerPoint && x.skill < ceiling) {
+        x.xp -= GROWTH.xpPerPoint;
+        x.skill++;
+      }
+      x.xp = Math.min(x.xp, GROWTH.xpPerPoint);
+    }
+    function goingRate(kind, skill) {
+      return kind === "head" ? salaryFor(skill) : TEAM_POOL.salary + skill * TEAM_POOL.perSkill;
+    }
+    function rankCheck(s, x, kind) {
+      const i = seniorityIndex(s, x);
+      if (i <= (x.seniority ?? 0)) return;
+      x.seniority = i;
+      x.salary = Math.max(x.salary, goingRate(kind, x.skill));
+      log(s, `${x.name} is now ${GROWTH.seniority[i].name.toLowerCase()} at the label.`);
+    }
+    function growthWeek(s) {
+      if (!s.company) return;
+      for (const { x } of headsList(s)) {
+        prepare(s, x);
+        rankCheck(s, x, "head");
+        addXp(s, x, GROWTH.weekXp.head);
+      }
+      for (const m of s.company.team?.pool || []) {
+        prepare(s, m);
+        rankCheck(s, m, "member");
+        if (m.artists.length) addXp(s, m, GROWTH.weekXp.member);
+      }
+    }
+    function growthRelease(s, p) {
+      if (!s.company) return;
+      for (const { x } of headsList(s)) addXp(s, x, GROWTH.releaseXp.head);
+      for (const m of s.company.team?.pool || [])
+        if (m.artists.includes(p.artist)) addXp(s, m, GROWTH.releaseXp.member);
+    }
+    function person(s, kind, id) {
+      const x =
+        kind === "head"
+          ? s.company?.departments?.[id]?.head
+          : s.company?.team?.pool.find((m) => m.id === Number(id));
+      if (!x) throw Error("Nobody to train there.");
+      return prepare(s, x);
+    }
+    /** What growth looks like for a head or team member: rank, ceiling, XP, training and the next title. */
+    function growthInfo(s, kind, id) {
+      const x = person(s, kind, id),
+        i = seniorityIndex(s, x),
+        next = GROWTH.seniority[i + 1],
+        T = GROWTH.training,
+        wait = Math.max(0, (x.trainedWeek ?? -Infinity) + T.cooldown - s.week),
+        ceiling = skillCeiling(s, x),
+        promo = kind === "head" ? GROWTH.promotion[x.promotions || 0] || null : null;
+      return {
+        rank: GROWTH.seniority[i].name,
+        nextRank: next ? { name: next.name, inWeeks: next.weeks - (s.week - x.hiredWeek) } : null,
+        ceiling,
+        xp: x.xp,
+        xpPerPoint: GROWTH.xpPerPoint,
+        train: {
+          cost: Math.round(x.salary * T.weeksOfPay),
+          wait,
+          gain: Math.min(T.skill, ceiling - x.skill),
+        },
+        promotion: promo && {
+          title: `${promo.title} ${deptById[id].head}`,
+          seniority: GROWTH.seniority[promo.seniority].name,
+          skill: promo.skill,
+          ready: i >= promo.seniority && x.skill >= promo.skill,
+        },
+      };
+    }
+    /** Paid training: a couple of skill points within the person's ceiling. */
+    function trainPerson(s, kind, id) {
+      requireAction(s);
+      requireCeo(s);
+      const x = person(s, kind, id),
+        g = growthInfo(s, kind, id);
+      if (g.train.wait) throw Error(`${x.name} can train again in ${g.train.wait} week(s).`);
+      if (g.train.gain <= 0)
+        throw Error(`${x.name} is at their ceiling for now. Seniority and promotions raise it.`);
+      pay(s, g.train.cost);
+      x.skill += g.train.gain;
+      x.trainedWeek = s.week;
+      log(s, `${x.name} trains: skill ${x.skill}.`);
+      return x;
+    }
+    /** Promotes a department head to the next title once they have the seniority and skill. */
+    function promoteHead(s, id) {
+      requireAction(s);
+      requireCeo(s);
+      const x = person(s, "head", id),
+        g = growthInfo(s, "head", id),
+        P = GROWTH.promotion[x.promotions || 0];
+      if (!P) throw Error(`${x.name} holds the top title.`);
+      if (!g.promotion.ready)
+        throw Error(
+          `${g.promotion.title} needs ${g.promotion.seniority.toLowerCase()} rank and skill ${P.skill}.`,
+        );
+      x.promotions = (x.promotions || 0) + 1;
+      x.title = g.promotion.title;
+      x.salary = Math.round(x.salary * (1 + P.raise));
+      x.loyalty = clamp(x.loyalty + P.loyalty);
+      x.ambition = clamp(x.ambition + P.ambition);
+      log(s, `${x.name} is promoted to ${x.title}.`);
+      return x;
+    }
+    function validGrowth(x) {
+      return (
+        (x.xp === undefined || (Number.isFinite(x.xp) && x.xp >= 0)) &&
+        (x.startSkill === undefined ||
+          (Number.isFinite(x.startSkill) && x.startSkill >= 0 && x.startSkill <= 100)) &&
+        (x.promotions === undefined || (isCount(x.promotions) && x.promotions <= GROWTH.promotion.length)) &&
+        (x.seniority === undefined || (isCount(x.seniority) && x.seniority < GROWTH.seniority.length)) &&
+        (x.trainedWeek === undefined || Number.isInteger(x.trainedWeek))
+      );
+    }
+
     function teamPay(s) {
       return (s.company?.team?.pool || []).reduce((n, m) => n + m.salary, 0);
     }
@@ -659,6 +810,7 @@
         m.skill >= 0 &&
         m.skill <= 100 &&
         isCount(m.salary) &&
+        validGrowth(m) &&
         Array.isArray(m.genres) &&
         m.genres.every((g) => GENRES.includes(g)) &&
         Array.isArray(m.artists) &&
@@ -698,6 +850,7 @@
           (n) => Number.isFinite(n) && n >= 0 && n <= 100,
         ) &&
         isCount(x.salary) &&
+        validGrowth(x) &&
         (x.contacts === undefined || (Array.isArray(x.contacts) && x.contacts.every(isCount))) &&
         (x.plot === undefined || (!!x.plot && isCount(x.plot.due))) &&
         (x.calmUntil === undefined || isCount(x.calmUntil))
@@ -743,17 +896,26 @@
         moodWeek(s);
         if (s.company?.departments && s.week % GRAB.quarter === 0) grabQuarter(s);
         if (s.company?.departments) grabWeek(s);
+        growthWeek(s);
         return 0;
       },
       beforeRenew: checkRenew,
       stageParts: teamStageParts,
-      onRelease: teamRelease,
+      onRelease: (s, p) => {
+        teamRelease(s, p);
+        growthRelease(s, p);
+      },
       trustLoss: trustLossShare,
       tourGate,
       tourDrain,
       upkeep: (s) => departmentPay(s) + teamPay(s),
       roleSkill: headSkill,
       api: {
+        GROWTH,
+        growthInfo,
+        trainPerson,
+        promoteHead,
+        skillCeiling,
         DEPARTMENTS,
         EXEC_POOL,
         EXEC_PAY,

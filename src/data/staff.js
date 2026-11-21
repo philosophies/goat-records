@@ -223,8 +223,34 @@
     counter: { name: "Counter", costPerPhase: 2000, perContact: 5 },
   };
 
+  // Staff growth (3.0, design 5): department heads and artist team members get better with work.
+  //   xpPerPoint   XP for each skill point
+  //   weekXp       XP each week on the job (team members only while working with an artist)
+  //   releaseXp    XP when an album comes out: every head, and the team members working with that artist
+  //   seniority    ranks by weeks on the job; a person's skill can grow to their starting skill + ceiling
+  //   training     costs `weeksOfPay` weeks of salary, adds `skill` (within the ceiling), once per `cooldown` weeks
+  //   promotion    heads only: each title needs a seniority rank and skill; it adds to the ceiling,
+  //                raises pay and loyalty, and calms ambition
+  //   Pay rises to the going rate for the new skill each time a person reaches a new seniority rank.
+  const GROWTH = {
+    xpPerPoint: 12,
+    weekXp: { head: 1, member: 1 },
+    releaseXp: { head: 2, member: 4 },
+    seniority: [
+      { weeks: 0, name: "New", ceiling: 8 },
+      { weeks: 26, name: "Experienced", ceiling: 16 },
+      { weeks: 104, name: "Seasoned", ceiling: 24 },
+      { weeks: 208, name: "Veteran", ceiling: 32 },
+    ],
+    training: { weeksOfPay: 6, skill: 2, cooldown: 13 },
+    promotion: [
+      { title: "Senior", seniority: 1, skill: 60, ceiling: 6, raise: 0.2, loyalty: 10, ambition: -10 },
+      { title: "Executive", seniority: 2, skill: 75, ceiling: 6, raise: 0.25, loyalty: 10, ambition: -10 },
+    ],
+  };
 
   const data = {
+    GROWTH,
     DEPARTMENTS,
     ROLE_DEPARTMENT,
     TEAM_ROLES,

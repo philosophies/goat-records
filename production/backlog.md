@@ -472,7 +472,7 @@ Depends on: T40
 Files: `src/data/company.js`, `src/systems/company.js`, tests
 Do: up to level 10 with rising costs, gated by phase; each level shows on the art (T43, T44).
 
-### [ ] T51 · Staff, executive and team growth
+### [x] T51 · Staff, executive and team growth
 
 Depends on: T49
 Files: `src/data/staff.js`, `src/systems/staff.js`, tests
