@@ -514,35 +514,53 @@ Depends on: T55, T56
 Files: `docs/interactions.md` (new), event data, tests
 Do: list every event, decision, prompt and banner with when it may appear; fix any that can appear out of context; tests assert the conditions.
 
-### [ ] T58 · Story so far
+### [ ] T58 · Story so far and why
 
 Depends on: T54
-Files: `src/ui/*.js`
-Do: each character's panel shows their story log as a short timeline.
+Files: `src/engine.js`, `src/systems/*.js`, `src/ui/*.js`, tests
+Do: design 7.2. Each character's panel shows their story log as a short timeline. Tier changes, relationship swings, board votes, valuation moves and leaks store a cause breakdown and show it behind a "Why?" toggle. The Wallet gets a monthly ledger by source.
+Done when: tests that each listed change records its causes and the ledger sums to the cash change; harness opens a story log and a "Why?" breakdown.
 
 ## M16 Long-term play
 
 ### [ ] T59 · The first fifteen minutes
 
 Depends on: T41
-Do: short guided goals that teach the loop: loan, signing, recording, release.
+Files: `src/data/onboarding.js`, `src/systems/onboarding.js`, `src/ui/*.js`, tests
+Do: design 7.1. A skippable checklist of five goals with rewards from a table, a Settings toggle, no stage cooldown on a run's first album, and one-time tips the first time each feature matters. Not shown in a second act.
+Done when: tests for each goal's reward, skipping, the toggle and the second act; a test that a default run releases its first album by week 6; harness plays the checklist to the end.
 
 ### [ ] T60 · Rival labels and feuds
 
 Depends on: T54
-Do: rival labels with CEOs, feuds, poaching and chart battles.
+Files: `src/data/rivals.js`, `src/systems/rivals.js`, `src/ui/*.js`, tests
+Do: design 7.3. Three rivals per run from eight authored labels, four CEO personalities, strength scaled by your phase. Rival releases in the charts with chart battles, poaching bids (match, counter, let go) and your own bids from phase 3, feud standing with diss and award events, and buying a weak rival from phase 5.
+Done when: tests for rival setup, chart battles, each poaching answer, feud standing, and an acquisition moving the catalog; balance report shows rivals poach without emptying a careful label's roster; harness answers a bid.
 
 ### [ ] T61 · Music eras
 
 Depends on: T40
-Do: industry eras across a run that shift the revenue mix and the events on offer.
+Files: `src/data/eras.js`, `src/systems/eras.js`, `src/engine.js`, `src/ui/*.js`, tests
+Do: design 7.4. Four eras of four years with revenue multipliers, event pool weights and marketing costs; an announcement 13 weeks ahead with the invest-early choice.
+Done when: tests for each era's multipliers, the announcement timing and the invest-early bonus; balance report shows the best-earning release plan differs between at least two eras.
+
+### [ ] T64 · Catalog: a second life for old albums
+
+Depends on: T61
+Files: `src/data/catalog.js`, `src/systems/catalog.js`, `src/ui/vault.js`, `src/ui/*.js`, tests
+Do: design 7.5. Fresh, catalog and classic status; weekly catalog income scaled by era; deluxe editions, anniversary reissues, sample requests, sync licensing, greatest hits and fan mail through the inbox; a Vault panel listing the catalog and its offers.
+Done when: tests for each status, each offer and its conditions, income by era, and old saves loading with their albums classed; balance report shows catalog income share by year 10 between 10% and 25%; harness takes one offer from the Vault.
 
 ### [ ] T62 · Legacy and challenges
 
 Depends on: T47
-Do: a hall of fame across runs, achievements and seeded challenge runs.
+Files: `src/data/legacy.js`, `src/systems/legacy.js`, `src/ui/*.js`, tests
+Do: design 7.6. A hall of fame stored outside the save, about 30 achievements, six challenge starts plus a weekly seed, and small legacy perks capped at 5%.
+Done when: tests that each run ending records a hall of fame entry, achievements unlock once, challenge starts are identical for the same seed, and perks stay within their cap; harness starts a challenge run.
 
 ### [ ] T63 · Late-game delegation
 
 Depends on: T51
-Do: automate routine work (renewals, tour booking, department autopilot) with clear limits.
+Files: `src/data/delegation.js`, `src/systems/delegation.js`, `src/ui/*.js`, tests
+Do: design 7.7. Renewal rules at phase 3, tour booking within a cap at phase 4, department autopilot policies at phase 5, and a chief operating officer for small inbox decisions at phase 6. A monthly summary of every automated action. Never touches story, superstar or board choices.
+Done when: tests for each unlock, its limits, the summary, and that story, superstar and board decisions are never automated; balance report shows a delegated phase-6 label within 10% of the hand-played result; harness sets a policy.

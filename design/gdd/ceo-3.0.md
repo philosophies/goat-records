@@ -57,8 +57,99 @@ Targets: about 30 authored artists and 20 authored staff, executives and directo
 
 ## 7. Long-term engagement
 
-- Rival labels with their own CEOs, feuds and poaching.
-- Music eras across the run (mixtapes and CDs, the piracy years, streaming) that shift where money comes from.
-- Legacy: a hall of fame across runs, achievements, and seeded challenge runs.
-- Late-game delegation: automate routine work (renewals, tour booking, department autopilot) so the late game stays about decisions.
-- The first fifteen minutes: short guided goals that show the loop quickly.
+Tycoon games tend to lose players in two places: the first few minutes, when the loop is not yet clear, and the late game, when the best strategy is solved and every year plays the same. This section covers both. Every number below is a starting value for a table in `src/data/`, to be tuned by the balance script.
+
+### 7.1 The first fifteen minutes
+
+A new run opens with a short guided checklist on the HUD. Each goal pays a small reward and can be skipped; the whole list can be turned off in Settings.
+
+| Goal                             | Reward            |
+| -------------------------------- | ----------------- |
+| Sign your first artist           | $500              |
+| Finish the first recording stage | $500              |
+| Release your first album         | $1,000 and 5 fame |
+| Reach the chart                  | $1,500            |
+| End a week in profit             | 5 reputation      |
+
+- The first album of a run has no cooldown between stages, so the first release lands by about week 6.
+- One-time tips appear the first time something matters (first listening party, first tier slot, first superstar, first board meeting), never before.
+- The checklist does not appear in a second act.
+
+### 7.2 Show why
+
+Players forgive bad luck they can see. Every big change gets a cause the player can read:
+
+- Each character's panel has a story log: beats, choices and results as a short timeline.
+- Tier changes, relationship swings, board votes, valuation moves and leaks carry a "Why?" breakdown in the same form as the album score breakdown.
+- The Wallet gains a monthly ledger: money in and out by source (sales, tours, endorsements, catalog, wages, upkeep, loans).
+
+### 7.3 Rival labels
+
+Each run has three rival labels drawn from an authored list of eight (original names and CEOs). A rival has a CEO personality, a genre focus and a strength that grows with your phase so they stay a threat.
+
+| Personality  | Plays like                                         |
+| ------------ | -------------------------------------------------- |
+| Shark        | Poaches often, overpays, starts feuds              |
+| Purist       | Few releases, high quality, wins awards            |
+| Hype machine | Floods the charts with singles, buys attention     |
+| Old guard    | Big catalog, slow, buys smaller labels at phase 5+ |
+
+- Rivals release into the same charts. When your release lands within two weeks of a rival's, the release report shows a chart battle and its winner.
+- Poaching: in an artist's last contract year, or when morale is below 40, a rival may bid. Match, counter (loyalty and relationship help) or let them go. From phase 3 you can bid for theirs.
+- Feuds: each rival has a standing from −100 to 100. Diss records, award snubs and public call-outs move it; a feud lifts both sides' sales a little and raises scandal risk. Superstars can start feuds you then back or calm.
+- From phase 5 a weak rival can be bought: its catalog joins yours.
+
+### 7.4 Music eras
+
+The industry changes across a run, so a strategy that won in year 3 is not the best in year 12. Each era lasts four years and is announced 13 weeks ahead.
+
+| Era              | Years | Album sales | Singles | Touring | Licensing | Catalog |
+| ---------------- | ----- | ----------- | ------- | ------- | --------- | ------- |
+| Tapes and CDs    | 1–4   | 1.2×        | 0.8×    | 1.0×    | 0.8×      | 0.8×    |
+| The piracy years | 5–8   | 0.7×        | 1.0×    | 1.3×    | 1.1×      | 0.9×    |
+| Download stores  | 9–12  | 0.9×        | 1.3×    | 1.1×    | 1.2×      | 1.0×    |
+| Streaming        | 13+   | 0.8×        | 1.1×    | 1.2×    | 1.2×      | 1.4×    |
+
+- Each era also reweights the event pool (bootleg raids in the piracy years, playlist placements in streaming) and the cost of marketing channels.
+- When an era is announced you can invest early: pay now for a head start (+15% on that era's strongest stream for its first year).
+
+### 7.5 Catalog: a second life for old albums
+
+An album keeps earning and creating moments after its release window.
+
+| Status  | When                                                      |
+| ------- | --------------------------------------------------------- |
+| Fresh   | First 26 weeks after release                              |
+| Catalog | After 26 weeks                                            |
+| Classic | Three years old, quality 80 or more, and at least one hit |
+
+Catalog opportunities, offered through the inbox and the new Vault panel:
+
+- **Deluxe edition:** the artist records a few new tracks (two weeks, artist still signed); a smaller second release window.
+- **Anniversary reissue:** classics at 5 and 10 years; works even after the artist has left, but a former artist's relationship affects the press.
+- **Sample requests:** another artist wants to sample a track. Clear it for a fee and a small royalty, or refuse, which may start a feud.
+- **Sync licensing:** a film, game or advert wants a track; one-off fee by album quality and era.
+- **Greatest hits:** once an artist has three released albums.
+- **Fan mail:** requests (a tour of an old album, a remix) that turn into small events.
+
+Catalog income is weekly and small per album, so a deep catalog matters by year 10 without replacing new releases. Eras scale it.
+
+### 7.6 Legacy and challenges
+
+- **Hall of fame:** every finished run (folded, fired, sold or retired) is recorded outside the save: label name, peak phase, years, best album, superstars and how it ended.
+- **Achievements:** about 30, from first hit to a ten-year classic, a second act that outgrows the first company, or winning three feuds.
+- **Challenge runs:** seeded starts with a twist, the same for everyone who picks them: start in debt, one superstar and nothing else, a hostile board from day one, the piracy years from week one, no loans, and a weekly seed.
+- **Legacy perks:** small and mostly about choice (an extra candidate at the start, a second starting theme). Nothing raises income or quality by more than 5%.
+
+### 7.7 Late-game delegation
+
+A large label should be about decisions, not chores. Delegation unlocks by phase and every automated action is logged in a monthly summary the player can review and undo where possible.
+
+| Phase | Unlocks                                                                          |
+| ----- | -------------------------------------------------------------------------------- |
+| 3     | Contract renewals by rule (renew when average quality and wage meet your limits) |
+| 4     | Tour booking by the head of touring, within a budget cap                         |
+| 5     | Department autopilot with a policy: safe, balanced or aggressive                 |
+| 6     | A chief operating officer settles small inbox decisions under a cash limit       |
+
+Delegation never makes story choices, superstar decisions or board decisions.
