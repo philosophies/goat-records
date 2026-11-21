@@ -456,10 +456,10 @@
         catalog: catalog.length,
       };
       const income = Object.fromEntries(
-        COMPANY_REVENUE.filter((stream) => stream.phase <= s.company.phase).map(({ id, source, rate }) => [
-          id,
-          activity[source] * rate * era(id),
-        ]),
+        // With the Vault, catalog royalties are paid album by album (catalog system) instead.
+        COMPANY_REVENUE.filter(
+          (stream) => stream.phase <= s.company.phase && !(stream.id === "catalog" && s.company.catalog),
+        ).map(({ id, source, rate }) => [id, activity[source] * rate * era(id)]),
       );
       if (s.company.acquisitions?.length)
         income.acquisitions =

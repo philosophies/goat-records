@@ -22,7 +22,8 @@ test("A classic run has no company and keeps the 1.1 start", () => {
 test("New runs default to the CEO home studio with $2,000", () => {
   const s = G.create(7, { labelName: "Goat Records" });
   assert.equal(s.ceoMode, true);
-  const { rivals, eras, ...start } = s.company;
+  const { rivals, eras, catalog, ...start } = s.company;
+  assert.deepEqual(catalog, { offers: [], flows: [], done: { reissue: [], hits: [] }, earned: {} });
   assert.equal(rivals.length, 3, "three rival labels");
   assert.equal(eras.starts.length, 4, "four music eras");
   assert.deepEqual(start, {
@@ -544,7 +545,7 @@ test("Each company revenue stream opens in its specified phase", () => {
     ["streams", "merch"],
     ["distribution", "radio"],
     ["sync", "brand"],
-    ["publishing", "catalog"],
+    ["publishing"], // catalog royalties are paid album by album from the Vault
     [],
   ];
   for (const phase of G.PHASES) {
@@ -555,7 +556,9 @@ test("Each company revenue stream opens in its specified phase", () => {
   }
   s.albums[0].age = s.albums[0].salesWeeks;
   assert.equal(G.companyRevenue(s).streams, 0);
-  assert.ok(G.companyRevenue(s).catalog > 0);
+  assert.equal(G.companyRevenue(s).catalog, undefined, "the Vault pays catalog royalties instead");
+  delete s.company.catalog;
+  assert.ok(G.companyRevenue(s).catalog > 0, "the flat line without a Vault");
 });
 
 test("Weekly settlement itemizes company income and growing costs without charging interest twice", () => {

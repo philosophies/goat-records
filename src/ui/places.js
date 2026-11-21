@@ -55,6 +55,7 @@ const PLACE_ALIASES = {
   promotion: ["billboard", "sec-promotion"],
   rivals: ["billboard", "sec-rivals"],
   market: ["billboard", "sec-market"],
+  vault: ["trophies", "sec-vault"],
   journal: ["newsstand", ""],
   awards: ["trophies", ""],
   road: ["bus", ""],
@@ -102,8 +103,16 @@ const PLACES = {
   },
   trophies: {
     title: () => "Trophy case",
-    render: () =>
-      `<p class="place-intro">${state.awards} award${state.awards === 1 ? "" : "s"} on the shelf. Enter each year's best albums here.</p>${annualAwards()}`,
+    render: () => {
+      const awards = () =>
+        `<p class="place-intro">${state.awards} award${state.awards === 1 ? "" : "s"} on the shelf. Enter each year's best albums here.</p>${annualAwards()}`;
+      return state.company?.catalog
+        ? sheetSections([
+            ["sec-awards", "Awards", awards],
+            ["sec-vault", "The vault", () => panelHtml("vault")],
+          ])
+        : awards();
+    },
   },
   office: {
     title: () => "Office",
@@ -315,7 +324,7 @@ function lotTown() {
         "#f3d25b",
         30,
         "Trophy case",
-        `${state.awards} award${state.awards === 1 ? "" : "s"}`,
+        `${state.awards} award${state.awards === 1 ? "" : "s"}${state.company.catalog?.offers.length ? ` · ${state.company.catalog.offers.length} offer${state.company.catalog.offers.length === 1 ? "" : "s"}` : ""}`,
       ),
     );
   return `<div class="town" role="group" aria-label="Street destinations">${props.join("")}</div>`;

@@ -329,13 +329,15 @@
           });
         }
       // Bought rivals' catalogs pay every week.
-      return (s.company.rivals || [])
+      const catalog = (s.company.rivals || [])
         .filter((r) => r.bought)
         .reduce(
           (n, r) =>
             n + Math.round(R.buy.catalog * r.boughtStrength * (core.api().eraFactor?.(s, "catalog") ?? 1)),
           0,
         );
+      s.cash += catalog;
+      return catalog;
     }
     /** Feuds lift both sides' sales a little. */
     function salesMultiplier(s) {
@@ -449,6 +451,7 @@
       salesMultiplier,
       validSave,
       api: {
+        shiftRivalStanding: shiftStanding,
         RIVAL_LABELS,
         RIVAL_RULES: R,
         PERSONALITIES,
