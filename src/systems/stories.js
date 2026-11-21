@@ -6,7 +6,9 @@
 
   /** @param {object} core engine helpers  @param {object} D data tables */
   function create(core, D) {
-    const { STORY_RULES, ARCS } = D;
+    const { STORY_RULES } = D;
+    // Packs add their arcs alongside the starter arcs.
+    const ARCS = [...D.ARCS, ...(D.ARTIST_ARCS || []), ...(D.STAFF_ARCS || [])];
     const { clamp, log, roll } = core;
     const arcById = new Map(ARCS.map((a) => [a.id, a]));
     const beatOf = (arc, id) => arc.beats.find((b) => b.id === id);
@@ -88,6 +90,34 @@
       }
       return out;
     }
+    const EFFECT_NAMES = [
+      ["morale", "morale"],
+      ["fans", "fans"],
+      ["trust", "trust"],
+      ["energy", "energy"],
+      ["attention", "attention"],
+      ["artistFame", "artist fame"],
+      ["labelFame", "label fame"],
+      ["reputation", "label reputation"],
+    ];
+    const signed = (n) => (n > 0 ? "+" + n : String(n));
+    const dollars = (n) => "$" + Math.abs(n).toLocaleString("en-US");
+    /** The choice's flavour line, then every effect in numbers, so the card never misstates them. */
+    function choiceText(c) {
+      const st = c.story || {},
+        parts = [];
+      if (c.cost) parts.push(`costs ${dollars(c.cost)}`);
+      if (c.cash) parts.push(c.cash > 0 ? `earns ${dollars(c.cash)}` : `loses ${dollars(c.cash)}`);
+      for (const [k, name] of EFFECT_NAMES) if (c[k]) parts.push(`${name} ${signed(c[k])}`);
+      if (st.xp) parts.push(`${st.xp} career XP`);
+      if (st.loyalty) parts.push(`loyalty ${signed(st.loyalty)}`);
+      if (st.relation) parts.push(`relationship with you ${signed(st.relation)}`);
+      if (c.trust <= -STORY_RULES.scandalTrust) parts.push("a public scandal");
+      const effects = parts.length
+        ? parts.join(", ").replace(/^./, (x) => x.toUpperCase()) + "."
+        : "No change.";
+      return c.note ? `${c.note} ${effects}` : effects;
+    }
     function fill(text, s, a) {
       return text
         .replaceAll("{name}", a.name)
@@ -101,8 +131,16 @@
         b.arcs.push(run);
       }
       const options = beat.choices.map((c, i) => {
-        const { label, hint, cost, story, ...effects } = c;
-        return { ...effects, label, hint, cost, storyChoice: i };
+        const { label, note, cost, story, ...effects } = c;
+        const opt = {
+          ...effects,
+          label: fill(label, s, a),
+          hint: fill(choiceText(c), s, a),
+          cost,
+          storyChoice: i,
+        };
+        if (effects.trust < 0 && -effects.trust < STORY_RULES.scandalTrust) opt.privateTrust = true;
+        return opt;
       });
       s.eventQueue.push({
         type: "story",
@@ -206,7 +244,15 @@
       weekly,
       eventChoice,
       validSave,
-      api: { ARCS, STORY_RULES, storyLog, storyDue: dueBeats, playStory: play, storyHolds: holds },
+      api: {
+        ARCS,
+        STORY_RULES,
+        storyLog,
+        storyDue: dueBeats,
+        playStory: play,
+        storyHolds: holds,
+        storyChoiceText: choiceText,
+      },
     };
   }
 

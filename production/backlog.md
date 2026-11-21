@@ -498,7 +498,7 @@ Depends on: T53
 Files: `src/systems/stories.js` (new), `src/data/stories.js` (new), tests
 Do: arcs as chains of beats with flags, context conditions, cooldowns and follow-ups; a story log per character.
 
-### [ ] T55 · Story pack: artists
+### [x] T55 · Story pack: artists
 
 Depends on: T54
 Do: at least 60 beats across the cast: debuts, rivalries, family, legal trouble, comebacks, collaborations.

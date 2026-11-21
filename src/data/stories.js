@@ -9,7 +9,9 @@
   //   personGap       weeks between two beats for the same character
   //   continueWeight  how much likelier an arc already under way is to move on than a new arc to start
   //   logSize         beats kept in each character's story log
-  const STORY_RULES = { chance: 0.45, gap: 3, personGap: 8, continueWeight: 3, logSize: 20 };
+  //   scandalTrust    a story choice that costs this much trust or more is a public scandal (the board
+  //                   counts it); smaller trust losses stay private
+  const STORY_RULES = { chance: 0.45, gap: 3, personGap: 8, continueWeight: 3, logSize: 20, scandalTrust: 6 };
 
   // An arc:
   //   id      unique; a cast artist's arc.id ties the arc to that artist
@@ -21,7 +23,8 @@
   //   id, title, body ({name} is the artist, {label} the label)
   //   after   weeks to wait after the previous beat in the arc (0 for the first)
   //   when    conditions that must hold when it plays
-  //   choices label, hint, optional cost, effects for the engine's event fields (morale, fans, trust,
+  //   choices label, an optional `note` (a line of flavour; the card adds every effect in numbers),
+  //           optional cost, effects for the engine's event fields (morale, fans, trust,
   //           energy, attention, cash, reputation, artistFame, labelFame), and `story`:
   //             set      flags to record on the arc
   //             next     the beat to play next (null or absent ends the arc)
@@ -46,13 +49,12 @@
           choices: [
             {
               label: "Back to the studio while it's hot",
-              hint: "Morale +4, 2 career XP. They will remember you pushed.",
+              note: "They will remember you pushed.",
               morale: 4,
               story: { xp: 2, set: { pushed: true }, next: "crowd" },
             },
             {
               label: "Give them a week off to enjoy it",
-              hint: "Morale +8, energy +15.",
               morale: 8,
               energy: 15,
               story: { set: { pushed: false }, next: "crowd" },
@@ -68,13 +70,12 @@
           choices: [
             {
               label: "Keep the circle small",
-              hint: "Morale −3, loyalty +5.",
               morale: -3,
               story: { loyalty: 5 },
             },
             {
               label: "Let them build their own team",
-              hint: "Morale +5, trust −4 when the new people start talking.",
+              note: "The new people will talk.",
               morale: 5,
               trust: -4,
               story: { loyalty: -3 },
@@ -96,14 +97,12 @@
           choices: [
             {
               label: "Play it, and smile",
-              hint: "Fans +6, morale −5.",
               fans: 6,
               morale: -5,
               story: { set: { embraced: true }, next: "remix" },
             },
             {
               label: "Drop it from the set",
-              hint: "Morale +6, attention −8.",
               morale: 6,
               attention: -8,
               story: { set: { embraced: false } },
@@ -119,14 +118,12 @@
           choices: [
             {
               label: "Make it the lead single",
-              hint: "Pays $4,000, fans +10, 3 career XP.",
               cash: 4000,
               fans: 10,
               story: { xp: 3, set: { remixed: true } },
             },
             {
               label: "Leave the past alone",
-              hint: "Morale +4.",
               morale: 4,
             },
           ],

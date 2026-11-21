@@ -139,7 +139,10 @@ assert.equal(run("GoatClock.speed"), 0);
 
 run(`state = G.create(91, { ceo: true });
   state.cash = 100000; G.sign(state, state.candidates[0].id);
-  state.artists[0].morale = 60; state.week = 12; G.advance(state); save(); render();`);
+  state.artists[0].morale = 60; state.week = 12;
+  // Keep story beats out of this check: it is about deferring a company event.
+  state.company.stories = { arcs: [], log: {}, lastWeek: 12 };
+  G.advance(state); save(); render();`);
 click({ tab: "phone:inbox" });
 assert.match(html("content"), /A studio slot opens[\s\S]*Deadline in 2/);
 click({ action: "showModal" });

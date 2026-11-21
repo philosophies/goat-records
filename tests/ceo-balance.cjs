@@ -38,6 +38,21 @@ function eventChoice(s, name) {
         ),
     );
   if (entry.type === "approval") return options[0].index;
+  if (entry.type === "story") {
+    // Optional story spending only with room left in the board's budget for a few albums.
+    const roomy = (o) => !o.cost || !board || board.budget - board.spent - o.cost > 3 * policies[name].budget;
+    const usable = options.filter(({ option }) => roomy(option));
+    if (usable.length) options.splice(0, options.length, ...usable);
+    // Weigh a story choice by what it does: money against morale, fans and trust.
+    const worth = (o) =>
+      ((o.cash || 0) - (o.cost || 0)) / 600 +
+      (o.morale || 0) / 2 +
+      (o.fans || 0) / 2 +
+      (o.trust || 0) * 1.5 +
+      (o.energy || 0) / 3;
+    const sorted = options.toSorted((x, y) => worth(y.option) - worth(x.option));
+    return (name === "reckless" ? sorted.at(-1) : sorted[0]).index;
+  }
   if (!options.length) return entry.options.findIndex((option) => option.defer);
   if (entry.type !== "companyEvent") return options[Math.min(1, options.length - 1)].index;
   const choices = events.get(entry.eventId).choices;
@@ -262,9 +277,11 @@ function work(s, name, policy) {
     // A policy spends what the artist's tier allows.
     const budget = Math.min(s.cash > 60000 ? policy.budget : 4000, G.tierInfo(a).budget);
     if (booth && a.energy >= 35 && G.inspirationInfo(a).canRecord && s.cash >= budget + policy.reserve) {
-      const theme = s.themes.toSorted(
-        (x, y) => G.comboFit(a.genre, [y]).points - G.comboFit(a.genre, [x]).points,
-      )[0];
+      // Under low creative freedom a risky theme needs the board's approval; a careful CEO avoids it.
+      const lowFreedom = s.company.board?.freedom === "low";
+      const theme = s.themes
+        .filter((t) => !lowFreedom || !G.APPROVAL.riskyThemes.includes(t))
+        .toSorted((x, y) => G.comboFit(a.genre, [y]).points - G.comboFit(a.genre, [x]).points)[0];
       const p = action(() =>
         G.record(s, {
           artistId: a.id,
@@ -349,7 +366,8 @@ function peakYears(progress) {
 }
 
 const quick = process.argv.includes("--quick");
-const report = { seeds: quick ? 2 : 12, policies: {} };
+// SEEDS=n runs a wider sample without rewriting CEO-BALANCE.json.
+const report = { seeds: Number(process.env.SEEDS || (quick ? 2 : 12)), policies: {} };
 for (const [name, policy] of Object.entries(policies)) {
   const runs = Array.from({ length: report.seeds }, (_, i) => run(i + 1, name, policy));
   const fired = runs.filter((r) => r.ending === "fired").length;
@@ -367,5 +385,5 @@ for (const [name, policy] of Object.entries(policies)) {
   console.log(`  median peak year (20-year runs): ${JSON.stringify(peaks)}`);
   if (quick) console.log(runs);
 }
-if (!quick)
+if (!quick && !process.env.SEEDS)
   fs.writeFileSync(path.join(__dirname, "../CEO-BALANCE.json"), JSON.stringify(report, null, 2) + "\n");

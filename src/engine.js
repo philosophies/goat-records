@@ -25,7 +25,10 @@
       throw e;
     }
   }
-  if (isNode) for (const n of ["core", ...SYSTEM_NAMES]) optionalRequire("./data/" + n + ".js");
+  // Data files that belong to no single system (story packs).
+  const EXTRA_DATA = ["story-artists", "story-staff"];
+  if (isNode)
+    for (const n of ["core", ...SYSTEM_NAMES, ...EXTRA_DATA]) optionalRequire("./data/" + n + ".js");
   const D = root.GoatData,
     LD = D;
   const factories = isNode
@@ -833,7 +836,15 @@
         return;
       }
     } else {
-      if (o.cost) pay(s, o.cost);
+      if (o.cost)
+        try {
+          pay(s, o.cost);
+        } catch (error) {
+          // An over-budget payment opens a board approval. Keep this decision for afterwards.
+          if (s.event?.type !== "approval") throw error;
+          s.eventQueue.unshift(e);
+          return;
+        }
       const a = s.artists.find((a) => a.id === e.artist);
       apply(s, a, o, true);
       if (s.company) hooks.each("eventChoice", s, e, o);

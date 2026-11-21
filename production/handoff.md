@@ -11,8 +11,8 @@ Task: v2.0.0 released
 
 **Updated:** 2026-11-21
 **Branch:** `main`
-**Current task:** 3.0, the dynasty update. T40–T54 are done (one ladder, classic hidden, the theme, building and room art, roster tiers, superstars, the second act, listening parties, artist levels, floor levels, staff growth, pacing, the authored cast, the story engine).
-**Next step:** T55, the artist story pack. Run `node tools/next-task.cjs`.
+**Current task:** 3.0, the dynasty update. T40–T55 are done (one ladder, classic hidden, the theme, building and room art, roster tiers, superstars, the second act, listening parties, artist levels, floor levels, staff growth, pacing, the authored cast, the story engine, the artist story pack).
+**Next step:** T56, the staff, executive, board and rival story pack. Run `node tools/next-task.cjs`.
 **Blocked on:** Nothing.
 **Files in progress:** None.
 **Open questions:** When to schedule the Android wrapper and a physical device test.
