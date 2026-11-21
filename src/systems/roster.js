@@ -330,6 +330,8 @@
         from: game.labelName(s),
         artist: b.name,
         week: s.week,
+        // The first company's highest phase, for "better the second time".
+        phase: Math.max(s.company.phase, ...(s.company.history || []).map((h) => h.phase)),
       };
       log(n, `A second act: ${b.name} left ${n.secondAct.from} to start ${name} with you.`);
       return n;

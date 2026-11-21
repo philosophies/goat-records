@@ -54,6 +54,7 @@ Notices sit in the side ticker and the phone's inbox.
 | A feud spills over      | 3% a week while feuding with a rival                                                           |
 | A new era               | The week an era begins                                                                         |
 | Vault offer             | A catalog offer arrives (deluxe, sample, sync, fan mail, anniversary, greatest hits)           |
+| Achievement             | An achievement is unlocked for the first time in the run                                       |
 | Tour break-even         | A tour's takings cover its costs                                                               |
 | Cash below $0           | The first week in the red                                                                      |
 

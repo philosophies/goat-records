@@ -21,6 +21,7 @@
     "rivals",
     "eras",
     "catalog",
+    "legacy",
   ];
   function optionalRequire(path) {
     try {
@@ -408,6 +409,9 @@
     };
     scout(s);
     if (options.legacy) s.legacy = options.legacy;
+    // A challenge start and legacy perks (legacy system), applied once the run is set up.
+    if (options.challenge || options.perks?.length)
+      s.setup = { challenge: options.challenge || null, perks: options.perks || [], seed: seed >>> 0 };
     // The company system sets up new CEO runs. Classic mode is an explicit choice.
     if (options.ceo === false) s.classicMode = true;
     else s.ceoMode = true;

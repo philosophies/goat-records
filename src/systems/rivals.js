@@ -116,7 +116,7 @@
             theirs = archive.best ?? 999,
             won = mine < theirs,
             lab = labelById.get(r.id);
-          p.battle = { rival: r.id, title: rel.title, mine, theirs, won };
+          p.battle = { rival: r.id, title: rel.title, mine, theirs, won, feud: feuding(s, r) };
           r.strength = clamp(r.strength + (won ? -R.battleSwing : R.battleSwing), 0, 100);
           const rank = (n) => (n === 999 ? "outside the Top 300" : `#${n}`);
           s.notifications.push({

@@ -56,6 +56,7 @@ const PLACE_ALIASES = {
   rivals: ["billboard", "sec-rivals"],
   market: ["billboard", "sec-market"],
   vault: ["trophies", "sec-vault"],
+  hall: ["trophies", "sec-hall"],
   journal: ["newsstand", ""],
   awards: ["trophies", ""],
   road: ["bus", ""],
@@ -110,6 +111,7 @@ const PLACES = {
         ? sheetSections([
             ["sec-awards", "Awards", awards],
             ["sec-vault", "The vault", () => panelHtml("vault")],
+            ...(state.company.legacy ? [["sec-hall", "Hall of fame", () => panelHtml("hall")]] : []),
           ])
         : awards();
     },

@@ -1,5 +1,5 @@
 // DOM harness for the Vault (CEO runs): the shelves, an offer taken from the trophy case, the street count.
-// status chip and artist badge. Checks rendering and actions, not real-browser layout.
+// Checks rendering and actions, not real-browser layout.
 const vm = require("node:vm"),
   assert = require("node:assert/strict");
 const elements = new Map(),

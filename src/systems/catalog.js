@@ -249,6 +249,7 @@
         log(s, `${o.by} clears a sample of ${p.title}.`);
       } else if (o.kind === "sync") {
         s.cash += earn(s, o.fee);
+        c.syncs = (c.syncs || 0) + 1;
         log(s, `${p.title} is licensed to ${o.client}.`);
       } else if (o.kind === "fanMail") {
         const F = O.fanMail[o.ask];

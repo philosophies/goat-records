@@ -417,3 +417,49 @@ small.backstory {
 .status-fresh {
   color: var(--green, #6fdc8c);
 }
+
+/* Hall of fame and achievements (CEO runs). */
+.achievements {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+}
+.achievements li {
+  padding: 6px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  opacity: 0.45;
+}
+.achievements li.got {
+  opacity: 1;
+  border-color: var(--gold, #f3d25b);
+}
+.achievements li.now {
+  box-shadow: inset 0 0 0 1px var(--gold, #f3d25b);
+}
+.achievements li b,
+.achievements li small {
+  display: block;
+}
+#newLabelPerks {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  margin: 8px 0;
+  display: grid;
+  gap: 4px;
+}
+#newLabelPerks .locked {
+  opacity: 0.5;
+}
+#newLabelPerks .perk {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+#newLabelPerks input[type="checkbox"] {
+  width: auto;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  flex: none;
+}
