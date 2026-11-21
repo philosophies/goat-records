@@ -331,7 +331,11 @@
       // Bought rivals' catalogs pay every week.
       return (s.company.rivals || [])
         .filter((r) => r.bought)
-        .reduce((n, r) => n + Math.round(R.buy.catalog * r.boughtStrength), 0);
+        .reduce(
+          (n, r) =>
+            n + Math.round(R.buy.catalog * r.boughtStrength * (core.api().eraFactor?.(s, "catalog") ?? 1)),
+          0,
+        );
     }
     /** Feuds lift both sides' sales a little. */
     function salesMultiplier(s) {

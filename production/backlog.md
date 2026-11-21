@@ -537,7 +537,7 @@ Files: `src/data/rivals.js`, `src/systems/rivals.js`, `src/ui/*.js`, tests
 Do: design 7.3. Three rivals per run from eight authored labels, four CEO personalities, strength scaled by your phase. Rival releases in the charts with chart battles, poaching bids (match, counter, let go) and your own bids from phase 3, feud standing with diss and award events, and buying a weak rival from phase 5.
 Done when: tests for rival setup, chart battles, each poaching answer, feud standing, and an acquisition moving the catalog; balance report shows rivals poach without emptying a careful label's roster; harness answers a bid.
 
-### [ ] T61 · Music eras
+### [x] T61 · Music eras
 
 Depends on: T40
 Files: `src/data/eras.js`, `src/systems/eras.js`, `src/engine.js`, `src/ui/*.js`, tests

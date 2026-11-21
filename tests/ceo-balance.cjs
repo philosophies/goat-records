@@ -53,6 +53,12 @@ function eventChoice(s, name) {
     const sorted = options.toSorted((x, y) => worth(y.option) - worth(x.option));
     return (name === "reckless" ? sorted.at(-1) : sorted[0]).index;
   }
+  if (entry.type === "era") {
+    // Careful invests ahead of a new era when it has the cash to spare.
+    const invest = options.find(({ option }) => option.eraChoice === "invest");
+    if (name === "careful" && invest && s.cash > 4 * invest.option.cost) return invest.index;
+    return entry.options.findIndex((o) => o.eraChoice === "wait");
+  }
   if (entry.type === "rivalBid" || entry.type === "rivalFeud") {
     // Careful keeps its people and the peace; reckless lets them go and backs every fight.
     const want = {
@@ -399,10 +405,105 @@ for (const [name, policy] of Object.entries(policies)) {
   );
   console.log(`  median peak year (20-year runs): ${JSON.stringify(peaks)}`);
   const sum = (k) => runs.reduce((n, r) => n + r[k], 0);
+
   console.log(
     `  rivals: ${sum("lostToRivals")} artists lost to bids, ${sum("battlesWon")} of ${sum("battles")} chart battles won`,
   );
   if (quick) console.log(runs);
 }
+// Release plans by era: after an album comes out, the same star either rests, tours, or goes
+// straight back into the studio. Earnings are the cash gained over the 26 weeks after release.
+function eraPlan(seed, eraIndex, plan) {
+  const s = G.create(seed, { ceo: true });
+  G.setStarter(s, false);
+  Object.assign(s, { cash: 200000, fame: 40 });
+  s.company.phase = 3;
+  s.company.rivalCardWeek = 1e9;
+  s.company.stories = { arcs: [], log: {}, lastWeek: 1e9 };
+  const e = s.company.eras;
+  s.week = e.starts[eraIndex] + G.ERA_RULES.announce + 1;
+  e.seen = e.announced = eraIndex;
+  G.sign(s, s.candidates[0].id);
+  const a = s.artists[0];
+  Object.assign(a, { energy: 100, inspiration: 90, talent: 75, fame: 55, tier: "star" });
+  a.contract.remaining = 3;
+  const clear = () => {
+    while (s.event) G.choose(s, s.event.options.length - 1);
+    for (const x of [...(s.company.inbox || [])]) G.decide(s, x.id, 0);
+  };
+  const record = () => {
+    Object.assign(a, { energy: 100, inspiration: 90 });
+    G.record(s, {
+      artistId: a.id,
+      boothId: s.booths[0].id,
+      genre: a.genre,
+      audience: a.audience,
+      budget: 8000,
+    });
+    return s.albums.at(-1);
+  };
+  /** One production step for an album; releases it once ready. */
+  const produce = (p) => {
+    const d = p.production;
+    while (!d.cooldown && !d.releaseReady && (d.stage < 5 || d.review)) {
+      if (!d.review) G.decideStage(s, p.id, 0);
+      G.continueProduction(s, p.id);
+    }
+    if (d.releaseReady) {
+      G.releaseAlbum(s, p.id, p.title);
+      p.launchReview = false;
+    }
+  };
+  const p = record();
+  for (let i = 0; i < 60 && !p.released; i++) {
+    clear();
+    produce(p);
+    if (!p.released) G.advance(s);
+  }
+  clear();
+  const start = s.cash;
+  let toured = false,
+    next = null;
+  for (let w = 0; w < 26; w++) {
+    clear();
+    if (plan === "tour" && !toured && !G.busy(s, a.id))
+      try {
+        G.startTour(s, { albumId: p.id, scale: "national", mode: "solo" });
+        toured = true;
+      } catch {}
+    if (plan === "record" && !next) next = record();
+    if (next && !next.released) produce(next);
+    // A week on the road plays day by day.
+    const week = s.week;
+    for (let d = 0; d < 14 && s.week === week && s.tours.some((x) => x.status === "active"); d++) {
+      clear();
+      G.advanceTourDay(s);
+    }
+    clear();
+    if (s.week === week) G.advance(s);
+  }
+  clear();
+  return s.cash - start;
+}
+const PLANS = ["album", "record", "tour"];
+report.eraPlans = G.ERAS.map((era, i) => {
+  const earn = Object.fromEntries(
+    PLANS.map((plan) => [
+      plan,
+      Math.round([1, 2, 3, 4].reduce((n, seed) => n + eraPlan(seed, i, plan), 0) / 4),
+    ]),
+  );
+  return { era: era.id, earn, best: PLANS.reduce((x, y) => (earn[y] > earn[x] ? y : x)) };
+});
+console.log(
+  "release plans by era (26 weeks after release): " +
+    report.eraPlans
+      .map(
+        (x) =>
+          `${x.era} best ${x.best} (${PLANS.map((p) => `${p} $${x.earn[p].toLocaleString("en-US")}`).join(", ")})`,
+      )
+      .join("; "),
+);
+
 if (!quick && !process.env.SEEDS)
   fs.writeFileSync(path.join(__dirname, "../CEO-BALANCE.json"), JSON.stringify(report, null, 2) + "\n");

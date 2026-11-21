@@ -231,7 +231,7 @@ test("from phase 5 a weak rival can be bought; its catalog then pays every week"
     },
     require("../src/data/rivals.js"),
   );
-  assert.equal(sys.weekly(s), Math.round(R.buy.catalog * r.boughtStrength));
+  assert.equal(sys.weekly(s), Math.round(R.buy.catalog * r.boughtStrength * G.eraFactor(s, "catalog")));
 });
 
 test("awards night: losing to a rival or beating one moves your standing once", () => {

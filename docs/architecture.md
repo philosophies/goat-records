@@ -42,7 +42,9 @@ A system object may implement any of these. All are optional.
 | `tourGate(s, tour)`, `tourDrain(s, tour, artist)` | Tour ticket revenue and energy drain                         | multipliers                                |
 | `roleSkill(s, role)`                              | Skill behind a 1.x staff role effect                         | skill                                      |
 
-Event types in a CEO run's queue: `companyEvent` (quarterly opportunities and crises, from the events system), `approval` (board approvals) and `story` (story beats, from the stories system). A `story` event carries `arc`, `beat` and `artist`; each option carries `storyChoice`, the index of the authored choice. The rivals system adds `rivalBid` and `rivalFeud`, which carry `rival` and `artist`; each option carries `rivalChoice`.
+Event types in a CEO run's queue: `companyEvent` (quarterly opportunities and crises, from the events system), `approval` (board approvals) and `story` (story beats, from the stories system). A `story` event carries `arc`, `beat` and `artist`; each option carries `storyChoice`, the index of the authored choice. The rivals system adds `rivalBid` and `rivalFeud`, which carry `rival` and `artist`; each option carries `rivalChoice`. The eras system adds `era`, which carries the index of the coming era; each option carries `eraChoice`.
+
+Other systems read the music era through the API: `eraFactor(s, stream)` (sales, singles, touring, licensing, catalog, marketing), `eraRevenueFactor(s, lineId)` for company revenue lines and `eraEventWeight(s, eventId)` for the company event draw. Each returns 1 in a classic run.
 
 Add new public functions to the engine API through the system object; `LabelGame.systems` lists loaded systems.
 

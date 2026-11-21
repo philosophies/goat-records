@@ -446,6 +446,7 @@
     }
     function companyRevenue(s) {
       if (!s.company) return {};
+      const era = (id) => core.api().eraRevenueFactor?.(s, id) ?? 1;
       const catalog = s.albums.filter((album) => album.released);
       const activity = {
         studio: 1,
@@ -457,11 +458,12 @@
       const income = Object.fromEntries(
         COMPANY_REVENUE.filter((stream) => stream.phase <= s.company.phase).map(({ id, source, rate }) => [
           id,
-          activity[source] * rate,
+          activity[source] * rate * era(id),
         ]),
       );
       if (s.company.acquisitions?.length)
-        income.acquisitions = s.company.acquisitions.reduce((total, row) => total + row.revenue, 0);
+        income.acquisitions =
+          s.company.acquisitions.reduce((total, row) => total + row.revenue, 0) * era("acquisitions");
       return income;
     }
     function acquisitionDues(row) {
