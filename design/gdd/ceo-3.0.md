@@ -101,7 +101,7 @@ Each run has three rival labels drawn from an authored list of eight (original n
 
 ### 7.4 Music eras
 
-The industry changes across a run, so a strategy that won in year 3 is not the best in year 12. Each era lasts four years and is announced 13 weeks ahead.
+The industry changes across a run, so a strategy that won in year 3 is not the best in year 12. The table gives the usual years. Each run moves every change of era one or two years earlier or later, at random (fixed when the run starts, so a seed always plays the same), and no era lasts less than two years. Each change is announced 13 weeks ahead.
 
 | Era              | Years | Album sales | Singles | Touring | Licensing | Catalog |
 | ---------------- | ----- | ----------- | ------- | ------- | --------- | ------- |
