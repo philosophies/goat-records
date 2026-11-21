@@ -14,12 +14,12 @@ Use the section buttons at the top of a busy panel to switch views. Find recordi
 | A staff member                                 | Their role, skill and wage, a recruitment drive and replacements                                                         |
 | Roof sign                                      | Label rank and its goals, headquarters overview, pairings, combo notebook                                                |
 | Front desk (lobby)                             | Scouting and hiring                                                                                                      |
-| Trophy case (lobby; on the street in CEO runs) | Annual award entries and results                                                                                         |
-| Office                                         | Campaign goals and final review, finances, discography, the label's name                                                 |
+| Trophy case (lobby; on the street in CEO runs) | Annual award entries and results; in CEO runs also the Vault and the Hall of fame                                        |
+| Office                                         | Campaign goals and final review, finances, discography, the label's name; delegation from phase 3                        |
 | A recording room                               | Its equipment and record; start an album there                                                                           |
 | + Room                                         | Build another recording room                                                                                             |
 | A facility tile                                | Build, upgrade, move or close it                                                                                         |
-| Billboard                                      | Top 300 chart and promotion                                                                                              |
+| Billboard                                      | Top 300 chart and promotion; in CEO runs also rival labels and the market                                                |
 | Newsstand                                      | Industry wire and label news                                                                                             |
 | Tour bus                                       | Active tours, booking and tour history                                                                                   |
 | Out of town sign                               | Every recording location and the gig table                                                                               |
