@@ -11,8 +11,8 @@ Task: v2.0.0 released
 
 **Updated:** 2026-11-21
 **Branch:** `main`
-**Current task:** 3.0, the dynasty update. T40–T62 and T64 are done (through legacy and challenges).
-**Next step:** T63, late-game delegation. Run `node tools/next-task.cjs`.
+**Current task:** 3.0, the dynasty update. T40–T64 are done (through late-game delegation). The backlog is empty.
+**Next step:** Propose the next tasks from design/gdd/ceo-3.0.md and the handoff's open items, and wait for the owner's approval before adding them.
 **Blocked on:** Nothing.
 **Files in progress:** None.
 **Open questions:** When to schedule the Android wrapper and a physical device test.

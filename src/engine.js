@@ -22,6 +22,7 @@
     "eras",
     "catalog",
     "legacy",
+    "delegation",
   ];
   function optionalRequire(path) {
     try {
@@ -1019,8 +1020,11 @@
           `Cash is below $0. ${left} week${left === 1 ? "" : "s"} left to recover before the label folds.`,
         );
       }
-      if (s.company && E) E.queue(s);
-      else if (s.week % 4 === 0) {
+      if (s.company && E) {
+        E.queue(s);
+        // Systems that settle queued cards themselves (delegation) run once the week's cards are in.
+        hooks.each("cardsQueued", s);
+      } else if (s.week % 4 === 0) {
         const e = makeEvent(s);
         if (e) s.eventQueue.push(e);
       }
@@ -3569,6 +3573,11 @@
 
   const api = {
     makeProspect: (s, index) => prospect(s, index),
+    /** Settles a queued company event with one of its options, as the player choosing it would. */
+    settleCompanyEvent: (s, e, o) => {
+      E.resolve(s, e, o);
+      log(s, `${e.title}: ${o.label}.`);
+    },
     THEMES: LD.THEMES,
     FIT: LD.FIT,
     FACILITIES: LD.FACILITIES,
