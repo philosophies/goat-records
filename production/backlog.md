@@ -460,7 +460,7 @@ Done when: tests for the report, each choice and the diminishing return; harness
 
 ## M14 Long progression
 
-### [ ] T49 · Artist levels
+### [x] T49 · Artist levels
 
 Depends on: T45
 Files: `src/data/roster.js`, `src/systems/roster.js`, tests

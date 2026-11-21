@@ -63,7 +63,7 @@
         delayAlbum = 0,
         loan,
       } = effects || {};
-      const { reputation = 0, relation = 0, brand } = effects || {};
+      const { reputation = 0, relation = 0, brand, xp = 0 } = effects || {};
       if (reputation) s.reputation = clamp(s.reputation + reputation);
       s.cash += cash;
       s.fame = Math.max(0, s.fame + fame);
@@ -76,6 +76,7 @@
       if (artist) {
         artist.morale = clamp(artist.morale + morale);
         artist.fame = clamp(artist.fame + artistFame);
+        if (xp) artist.xp = Math.max(0, (artist.xp || 0) + xp);
         if (relation) core.api?.()?.shiftRelation?.(s, artist, relation);
         if (brand) core.api?.()?.addShock?.(s, artist, brand.mult, brand.weeks, `${artist.name} in the news`);
       }

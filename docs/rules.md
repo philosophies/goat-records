@@ -471,3 +471,16 @@ The relationship runs from −100 to 100. A new superstar starts at 25, more if 
 - **Keep it as it is.**
 
 An album can take two parties. Each one risks a leak (5%, then 15%); a leaked album sells at 85%. This is separate from the "Fan listening party" release-day strategy.
+
+**Artist levels.** In a CEO run an artist's career runs to level 30 instead of 10. The first ten levels need the same XP as before (4, 10, 19 … 136); each level after that costs 3 XP more than the one before (166, 199, 235 … 1,306 for level 30). XP comes from releases (3), hits (3 more), development sessions (1), tour weeks (1) and some event choices.
+
+The tier caps the level: up-and-comers stop at 12, stars at 22, superstars go to 30. XP keeps counting past the cap, so a promoted artist jumps straight to the level they have earned.
+
+| Level | Perk                 | Effect                       |
+| ----: | -------------------- | ---------------------------- |
+|     5 | Studio regular       | +1 to every production stage |
+|    10 | Crowd favourite      | Album sales +4%              |
+|    15 | Veteran              | +1 to every production stage |
+|    20 | Icon                 | Album sales +4%              |
+|    25 | Living legend        | +1 to every production stage |
+|    30 | Greatest of all time | +1 to every stage, sales +6% |

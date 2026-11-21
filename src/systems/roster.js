@@ -6,7 +6,7 @@
 
   /** @param {object} core engine helpers  @param {object} D data tables */
   function create(core, D) {
-    const { TIERS, TIER_SLOTS, TIER_RULES, FACE, SECOND_ACT } = D;
+    const { TIERS, TIER_SLOTS, TIER_RULES, FACE, SECOND_ACT, LEVELS } = D;
     const { log, roll, clamp } = core;
     const tierById = Object.fromEntries(TIERS.map((t) => [t.id, t]));
     const ORDER = TIERS.map((t) => t.id);
@@ -88,6 +88,7 @@
     function onRelease(s, p) {
       if (!s.company) return;
       const a = s.artists.find((x) => x.id === p.artist);
+      if (a && (p.quality || 0) >= TIER_RULES.hitQuality) a.xp = (a.xp || 0) + LEVELS.hitXp;
       if (!a || tierOf(a) === "rising") return;
       const R = TIER_RULES.demotion,
         last = s.albums
@@ -103,8 +104,70 @@
         move(s, a, ORDER[ORDER.indexOf(tierOf(a)) - 1], `${R.flops} flops in a row`);
       }
     }
+    // ---- Artist levels (T49) ----
+    /** Marks a CEO run's artists for the 30-level career. */
+    function markCareers(s) {
+      if (!s.company) return;
+      for (const a of [...s.artists, ...s.candidates]) a.longCareer = true;
+    }
+    function rawLevel(a) {
+      let n = 1;
+      for (let i = 1; i < LEVELS.xp.length; i++) if ((a.xp || 0) >= LEVELS.xp[i]) n = i + 1;
+      return n;
+    }
+    /** The level a CEO-run artist plays at, capped by their tier; null for classic artists. */
+    function artistLevel(a) {
+      if (!a?.longCareer) return null;
+      return Math.min(rawLevel(a), LEVELS.cap[tierOf(a)]);
+    }
+    /** Everything the artist panel shows about levels. */
+    function levelInfo(a) {
+      const lv = artistLevel(a);
+      if (lv === null) {
+        const L = core.api().level(a),
+          X = core.api().CAREER_XP;
+        return {
+          level: L,
+          max: X.length,
+          cap: X.length,
+          capped: false,
+          xp: a.xp || 0,
+          next: X[L] ?? null,
+          perks: [],
+        };
+      }
+      const cap = LEVELS.cap[tierOf(a)],
+        capped = rawLevel(a) > cap || (rawLevel(a) === cap && cap < LEVELS.xp.length);
+      return {
+        level: lv,
+        max: LEVELS.xp.length,
+        cap,
+        capped,
+        xp: a.xp || 0,
+        next: lv < cap ? LEVELS.xp[lv] : null,
+        perks: LEVELS.perks.filter((p) => p.level <= lv),
+        nextPerk: LEVELS.perks.find((p) => p.level > lv) || null,
+      };
+    }
+    function perkTotals(a) {
+      const lv = artistLevel(a) || 0;
+      return LEVELS.perks
+        .filter((p) => p.level <= lv)
+        .reduce((t, p) => ({ stage: t.stage + p.stage, sales: t.sales + p.sales }), { stage: 0, sales: 0 });
+    }
+    function stageParts(s, p) {
+      if (!s.company) return [];
+      const a = s.artists.find((x) => x.id === p.artist),
+        n = a ? perkTotals(a).stage : 0;
+      return n ? [{ name: `Career perks · level ${artistLevel(a)}`, value: n }] : [];
+    }
+    function salesMultiplier(s, p, a) {
+      if (!s.company || !a) return 1;
+      return 1 + perkTotals(a).sales;
+    }
     /** Gives artists in older CEO saves the tier they have earned, as far as the slots allow. */
     function init(s) {
+      markCareers(s);
       if (!s.company) return s;
       const fresh = s.artists.filter((a) => !tierById[a.tier]);
       if (!fresh.length) return s;
@@ -251,6 +314,7 @@
     }
     function approveSigning(s, a) {
       if (!s.company) return;
+      a.longCareer = true;
       if (tierCount(s, "rising") >= tierSlots(s).rising)
         throw Error(
           `No up-and-comer slot free (${tierSlots(s).rising} at this phase). New signings start as up-and-comers.`,
@@ -265,6 +329,7 @@
       if (why) throw Error(why);
     }
     function weekly(s) {
+      markCareers(s);
       promote(s);
       if (!s.company) return 0;
       const income = faceWeek(s);
@@ -282,6 +347,7 @@
       return s.artists.every(
         (a) =>
           (a.tier === undefined || !!tierById[a.tier]) &&
+          (a.longCareer === undefined || typeof a.longCareer === "boolean") &&
           (a.ceoRelation === undefined || (Number.isFinite(a.ceoRelation) && Math.abs(a.ceoRelation) <= 100)),
       );
     }
@@ -291,6 +357,8 @@
       validSave,
       weekly,
       onRelease,
+      stageParts,
+      salesMultiplier,
       approveSigning,
       approvePlan,
       approveTour,
@@ -307,6 +375,9 @@
         promoteTiers: promote,
         tierAfterRelease: onRelease,
         tierBlocks,
+        LEVELS,
+        artistLevel,
+        levelInfo,
         FACE,
         superstars,
         relationOf,

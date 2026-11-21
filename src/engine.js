@@ -45,6 +45,8 @@
     CAREER_NAMES,
   } = D;
   function level(a) {
+    const long = api.artistLevel?.(a);
+    if (long) return long;
     let result = 1;
     for (let i = 1; i < CAREER_XP.length; i++) if ((a.xp || 0) >= CAREER_XP[i]) result = i + 1;
     return result;

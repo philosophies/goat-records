@@ -59,7 +59,29 @@
   // phase 1 with `cash` from the old contacts, and the superstar signs for `albums` albums.
   const SECOND_ACT = { relation: 40, loyalty: 50, cash: 15000, albums: 2 };
 
-  const data = { TIERS, TIER_SLOTS, TIER_RULES, FACE, SECOND_ACT };
+  // Artist levels in CEO runs (design 5): levels 1–30 instead of the classic 10.
+  //   xp       career XP needed for each level (index 0 is level 1). The first ten are the classic curve,
+  //            so no artist changes level when the longer career starts; each later step costs 3 XP more
+  //   cap      the highest level each tier allows; XP keeps counting past it
+  //   hitXp    extra XP for a hit release (quality 75+), on top of the usual 3 for any release
+  //   perks    milestone perks: `stage` adds to every production stage, `sales` to album sales
+  const LEVELS = {
+    xp: [0, 4, 10, 19, 31, 46, 64, 85, 109, 136].concat(
+      Array.from({ length: 20 }, (_, i) => 136 + (i + 1) * 30 + ((i + 1) * i * 3) / 2),
+    ),
+    cap: { rising: 12, star: 22, superstar: 30 },
+    hitXp: 3,
+    perks: [
+      { level: 5, name: "Studio regular", stage: 1, sales: 0 },
+      { level: 10, name: "Crowd favourite", stage: 0, sales: 0.04 },
+      { level: 15, name: "Veteran", stage: 1, sales: 0 },
+      { level: 20, name: "Icon", stage: 0, sales: 0.04 },
+      { level: 25, name: "Living legend", stage: 1, sales: 0 },
+      { level: 30, name: "Greatest of all time", stage: 1, sales: 0.06 },
+    ],
+  };
+
+  const data = { TIERS, TIER_SLOTS, TIER_RULES, FACE, SECOND_ACT, LEVELS };
   root.GoatData = Object.assign(root.GoatData || {}, data);
   if (typeof module !== "undefined" && module.exports) module.exports = data;
 })(typeof globalThis !== "undefined" ? globalThis : this);
