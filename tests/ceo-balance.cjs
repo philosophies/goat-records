@@ -319,10 +319,29 @@ function work(s, name, policy) {
   }
 }
 
+/** Vault offers: free money is always taken; paid offers when the policy can afford them. */
+function vault(s, name) {
+  for (const o of [...(s.company.catalog?.offers || [])]) {
+    const paid = o.cost || 0,
+      board = s.company.board,
+      // Like story spending: only with room left in the board's budget for a few albums.
+      roomy = !board || board.budget - board.spent - paid > 3 * policies[name].budget,
+      take = !paid || (name !== "reckless" && s.cash > 6 * paid && roomy);
+    try {
+      G.answerOffer(s, o.id, take);
+    } catch {
+      try {
+        G.answerOffer(s, o.id, false);
+      } catch {}
+    }
+  }
+}
+
 function run(seed, name, policy) {
   const s = G.create(seed, { ceo: true });
   const phaseByYear = [],
     progress = [];
+  let catalogShare = null;
   while (!s.finished) {
     clearDecisions(s, name);
     if (s.finished) break;
@@ -343,8 +362,13 @@ function run(seed, name, policy) {
         if (p) G.enterAwards(s, year, genre, p.id);
       }
     }
+    vault(s, name);
+    clearDecisions(s, name);
     const year = G.operatingYear(s.week);
     G.advance(s);
+    if (year === 10 && G.operatingYear(s.week) === 11)
+      // Catalog income: the Vault's royalties, flows and fees.
+      catalogShare = (s.company.catalog.earned["10"] || 0) / Math.max(1, G.yearRevenue(s));
     if (year !== G.operatingYear(s.week) || s.finished) {
       phaseByYear[year - 1] = s.company.phase;
       progress[year - 1] = measure(s);
@@ -368,6 +392,7 @@ function run(seed, name, policy) {
     fame: s.fame,
     cash: s.cash,
     confidence: s.company.board?.confidence ?? null,
+    catalogShare,
     lostToRivals: (s.company.rivals || []).reduce((n, r) => n + r.roster.filter((x) => x.from).length, 0),
     battles: s.albums.filter((p) => p.battle).length,
     battlesWon: s.albums.filter((p) => p.battle?.won).length,
@@ -406,6 +431,11 @@ for (const [name, policy] of Object.entries(policies)) {
   console.log(`  median peak year (20-year runs): ${JSON.stringify(peaks)}`);
   const sum = (k) => runs.reduce((n, r) => n + r[k], 0);
 
+  const shares = runs.map((r) => r.catalogShare).filter((x) => x !== null);
+  if (shares.length)
+    console.log(
+      `  catalog share of year-10 revenue: median ${Math.round(100 * shares.toSorted((a, b) => a - b)[Math.floor(shares.length / 2)])}% (${shares.length} runs reached year 10)`,
+    );
   console.log(
     `  rivals: ${sum("lostToRivals")} artists lost to bids, ${sum("battlesWon")} of ${sum("battles")} chart battles won`,
   );

@@ -548,3 +548,14 @@ Four tips appear once, the first time each matters: an album ready for a listeni
 - The sales bars for a tour follow album sales too: $10,000 gross or 250 weekly units in a ×1.0 era, $7,000 or 175 in the piracy years.
 - Company events shift with the era. Piracy years: album leaks 3×; market slumps, festival slots and tour documentaries 1.5×. Download stores: distribution deals 2×; remix contests and trailer syncs 1.5×. Streaming: streaming exclusives and payout cuts 2×; viral moments 1.5×.
 - A change is announced 13 weeks ahead. Investing early costs $2,500 × phase and lifts the coming era's strongest stream by 15% for its first year: tour tickets in the piracy years, singles in the download years, catalog in the streaming years.
+
+**The vault.** The trophy case holds the Vault: every released album, its status and its royalty. An album is fresh for 26 weeks after release, then catalog; it becomes a classic at three years old with quality 80 or more if it was a hit.
+
+- **Royalties.** From phase 5 each catalog album pays 0.3% of its gross sales so far every week, × the era's catalog number; a classic pays 2.5 times as much. These replace the flat catalog royalty line.
+- **Offers.** In a week with fewer than three open, an offer arrives with a 12% chance once the label has catalog albums. Each lapses after 8 weeks and shows in the phone's inbox.
+  - Deluxe edition (catalog albums under three years old, quality 60+, artist signed): $1,500 × phase and 15 of the artist's energy; after two weeks in the studio it pays 12% of the album's gross over 8 weeks, × the era's album sales.
+  - Sample request: $40 × quality × the era's licensing now, and 1% of that a week for a year. Half come from a rival label's artists; refusing one costs 10 standing with that rival.
+  - Sync licence (a film, game, advert, drama or broadcast): $60 × quality × the era's licensing, × 1.5 for a classic.
+  - Fan mail: a remix ($500; label fame +2, the artist's fans +3) or a request to hear the album live (free; reputation +2, the artist's morale +5).
+  - Anniversary reissue: classics at 5 and 10 years, once each. $2,000 × phase; pays 10% of the album's gross over 8 weeks. With the artist signed they gain 4 fans; if they have left, the press goes either way (reputation ±2).
+  - Greatest hits: once an artist has three albums out, once per artist. $2,500 × phase; pays 5% of their albums' gross over 12 weeks.

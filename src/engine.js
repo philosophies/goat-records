@@ -20,6 +20,7 @@
     "onboarding",
     "rivals",
     "eras",
+    "catalog",
   ];
   function optionalRequire(path) {
     try {

@@ -544,7 +544,7 @@ Files: `src/data/eras.js`, `src/systems/eras.js`, `src/engine.js`, `src/ui/*.js`
 Do: design 7.4. Four eras with revenue multipliers, event pool weights and marketing costs. Each change of era moves one or two years earlier or later at random when the run starts (never less than two years per era). An announcement 13 weeks ahead with the invest-early choice.
 Done when: tests for each era's multipliers, the random shift (always 1–2 years, same for the same seed, every era at least two years), the announcement timing and the invest-early bonus; balance report shows the best-earning release plan differs between at least two eras.
 
-### [ ] T64 · Catalog: a second life for old albums
+### [x] T64 · Catalog: a second life for old albums
 
 Depends on: T61
 Files: `src/data/catalog.js`, `src/systems/catalog.js`, `src/ui/vault.js`, `src/ui/*.js`, tests

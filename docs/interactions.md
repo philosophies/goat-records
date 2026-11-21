@@ -53,6 +53,7 @@ Notices sit in the side ticker and the phone's inbox.
 | Chart battle            | Three weeks after your album and a rival's both chart, released within two weeks of each other |
 | A feud spills over      | 3% a week while feuding with a rival                                                           |
 | A new era               | The week an era begins                                                                         |
+| Vault offer             | A catalog offer arrives (deluxe, sample, sync, fan mail, anniversary, greatest hits)           |
 | Tour break-even         | A tour's takings cover its costs                                                               |
 | Cash below $0           | The first week in the red                                                                      |
 
