@@ -327,15 +327,36 @@
     /** A no-confidence vote: who votes to remove you, and whether it passes. */
     function holdVote(s) {
       const b = board(s),
-        against = b.directors.filter((d) => satisfaction(s, d).value < REVIEW.removeBelow).length,
+        voters = b.directors.map((d) => {
+          const sat = satisfaction(s, d);
+          return {
+            id: d.id,
+            name: d.name,
+            satisfaction: sat.value,
+            against: sat.value < REVIEW.removeBelow,
+            why: sat.reasons.slice(0, 2).map((r) => ({ name: r.name, value: r.points })),
+          };
+        }),
+        against = voters.filter((v) => v.against).length,
         majority = against > b.directors.length / 2,
         protectedByShares = s.company.ownership > 0.5;
-      return {
+      const result = {
         against,
         seats: b.directors.length,
         passed: majority && !protectedByShares,
         protectedByShares,
+        voters,
       };
+      core.api().noteWhy?.(s, {
+        kind: "vote",
+        who: "company",
+        title: `No-confidence vote: ${against} of ${result.seats} against, ${result.passed ? "passed" : "failed"}`,
+        parts: voters.map((v) => ({
+          name: `${v.name}${v.against ? " (against)" : ""}: ${v.why.map((r) => r.name).join(", ") || "no strong views"}`,
+          value: v.satisfaction,
+        })),
+      });
+      return result;
     }
     function fire(s, c) {
       s.finished = true;
@@ -366,6 +387,9 @@
             name: d.name,
             type: d.type,
             satisfaction: d.satisfaction,
+            why: satisfaction(s, d)
+              .reasons.slice(0, 2)
+              .map((r) => ({ name: r.name, value: r.points })),
           })),
         };
       if (vote?.passed) {

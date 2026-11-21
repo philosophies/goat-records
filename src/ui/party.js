@@ -9,7 +9,7 @@ function partyReport(p, r) {
           `<div class="party-row s-${x.score >= 65 ? "up" : x.score >= 50 ? "mid" : "down"}"><span>${esc(x.name || x.area)}</span><b>${esc(x.sentiment)}</b></div>`,
       )
       .join("")}</div>`;
-  return `<div class="party-report">${rows(r.audiences, "By audience")}${rows(r.areas, "By area")}</div>${r.leaked ? '<p class="warn">Someone filmed the playback: the album leaked.</p>' : ""}`;
+  return `<div class="party-report">${rows(r.audiences, "By audience")}${rows(r.areas, "By area")}</div>${r.leaked ? `<p class="warn">Someone filmed the playback: the album leaked. The risk at this party was ${Math.round((r.leakRisk ?? 0) * 100)}%.</p>` : ""}`;
 }
 function partyBlock(p) {
   if (!state.company || p.released) return "";

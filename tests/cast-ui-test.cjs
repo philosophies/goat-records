@@ -66,11 +66,11 @@ assert.equal(run("state.event"), null);
 click({ tab: "artist:" + id });
 assert.match(
   element("content").innerHTML,
-  /Story so far[\s\S]*hears the song everywhere · <i>Give them a week off to enjoy it<\/i>/,
+  /Story so far[\s\S]*hears the song everywhere: Give them a week off to enjoy it[\s\S]*Signed with the label/,
 );
-// A generated artist with no story yet has no story card.
-run(`state.company.stories = { arcs: [], log: {}, lastWeek: -9 };`);
+// A generated artist has a timeline but no authored look or story hook.
 run(`state.artists.forEach((a) => delete a.castId); render();`);
 click({ tab: "artist:" + id });
-assert.doesNotMatch(element("content").innerHTML, /THEIR STORY/);
+assert.match(element("content").innerHTML, /THEIR STORY[\s\S]*Signed with the label/);
+assert.doesNotMatch(element("content").innerHTML, /Look:|Watch for:/);
 console.log("PASS cast harness");

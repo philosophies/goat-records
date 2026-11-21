@@ -77,7 +77,7 @@
         artist.morale = clamp(artist.morale + morale);
         artist.fame = clamp(artist.fame + artistFame);
         if (xp) artist.xp = Math.max(0, (artist.xp || 0) + xp);
-        if (relation) core.api?.()?.shiftRelation?.(s, artist, relation);
+        if (relation) core.api?.()?.shiftRelation?.(s, artist, relation, byId.get(entry.eventId)?.title);
         if (brand) core.api?.()?.addShock?.(s, artist, brand.mult, brand.weeks, `${artist.name} in the news`);
       }
       const album = s.albums.find((p) => p.id === entry.album && !p.released && p.production);

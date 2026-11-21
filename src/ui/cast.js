@@ -20,13 +20,11 @@ function storyLines(key, n = 3) {
 function castCard(a) {
   if (!state.company) return "";
   const c = G.castEntry?.(a.castId),
-    log = G.storyLog?.(state, a) || [];
+    log = G.timeline?.(state, a) || [];
   if (!c && !log.length) return "";
   const past = log.length
-    ? `<h4>Story so far</h4><ul class="story-log">${log
-        .slice(-5)
-        .reverse()
-        .map((x) => `<li><small>Week ${x.week}</small> ${esc(x.title)} · <i>${esc(x.choice)}</i></li>`)
+    ? `<h4>Story so far</h4><ul class="story-log timeline">${log
+        .map((x) => `<li class="tl-${x.kind}"><small>Week ${x.week}</small> ${esc(x.text)}</li>`)
         .join("")}</ul>`
     : "";
   const intro = c
@@ -36,3 +34,21 @@ function castCard(a) {
 }
 
 GoatUI.artistCard.push({ render: castCard });
+
+/** Rows that explain a number: name on the left, signed value on the right. */
+function whyRows(parts, fmt = (v) => String(v)) {
+  return `<ul class="why-rows">${parts
+    .map(
+      (p) =>
+        `<li><span>${esc(p.name)}</span>${p.value === null || p.value === undefined ? "" : `<b>${p.value < 0 ? "−" : ""}${fmt(Math.abs(p.value))}</b>`}</li>`,
+    )
+    .join("")}</ul>`;
+}
+/** A "Why?" toggle for the newest causes of one kind for a character, or "". */
+function whyToggle(who, kinds, label = "Why?", n = 1) {
+  const rows = (G.whyFor?.(state, who, kinds) || []).slice(0, n);
+  if (!rows.length) return "";
+  return `<details class="decision-details why"><summary>${esc(label)}</summary>${rows
+    .map((r) => `<p><small>Week ${r.week}</small> <b>${esc(r.title)}</b></p>${whyRows(r.parts)}`)
+    .join("")}</details>`;
+}

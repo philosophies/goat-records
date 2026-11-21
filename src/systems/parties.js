@@ -60,7 +60,15 @@
         }),
         weakest = areas.reduce((low, x) => (x.score < low.score ? x : low), areas[0]),
         leaked = roll(s, "party") < q.leak,
-        report = { week: s.week, cost: q.cost, audiences, areas, weakest: weakest.index, leaked };
+        report = {
+          week: s.week,
+          cost: q.cost,
+          audiences,
+          areas,
+          weakest: weakest.index,
+          leaked,
+          leakRisk: q.leak,
+        };
       p.party = {
         count: q.count + 1,
         pending: true,
@@ -69,6 +77,15 @@
       };
       if (leaked) {
         p.leaked = true;
+        core.api().noteWhy?.(s, {
+          kind: "leak",
+          who: `artist:${p.artist}`,
+          title: `${p.title} leaked from listening party ${q.count + 1}`,
+          parts: [
+            { name: `Leak risk at party ${q.count + 1} (%)`, value: Math.round(q.leak * 100) },
+            { name: "Sales from here (%)", value: Math.round(PARTY.leakSales * 100) },
+          ],
+        });
         s.notifications.push({
           id: s.nextId++,
           kind: "deadline",

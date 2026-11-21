@@ -306,7 +306,7 @@
       Object.assign(run.flags, st.set || {});
       if (who?.kind === "artist") {
         if (st.xp) x.xp = (x.xp || 0) + st.xp;
-        if (st.relation) core.api().shiftRelation?.(s, x, st.relation);
+        if (st.relation) core.api().shiftRelation?.(s, x, st.relation, `${e.title}: ${o.label}`);
         if (st.loyalty && core.api().artistMood?.(s, x) && x.persona)
           x.persona.loyalty = clamp(x.persona.loyalty + st.loyalty, 0, 100);
       } else if (x) {

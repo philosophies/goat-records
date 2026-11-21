@@ -514,7 +514,7 @@ Depends on: T55, T56
 Files: `docs/interactions.md` (new), event data, tests
 Do: list every event, decision, prompt and banner with when it may appear; fix any that can appear out of context; tests assert the conditions.
 
-### [ ] T58 · Story so far and why
+### [x] T58 · Story so far and why
 
 Depends on: T54
 Files: `src/engine.js`, `src/systems/*.js`, `src/ui/*.js`, tests

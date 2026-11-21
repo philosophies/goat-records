@@ -51,7 +51,27 @@
       };
     }
     function move(s, a, id, why) {
-      const from = tierOf(a);
+      const from = tierOf(a),
+        up = ORDER.indexOf(id) > ORDER.indexOf(from),
+        rule = TIER_RULES[id];
+      core.api().noteWhy?.(s, {
+        kind: "tier",
+        who: `artist:${a.id}`,
+        title: `${up ? "Moved up" : "Dropped"} to ${tierById[id].name}`,
+        parts: up
+          ? [
+              { name: `Artist fame (needs ${rule.fame})`, value: Math.round(a.fame || 0) },
+              { name: `Hits with the label (needs ${rule.hits})`, value: hitsWith(s, a) },
+              { name: `${tierById[id].name} slots this phase`, value: tierSlots(s)[id] },
+            ]
+          : s.albums
+              .filter((x) => x.artist === a.id && x.released)
+              .slice(-TIER_RULES.demotion.flops)
+              .map((x) => ({
+                name: `${x.title} (below ${TIER_RULES.demotion.quality})`,
+                value: x.quality || 0,
+              })),
+      });
       a.tier = id;
       if (id === "superstar" && !Number.isFinite(a.ceoRelation))
         a.ceoRelation = Math.round(
@@ -194,9 +214,22 @@
       return Number.isFinite(a.ceoRelation) ? a.ceoRelation : FACE.relation.start;
     }
     /** Moves the CEO relationship; superstars swing harder. Returns the new value. */
-    function shiftRelation(s, a, n) {
-      const swing = tierOf(a) === "superstar" ? FACE.relation.swing : 1;
-      a.ceoRelation = Math.round(clamp(relationOf(a) + n * swing, -100, 100));
+    /** Moves the artist's relationship with the CEO; `reason` is logged when the swing is big. */
+    function shiftRelation(s, a, n, reason) {
+      const swing = tierOf(a) === "superstar" ? FACE.relation.swing : 1,
+        before = relationOf(a);
+      a.ceoRelation = Math.round(clamp(before + n * swing, -100, 100));
+      const delta = a.ceoRelation - before;
+      if (Math.abs(delta) >= (core.api().WHY_RULES?.relationMin ?? 3))
+        core.api().noteWhy?.(s, {
+          kind: "relation",
+          who: `artist:${a.id}`,
+          title: `Relationship with you ${delta > 0 ? "+" : ""}${delta}: ${reason || "a change of heart"}`,
+          parts: [
+            { name: reason || "A change of heart", value: n },
+            ...(swing !== 1 ? [{ name: `Superstars feel it ×${swing}`, value: delta - n }] : []),
+          ],
+        });
       return a.ceoRelation;
     }
     function face(s) {
@@ -247,7 +280,7 @@
           good ? `${a.name} is everywhere this month` : `${a.name} is in the wrong kind of headlines`,
         );
         s.cash += cash;
-        if (S.relation) shiftRelation(s, a, S.relation);
+        if (S.relation) shiftRelation(s, a, S.relation, `${a.name} in the wrong kind of headlines`);
         s.notifications.push({
           id: s.nextId++,
           kind: good ? "tier" : "deadline",
