@@ -32,7 +32,7 @@ function teamChooser(a, role) {
     current = G.teamMember(state, a.id, role.id),
     candidates = team.candidates[role.id] || [],
     row = (m, button) =>
-      `<li class="team-choice"><div><b>${esc(m.name)}</b><small>${memberLine(m)}${m.artists.length ? ` · also with ${esc(state.artists.find((x) => x.id === m.artists[0])?.name || "another artist")}, works at ${Math.round(G.TEAM_POOL.sharedEffect * 100)}% for both` : ""}</small></div>${chemTag(G.chemistry(state, a, m))}${button}</li>`;
+      `<li class="team-choice"><div><b>${esc(m.name)}</b>${castBlurb(m, "small")}<small>${memberLine(m)}${m.artists.length ? ` · also with ${esc(state.artists.find((x) => x.id === m.artists[0])?.name || "another artist")}, works at ${Math.round(G.TEAM_POOL.sharedEffect * 100)}% for both` : ""}</small></div>${chemTag(G.chemistry(state, a, m))}${button}</li>`;
   const poolRows = pool
       .map((m) =>
         row(
@@ -117,7 +117,7 @@ function departmentSheet(d) {
   const h = x.head,
     severance = h ? h.salary * G.EXEC_PAY.severanceWeeks : 0,
     head = h
-      ? `<article class="card exec-card"><span class="tag">${esc((h.title || d.head).toUpperCase())}</span><h3>${esc(h.name)}</h3><ul class="traits"><li><span>Skill</span><b>${h.skill}</b></li><li><span>Ambition</span><b>${h.ambition}</b></li><li><span>Loyalty</span><b>${h.loyalty}</b></li><li><span>Influence</span><b>${Math.round(h.influence)}</b></li></ul><p class="muted">${money(h.salary)}/week · since week ${h.hiredWeek}${h.contacts?.length ? ` · close to ${h.contacts.length} director${h.contacts.length === 1 ? "" : "s"}` : ""}</p>${h.plot ? `<p class="warn">Rumoured to be plotting. It comes to a head around week ${h.plot.due}.</p>` : ""}${growthBlock("head", d.id, h)}${responseButtons(d, h)}<button data-action="deptFire" data-dept="${d.id}" ${disable(blocked())}>Let go · ${money(severance)} severance</button></article>`
+      ? `<article class="card exec-card"><span class="tag">${esc((h.title || d.head).toUpperCase())}</span><h3>${esc(h.name)}</h3>${castBlurb(h)}<ul class="traits"><li><span>Skill</span><b>${h.skill}</b></li><li><span>Ambition</span><b>${h.ambition}</b></li><li><span>Loyalty</span><b>${h.loyalty}</b></li><li><span>Influence</span><b>${Math.round(h.influence)}</b></li></ul><p class="muted">${money(h.salary)}/week · since week ${h.hiredWeek}${h.contacts?.length ? ` · close to ${h.contacts.length} director${h.contacts.length === 1 ? "" : "s"}` : ""}</p>${h.plot ? `<p class="warn">Rumoured to be plotting. It comes to a head around week ${h.plot.due}.</p>` : ""}${growthBlock("head", d.id, h)}${responseButtons(d, h)}<button data-action="deptFire" data-dept="${d.id}" ${disable(blocked())}>Let go · ${money(severance)} severance</button></article>`
       : `<div class="empty">No ${esc(d.head)} yet. Run a search to find one.</div>`,
     staffCard = h
       ? `<article class="card"><span class="tag">STAFF · CAPACITY ${G.capacity(state, d.id)}</span><h3>${x.staff} of ${G.maxStaff(state)} staff</h3><p class="muted">${money(G.DEPT_STAFF.salary)}/week each. Capacity is how many projects the department runs a quarter.</p><div class="actions"><button data-action="deptStaffAdd" data-dept="${d.id}" ${disable(blocked() || x.staff >= G.maxStaff(state) || state.cash < G.DEPT_STAFF.hireFee)}>Hire staff · ${money(G.DEPT_STAFF.hireFee)}</button><button data-action="deptStaffRemove" data-dept="${d.id}" ${disable(blocked() || !x.staff)}>Let one go</button></div></article>`
@@ -126,7 +126,7 @@ function departmentSheet(d) {
     pool = x.pool
       .map(
         (c) =>
-          `<article class="card"><span class="tag">SKILL ${c.skill}</span><h3>${esc(c.name)}</h3><p class="muted">Ambition ${c.ambition} · loyalty ${c.loyalty} · influence ${c.influence}<br>${money(c.salary)}/week</p><button class="primary" data-action="deptHire" data-dept="${d.id}" data-candidate="${c.id}" ${disable(blocked() || !!h || state.cash < c.salary * G.EXEC_PAY.signWeeks)}>Hire · ${money(c.salary * G.EXEC_PAY.signWeeks)}</button></article>`,
+          `<article class="card"><span class="tag">SKILL ${c.skill}</span><h3>${esc(c.name)}</h3>${castBlurb(c)}<p class="muted">Ambition ${c.ambition} · loyalty ${c.loyalty} · influence ${c.influence}<br>${money(c.salary)}/week</p><button class="primary" data-action="deptHire" data-dept="${d.id}" data-candidate="${c.id}" ${disable(blocked() || !!h || state.cash < c.salary * G.EXEC_PAY.signWeeks)}>Hire · ${money(c.salary * G.EXEC_PAY.signWeeks)}</button></article>`,
       )
       .join("");
   return `<p class="place-intro">${esc(d.text)}</p>${section("sec-head", head)}${staffCard ? section("sec-staff", staffCard) : ""}${section("sec-search", `<h2>Candidates</h2><div class="grid">${pool || '<div class="empty">No candidates on file.</div>'}</div><button data-action="deptRecruit" data-dept="${d.id}" ${disable(blocked() || state.cash < search)}>Run a search · ${money(search)}</button>${h ? '<p class="muted">Let the current head go before hiring another.</p>' : ""}`)}`;

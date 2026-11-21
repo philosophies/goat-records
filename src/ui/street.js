@@ -64,7 +64,7 @@ function streetCast() {
         tab: "artist:" + a.id,
         name: a.name,
         map: G.ARTIST_SPRITE,
-        color: G.GENRE_COLORS[a.genre] || "#ccc",
+        color: G.castEntry?.(a.castId)?.look.color || G.GENRE_COLORS[a.genre] || "#ccc",
         busy: !!p,
       });
   }

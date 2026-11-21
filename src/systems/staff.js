@@ -48,7 +48,7 @@
     function candidate(s, deptId) {
       const reach = PHASES[phaseOf(s) - 1].reach,
         skill = between(s, EXEC_POOL.skill[reach]);
-      return {
+      const c = {
         id: s.company.nextExecId++,
         name: core.uniqueName(s, roll(s, "staff")),
         dept: deptId,
@@ -58,6 +58,7 @@
         loyalty: between(s, EXEC_POOL.loyalty),
         influence: between(s, EXEC_POOL.influence),
       };
+      return core.api().castExec?.(s, deptId, c, reach, salaryFor, EXEC_POOL.skill[reach]) || c;
     }
     function departmentOpen(s, id) {
       return phaseOf(s) >= dept(id).phase;
@@ -198,7 +199,7 @@
         pick = (list) => list[Math.floor(roll(s, "team") * list.length)],
         first = pick(GENRES),
         second = roll(s, "team") < 0.5 ? pick(GENRES.filter((g) => g !== first)) : null;
-      return {
+      const c = {
         id: s.company.team.nextId++,
         name: core.uniqueName(s, roll(s, "team")),
         role: roleId,
@@ -209,6 +210,18 @@
         artists: [],
         history: {},
       };
+      return (
+        core
+          .api()
+          .castTeam?.(
+            s,
+            roleId,
+            c,
+            reach,
+            (k) => TEAM_POOL.salary + k * TEAM_POOL.perSkill,
+            TEAM_POOL.skill[reach],
+          ) || c
+      );
     }
     /** A recruitment drive for one team role: a fresh list of candidates. */
     function recruitTeam(s, roleId) {
@@ -367,10 +380,11 @@
     /** An artist's traits and main want, fixed for this run, plus the counters their want needs. */
     function persona(s, a) {
       if (a.persona) return a.persona;
-      const trait = (i) => TRAITS.min + (fixedHash(s, a.id, 100 + i) % (TRAITS.max - TRAITS.min + 1));
+      const trait = (i) => TRAITS.min + (fixedHash(s, a.id, 100 + i) % (TRAITS.max - TRAITS.min + 1)),
+        cast = core.api().castEntry?.(a.castId);
       a.persona = {
-        ...Object.fromEntries(TRAITS.ids.map((id, i) => [id, trait(i)])),
-        want: WANT_IDS[fixedHash(s, a.id, 200) % WANT_IDS.length],
+        ...Object.fromEntries(TRAITS.ids.map((id, i) => [id, cast?.traits?.[id] ?? trait(i)])),
+        want: cast?.want ?? WANT_IDS[fixedHash(s, a.id, 200) % WANT_IDS.length],
         since: s.week,
         bonusWeek: null,
         fameMark: a.fame,

@@ -267,3 +267,16 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+
+/* Authored people (CEO runs). */
+.backstory {
+  margin: 4px 0 8px;
+  font-style: italic;
+  color: var(--muted);
+}
+small.backstory {
+  display: block;
+}
+.cast-card {
+  border-left: 4px solid var(--cast, var(--gold, #e3b23c));
+}

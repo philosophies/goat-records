@@ -104,7 +104,7 @@
         open = prefs.filter((t) => !used.has(t)),
         pool = open.length ? open : prefs,
         type = pool[Math.floor(roll(s, "board") * pool.length)];
-      return {
+      const d = {
         id: b.nextId++,
         type,
         name: core.uniqueName(s, roll(s, "board")),
@@ -113,6 +113,7 @@
         satisfaction: 50,
         since: s.week,
       };
+      return core.api().castDirector?.(s, d) || d;
     }
     function recordPublicRound(s, equity, amount) {
       const company = s.company;
@@ -126,11 +127,18 @@
       boardWeek(s);
     }
     function startConvertedBoard(s, initialConfidence) {
-      const b = s.company.board = {
-        directors: [], nextId: 1, since: s.week, budget: firstBudget(s), spent: 0,
-        freedom: "medium", perks: [], probation: false, reviews: [],
+      const b = (s.company.board = {
+        directors: [],
+        nextId: 1,
+        since: s.week,
+        budget: firstBudget(s),
+        spent: 0,
+        freedom: "medium",
+        perks: [],
+        probation: false,
+        reviews: [],
         nextReview: s.week + reviewInterval(s),
-      };
+      });
       b.budgetLeft = b.budget;
       for (let index = 0; index < PHASES[phase(s) - 1].boardSeats; index++) {
         const director = newDirector(s, "venture");
@@ -452,7 +460,11 @@
           body: "The proposed purchase exceeds the remaining budget. A majority must vote in favor.",
           approval: { kind: "acquisition", key: id },
           options: [
-            { label: "Call the vote", hint: "Each director votes according to their satisfaction.", approve: true },
+            {
+              label: "Call the vote",
+              hint: "Each director votes according to their satisfaction.",
+              approve: true,
+            },
             { label: "Drop it", hint: "Keep the current budget." },
           ],
         };
@@ -495,9 +507,13 @@
           { ...e.approval, week: s.week },
         ];
         log(s, "The board approved the request. Go ahead this week.");
-      } else log(s, acquisition
-        ? `The board vetoed the acquisition (${yes} of ${b.directors.length} in favor).`
-        : `The board said no (confidence ${c}).`);
+      } else
+        log(
+          s,
+          acquisition
+            ? `The board vetoed the acquisition (${yes} of ${b.directors.length} in favor).`
+            : `The board said no (confidence ${c}).`,
+        );
     }
     // ---- Lobbying and promises (T22) ----
     function director(s, id) {
