@@ -1,5 +1,5 @@
 // DOM harness for rival labels (CEO runs): the Rivals section on the billboard, bids and a buyout.
-// status chip and artist badge. Checks rendering and actions, not real-browser layout.
+// Checks rendering and actions, not real-browser layout.
 const vm = require("node:vm"),
   assert = require("node:assert/strict");
 const elements = new Map(),

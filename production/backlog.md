@@ -551,7 +551,7 @@ Files: `src/data/catalog.js`, `src/systems/catalog.js`, `src/ui/vault.js`, `src/
 Do: design 7.5. Fresh, catalog and classic status; weekly catalog income scaled by era; deluxe editions, anniversary reissues, sample requests, sync licensing, greatest hits and fan mail through the inbox; a Vault panel listing the catalog and its offers.
 Done when: tests for each status, each offer and its conditions, income by era, and old saves loading with their albums classed; balance report shows catalog income share by year 10 between 10% and 25%; harness takes one offer from the Vault.
 
-### [ ] T62 · Legacy and challenges
+### [x] T62 · Legacy and challenges
 
 Depends on: T47
 Files: `src/data/legacy.js`, `src/systems/legacy.js`, `src/ui/*.js`, tests

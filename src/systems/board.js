@@ -54,7 +54,7 @@
 
     // ---- Offers ----
     function loanOffer(s) {
-      if (s.company.loan) return null;
+      if (s.company.loan || core.api().noLoans?.(s)) return null;
       const amount = FUNDING.loan.limit[phase(s) - 1],
         n = FUNDING.loan.termWeeks,
         payment = Math.ceil((amount * weeklyRate) / (1 - Math.pow(1 + weeklyRate, -n)));
@@ -154,7 +154,13 @@
       requireCeo(s);
       const offer = fundingOffers(s).filter((o) => o.kind === kind)[Number(term)];
       if (!offer)
-        throw Error(kind === "loan" ? "Repay the current loan first." : "That deal is not on the table.");
+        throw Error(
+          kind !== "loan"
+            ? "That deal is not on the table."
+            : core.api().noLoans?.(s)
+              ? "The bank will not lend to you in this run."
+              : "Repay the current loan first.",
+        );
       s.cash += offer.amount;
       if (kind === "loan") {
         s.company.loan = {

@@ -1,5 +1,5 @@
 // DOM harness for music eras (CEO runs): the market section, the top bar, the announcement card and investing.
-// status chip and artist badge. Checks rendering and actions, not real-browser layout.
+// Checks rendering and actions, not real-browser layout.
 const vm = require("node:vm"),
   assert = require("node:assert/strict");
 const elements = new Map(),

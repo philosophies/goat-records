@@ -57,7 +57,13 @@ test("Following you starts a new company at phase 1 with that superstar", () => 
     assert.equal(b.ceoRelation, 70);
     assert.equal(b.contract.remaining, SECOND_ACT.albums);
     assert.equal(n.cash, G.PHASES[0].startCash + SECOND_ACT.cash);
-    assert.deepEqual(n.secondAct, { count: 1, from: "Velvet Throne", artist: a.name, week: s.week });
+    assert.deepEqual(n.secondAct, {
+      count: 1,
+      from: "Velvet Throne",
+      artist: a.name,
+      week: s.week,
+      phase: Math.max(s.company.phase, ...s.company.history.map((h) => h.phase)),
+    });
     assert.equal(s.finished, true, "the old run is untouched");
     assert.equal(G.validSystemsSave(JSON.parse(JSON.stringify(n))), true);
   }

@@ -999,6 +999,7 @@ $("reset").onclick = () => {
   input.setCustomValidity("");
   input.maxLength = G.RENAME.maxLength;
   input.value = G.labelName({});
+  if (typeof GoatLegacy !== "undefined") $("newLabelExtras").innerHTML = GoatLegacy.dialogHtml();
   $("newLabelDialog").showModal();
   input.select();
   render();
@@ -1016,7 +1017,12 @@ $("newLabelForm").onsubmit = (event) => {
     return;
   }
   act(() => {
-    state = G.create(Date.now(), { labelName: name });
+    const extra = typeof GoatLegacy !== "undefined" ? GoatLegacy.setup() : {};
+    state = G.create(extra.seed ?? Date.now(), {
+      labelName: name,
+      challenge: extra.challenge,
+      perks: extra.perks,
+    });
     $("newLabelDialog").close();
     resetView();
   });

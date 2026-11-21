@@ -92,7 +92,14 @@ test("releases within two weeks meet in a chart battle, decided by best position
     });
     G.advance(s);
     const p = s.albums.find((x) => x.id === 801);
-    assert.deepEqual(p.battle, { rival: r.id, title: "Their Record", mine: 12, theirs: 40, won: true });
+    assert.deepEqual(p.battle, {
+      rival: r.id,
+      title: "Their Record",
+      mine: 12,
+      theirs: 40,
+      won: true,
+      feud: false,
+    });
     assert.ok(s.notifications.some((n) => n.kind === "battle" && /you win/.test(n.title)));
     assert.ok(r.strength <= strength - R.battleSwing + R.drift);
   });
