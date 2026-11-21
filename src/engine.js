@@ -14,6 +14,7 @@
     "board",
     "events",
     "parties",
+    "cast",
   ];
   function optionalRequire(path) {
     try {
@@ -267,6 +268,8 @@
     roll,
     operatingYear,
     uniqueName,
+    peopleNames: (s) => peopleNames(s),
+    reserveName: (s, name) => reserveName(s, name),
     api: () => api,
   };
   const SYS = SYSTEM_NAMES.filter((n) => factories[n]).map((n) => ({ name: n, ...factories[n](core, D) }));
@@ -300,6 +303,12 @@
   /** Names reserved this week by people generated but not yet stored (a batch of candidates). */
   const reservedNames = new WeakMap();
   /** Every name in use at the label: artists, prospects, staff, executives, team members, directors. */
+  /** Holds a name for this week so nobody else is given it (authored people pick their own names). */
+  function reserveName(s, name) {
+    let res = reservedNames.get(s);
+    if (res?.week !== s.week) reservedNames.set(s, (res = { week: s.week, names: new Set() }));
+    res.names.add(name);
+  }
   function peopleNames(s) {
     const names = new Set(),
       add = (list) => (list || []).forEach((x) => x?.name && names.add(x.name)),
@@ -1055,6 +1064,7 @@
       a.talent = Math.min(a.talent, lim.talentMax);
       a.potential = Math.max(a.talent, Math.min(a.potential, lim.potentialMax));
       a.reach = lim.reach;
+      api.castArtist?.(s, a, lim);
     }
     a.fame = Math.round(a.fans / 5);
     a.reputation = 60 + Math.floor(rng(s) * 20);

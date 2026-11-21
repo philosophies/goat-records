@@ -486,7 +486,7 @@ Do: report the year each measure peaks; tune so the strongest labels still grow 
 
 ## M15 Stories
 
-### [ ] T53 · Authored cast
+### [x] T53 · Authored cast
 
 Depends on: T45
 Files: `src/data/cast.js` (new), `src/engine.js`, `src/systems/staff.js`, tests
