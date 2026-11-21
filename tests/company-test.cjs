@@ -22,8 +22,9 @@ test("A classic run has no company and keeps the 1.1 start", () => {
 test("New runs default to the CEO home studio with $2,000", () => {
   const s = G.create(7, { labelName: "Goat Records" });
   assert.equal(s.ceoMode, true);
-  const { rivals, ...start } = s.company;
+  const { rivals, eras, ...start } = s.company;
   assert.equal(rivals.length, 3, "three rival labels");
+  assert.equal(eras.starts.length, 4, "four music eras");
   assert.deepEqual(start, {
     phase: 1,
     since: 1,
@@ -728,7 +729,11 @@ test("Catalog purchases earn weekly royalties and cannot be bought twice", () =>
   assert.equal(owned.debt, 0);
   assert.throws(() => G.buyAcquisition(s, offer.id), /unavailable/);
   G.advance(s);
-  assert.equal(s.financeHistory.at(-1).companyRevenue.acquisitions, offer.revenue);
+  assert.equal(
+    s.financeHistory.at(-1).companyRevenue.acquisitions,
+    offer.revenue * G.eraRevenueFactor(s, "acquisitions"),
+    "catalog royalties follow the music era",
+  );
   assert.ok(G.validSystemsSave(roundTrip(s)));
 });
 

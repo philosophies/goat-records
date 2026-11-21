@@ -165,7 +165,10 @@
     /* ---------------- Ads ---------------- */
 
     function adCost(s, ad) {
-      const raw = ad.base * (1 + Math.max(0, s.fame) / AD_RULES.fameScale);
+      const raw =
+        ad.base *
+        (1 + Math.max(0, s.fame) / AD_RULES.fameScale) *
+        (core.api().eraFactor?.(s, "marketing") ?? 1);
       return Math.round(raw / AD_RULES.round) * AD_RULES.round;
     }
     /** The ad running (or about to start) on an album, if any. */

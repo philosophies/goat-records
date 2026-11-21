@@ -19,6 +19,7 @@
     "why",
     "onboarding",
     "rivals",
+    "eras",
   ];
   function optionalRequire(path) {
     try {
@@ -1788,14 +1789,20 @@
       }
     }
   }
+  // In a CEO run the sales bars for a tour follow the music era's album sales (eras system).
+  function tourBars(s) {
+    const k = s.company ? (api.eraFactor?.(s, "sales") ?? 1) : 1;
+    return { gross: Math.round(10000 * k), units: Math.round(250 * k) };
+  }
   function popularAlbum(s, p) {
+    const bar = tourBars(s);
     return (
       p.released &&
       !p.tourLaunched &&
       s.week - p.releaseWeek <= 26 &&
       ((p.chart?.best <= 10 && p.chart.best !== null) ||
-        p.gross >= 10000 ||
-        (p.age >= 2 && p.lastUnits >= 250))
+        p.gross >= bar.gross ||
+        (p.age >= 2 && p.lastUnits >= bar.units))
     );
   }
   function tourTicketRevenue(r, m, demand, quality, showDay, boost = 1, variation = 1) {
@@ -1903,7 +1910,7 @@
       p = q.album;
     if (!popularAlbum(s, p))
       throw Error(
-        "Tour requires a recent album with a Top 10 peak, $10,000 gross sales, or at least two earning weeks and 250 weekly units. One tour per album.",
+        `Tour requires a recent album with a Top 10 peak, $${tourBars(s).gross.toLocaleString("en-US")} gross sales, or at least two earning weeks and ${tourBars(s).units} weekly units. One tour per album.`,
       );
     const people = [a, ...(q.partner ? [q.partner] : [])];
     if (people.some((a) => busy(s, a.id)))

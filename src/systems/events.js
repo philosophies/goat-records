@@ -47,9 +47,11 @@
         ({ target }) => target,
       );
       if (!entries.length) return null;
-      const total = entries.reduce((n, { event }) => n + event.weight, 0);
+      // The music era makes some events likelier (eras system).
+      const weight = (event) => event.weight * (core.api?.()?.eraEventWeight?.(s, event.id) ?? 1);
+      const total = entries.reduce((n, { event }) => n + weight(event), 0);
       let pick = roll(s, "company-events:draw") * total;
-      const { event, target } = entries.find(({ event }) => (pick -= event.weight) < 0);
+      const { event, target } = entries.find(({ event }) => (pick -= weight(event)) < 0);
       return { ...target, eventId: event.id, dueWeek: s.week + event.deadlineWeeks };
     }
 

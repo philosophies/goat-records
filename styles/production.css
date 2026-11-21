@@ -359,3 +359,24 @@ small.backstory {
   gap: 8px;
   padding: 3px 0;
 }
+
+/* The market: music eras (CEO runs). */
+.era-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 6px;
+}
+.era-table td {
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.era-table td:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.era-table .up {
+  color: var(--green, #6fdc8c);
+}
+.era-table .down {
+  color: var(--red-hi, #ff5a5f);
+}

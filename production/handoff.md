@@ -11,8 +11,8 @@ Task: v2.0.0 released
 
 **Updated:** 2026-11-21
 **Branch:** `main`
-**Current task:** 3.0, the dynasty update. T40–T60 are done (through rival labels and feuds).
-**Next step:** T61, music eras. Run `node tools/next-task.cjs`.
+**Current task:** 3.0, the dynasty update. T40–T61 are done (through music eras).
+**Next step:** T64, catalog second life. Run `node tools/next-task.cjs`.
 **Blocked on:** Nothing.
 **Files in progress:** None.
 **Open questions:** When to schedule the Android wrapper and a physical device test.
