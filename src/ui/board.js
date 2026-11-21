@@ -108,7 +108,7 @@ function boardScreen() {
     budgetUsed = b.budget ? Math.min(100, Math.round(((b.spent || 0) / b.budget) * 100)) : 0;
   return `<p class="place-intro">${report.directors.length} director${report.directors.length === 1 ? "" : "s"} · next review week ${b.nextReview}${b.probation ? ' · <b class="warn">on probation</b>' : ""}</p>${section(
     "sec-confidence",
-    `<h2>Confidence ${report.confidence}/100</h2>${meter(report.confidence)}<ul class="board-terms"><li><span>Budget left</span><b>${money(b.budgetLeft)} of ${money(b.budget)} · ${budgetUsed}% spent</b></li><li><span>Creative freedom</span><b>${freedomName(b.freedom)}</b></li><li><span>Perks</span><b>${esc(perkNames(b.perks))}</b></li></ul>`,
+    `<h2>Confidence ${report.confidence}/100</h2>${meter(report.confidence)}<ul class="board-terms"><li><span>Budget left</span><b>${money(b.budgetLeft)} of ${money(b.budget)} · ${budgetUsed}% spent</b></li><li><span>Creative freedom</span><b>${freedomName(b.freedom)}</b></li><li><span>Perks</span><b>${esc(perkNames(b.perks))}</b></li></ul>${whyToggle("company", ["vote"], "How the last vote went")}`,
   )}${section("sec-directors", `<h2>Directors</h2><div class="directors">${report.directors.map(directorCard).join("")}</div>`)}${section("sec-funding", fundingCard())}`;
 }
 /** The office's boardroom card. */
@@ -130,7 +130,7 @@ function reviewScene() {
     scores = shown
       .map(
         (d, i) =>
-          `<li class="scene-score ${i === step - 1 && step <= r.directors.length ? "fresh" : ""}">${directorPortrait(d.type, 22)}<span>${esc(d.name)}</span>${meter(d.satisfaction)}<b>${d.satisfaction}</b></li>`,
+          `<li class="scene-score ${i === step - 1 && step <= r.directors.length ? "fresh" : ""}">${directorPortrait(d.type, 22)}<span>${esc(d.name)}${d.why?.length ? `<small class="scene-why">${d.why.map((r) => `${esc(r.name)} ${r.value > 0 ? "+" : ""}${r.value}`).join(" · ")}</small>` : ""}</span>${meter(d.satisfaction)}<b>${d.satisfaction}</b></li>`,
       )
       .join(""),
     vote =

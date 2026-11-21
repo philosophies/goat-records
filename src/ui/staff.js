@@ -73,11 +73,11 @@ function tierCard(a) {
       : '<p class="muted">The top tier.</p>';
   const face =
     t.id === "superstar"
-      ? `<p><b>The face of the company.</b> Relationship with you: <b>${G.relationOf(a)}</b>/100 · endorsements ${money(Math.round((a.fame || 0) * (G.FACE.endorse[state.company.phase - 1] || 0) * (G.relationOf(a) >= 0 ? 1 : 0.5)))}/week · ${G.relationOf(a) >= 0 ? "lifts" : "drags down"} company value.</p>`
+      ? `${whyToggle(`artist:${a.id}`, ["relation"], "Why has the relationship moved?", 3)}<p><b>The face of the company.</b> Relationship with you: <b>${G.relationOf(a)}</b>/100 · endorsements ${money(Math.round((a.fame || 0) * (G.FACE.endorse[state.company.phase - 1] || 0) * (G.relationOf(a) >= 0 ? 1 : 0.5)))}/week · ${G.relationOf(a) >= 0 ? "lifts" : "drags down"} company value.</p>`
       : "";
   const L = G.levelInfo(a),
     level = `<p>Level <b>${L.level}</b> of ${L.max}${L.cap < L.max ? ` · this tier allows up to ${L.cap}` : ""}${L.capped ? " · <b>capped: move up a tier to keep levelling</b>" : ""}.${L.perks.length ? ` Perks: ${L.perks.map((p) => esc(p.name)).join(", ")}.` : ""}${L.nextPerk ? ` Next perk at level ${L.nextPerk.level}: ${esc(L.nextPerk.name)}.` : ""}</p>`;
-  return `<article class="card tier-card tier-${t.id}"><span class="tag">${esc(t.name.toUpperCase())}</span>${face}${level}<p>Albums up to ${money(t.budget)} · ads up to ${esc((G.ADS.find((x) => x.rank === t.adRank)?.name || "").toLowerCase())} · ${esc(t.tours.join(", "))} tours · a team of ${t.team}</p>${need}</article>`;
+  return `<article class="card tier-card tier-${t.id}"><span class="tag">${esc(t.name.toUpperCase())}</span>${face}${level}${whyToggle(`artist:${a.id}`, ["tier"], "Why this tier?")}<p>Albums up to ${money(t.budget)} · ads up to ${esc((G.ADS.find((x) => x.rank === t.adRank)?.name || "").toLowerCase())} · ${esc(t.tours.join(", "))} tours · a team of ${t.team}</p>${need}</article>`;
 }
 function teamSection(a) {
   if (!state.company?.team) return "";

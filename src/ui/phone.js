@@ -213,8 +213,18 @@ function phoneWallet() {
       ["Investor shares", shares.investors.toLocaleString("en-US")],
     );
   }
+  const why = G.valuationWhy?.(state),
+    valueWhy = why
+      ? `<details class="decision-details why"><summary>Why is the company worth this?</summary>${whyRows(why.parts, money)}</details>`
+      : "",
+    ledger = (G.monthlyLedger?.(state) || [])
+      .map(
+        (m, i) =>
+          `<details class="decision-details ledger"${i === 0 ? " open" : ""}><summary>Weeks ${m.from}–${m.to} · ${m.total >= 0 ? "+" : "−"}${money(Math.abs(m.total))}</summary>${whyRows(m.rows, money)}</details>`,
+      )
+      .join("");
   return phoneScreen(
-    `<dl class="wallet">${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`).join("")}</dl><div class="actions"><button data-tab="finance">Full finances in the office</button><button data-tab="board">Funding and the board</button></div>`,
+    `<dl class="wallet">${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${v}</dd>`).join("")}</dl>${valueWhy}${ledger ? `<h4>Money in and out</h4>${ledger}` : ""}<div class="actions"><button data-tab="finance">Full finances in the office</button><button data-tab="board">Funding and the board</button></div>`,
   );
 }
 

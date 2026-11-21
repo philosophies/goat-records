@@ -130,6 +130,27 @@ assert.match(
   /Cash<\/dt><dd>\$[\d,]+<\/dd>[\s\S]*Budget left this period<\/dt><dd>— \(no board\)[\s\S]*Estimated share price/,
 );
 assert.match(html("content"), /Your shares<\/dt><dd>10,000 \/ 10,000/);
+assert.match(
+  html("content"),
+  /Why is the company worth this\?<\/summary><ul class="why-rows"><li><span>A year of revenue × [\d.]+<\/span>/,
+);
+run(
+  `for (let i = 0; i < 6; i++) { while (state.event) G.choose(state, state.event.options.length - 1); G.advance(state); } render();`,
+);
+click({ tab: "phone:wallet" });
+assert.match(
+  html("content"),
+  /<h4>Money in and out<\/h4><details class="decision-details ledger" open><summary>Weeks \d+–\d+ · [+−]\$[\d,]+<\/summary>[\s\S]*Weekly costs/,
+);
+// The tier card explains a promotion.
+run(`const a = state.artists[0]; a.fame = 60; state.company.phase = Math.max(2, state.company.phase);
+  state.albums.push({ id: 991, artist: a.id, released: true, quality: 82, releaseWeek: state.week, title: "Hit" });
+  G.promoteTiers(state); render();`);
+click({ tab: "artist:" + run("state.artists[0].id") + "~sec-team" });
+assert.match(
+  html("content"),
+  /Why this tier\?<\/summary><p><small>Week \d+<\/small> <b>Moved up to Star<\/b><\/p><ul class="why-rows"><li><span>Artist fame \(needs 40\)<\/span><b>60<\/b>/,
+);
 click({ tab: "phone:settings" });
 assert.match(html("content"), /data-action="phoneSpeed" data-speed="2"/);
 click({ action: "phoneSpeed", speed: "2" });
