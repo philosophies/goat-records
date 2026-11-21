@@ -53,6 +53,15 @@ function eventChoice(s, name) {
     const sorted = options.toSorted((x, y) => worth(y.option) - worth(x.option));
     return (name === "reckless" ? sorted.at(-1) : sorted[0]).index;
   }
+  if (entry.type === "rivalBid" || entry.type === "rivalFeud") {
+    // Careful keeps its people and the peace; reckless lets them go and backs every fight.
+    const want = {
+      rivalBid: { careful: "match", average: "counter", reckless: "let" },
+      rivalFeud: { careful: "calm", average: "calm", reckless: "back" },
+    }[entry.type][name];
+    const pick = options.find(({ option }) => option.rivalChoice === want) || options.at(-1);
+    return pick.index;
+  }
   if (!options.length) return entry.options.findIndex((option) => option.defer);
   if (entry.type !== "companyEvent") return options[Math.min(1, options.length - 1)].index;
   const choices = events.get(entry.eventId).choices;
@@ -353,6 +362,9 @@ function run(seed, name, policy) {
     fame: s.fame,
     cash: s.cash,
     confidence: s.company.board?.confidence ?? null,
+    lostToRivals: (s.company.rivals || []).reduce((n, r) => n + r.roster.filter((x) => x.from).length, 0),
+    battles: s.albums.filter((p) => p.battle).length,
+    battlesWon: s.albums.filter((p) => p.battle?.won).length,
   };
 }
 
@@ -386,6 +398,10 @@ for (const [name, policy] of Object.entries(policies)) {
     `${name}: ${fired} fired, ${folded} folded, ${listedByYear12} listed by year 12 · phases ${runs.map((r) => r.phase).join(", ")}`,
   );
   console.log(`  median peak year (20-year runs): ${JSON.stringify(peaks)}`);
+  const sum = (k) => runs.reduce((n, r) => n + r[k], 0);
+  console.log(
+    `  rivals: ${sum("lostToRivals")} artists lost to bids, ${sum("battlesWon")} of ${sum("battles")} chart battles won`,
+  );
   if (quick) console.log(runs);
 }
 if (!quick && !process.env.SEEDS)

@@ -18,6 +18,7 @@
     "stories",
     "why",
     "onboarding",
+    "rivals",
   ];
   function optionalRequire(path) {
     try {
@@ -1313,7 +1314,9 @@
       "Blue Meridian",
       "Robin Ash",
     ];
-    const c = s.rivalCompanies[Math.floor(rng(s) * s.rivalCompanies.length)],
+    // The run's own rival labels release on their own schedule (rivals system).
+    const others = s.rivalCompanies.filter((c) => !c.authored),
+      c = others[Math.floor(rng(s) * others.length)],
       u = rng(s),
       age = initial ? Math.floor(rng(s) * 13) : 0;
     const baseUnits =
@@ -3553,6 +3556,7 @@
   }
 
   const api = {
+    makeProspect: (s, index) => prospect(s, index),
     THEMES: LD.THEMES,
     FIT: LD.FIT,
     FACILITIES: LD.FACILITIES,

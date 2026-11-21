@@ -13,6 +13,7 @@ function ceo(seed = 31, phase = 1) {
   const s = G.create(seed, { ceo: true });
   s.cash = 200000;
   s.company.phase = phase;
+  s.company.rivalCardWeek = 1e9; // no rival bids or feuds in these tests
   return s;
 }
 function settle(s) {

@@ -451,6 +451,7 @@
         a.morale = clamp((a.morale ?? 75) + wantMorale(s, a));
         if (walksOut(s, a)) {
           s.artists = s.artists.filter((y) => y !== a);
+          s.eventQueue = s.eventQueue.filter((e) => e.type === "approval" || e.artist !== a.id);
           log(s, `${a.name} walked out at the end of their contract. Morale ${Math.round(a.morale)}.`);
           s.notifications.push({
             id: s.nextId++,

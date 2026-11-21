@@ -530,7 +530,7 @@ Files: `src/data/onboarding.js`, `src/systems/onboarding.js`, `src/ui/*.js`, tes
 Do: design 7.1. A skippable checklist of five goals with rewards from a table, a Settings toggle, no stage cooldown on a run's first album, and one-time tips the first time each feature matters. Not shown in a second act.
 Done when: tests for each goal's reward, skipping, the toggle and the second act; a test that a default run releases its first album by week 6; harness plays the checklist to the end.
 
-### [ ] T60 · Rival labels and feuds
+### [x] T60 · Rival labels and feuds
 
 Depends on: T54
 Files: `src/data/rivals.js`, `src/systems/rivals.js`, `src/ui/*.js`, tests

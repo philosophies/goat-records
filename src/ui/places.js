@@ -53,6 +53,7 @@ const PLACE_ALIASES = {
   campaign: ["office", "sec-campaign"],
   charts: ["billboard", "sec-charts"],
   promotion: ["billboard", "sec-promotion"],
+  rivals: ["billboard", "sec-rivals"],
   journal: ["newsstand", ""],
   awards: ["trophies", ""],
   road: ["bus", ""],
@@ -122,6 +123,7 @@ const PLACES = {
       sheetSections([
         ["sec-charts", "Charts", charts],
         ["sec-promotion", "Promotion", () => panelHtml("promotion")],
+        ...(state.company?.rivals ? [["sec-rivals", "Rivals", () => panelHtml("rivals")]] : []),
       ]),
   },
   newsstand: { title: () => "Newsstand", render: () => journal() },
