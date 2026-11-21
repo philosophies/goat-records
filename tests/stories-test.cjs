@@ -127,6 +127,33 @@ test("a queued beat is dropped when its artist leaves", () => {
   assert.equal(run(s, "first-hit").done, true);
 });
 
+test("a paid choice that needs board approval keeps the card for afterwards", () => {
+  const s = G.create(81, { ceo: true });
+  s.cash = 1e7;
+  s.company.phase = 2;
+  G.takeFunding(s, "angel", 0);
+  G.sign(s, s.candidates[0].id);
+  const a = s.artists[0],
+    b = s.company.board;
+  Object.assign(b, { freedom: "medium", budget: 1000, spent: 1000, confidence: 30 });
+  const card = {
+    type: "story",
+    arc: "first-hit",
+    beat: "glow",
+    artist: a.id,
+    title: "t",
+    body: "b",
+    options: [
+      { label: "pay", hint: "", cost: 800, storyChoice: 0 },
+      { label: "free", hint: "", storyChoice: 1 },
+    ],
+  };
+  s.event = card;
+  G.choose(s, 0);
+  assert.equal(s.event.type, "approval");
+  assert.equal(s.eventQueue[0], card, "the story card waits behind the approval");
+});
+
 test("saves keep story state and refuse broken ones; classic runs have none", () => {
   const { s } = label();
   playAndChoose(s, "first-hit", 0);

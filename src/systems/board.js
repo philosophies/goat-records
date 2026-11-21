@@ -624,7 +624,8 @@
       const b = board(s);
       if (b) b.scene = false;
     }
-    function onScandal(s) {
+    function onScandal(s, a, e) {
+      if (e?.privateTrust) return; // a small story trust loss stays private
       const b = board(s);
       if (b) b.scandals = (b.scandals || 0) + 1;
     }
