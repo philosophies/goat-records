@@ -558,7 +558,7 @@ Files: `src/data/legacy.js`, `src/systems/legacy.js`, `src/ui/*.js`, tests
 Do: design 7.6. A hall of fame stored outside the save, about 30 achievements, six challenge starts plus a weekly seed, and small legacy perks capped at 5%.
 Done when: tests that each run ending records a hall of fame entry, achievements unlock once, challenge starts are identical for the same seed, and perks stay within their cap; harness starts a challenge run.
 
-### [ ] T63 · Late-game delegation
+### [x] T63 · Late-game delegation
 
 Depends on: T51
 Files: `src/data/delegation.js`, `src/systems/delegation.js`, `src/ui/*.js`, tests

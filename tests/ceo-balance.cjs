@@ -9,6 +9,8 @@ const policies = {
   careful: { artists: 4, reserve: 1400, budget: 12000, funding: 0, lobby: true, grow: 1 },
   average: { artists: 3, reserve: 850, budget: 8000, funding: 0, lobby: false, grow: 0.5 },
   reckless: { artists: 4, reserve: 600, budget: 12000, funding: 1, lobby: false, grow: 0 },
+  // The careful player who hands every chore to delegation as it opens.
+  delegated: { artists: 4, reserve: 1400, budget: 12000, funding: 0, lobby: true, grow: 1, delegate: true },
 };
 const events = new Map(COMPANY_EVENTS.map((event) => [event.id, event]));
 
@@ -149,9 +151,29 @@ function lobby(s, enabled) {
   if (director) G.meetDirector(s, director.id);
 }
 
+/** Turns each kind of delegation on once it opens (the delegated policy). */
+function delegate(s) {
+  const d = s.company.delegation,
+    tryIt = (fn) => {
+      try {
+        fn();
+      } catch {}
+    };
+  const use = (k) => !process.env.DELEGATE || process.env.DELEGATE.split(",").includes(k);
+  // Renew anyone decent: the careful player renews everyone it can afford.
+  if (use("renew") && !d.renew.on)
+    tryIt(() => G.setDelegation(s, "renew", { on: true, minQuality: 55, maxWage: 100000 }));
+  if (use("tours") && !d.tours.on) tryIt(() => G.setDelegation(s, "tours", { on: true }));
+  if (use("autopilot") && !d.autopilot.policy)
+    tryIt(() => G.setDelegation(s, "autopilot", { policy: "balanced" }));
+  if (use("coo") && !d.coo.on) tryIt(() => G.setDelegation(s, "coo", { on: true }));
+}
+
 function manage(s, name, policy) {
   for (const a of s.artists) {
     if (s.event) return;
+    // With renewals delegated, only superstars' contracts are still the player's.
+    if (policy.delegate && s.company.delegation.renew.on && G.tierOf(a) !== "superstar") continue;
     if (!a.contract.remaining && !G.busy(s, a.id)) {
       const terms = G.contractQuote(s, a, 3);
       if (s.cash >= terms.fee + policy.reserve) {
@@ -162,6 +184,9 @@ function manage(s, name, policy) {
   }
   for (const a of [...s.artists]) {
     if (s.event) return;
+    // Delegated renewals happen at the week's settlement: leave those artists for them.
+    const delegated = policy.delegate && s.company.delegation.renew.on && G.tierOf(a) !== "superstar";
+    if (delegated && !a.persona?.walked) continue;
     if (!a.contract.remaining && !G.busy(s, a.id) && (a.persona?.walked || s.cash > 25000))
       action(() => G.releaseArtist(s, a.id));
   }
@@ -254,6 +279,7 @@ function grow(s, policy) {
     if (!dept.head || s.event) continue;
     const g = G.growthInfo(s, "head", d.id);
     if (g.promotion?.ready) action(() => G.promoteHead(s, d.id));
+    else if (policy.delegate && s.company.delegation.autopilot.policy) continue;
     else if (!g.train.wait && g.train.gain > 0 && spare(g.train.cost))
       action(() => G.trainPerson(s, "head", d.id));
   }
@@ -337,7 +363,9 @@ function vault(s, name) {
   }
 }
 
-function run(seed, name, policy) {
+function run(seed, label, policy) {
+  // The delegated player makes the same choices as the careful one.
+  const name = policy.delegate ? "careful" : label;
   const s = G.create(seed, { ceo: true });
   const phaseByYear = [],
     progress = [];
@@ -345,6 +373,7 @@ function run(seed, name, policy) {
   while (!s.finished) {
     clearDecisions(s, name);
     if (s.finished) break;
+    if (policy.delegate) delegate(s);
     fund(s, name, policy);
     lobby(s, policy.lobby || (name === "reckless" && s.company.ownership > 0.5));
     manage(s, name, policy);
@@ -365,7 +394,19 @@ function run(seed, name, policy) {
     vault(s, name);
     clearDecisions(s, name);
     const year = G.operatingYear(s.week);
-    G.advance(s);
+    // With a tour on the road (booked by delegation) the week plays day by day.
+    if (s.tours.some((x) => x.status === "active")) {
+      const week = s.week;
+      for (let d = 0; d < 14 && s.week === week && !s.finished; d++) {
+        clearDecisions(s, name);
+        if (s.finished) break;
+        produce(s);
+        clearDecisions(s, name);
+        if (s.finished) break;
+        if (s.tours.some((x) => x.status === "active")) G.advanceTourDay(s);
+        else G.advance(s);
+      }
+    } else G.advance(s);
     if (year === 10 && G.operatingYear(s.week) === 11)
       // Catalog income: the Vault's royalties, flows and fees.
       catalogShare = (s.company.catalog.earned["10"] || 0) / Math.max(1, G.yearRevenue(s));
@@ -385,6 +426,7 @@ function run(seed, name, policy) {
     year: f.yearsPlayed,
     ipoYear: s.company.offering ? G.operatingYear(s.company.offering.week) : null,
     score: f.score.total,
+    value: G.companyValuation(s).value,
     stars: f.score.stars,
     releases: s.albums.filter((p) => p.released).length,
     hits: s.albums.filter((p) => p.hit).length,
@@ -425,6 +467,8 @@ for (const [name, policy] of Object.entries(policies)) {
     ? Object.fromEntries(Object.keys(full[0].peaks).map((k) => [k, median(full.map((r) => r.peaks[k]))]))
     : {};
   report.policies[name] = { fired, folded, listedByYear12, medianPeakYear: peaks, runs };
+  const values = runs.map((r) => r.value).toSorted((a, b) => a - b);
+  report.policies[name].medianValue = values[Math.floor(values.length / 2)];
   console.log(
     `${name}: ${fired} fired, ${folded} folded, ${listedByYear12} listed by year 12 · phases ${runs.map((r) => r.phase).join(", ")}`,
   );
@@ -441,6 +485,15 @@ for (const [name, policy] of Object.entries(policies)) {
   );
   if (quick) console.log(runs);
 }
+{
+  const hand = report.policies.careful.medianValue,
+    handed = report.policies.delegated.medianValue;
+  report.delegation = { hand, delegated: handed, ratio: Math.round((handed / hand) * 1000) / 1000 };
+  console.log(
+    `delegation: median final company value $${handed.toLocaleString("en-US")} delegated vs $${hand.toLocaleString("en-US")} by hand (${Math.round((handed / hand - 1) * 100)}%)`,
+  );
+}
+
 // Release plans by era: after an album comes out, the same star either rests, tours, or goes
 // straight back into the studio. Earnings are the cash gained over the 26 weeks after release.
 function eraPlan(seed, eraIndex, plan) {

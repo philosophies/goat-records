@@ -21,6 +21,8 @@ A decision card stops the clock until it is answered. One shows at a time; the r
 
 A paid choice that needs the board's approval opens the approval card first; the original card waits behind it.
 
+From phase 6 a chief operating officer, when the player turns one on, settles company events within a cash limit before they reach the player. Never board politics, superstar events, stories, approvals, rival cards or era announcements.
+
 Classic runs also have classic industry events and the rotating rival-CEO scenarios (`ceo`). CEO runs never show them.
 
 ## Cards over the street
@@ -55,6 +57,7 @@ Notices sit in the side ticker and the phone's inbox.
 | A new era               | The week an era begins                                                                         |
 | Vault offer             | A catalog offer arrives (deluxe, sample, sync, fan mail, anniversary, greatest hits)           |
 | Achievement             | An achievement is unlocked for the first time in the run                                       |
+| Delegated this month    | Every four weeks when a delegated step was taken                                               |
 | Tour break-even         | A tour's takings cover its costs                                                               |
 | Cash below $0           | The first week in the red                                                                      |
 

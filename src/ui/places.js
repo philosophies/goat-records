@@ -57,6 +57,7 @@ const PLACE_ALIASES = {
   market: ["billboard", "sec-market"],
   vault: ["trophies", "sec-vault"],
   hall: ["trophies", "sec-hall"],
+  delegation: ["office", "sec-delegation"],
   journal: ["newsstand", ""],
   awards: ["trophies", ""],
   road: ["bus", ""],
@@ -126,6 +127,9 @@ const PLACES = {
         ["sec-campaign", "Goals", () => panelHtml("campaign")],
         ["sec-finance", "Finances", finance],
         ["sec-catalog", "Catalog", catalog],
+        ...(state.company?.delegation && state.company.phase >= G.DELEGATION.renew.phase
+          ? [["sec-delegation", "Delegation", () => panelHtml("delegation")]]
+          : []),
         ["sec-name", "Label name", companyNameCard],
       ]),
   },

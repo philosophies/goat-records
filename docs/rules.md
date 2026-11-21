@@ -564,3 +564,10 @@ Four tips appear once, the first time each matters: an album ready for a listeni
 
 - **Challenge starts**, chosen when starting a new label, are the same for everyone with the same seed: In the red (owing the bank $20,000 already spent), One star (one superstar on a two-album deal, no cash, no one else), Hostile board (a board from week one on low freedom, each director 10 points cold), Piracy from day one, No credit (no bank loans all run), and This week's run (a seed shared by everyone in the same calendar week, with one of the five twists).
 - **Legacy perks** open as achievements add up, two at most per run: one more artist at the front desk (3 achievements), a second starting theme (6), 5 more reputation (10), development 5% cheaper (14), album sales +3% (18) and tour tickets +3% (24). None changes income, quality or a price by more than 5%.
+
+**Delegation.** From phase 3 the office's Delegation section hands chores over. Every delegated step is logged; a notice sums up each four weeks, and a delegated tour or junior hire can be undone. Delegation never makes story choices, superstar decisions or board decisions.
+
+- **Contract renewals (phase 3):** a finished contract is renewed for three albums when the artist's average album quality is at least your limit (65 to start) and the new wage at most your limit ($600 a week to start).
+- **Tour booking (phase 4):** with a head of Live, an album that qualifies for a tour gets the biggest solo tour (world, national, regional) its artist's tier allows and whose upfront cost fits your cap ($15,000 to start).
+- **Department autopilot (phase 5):** every four weeks, on a policy. Safe takes one step and keeps 52 weeks of overhead in cash, training heads only. Balanced takes two and keeps 26 weeks; aggressive takes four and keeps 8. Both also add juniors and develop artists.
+- **Chief operating officer (phase 6):** settles company events within a cash limit ($10,000 to start), picking the choice worth most (cash less cost ÷ 600, plus fame, half of morale, three times board confidence, less four per week of album delay). Board politics and superstar events always come to you.

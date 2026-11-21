@@ -463,3 +463,42 @@ small.backstory {
   margin: 0;
   flex: none;
 }
+
+/* Delegation (CEO runs). */
+.delegate.locked {
+  opacity: 0.55;
+}
+.delegate .row,
+.policy-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: end;
+}
+.delegate-field {
+  display: grid;
+  gap: 2px;
+  font-size: 0.85em;
+}
+.delegate-field input {
+  width: 120px;
+}
+.policy-row button small {
+  display: block;
+  opacity: 0.75;
+}
+.delegate [aria-pressed="true"] {
+  border-color: var(--gold, #f3d25b);
+  color: var(--gold, #f3d25b);
+}
+.delegate-log {
+  list-style: none;
+  padding: 0;
+}
+.delegate-log li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
