@@ -116,9 +116,16 @@ assert.equal(saved().company.buildings.find((b) => b.id === "studio").floors[0].
 assert.match(html("content"), /Floor 1 · Vocal Booth · level 1/);
 click({ tab: "floor:studio:0" });
 assert.equal(element("drawerTitle").textContent, "Vocal Booth");
-assert.match(html("content"), /FLOOR 1 · STUDIO BUILDING · LEVEL 1 \/ 3/);
+assert.match(html("content"), /FLOOR 1 · STUDIO BUILDING · LEVEL 1 \/ 10/);
+assert.match(html("content"), /Upgrade to level 2 · \$5,000 · then \$120\/week/);
 click({ action: "floorUpgrade", building: "studio", index: "0" });
 assert.equal(saved().company.buildings.find((b) => b.id === "studio").floors[0].level, 2);
+run(
+  `state.company.buildings.find((b) => b.id === "studio").floors[0].level = G.floorLevelCap(state); render();`,
+);
+click({ tab: "floor:studio:0" });
+assert.match(html("content"), /Level \d+ opens at phase \d/);
+assert.doesNotMatch(html("content"), /data-action="floorUpgrade"/);
 click({ tab: "buy:hq" });
 assert.match(html("content"), /OPENS AT PHASE 4[\s\S]*Reach phase 4, National label/);
 assert.match(html("content"), /data-action="buildingBuy" data-building="hq" disabled/);
@@ -129,9 +136,14 @@ assert.equal(element("drawer").hidden, true, "a missing floor opens nothing");
 run(`state = G.create(21, { ceo: true }); state.company.phase = 6; state.cash = 1e9;
   G.buyBuilding(state, "studio"); save(); render();`);
 assert.equal(run(`GoatStreet.grade({ floors: [{ level: 1 }] })`), 1);
-assert.equal(run(`GoatStreet.grade({ floors: [{ level: 3 }, { level: 2 }] })`), 5);
+assert.equal(run(`GoatStreet.grade({ floors: [{ level: 3 }, { level: 2 }] })`), 3);
 assert.equal(
-  run(`GoatStreet.grade({ floors: Array.from({ length: 8 }, () => ({ level: 3 })) })`),
+  run(`GoatStreet.grade({ floors: [{ type: "room", level: 1 }, { level: 9 }] })`),
+  9,
+  "rooms do not count",
+);
+assert.equal(
+  run(`GoatStreet.grade({ floors: Array.from({ length: 8 }, () => ({ level: 10 })) })`),
   10,
   "capped at 10",
 );
@@ -145,10 +157,10 @@ assert.match(street, /roof-prop roof-tank/);
 assert.match(street, /street-prop lowrider/);
 assert.match(street, /street-prop palm/);
 run(
-  `state.company.buildings[0].floors[0].level = 3; state.company.buildings[0].floors.push({ type: "writers", level: 3 }); state.company.buildings[0].floors.push({ type: "vocal", level: 2 }); render();`,
+  `state.company.buildings[0].floors[0].level = 8; state.company.buildings[0].floors.push({ type: "writers", level: 9 }); state.company.buildings[0].floors.push({ type: "vocal", level: 5 }); render();`,
 );
 street = element("lot").innerHTML;
-assert.match(street, /bldg-apartment band-gold" id="bldg-apartment" data-grade="8"/);
+assert.match(street, /bldg-apartment band-gold" id="bldg-apartment" data-grade="7"/);
 assert.match(street, /roof-billboard/);
 assert.match(
   ["day", "night"].join(" "),
@@ -158,13 +170,13 @@ assert.match(
 
 // Room interiors: the finish follows the level, the kit follows the type.
 assert.deepEqual(
-  [1, 2, 3].map((l) => run(`GoatStreet.finish(${l})`)),
-  ["basic", "pro", "luxe"],
+  [1, 4, 7, 10].map((l) => run(`GoatStreet.finish(${l})`)),
+  ["basic", "pro", "luxe", "luxe"],
 );
 assert.deepEqual(
-  [1, 4, 7, 10].map((l) => run(`GoatStreet.finish(${l}, 10)`)),
-  ["basic", "pro", "luxe", "luxe"],
-  "works for a ten-level ladder too",
+  [1, 2, 3].map((l) => run(`GoatStreet.finish(${l}, 3)`)),
+  ["basic", "pro", "luxe"],
+  "works for a shorter ladder too",
 );
 street = element("lot").innerHTML;
 assert.match(

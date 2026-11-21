@@ -271,7 +271,21 @@
     },
   ];
 
+  // Floor levels (3.0, design 5): facility floors in CEO buildings go to level 10.
+  //   byPhase   the highest level a floor may reach at each phase (1–6)
+  //   effect    how strongly a floor at each level (1–10) counts, as a multiple of one level's effect;
+  //             the first three are full steps, later ones smaller so nothing peaks early
+  //   costStep  upgrading from level n costs the build cost × n, × (1 + costStep × (n − 3)) from level 3
+  //   Upkeep stays the facility's upkeep × the floor's level.
+  const FLOOR_LEVELS = {
+    max: 10,
+    byPhase: [3, 4, 5, 7, 8, 10],
+    effect: [1, 2, 3, 3.4, 3.8, 4.2, 4.6, 5, 5.4, 5.8],
+    costStep: 0.25,
+  };
+
   const data = {
+    FLOOR_LEVELS,
     PHASES,
     SLOGANS,
     REACHES,
