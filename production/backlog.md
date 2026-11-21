@@ -508,7 +508,7 @@ Do: at least 60 beats across the cast: debuts, rivalries, family, legal trouble,
 Depends on: T54
 Do: at least 60 beats.
 
-### [ ] T57 · Every interactive moment fits its context
+### [x] T57 · Every interactive moment fits its context
 
 Depends on: T55, T56
 Files: `docs/interactions.md` (new), event data, tests

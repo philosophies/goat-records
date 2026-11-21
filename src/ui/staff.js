@@ -77,7 +77,7 @@ function tierCard(a) {
       : "";
   const L = G.levelInfo(a),
     level = `<p>Level <b>${L.level}</b> of ${L.max}${L.cap < L.max ? ` · this tier allows up to ${L.cap}` : ""}${L.capped ? " · <b>capped: move up a tier to keep levelling</b>" : ""}.${L.perks.length ? ` Perks: ${L.perks.map((p) => esc(p.name)).join(", ")}.` : ""}${L.nextPerk ? ` Next perk at level ${L.nextPerk.level}: ${esc(L.nextPerk.name)}.` : ""}</p>`;
-  return `<article class="card tier-card tier-${t.id}"><span class="tag">${esc(t.name.toUpperCase())}</span>${face}${level}<p>Albums up to ${money(t.budget)} · ads up to rank ${t.adRank} · ${esc(t.tours.join(", "))} tours · a team of ${t.team}</p>${need}</article>`;
+  return `<article class="card tier-card tier-${t.id}"><span class="tag">${esc(t.name.toUpperCase())}</span>${face}${level}<p>Albums up to ${money(t.budget)} · ads up to ${esc((G.ADS.find((x) => x.rank === t.adRank)?.name || "").toLowerCase())} · ${esc(t.tours.join(", "))} tours · a team of ${t.team}</p>${need}</article>`;
 }
 function teamSection(a) {
   if (!state.company?.team) return "";

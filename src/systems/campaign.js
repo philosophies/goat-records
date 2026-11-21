@@ -182,7 +182,9 @@
         { name: "Best chart position", value: peaks.length ? "#" + Math.min(...peaks) : "—" },
         { name: "Label fame gained", value: s.fame - start.fame },
         { name: "Cash change", value: Math.round(s.cash - start.cash) },
-        { name: "Label rank", value: RANKS[api().rank(s) - 1].name },
+        s.company
+          ? { name: "Company phase", value: api().PHASES?.[s.company.phase - 1]?.name || s.company.phase }
+          : { name: "Label rank", value: RANKS[api().rank(s) - 1].name },
       ];
     }
     function grantReward(s, g) {
