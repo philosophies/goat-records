@@ -52,6 +52,18 @@ function teamChooser(a, role) {
     search = G.TEAM_POOL.recruitCost * state.company.phase;
   return `<div class="card team-chooser"><span class="tag">CHOOSE A ${esc(role.name.toUpperCase())}</span><h3>${current ? `Replace ${esc(current.name)}` : `${esc(a.name)} needs a ${esc(role.name.toLowerCase())}`}</h3><p class="muted">${esc(role.text)} Chemistry multiplies their skill and is shown before you confirm.</p><h4>On the label</h4><ul class="team-list">${poolRows || '<li class="empty">Nobody free in this role.</li>'}</ul><h4>Candidates</h4><ul class="team-list">${candidateRows || '<li class="empty">Run a search to see candidates.</li>'}</ul><div class="actions"><button data-action="teamRecruit" data-role="${role.id}" ${disable(blocked() || state.cash < search)}>Run a search · ${money(search)}</button><button data-action="teamCancel">Close</button></div></div>`;
 }
+/** Seniority, the skill ceiling, XP, training and (for heads) the next title. */
+function growthBlock(kind, id, x, compact = false) {
+  const g = G.growthInfo(state, kind, id),
+    locked = blocked(),
+    train = `<button data-action="staffTrain" data-kind="${kind}" data-id="${id}" ${disable(locked || g.train.wait > 0 || g.train.gain <= 0 || state.cash < g.train.cost)}>${g.train.wait ? `Training in ${g.train.wait} wk` : g.train.gain > 0 ? `Train +${g.train.gain} · ${money(g.train.cost)}` : "At ceiling"}</button>`,
+    line = `${esc(g.rank)} · skill can reach ${g.ceiling} · XP ${g.xp}/${g.xpPerPoint}${g.nextRank ? ` · ${esc(g.nextRank.name.toLowerCase())} in ${g.nextRank.inWeeks} wk` : ""}`;
+  if (compact) return `<small class="growth">${line}</small>${train}`;
+  const promo = g.promotion
+    ? `<button data-action="staffPromote" data-id="${id}" ${disable(locked || !g.promotion.ready)}>Promote to ${esc(g.promotion.title)}${g.promotion.ready ? "" : ` · needs ${esc(g.promotion.seniority.toLowerCase())}, skill ${g.promotion.skill}`}</button>`
+    : "";
+  return `<p class="muted growth">${line}</p><div class="actions">${train}${promo}</div>`;
+}
 /** The artist's tier and what the next one needs. */
 function tierCard(a) {
   const t = G.tierInfo(a),
@@ -72,7 +84,7 @@ function teamSection(a) {
   const slots = G.artistTeam(state, a.id)
       .map(({ role, member: m, chemistry, share }) => {
         const body = m
-          ? `<b>${esc(m.name)}</b><small>Skill ${m.skill} · chemistry ×${chemistry.toFixed(2)}${share < 1 ? ` · shared, ${Math.round(share * 100)}%` : ""}</small>`
+          ? `<b>${esc(m.name)}</b><small>Skill ${m.skill} · chemistry ×${chemistry.toFixed(2)}${share < 1 ? ` · shared, ${Math.round(share * 100)}%` : ""}</small>${growthBlock("member", m.id, m, true)}`
           : '<small class="muted">Empty</small>';
         return `<li class="team-slot ${m ? "" : "open"}"><span class="tag">${esc(role.name.toUpperCase())}</span><div>${body}</div><div class="actions"><button data-action="teamPick" data-artist="${a.id}" data-role="${role.id}" ${disable(blocked())}>${m ? "Change" : "Assign"}</button>${m ? `<button data-action="teamUnassign" data-member="${m.id}" data-artist="${a.id}" ${disable(blocked())}>Remove</button>` : ""}</div></li>`;
       })
@@ -105,7 +117,7 @@ function departmentSheet(d) {
   const h = x.head,
     severance = h ? h.salary * G.EXEC_PAY.severanceWeeks : 0,
     head = h
-      ? `<article class="card exec-card"><span class="tag">${esc((h.title || d.head).toUpperCase())}</span><h3>${esc(h.name)}</h3><ul class="traits"><li><span>Skill</span><b>${h.skill}</b></li><li><span>Ambition</span><b>${h.ambition}</b></li><li><span>Loyalty</span><b>${h.loyalty}</b></li><li><span>Influence</span><b>${Math.round(h.influence)}</b></li></ul><p class="muted">${money(h.salary)}/week · since week ${h.hiredWeek}${h.contacts?.length ? ` · close to ${h.contacts.length} director${h.contacts.length === 1 ? "" : "s"}` : ""}</p>${h.plot ? `<p class="warn">Rumoured to be plotting. It comes to a head around week ${h.plot.due}.</p>` : ""}${responseButtons(d, h)}<button data-action="deptFire" data-dept="${d.id}" ${disable(blocked())}>Let go · ${money(severance)} severance</button></article>`
+      ? `<article class="card exec-card"><span class="tag">${esc((h.title || d.head).toUpperCase())}</span><h3>${esc(h.name)}</h3><ul class="traits"><li><span>Skill</span><b>${h.skill}</b></li><li><span>Ambition</span><b>${h.ambition}</b></li><li><span>Loyalty</span><b>${h.loyalty}</b></li><li><span>Influence</span><b>${Math.round(h.influence)}</b></li></ul><p class="muted">${money(h.salary)}/week · since week ${h.hiredWeek}${h.contacts?.length ? ` · close to ${h.contacts.length} director${h.contacts.length === 1 ? "" : "s"}` : ""}</p>${h.plot ? `<p class="warn">Rumoured to be plotting. It comes to a head around week ${h.plot.due}.</p>` : ""}${growthBlock("head", d.id, h)}${responseButtons(d, h)}<button data-action="deptFire" data-dept="${d.id}" ${disable(blocked())}>Let go · ${money(severance)} severance</button></article>`
       : `<div class="empty">No ${esc(d.head)} yet. Run a search to find one.</div>`,
     staffCard = h
       ? `<article class="card"><span class="tag">STAFF · CAPACITY ${G.capacity(state, d.id)}</span><h3>${x.staff} of ${G.maxStaff(state)} staff</h3><p class="muted">${money(G.DEPT_STAFF.salary)}/week each. Capacity is how many projects the department runs a quarter.</p><div class="actions"><button data-action="deptStaffAdd" data-dept="${d.id}" ${disable(blocked() || x.staff >= G.maxStaff(state) || state.cash < G.DEPT_STAFF.hireFee)}>Hire staff · ${money(G.DEPT_STAFF.hireFee)}</button><button data-action="deptStaffRemove" data-dept="${d.id}" ${disable(blocked() || !x.staff)}>Let one go</button></div></article>`
@@ -127,7 +139,11 @@ function responseButtons(d, h) {
     ),
     calm = h.calmUntil && state.week < h.calmUntil,
     counter = state.company.board && h.contacts?.length;
-  return `<div class="actions responses"><button data-action="execRespond" data-dept="${d.id}" data-kind="promote" ${disable(blocked())}>Promote · +${Math.round(R.promote.raise * 100)}% pay</button><button data-action="execRespond" data-dept="${d.id}" data-kind="placate" ${disable(blocked() || state.cash < h.salary * R.placate.bonusWeeks)}>Placate · ${money(h.salary * R.placate.bonusWeeks)}</button>${counter ? `<button data-action="execRespond" data-dept="${d.id}" data-kind="counter" ${disable(blocked())}>Counter · ${money(R.counter.costPerPhase * state.company.phase)}</button>` : ""}${open.length ? `<label>Sideline to<select id="sideline-${d.id}">${open.map((x) => `<option value="${x.id}">${esc(x.name)}</option>`).join("")}</select></label><button data-action="execRespond" data-dept="${d.id}" data-kind="sideline">Sideline</button>` : ""}</div>${calm ? `<p class="muted">Calm until week ${h.calmUntil}.</p>` : ""}`;
+  const fastTrack =
+    (h.promotions || 0) < 1
+      ? `<button data-action="execRespond" data-dept="${d.id}" data-kind="promote" ${disable(blocked())}>Fast-track to Senior · +${Math.round(R.promote.raise * 100)}% pay</button>`
+      : "";
+  return `<p class="muted responses-head">If they get ambitious:</p><div class="actions responses">${fastTrack}<button data-action="execRespond" data-dept="${d.id}" data-kind="placate" ${disable(blocked() || state.cash < h.salary * R.placate.bonusWeeks)}>Placate · ${money(h.salary * R.placate.bonusWeeks)}</button>${counter ? `<button data-action="execRespond" data-dept="${d.id}" data-kind="counter" ${disable(blocked())}>Counter · ${money(R.counter.costPerPhase * state.company.phase)}</button>` : ""}${open.length ? `<label>Sideline to<select id="sideline-${d.id}">${open.map((x) => `<option value="${x.id}">${esc(x.name)}</option>`).join("")}</select></label><button data-action="execRespond" data-dept="${d.id}" data-kind="sideline">Sideline</button>` : ""}</div>${calm ? `<p class="muted">Calm until week ${h.calmUntil}.</p>` : ""}`;
 }
 /** The card after a power grab ends. */
 function grabCard() {
@@ -187,6 +203,12 @@ GoatUI.click.push((b) => {
       return true;
     case "deptHire":
       act(() => G.hireHead(state, d.dept, d.candidate));
+      return true;
+    case "staffTrain":
+      act(() => G.trainPerson(state, d.kind, d.id));
+      return true;
+    case "staffPromote":
+      act(() => G.promoteHead(state, d.id));
       return true;
     case "deptFire":
       act(() => G.fireHead(state, d.dept));

@@ -434,7 +434,7 @@ Confidence below 35 at a review means probation for the next period. A no-confid
 
 **Power grabs.** Every 13 weeks each department head gains 2 influence, plus 1 for each director they have courted, up to 100. The chance a head starts a grab that quarter is max(0, (ambition + influence − loyalty − 90) ÷ 200) × (1 − your influence ÷ 200). Your influence is 20, plus 5 a phase, plus 10 for each perk. A grab first shows as office gossip in the Inbox and comes to a head 26 weeks later; meanwhile the executive courts one more director a quarter. Your answers:
 
-- Promote: a "Senior" title, a 25% raise, 15 less ambition, and no grab for a year.
+- Fast-track to Senior (only before a head's first promotion): the Senior title, a 25% raise, 15 less ambition, and no grab for a year.
 - Placate: a bonus of 8 weeks' salary; no new grab for a quarter, and a plot slips by a quarter.
 - Sideline: move them to head an open department; influence −20, loyalty −15.
 - Fire: the usual severance; every director they courted loses 6 relationship with you.
@@ -490,3 +490,18 @@ The tier caps the level: up-and-comers stop at 12, stars at 22, superstars go to
 Levels past 3 count for less: a floor at level 4–10 counts as 3.4, 3.8, 4.2, 4.6, 5, 5.4 and 5.8 levels toward its effect. Stage bonuses are rounded to whole points.
 
 A building's grade is the average level of its facility floors (recording rooms do not count). Grades 1–3 look plain, 4–6 get neon and 7–10 go gold; a floor's interior is basic to level 3, fitted out at 4–6 and luxurious from 7.
+
+**Staff growth.** Department heads and artist team members get better with work. Heads earn 1 XP a week and 2 for every album the label releases; team members earn 1 XP a week while working with an artist and 4 when that artist releases an album. Every 12 XP is a skill point.
+
+Skill can only grow to a ceiling: the skill a person was hired with, plus a margin that rises with time at the label.
+
+| Time at the label | Rank        | Ceiling          |
+| ----------------- | ----------- | ---------------- |
+| From hiring       | New         | hired skill + 8  |
+| 26 weeks          | Experienced | hired skill + 16 |
+| 104 weeks         | Seasoned    | hired skill + 24 |
+| 208 weeks         | Veteran     | hired skill + 32 |
+
+Reaching a new rank raises pay to the going rate for the person's current skill. Training costs six weeks of their pay and adds 2 skill within the ceiling, once every 13 weeks.
+
+Heads can be promoted twice: to Senior (experienced and skill 60) for +6 ceiling, a 20% raise, +10 loyalty and −10 ambition, then to Executive (seasoned and skill 75) for +6 ceiling, a 25% raise and the same loyalty and ambition change. Promoting a plotting head to calm a power grab also gives the Senior title.
