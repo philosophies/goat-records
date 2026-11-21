@@ -21,7 +21,7 @@ function ready(seed = 21, ceo = true) {
     while (s.event) G.choose(s, s.event.options.length - 1);
     for (const x of [...(s.company?.inbox || [])]) G.decide(s, x.id, 0);
     const d = p.production;
-    if (!d.cooldown && !d.releaseReady) {
+    while (!d.cooldown && !d.releaseReady && (d.stage < 5 || d.review)) {
       if (!d.review) G.decideStage(s, p.id, 0);
       G.continueProduction(s, p.id);
     }

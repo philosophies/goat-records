@@ -523,7 +523,7 @@ Done when: tests that each listed change records its causes and the ledger sums 
 
 ## M16 Long-term play
 
-### [ ] T59 · The first fifteen minutes
+### [x] T59 · The first fifteen minutes
 
 Depends on: T41
 Files: `src/data/onboarding.js`, `src/systems/onboarding.js`, `src/ui/*.js`, tests

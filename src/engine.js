@@ -17,6 +17,7 @@
     "cast",
     "stories",
     "why",
+    "onboarding",
   ];
   function optionalRequire(path) {
     try {
@@ -190,7 +191,11 @@
     if (!d.review) throw Error("No calculation to acknowledge.");
     d.review = false;
     d.cooldown = artist(s, p.artist).age === "Youth" && d.stage === 3 ? 2 : 1;
+    // A CEO run's first album, while the starter checklist is on, skips the waits between stages.
+    if (s.company && api.fastFirstAlbum?.(s, p)) d.cooldown = 0;
     if (d.stage === 5) d.cooldown += (p.addOns || []).length;
+    // With no wait after the last stage, the album is ready for its final review straight away.
+    if (d.stage === 5 && d.cooldown === 0) d.releaseReady = true;
   }
   function albumQuality(p) {
     return Math.round(p.production.results.reduce((n, r) => n + r.score, 0) / 5);

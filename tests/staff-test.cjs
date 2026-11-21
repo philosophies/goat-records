@@ -442,7 +442,7 @@ function produce(s, p) {
   for (let guard = 0; guard < 120 && !p.production.releaseReady; guard++) {
     clearEvents(s);
     const d = p.production;
-    if (!d.cooldown) {
+    while (!d.cooldown && !d.releaseReady && (d.stage < 5 || d.review)) {
       if (!d.review) G.decideStage(s, p.id, 0);
       G.continueProduction(s, p.id);
     }

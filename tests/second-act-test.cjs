@@ -47,6 +47,7 @@ test("Following you starts a new company at phase 1 with that superstar", () => 
   for (const how of ["fired", "ousted"]) {
     const { s, a } = firedWith(70, 80, how),
       n = G.secondAct(s, a.id, "Second Wind");
+    assert.equal(n.company.onboarding, undefined, "a second act has no starter checklist");
     assert.equal(n.finished, false);
     assert.equal(n.company.phase, 1);
     assert.equal(G.labelName(n), "Second Wind");

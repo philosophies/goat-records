@@ -324,6 +324,7 @@
       n.artists.push(b);
       n.cash += SECOND_ACT.cash;
       n.campaign.run = s.campaign?.run ?? n.campaign.run;
+      delete n.company.onboarding; // a second act needs no starter checklist
       n.secondAct = {
         count: (s.secondAct?.count || 0) + 1,
         from: game.labelName(s),

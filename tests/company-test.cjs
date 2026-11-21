@@ -34,6 +34,7 @@ test("New runs default to the CEO home studio with $2,000", () => {
     rounds: [],
     loan: null,
     shares: { total: 10000, yours: 10000, investors: 0 },
+    onboarding: { on: true, done: [], tips: [] },
   });
   assert.equal(s.cash, PHASES[0].startCash);
   assert.equal(s.cash, 2000);

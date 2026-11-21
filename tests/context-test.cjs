@@ -111,11 +111,11 @@ function play(seed, weeks) {
     for (const p of s.albums.filter((x) => !x.released && x.production)) {
       if (p.launchReview) p.launchReview = false;
       const d = p.production;
-      if (d.releaseReady) tryIt(() => G.releaseAlbum(s, p.id, p.title));
-      else if (!d.cooldown) {
+      for (let k = 0; k < 6 && !d.cooldown && !d.releaseReady && (d.stage < 5 || d.review); k++) {
         if (!d.review) tryIt(() => G.decideStage(s, p.id, 0));
         tryIt(() => G.continueProduction(s, p.id));
       }
+      if (d.releaseReady) tryIt(() => G.releaseAlbum(s, p.id, p.title));
     }
     if (s.week % 40 === 0) {
       const p = s.albums.find((x) => x.released && s.week - x.releaseWeek < 20);

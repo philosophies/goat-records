@@ -244,3 +244,10 @@ body.ceo-run .scene.street-scene {
   border-color: var(--gold, #e3b23c);
   box-shadow: inset 0 0 0 1px var(--gold, #e3b23c);
 }
+
+/* The starter checklist's skip link keeps its plain look. */
+body.ceo-run .notice.starter button.link {
+  border: 0;
+  box-shadow: none;
+  background: none;
+}

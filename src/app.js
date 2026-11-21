@@ -727,7 +727,8 @@ function render() {
   $("brandName").textContent = G.labelName(state).toUpperCase();
   const banners = GoatUI.banners.map((b) => b.render() || "").filter(Boolean),
     // A banner with a button (an action or a screen to open) is shown as a card over the lot.
-    inputBanners = banners.filter((h) => /data-(action|tab)=/.test(h));
+    // A banner marked data-ticker stays in the side ticker even with a button.
+    inputBanners = banners.filter((h) => /data-(action|tab)=/.test(h) && !/data-ticker/.test(h));
   paintHTML("notices", banners.filter((h) => !inputBanners.includes(h)).join(""));
   const production = s.event ? "" : productionPanels();
   paintHTML("milestones", s.event || production ? "" : inputBanners[0] || milestoneBanner());
