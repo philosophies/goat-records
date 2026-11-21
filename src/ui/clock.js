@@ -17,7 +17,11 @@ function clockReasons(state, ui = {}) {
         ? "tour decision"
         : state.event.type === "awards"
           ? "awards night"
-          : "industry event",
+          : state.event.type === "story"
+            ? "artist story"
+            : state.event.type === "approval"
+              ? "board approval"
+              : "industry event",
     );
   for (const p of state.albums || []) {
     const d = p.production;

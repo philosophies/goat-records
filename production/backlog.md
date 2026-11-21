@@ -492,7 +492,7 @@ Depends on: T45
 Files: `src/data/cast.js` (new), `src/engine.js`, `src/systems/staff.js`, tests
 Do: about 30 authored artists and 20 authored staff, executives and directors (name, look, genre, backstory, traits, arc); scouting draws from the cast by reach, with generated people only as a fallback.
 
-### [ ] T54 · Story engine
+### [x] T54 · Story engine
 
 Depends on: T53
 Files: `src/systems/stories.js` (new), `src/data/stories.js` (new), tests

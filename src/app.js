@@ -708,7 +708,7 @@ function render() {
   paintHTML(
     "event",
     s.event
-      ? `<div class="event"><span class="tag">INDUSTRY MOMENT · TIME IS PAUSED</span><h2>${esc(s.event.title)}</h2><p>${esc(s.event.body)}</p><div class="options">${s.event.options.map((o, i) => `<button data-action="choose" data-id="${i}" ${disable(!G.eventOptionAvailable(s, o))}>${esc(o.label)}<small>${esc(o.hint)}${o.extension && s.albums.find((p) => p.id === s.event.album)?.salesWeeks >= 18 ? " Extension cap reached." : ""}${s.staff.includes("Public Relations") && o.trust < 0 ? " PR staff reduces the immediate trust loss." : ""}</small></button>`).join("")}</div></div>`
+      ? `<div class="event ${s.event.type === "story" ? "story-event" : ""}"><span class="tag">${s.event.type === "story" ? esc((s.artists.find((a) => a.id === s.event.artist)?.name || "A") + "'s story").toUpperCase() : "INDUSTRY MOMENT"} · TIME IS PAUSED</span><h2>${esc(s.event.title)}</h2><p>${esc(s.event.body)}</p><div class="options">${s.event.options.map((o, i) => `<button data-action="choose" data-id="${i}" ${disable(!G.eventOptionAvailable(s, o))}>${esc(o.label)}<small>${esc(o.hint)}${o.extension && s.albums.find((p) => p.id === s.event.album)?.salesWeeks >= 18 ? " Extension cap reached." : ""}${s.staff.includes("Public Relations") && o.trust < 0 ? " PR staff reduces the immediate trust loss." : ""}</small></button>`).join("")}</div></div>`
       : "",
   );
   // The open sheet belongs to a person or place; it closes if they leave (a released artist).
@@ -1102,6 +1102,7 @@ function validSave(s) {
         (s.artists.some((a) => a.id === s.event.artist) ||
           (s.event.type === "album" && s.albums.some((p) => p.id === s.event.album)) ||
           (s.company && s.event.type === "companyEvent") ||
+          (s.company && s.event.type === "story") ||
           (s.company?.board &&
             s.event.type === "approval" &&
             typeof s.event.approval?.kind === "string" &&
