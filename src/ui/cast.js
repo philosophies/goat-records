@@ -6,6 +6,16 @@ function castBlurb(x, tag = "p") {
   const c = x && G.castEntry?.(x.castId);
   return c ? `<${tag} class="backstory">${esc(c.backstory)}</${tag}>` : "";
 }
+/** The last few story beats for a character key ("head:3", "director:1", "company"), or "". */
+function storyLines(key, n = 3) {
+  const log = state.company ? G.storyLog?.(state, key) || [] : [];
+  if (!log.length) return "";
+  return `<ul class="story-log">${log
+    .slice(-n)
+    .reverse()
+    .map((x) => `<li><small>Week ${x.week}</small> ${esc(x.title)} · <i>${esc(x.choice)}</i></li>`)
+    .join("")}</ul>`;
+}
 /** The artist panel card: how they look, where they come from, the story so far. */
 function castCard(a) {
   if (!state.company) return "";

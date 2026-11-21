@@ -503,7 +503,7 @@ Do: arcs as chains of beats with flags, context conditions, cooldowns and follow
 Depends on: T54
 Do: at least 60 beats across the cast: debuts, rivalries, family, legal trouble, comebacks, collaborations.
 
-### [ ] T56 · Story pack: staff, executives, board and rivals
+### [x] T56 · Story pack: staff, executives, board and rivals
 
 Depends on: T54
 Do: at least 60 beats.

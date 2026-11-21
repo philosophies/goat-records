@@ -64,7 +64,7 @@ test("a follow-up waits for its delay, the character's gap and its own condition
   playAndChoose(s, "first-hit", 1);
   a.fame = 10;
   s.week += 6;
-  assert.ok(!G.storyDue(s).length, "too soon for the same character");
+  assert.ok(!G.storyDue(s).some((x) => x.a), "too soon for the same character");
   s.week += STORY_RULES.personGap;
   assert.ok(!G.storyDue(s).some((x) => x.beat.id === "crowd"), "needs 30 fame");
   a.fame = 40;

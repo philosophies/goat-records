@@ -12,6 +12,8 @@ const roundTrip = (s) => JSON.parse(JSON.stringify(s));
 function ceo(phase = 1, seed = 41) {
   const s = G.create(seed, { ceo: true });
   s.company.phase = phase;
+  // Story beats are tested on their own; keep them out of the board's numbers here.
+  s.company.stories = { arcs: [], log: {}, lastWeek: 1e9 };
   return s;
 }
 function settle(s) {
