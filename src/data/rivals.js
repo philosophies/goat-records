@@ -190,6 +190,19 @@
     counter: { share: 0.5, base: 0.5 },
     bid: { phase: 3, perTalent: 150, base: 0.4, min: 0.1, max: 0.8, standing: -10 },
     buy: { phase: 5, below: 55, weeks: 104, catalog: 40 },
+    // Rival records are measured against the label's own as well as the phase: own = the median
+    // average weekly units of its last `releases` albums with at least `minAge` earning weeks ×
+    // `lift`; a strength-50 record starts at unitsByPhase^(1 − own) × max(unitsByPhase, own)^own.
+    // With fewer than `min` such albums, unitsByPhase alone.
+    benchmark: { releases: 8, min: 3, minAge: 2, lift: 1.6, own: 0.6 },
+    // Rivals drift toward a target strength: personality strength, + `perPhase` for each of your
+    // phases from `from` on. Each week they close `pull` of the gap (`latePull` from phase `from`).
+    recover: { from: 4, perPhase: 2, pull: 0.02, latePull: 0.05 },
+    // Every `every` weeks a rival under `below` strength may be taken over (`chance`) by the
+    // strongest rival at `above` or more, which gains `gain` × its strength and its artists.
+    takeover: { every: 13, below: 35, above: 50, chance: 0.35, gain: 0.3 },
+    // A rival that leaves (bought or taken over) is replaced by a new label `after` weeks later.
+    replace: { after: 13 },
     superstarFeud: { back: { standing: -20, relation: 6, fans: 5 }, calm: { standing: 10, relation: -4 } },
     letGo: { standing: -5 },
   };

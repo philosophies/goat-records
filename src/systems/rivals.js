@@ -10,7 +10,7 @@
     const { clamp, log, roll, pay, requireAction } = core;
     const labelById = new Map(RIVAL_LABELS.map((r) => [r.id, r]));
 
-    const list = (s) => (s.company?.rivals || []).filter((r) => !r.bought);
+    const list = (s) => (s.company?.rivals || []).filter((r) => !r.bought && !r.merged);
     const company = (s, id) => s.rivalCompanies.find((c) => c.id === id);
     const personality = (r) => PERSONALITIES[labelById.get(r.id).personality];
     /** A rival's strength now: its own drift plus what your phase adds. */
@@ -27,6 +27,28 @@
     }
     const feuding = (s, r) => standingOf(s, r.id) <= R.feudAt;
 
+    /** A rival label's run state, and its place among the industry's companies. */
+    function addRival(s, x) {
+      const r = {
+        id: x.id,
+        strength: PERSONALITIES[x.personality].strength,
+        nextRelease: s.week + 1 + Math.floor(roll(s, "rivals") * PERSONALITIES[x.personality].releaseEvery),
+        roster: x.roster.map((name) => ({ name })),
+        releases: [],
+        bought: false,
+      };
+      s.company.rivals.push(r);
+      if (!company(s, x.id))
+        s.rivalCompanies.push({
+          id: x.id,
+          name: x.name,
+          ceo: x.ceo,
+          strategy: PERSONALITIES[x.personality].text,
+          relationship: 0,
+          authored: true,
+        });
+      return r;
+    }
     /** Picks three rivals when a CEO run starts and adds them to the industry. */
     function init(s) {
       if (!s.company || s.company.rivals) return s;
@@ -34,25 +56,82 @@
         picks = [];
       while (picks.length < R.count && pool.length)
         picks.push(pool.splice(Math.floor(roll(s, "rivals") * pool.length), 1)[0]);
-      s.company.rivals = picks.map((x) => ({
-        id: x.id,
-        strength: PERSONALITIES[x.personality].strength,
-        nextRelease: s.week + 1 + Math.floor(roll(s, "rivals") * PERSONALITIES[x.personality].releaseEvery),
-        roster: x.roster.map((name) => ({ name })),
-        releases: [],
-        bought: false,
-      }));
-      for (const x of picks)
-        if (!company(s, x.id))
-          s.rivalCompanies.push({
-            id: x.id,
-            name: x.name,
-            ceo: x.ceo,
-            strategy: PERSONALITIES[x.personality].text,
-            relationship: 0,
-            authored: true,
-          });
+      s.company.rivals = [];
+      for (const x of picks) addRival(s, x);
       return s;
+    }
+    /** A rival leaves the charts (bought or taken over); a new label arrives later. */
+    function leaveCharts(s, r) {
+      s.rivalCompanies = s.rivalCompanies.filter((c) => c.id !== r.id);
+      s.charts.rivals = s.charts.rivals.filter((x) => x.companyId !== r.id);
+      s.company.rivalEntryWeek = s.week + R.replace.after;
+    }
+    /** A label never seen in this run takes an empty place among the rivals. */
+    function replaceRivals(s) {
+      if (list(s).length >= R.count || s.week < (s.company.rivalEntryWeek ?? 0)) return;
+      const seen = new Set(s.company.rivals.map((r) => r.id)),
+        pool = RIVAL_LABELS.filter((x) => !seen.has(x.id));
+      if (!pool.length) return;
+      const x = pool[Math.floor(roll(s, "rivals") * pool.length)];
+      addRival(s, x);
+      s.company.rivalEntryWeek = s.week + R.replace.after;
+      s.notifications.push({
+        id: s.nextId++,
+        kind: "battle",
+        title: `A new rival: ${x.name}`,
+        body: `${x.ceo}'s ${x.name} (${PERSONALITIES[x.personality].name.toLowerCase()}, ${x.genre}) moves into the charts.`,
+        week: s.week,
+      });
+      log(s, `${x.name} enters the charts as a new rival.`);
+    }
+    /** Rivals drift back toward a target strength that rises with your phase from phase 4: a
+     *  beaten rival recovers, and a runaway one settles. */
+    function recover(s, r) {
+      const phase = s.company.phase || 1,
+        late = phase >= R.recover.from,
+        target = personality(r).strength + (late ? R.recover.perPhase * (phase - R.recover.from + 1) : 0);
+      r.strength += (target - r.strength) * (late ? R.recover.latePull : R.recover.pull);
+    }
+    /** Now and then a strong rival swallows a weak one, artists and all. */
+    function takeovers(s) {
+      if (s.week % R.takeover.every !== 0) return;
+      const rivals = list(s),
+        weak = rivals.filter((r) => r.strength < R.takeover.below).sort((a, b) => a.strength - b.strength)[0],
+        strong = rivals
+          .filter((r) => r !== weak && r.strength >= R.takeover.above)
+          .sort((a, b) => b.strength - a.strength)[0];
+      if (!weak || !strong || roll(s, "rivals") >= R.takeover.chance) return;
+      const buyer = labelById.get(strong.id),
+        sold = labelById.get(weak.id);
+      strong.strength = clamp(strong.strength + weak.strength * R.takeover.gain, 0, 100);
+      strong.roster.push(...weak.roster);
+      Object.assign(weak, { merged: true, mergedInto: strong.id, mergedWeek: s.week, roster: [] });
+      leaveCharts(s, weak);
+      s.notifications.push({
+        id: s.nextId++,
+        kind: "battle",
+        title: `${buyer.name} takes over ${sold.name}`,
+        body: `${buyer.ceo} buys ${sold.name} and its artists. ${buyer.name} is stronger for it.`,
+        week: s.week,
+      });
+      log(s, `${buyer.name} takes over ${sold.name}.`);
+    }
+    /** What a strength-50 rival's record starts at: between the phase's typical record and the
+     *  label's own (the median average weekly units of its recent albums). */
+    function benchmark(s) {
+      const B = R.benchmark,
+        recent = s.albums
+          .filter((p) => p.released && (p.age ?? 0) >= B.minAge)
+          .slice(-B.releases)
+          .map((p) => p.gross / 8 / p.age)
+          .sort((a, b) => a - b);
+      const table = R.release.unitsByPhase[(s.company.phase || 1) - 1];
+      if (recent.length < B.min) return table;
+      // Weighted between the phase's typical record and the label's own, never below the first:
+      // a struggling label still meets full-strength rivals, a strong one meets rivals that grew.
+      const mid = recent.length / 2,
+        median = recent.length % 2 ? recent[Math.floor(mid)] : (recent[mid - 1] + recent[mid]) / 2;
+      return Math.round(table ** (1 - B.own) * Math.max(table, median * B.lift) ** B.own);
     }
 
     // ---- Releases and chart battles ----
@@ -79,7 +158,7 @@
         genre: lab.genre,
         age: 0,
         baseUnits: Math.round(
-          ((R.release.unitsByPhase[(s.company.phase || 1) - 1] * r.strength) / 50) *
+          ((benchmark(s) * r.strength) / 50) *
             (1 - R.release.unitSpread / 2 + roll(s, "rivals") * R.release.unitSpread) *
             (feuding(s, r) ? 1 + R.feudSales : 1),
         ),
@@ -294,8 +373,11 @@
       if (!s.company?.rivals) return 0;
       for (const r of list(s)) {
         r.strength = clamp(r.strength + Math.round((roll(s, "rivals") * 2 - 1) * R.drift), 0, 100);
+        recover(s, r);
         if (s.week >= r.nextRelease) release(s, r);
       }
+      takeovers(s);
+      replaceRivals(s);
       battles(s);
       awardStanding(s);
       // One rival card at a time.
@@ -397,8 +479,7 @@
       if (!q.weak) throw Error(`${lab.name} is too strong to sell.`);
       pay(s, q.price);
       Object.assign(q.r, { bought: true, boughtWeek: s.week, boughtStrength: strengthOf(s, q.r) });
-      s.rivalCompanies = s.rivalCompanies.filter((c) => c.id !== q.r.id);
-      s.charts.rivals = s.charts.rivals.filter((x) => x.companyId !== q.r.id);
+      leaveCharts(s, q.r);
       log(s, `${core.api().labelName(s)} buys ${lab.name}. Its catalog now pays the label.`);
       return q.r;
     }
@@ -436,7 +517,8 @@
             Number.isInteger(r.nextRelease) &&
             Array.isArray(r.roster) &&
             Array.isArray(r.releases) &&
-            typeof r.bought === "boolean",
+            typeof r.bought === "boolean" &&
+            (r.merged === undefined || typeof r.merged === "boolean"),
         ) &&
         [s.event, ...(s.eventQueue || [])].every(
           (e) =>
@@ -463,6 +545,7 @@
         buyQuote,
         buyRival,
         rivalStrength: strengthOf,
+        rivalBenchmark: benchmark,
       },
     };
   }

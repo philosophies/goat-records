@@ -616,7 +616,7 @@ Files: `src/ui/*.js`, `docs/rules.md`, tests
 Do: Owner decision: the two "legacy" ideas get clearly different names. In CEO runs, New Game+ points become prestige points (earned from a run's score, spent on starting bonuses) and the achievement perks become hall of fame perks (opened by achievements, kept in the browser). The new-label dialog explains each in one line. Save keys stay the same.
 Done when: no CEO screen says "legacy points" or "legacy perks"; a harness checks both names and their explanations; classic text unchanged.
 
-### [ ] T72 · Rivals that keep pace
+### [x] T72 · Rivals that keep pace
 
 Depends on: T60
 Files: `src/data/rivals.js`, `src/systems/rivals.js`, `src/ui/*.js`, tests
