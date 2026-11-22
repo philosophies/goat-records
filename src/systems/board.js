@@ -14,6 +14,7 @@
       REVIEW,
       OVERSPEND,
       APPROVAL,
+      ALBUM_FLOOR,
       LOBBY,
       BACKERS,
       VALUATION,
@@ -409,7 +410,14 @@
       b.spent = 0;
       b.freedom = freedomFor(c, b.probation, !!s.company.coCeo);
       b.perks = perksFor(c);
-      Object.assign(record, { probation: b.probation, budget: b.budget, freedom: b.freedom, perks: b.perks });
+      const floor = floorReview(s, c);
+      Object.assign(record, {
+        probation: b.probation,
+        budget: b.budget,
+        freedom: b.freedom,
+        perks: b.perks,
+        floor: { ...floor, amount: albumFloor(s).amount },
+      });
       b.reviews.push(record);
       if (b.reviews.length > 12) b.reviews.shift();
       b.scene = true;
@@ -432,9 +440,69 @@
       const pct = ((b.spent - b.budget) / b.budget) * 100;
       return -Math.round(Math.min(OVERSPEND.cap, pct / OVERSPEND.pctPerPoint) * 10) / 10;
     }
-    function onSpend(s, n) {
+    // ---- The album floor (owner decision 2026-11-22) ----
+    /** The album floor for this period: amount, used, left, level and whether a negotiation is open. */
+    function albumFloor(s) {
+      const b = board(s);
+      if (!b) return null;
+      const f = b.albumFloor || { level: 0, used: 0, offer: false },
+        mult = f.level ? ALBUM_FLOOR.levels[f.level - 1].mult : 1,
+        amount = Math.round(ALBUM_FLOOR.byPhase[(s.company.phase || 1) - 1] * mult),
+        next = ALBUM_FLOOR.levels[f.level];
+      return {
+        amount,
+        used: f.used,
+        left: Math.max(0, amount - f.used),
+        level: f.level,
+        offer: !!f.offer && !!next,
+        next: next
+          ? {
+              level: f.level + 1,
+              at: next.at,
+              amount: Math.round(ALBUM_FLOOR.byPhase[(s.company.phase || 1) - 1] * next.mult),
+            }
+          : null,
+      };
+    }
+    const withinFloor = (s, n, kind) => kind === "album" && !!board(s)?.budget && albumFloor(s).left >= n;
+    /** At a review: the floor resets, may lose a level, and may open a negotiation for the next one. */
+    function floorReview(s, c) {
+      const b = board(s),
+        f = (b.albumFloor ||= { level: 0, used: 0, offer: false });
+      f.used = 0;
+      if (c < ALBUM_FLOOR.dropBelow && f.level) f.level--;
+      const next = ALBUM_FLOOR.levels[f.level];
+      f.offer = !!next && c >= next.at;
+      return { level: f.level, offer: f.offer };
+    }
+    /** Asks the board for a bigger album floor. Takes your week with the board; once per review. */
+    function negotiateFloor(s) {
+      requireAction(s);
+      const b = board(s);
+      if (!b) throw Error("There is no board to negotiate with.");
+      const f = albumFloor(s);
+      if (!f.offer) throw Error("The board will hear this only right after a review with high confidence.");
+      if (b.meetingWeek === s.week) throw Error("You have already spent this week's time with the board.");
+      b.meetingWeek = s.week;
+      const c = b.confidence ?? confidence(s);
+      b.albumFloor.offer = false;
+      if (c < f.next.at) {
+        log(s, `The board would not raise the album floor (confidence ${c}, needs ${f.next.at}).`);
+        return false;
+      }
+      b.albumFloor.level = f.next.level;
+      log(s, `The board raises the album floor to $${f.next.amount.toLocaleString("en-US")} a period.`);
+      return true;
+    }
+    function onSpend(s, n, kind) {
       const b = board(s);
       if (!b?.budget) return;
+      // Album budgets within the floor do not count against the period's budget.
+      if (withinFloor(s, n, kind)) {
+        b.albumFloor = b.albumFloor || { level: 0, used: 0, offer: false };
+        b.albumFloor.used += n;
+        return;
+      }
       b.spent = (b.spent || 0) + n;
       b.budgetLeft = b.budget - b.spent;
     }
@@ -465,9 +533,9 @@
     function freedomOf(s) {
       return board(s)?.freedom || "high";
     }
-    function beforeSpend(s, n) {
+    function beforeSpend(s, n, kind) {
       const b = board(s);
-      if (!b?.budget || freedomOf(s) === "high") return;
+      if (!b?.budget || freedomOf(s) === "high" || withinFloor(s, n, kind)) return;
       if ((b.spent || 0) + n > b.budget)
         requireApproval(
           s,
@@ -727,6 +795,12 @@
         (c.board.approvals === undefined || Array.isArray(c.board.approvals)) &&
         (c.board.budget === undefined || (isCount(c.board.budget) && Number.isFinite(c.board.budgetLeft))) &&
         (c.board.freedom === undefined || REVIEW.freedom.some((f) => f.id === c.board.freedom)) &&
+        (c.board.albumFloor === undefined ||
+          (!!c.board.albumFloor &&
+            Number.isInteger(c.board.albumFloor.level) &&
+            c.board.albumFloor.level >= 0 &&
+            c.board.albumFloor.level <= ALBUM_FLOOR.levels.length &&
+            isCount(c.board.albumFloor.used))) &&
         (c.board.perks === undefined ||
           (Array.isArray(c.board.perks) &&
             c.board.perks.every((id) => REVIEW.perks.some((p) => p.id === id)))) &&
@@ -758,6 +832,9 @@
       approvePlan,
       eventChoice,
       api: {
+        ALBUM_FLOOR,
+        albumFloor,
+        negotiateFloor,
         DIRECTORS,
         BACKERS,
         VALUATION,

@@ -17,7 +17,8 @@
     function init(s) {
       if (!s.company || s.company.delegation) return s;
       s.company.delegation = {
-        renew: { on: false, minQuality: X.renew.minQuality, maxWage: X.renew.maxWage },
+        // maxWage null: follow the phase (renewWageLimit).
+        renew: { on: false, minQuality: X.renew.minQuality, maxWage: null },
         tours: { on: false, cap: X.tours.cap },
         autopilot: { policy: null },
         coo: { on: false, limit: X.coo.limit },
@@ -55,6 +56,11 @@
     }
 
     // ---- Phase 3: renewals ----
+    /** The wage limit for delegated renewals: the player's, or the phase's until they set one. */
+    function renewWageLimit(s) {
+      const m = Dg(s)?.renew.maxWage;
+      return m ?? X.renew.maxWageByPhase[(s.company?.phase || 1) - 1];
+    }
     function averageQuality(s, a) {
       const mine = s.albums.filter((p) => p.released && p.artist === a.id);
       return mine.length ? mine.reduce((n, p) => n + p.quality, 0) / mine.length : 0;
@@ -66,7 +72,7 @@
         if (a.contract?.remaining || superstar(a) || api().busy(s, a.id)) continue;
         const q = api().contractQuote(s, a, X.renew.term),
           avg = averageQuality(s, a);
-        if (avg < r.minQuality || q.wage > r.maxWage || s.cash < q.fee) continue;
+        if (avg < r.minQuality || q.wage > renewWageLimit(s) || s.cash < q.fee) continue;
         try {
           api().renew(s, a.id, X.renew.term);
           note(
@@ -265,7 +271,7 @@
       weekly,
       cardsQueued,
       validSave,
-      api: { DELEGATION: X, setDelegation, undoDelegated, delegationSummary, cooMay },
+      api: { DELEGATION: X, renewWageLimit, setDelegation, undoDelegated, delegationSummary, cooMay },
     };
   }
 

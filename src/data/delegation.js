@@ -4,8 +4,9 @@
 
   const DELEGATION = {
     // Phase 3: renew a finished contract when the artist's average album quality and the new
-    // weekly wage meet the limits. Superstars are always the player's call.
-    renew: { phase: 3, term: 3, minQuality: 65, maxWage: 600 },
+    // weekly wage meet the limits. Superstars are always the player's call. Until the player sets
+    // a wage limit, it follows the phase (about the dearest one renewal in ten at that phase).
+    renew: { phase: 3, term: 3, minQuality: 65, maxWageByPhase: [600, 600, 800, 900, 1200, 1500] },
     // Phase 4: the head of touring (the Live department) books a solo tour for an album that
     // qualifies, the biggest one whose upfront cost fits the cap.
     tours: { phase: 4, department: "live", cap: 15000, scales: ["world", "national", "regional"] },

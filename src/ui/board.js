@@ -108,8 +108,21 @@ function boardScreen() {
     budgetUsed = b.budget ? Math.min(100, Math.round(((b.spent || 0) / b.budget) * 100)) : 0;
   return `<p class="place-intro">${report.directors.length} director${report.directors.length === 1 ? "" : "s"} · next review week ${b.nextReview}${b.probation ? ' · <b class="warn">on probation</b>' : ""}</p>${section(
     "sec-confidence",
-    `<h2>Confidence ${report.confidence}/100</h2>${meter(report.confidence)}<ul class="board-terms"><li><span>Budget left</span><b>${money(b.budgetLeft)} of ${money(b.budget)} · ${budgetUsed}% spent</b></li><li><span>Creative freedom</span><b>${freedomName(b.freedom)}</b></li><li><span>Perks</span><b>${esc(perkNames(b.perks))}</b></li></ul>${whyToggle("company", ["vote"], "How the last vote went")}`,
+    `<h2>Confidence ${report.confidence}/100</h2>${meter(report.confidence)}<ul class="board-terms"><li><span>Budget left</span><b>${money(b.budgetLeft)} of ${money(b.budget)} · ${budgetUsed}% spent</b></li><li><span>Creative freedom</span><b>${freedomName(b.freedom)}</b></li><li><span>Perks</span><b>${esc(perkNames(b.perks))}</b></li>${floorRow()}</ul>${floorOffer()}${whyToggle("company", ["vote"], "How the last vote went")}`,
   )}${section("sec-directors", `<h2>Directors</h2><div class="directors">${report.directors.map(directorCard).join("")}</div>`)}${section("sec-funding", fundingCard())}`;
+}
+/** The album floor: album budgets the board lets through whatever it thinks of you. */
+function floorRow() {
+  const f = G.albumFloor(state);
+  return f
+    ? `<li><span>Album floor</span><b>${money(f.left)} of ${money(f.amount)} left${f.level ? ` · negotiated ×${G.ALBUM_FLOOR.levels[f.level - 1].mult}` : ""}</b></li>`
+    : "";
+}
+function floorOffer() {
+  const f = G.albumFloor(state);
+  if (!f?.offer) return "";
+  const c = state.company.board.confidence;
+  return `<div class="card floor-offer"><p>The board is in a good mood after the review. Ask for a bigger album floor: ${money(f.next.amount)} a period, at ${f.next.at}+ confidence (now ${c}). It takes your week with the board; you can ask once.</p><button class="primary" data-action="negotiateFloor" ${disable(blocked())}>Negotiate the album floor</button></div>`;
 }
 /** The office's boardroom card. */
 function boardSummary() {
@@ -135,7 +148,7 @@ function reviewScene() {
       .join(""),
     vote =
       step === last
-        ? `<div class="scene-vote ${reducedMotion() ? "" : "fresh"}"><h3>Confidence ${r.confidence}/100</h3>${r.vote ? `<p class="warn">No-confidence vote: ${r.vote.against} of ${r.vote.seats} against. ${r.vote.protectedByShares ? "Your majority stake held." : "You survived."}</p>` : ""}${r.probation ? '<p class="warn">You are on probation for the next period.</p>' : ""}<ul class="board-terms"><li><span>Budget</span><b>${money(r.budget)}</b></li><li><span>Creative freedom</span><b>${freedomName(r.freedom)}</b></li><li><span>Perks</span><b>${esc(perkNames(r.perks))}</b></li></ul>${(r.promises || []).length ? `<p class="muted">${r.promises.filter((p) => p.kept).length} of ${r.promises.length} promises kept.</p>` : ""}</div>`
+        ? `<div class="scene-vote ${reducedMotion() ? "" : "fresh"}"><h3>Confidence ${r.confidence}/100</h3>${r.vote ? `<p class="warn">No-confidence vote: ${r.vote.against} of ${r.vote.seats} against. ${r.vote.protectedByShares ? "Your majority stake held." : "You survived."}</p>` : ""}${r.probation ? '<p class="warn">You are on probation for the next period.</p>' : ""}<ul class="board-terms"><li><span>Budget</span><b>${money(r.budget)}</b></li><li><span>Creative freedom</span><b>${freedomName(r.freedom)}</b></li><li><span>Perks</span><b>${esc(perkNames(r.perks))}</b></li>${r.floor ? `<li><span>Album floor</span><b>${money(r.floor.amount)}${r.floor.offer ? " · open to negotiation" : ""}</b></li>` : ""}</ul>${(r.promises || []).length ? `<p class="muted">${r.promises.filter((p) => p.kept).length} of ${r.promises.length} promises kept.</p>` : ""}</div>`
         : "",
     button =
       step === last
@@ -156,6 +169,9 @@ GoatUI.click.push((b) => {
       return true;
     case "boardMeet":
       act(() => G.meetDirector(state, d.director));
+      return true;
+    case "negotiateFloor":
+      act(() => G.negotiateFloor(state));
       return true;
     case "boardPromise":
       act(() => G.makePromise(state, d.director, $("promise-" + d.director).value));

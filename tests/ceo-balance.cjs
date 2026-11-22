@@ -193,7 +193,8 @@ function manage(s, name, policy) {
   const desired = s.company.phase === 1 ? 1 : Math.min(G.slots(s), policy.artists, s.company.phase + 1);
   // New signings need a free up-and-comer slot.
   const risingFree = G.tierCount(s, "rising") < G.tierSlots(s).rising;
-  if (!s.event && risingFree && s.artists.length < desired && s.reputation >= 30) {
+  // A label with nobody signed may sign one up-and-comer whatever its reputation (T65).
+  if (!s.event && risingFree && s.artists.length < desired && (s.reputation >= 30 || !s.artists.length)) {
     const candidate = s.candidates.toSorted((a, b) => b.talent - a.talent)[0];
     if (candidate && s.cash > G.contractQuote(s, candidate, 3).fee + policy.reserve)
       action(() => G.sign(s, candidate.id, 3));
@@ -374,6 +375,11 @@ function run(seed, label, policy) {
     clearDecisions(s, name);
     if (s.finished) break;
     if (policy.delegate) delegate(s);
+    // After a good review, ask for a bigger album floor.
+    if (name !== "reckless" && G.albumFloor(s)?.offer && !s.event)
+      try {
+        G.negotiateFloor(s);
+      } catch {}
     fund(s, name, policy);
     lobby(s, policy.lobby || (name === "reckless" && s.company.ownership > 0.5));
     manage(s, name, policy);

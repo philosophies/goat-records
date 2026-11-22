@@ -428,12 +428,13 @@
     if (s.finished) throw Error("This season has ended. Start a new label to play again.");
     if (s.event) throw Error("Resolve the industry event before managing your label.");
   }
-  function pay(s, n) {
+  /** Pays from cash. `kind` names what it is for ("album" for an album's budget) for the hooks. */
+  function pay(s, n, kind) {
     if (s.cash < n) throw Error("Not enough cash.");
     // CEO runs: the board may need to approve spending past the budget, and tracks what is spent.
-    if (s.company) hooks.each("beforeSpend", s, n);
+    if (s.company) hooks.each("beforeSpend", s, n, kind);
     s.cash -= n;
-    if (s.company) hooks.each("onSpend", s, n);
+    if (s.company) hooks.each("onSpend", s, n, kind);
   }
   function artist(s, id) {
     let a = s.artists.find((x) => x.id === Number(id));
@@ -453,7 +454,13 @@
       );
     const a = s.candidates.find((x) => x.id === Number(id));
     if (!a) throw Error("Candidate unavailable.");
-    if (s.reputation < 30) throw Error("This artist needs label reputation of at least 30.");
+    // A CEO label with nobody signed may take on one up-and-comer whatever its reputation.
+    if (s.reputation < 30 && !(s.company && !s.artists.length))
+      throw Error(
+        s.company
+          ? "This artist needs label reputation of at least 30. (A label with no artists can still sign one.)"
+          : "This artist needs label reputation of at least 30.",
+      );
     const q = contractQuote(s, a, term);
     if (s.company) hooks.each("approveSigning", s, a, q);
     pay(s, q.fee);
@@ -575,7 +582,7 @@
         hooks.sum("planCost", s, plan),
       expectation = albumExpectation(s, a, total);
     if (s.company) hooks.each("approvePlan", s, plan, a);
-    pay(s, total);
+    pay(s, total, "album");
     const p = {
       id: s.nextId++,
       title:
