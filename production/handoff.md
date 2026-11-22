@@ -9,13 +9,13 @@ Task: v2.0.0 released
 
 <!-- CHECKPOINT -->
 
-**Updated:** 2026-11-21
+**Updated:** 2026-11-22
 **Branch:** `main`
 **Current task:** main (T74 merged)
 **Next step:** Owner review of T71–T74; the questions in production/status.md
 **Blocked on:** Nothing.
 **Files in progress:** None.
-**Open questions:** The four in production/qa/audit-3.0.md.
+**Open questions:** Whether platform stakes should skip the board budget; whether late-game tours should pay more now that the studio limit makes them the main way to earn.
 <!-- /CHECKPOINT -->
 
 ## Resume here
@@ -27,7 +27,7 @@ Task: v2.0.0 released
 
 ## Open items
 
-- Balance: in the twelve-seed sample no careful or average run folds and 7 of 12 reckless runs are fired; delegated touring ends 25% below hand play ([CEO-BALANCE.json](../CEO-BALANCE.json), [audit](qa/audit-3.0.md)).
+- Balance: in the twelve-seed sample one average run folds and 6 of 12 reckless runs are fired; hand players win about two thirds of chart battles; the delegated label ends 3% above hand play; careful players still end with about $290M in cash ([CEO-BALANCE.json](../CEO-BALANCE.json), [audit](qa/audit-3.0.md)).
 - Android: the wrapper is in `android-app/`; building it and a test on a real device remain ([Android guide](../docs/android.md)).
 
 ## Verification
