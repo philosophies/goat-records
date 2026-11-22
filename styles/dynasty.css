@@ -251,3 +251,123 @@ body.ceo-run .notice.starter button.link {
   box-shadow: none;
   background: none;
 }
+
+/* Phones: a compact top bar (T66). One row for the name and sound, one for the five stats as
+   label-over-value cells, one for the date, phase and clock, and the pause reason last. */
+@media (max-width: 760px) {
+  body.ceo-run .hudbar {
+    padding: 3px 6px 0;
+  }
+  body.ceo-run .hud-top {
+    gap: 4px;
+    row-gap: 3px;
+  }
+  body.ceo-run .brand b {
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    min-width: 0;
+  }
+  body.ceo-run .hud-rank,
+  body.ceo-run .hud-rank .stars {
+    font-size: 10px;
+  }
+  body.ceo-run .hud-sound {
+    padding: 1px 6px;
+    font-size: 10px;
+    min-height: 0;
+  }
+  body.ceo-run #stats.stats {
+    display: grid;
+    grid-template-columns: 1.5fr 0.8fr 1.2fr 0.9fr 0.9fr;
+    gap: 2px;
+  }
+  body.ceo-run #stats .stat {
+    min-width: 0;
+    padding: 1px 4px;
+  }
+  body.ceo-run #stats .stat small {
+    font-size: 8px;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+  }
+  body.ceo-run #stats .stat b {
+    font-size: 11px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+  body.ceo-run .hud-bottom {
+    gap: 4px;
+    row-gap: 3px;
+    padding: 3px 0;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  body.ceo-run .hud-date {
+    flex: 0 1 auto;
+  }
+  body.ceo-run .hud-date strong {
+    font-size: 10px;
+  }
+  body.ceo-run .hud-chips {
+    flex: 1 1 0;
+    min-width: 0;
+    overflow: hidden;
+  }
+  body.ceo-run .company-chip,
+  body.ceo-run .campaign-chip {
+    font-size: 10px;
+    padding: 1px 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  body.ceo-run .clock-buttons button {
+    min-width: 26px;
+    padding: 2px 4px;
+    font-size: 11px;
+    min-height: 0;
+  }
+  body.ceo-run .clock .step {
+    padding: 3px 7px;
+    font-size: 11px;
+    min-height: 0;
+  }
+  body.ceo-run .clock-reason {
+    padding: 1px 6px;
+    font-size: 10px;
+    min-height: 0;
+  }
+}
+@media (max-width: 760px) {
+  body.ceo-run .company-chip .chip-long {
+    display: none;
+  }
+  body.ceo-run .hud-chips {
+    flex: 0 1 auto;
+  }
+}
+@media (max-width: 760px) {
+  .date-long {
+    display: none;
+  }
+}
+@media (max-width: 400px) {
+  /* The phase chip already names the phase: keep only the stars beside the label's name. */
+  body.ceo-run .hud-rank {
+    font-size: 0;
+  }
+  body.ceo-run .hud-rank .stars {
+    font-size: 10px;
+  }
+  body.ceo-run .clock-buttons button {
+    min-width: 22px;
+    padding: 2px 3px;
+  }
+  body.ceo-run .clock .step {
+    padding: 3px 5px;
+  }
+}

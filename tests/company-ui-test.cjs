@@ -50,7 +50,10 @@ assert.doesNotMatch(html("content"), /sec-company/);
 run(
   `state = G.create(41, { ceo: true }); state.company.stories = { arcs: [], log: {}, lastWeek: 1e9 }; save(); render();`,
 );
-assert.match(html("hud"), /class="company-chip" data-tab="company"[^>]*>Phase 1 · Home studio · 1\/4 goals/);
+assert.match(
+  html("hud").replace(/<\/?span[^>]*>/g, ""),
+  /class="company-chip" data-tab="company"[^>]*>Phase 1 · Home studio · 1\/4 goals/,
+);
 click({ tab: "company" });
 assert.equal(element("drawerTitle").textContent, "Company");
 assert.match(html("content"), /Phase 1 · Home studio/);
@@ -82,7 +85,7 @@ run(
   `while (state.event) G.choose(state, state.event.options.length - 1); G.advance(state); save(); render();`,
 );
 assert.equal(saved().company.phase, 2);
-assert.match(html("hud"), /Phase 2 · Indie label/);
+assert.match(html("hud").replace(/<\/?span[^>]*>/g, ""), /Phase 2 · Indie label/);
 assert.match(html("milestones"), /COMPANY GROWTH[\s\S]*Phase 2 · Indie label/);
 
 // The office renames the label; the roof sign and panel title follow.

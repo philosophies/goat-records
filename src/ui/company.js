@@ -43,7 +43,7 @@ function companyChip() {
   if (!phase) return "";
   const pr = G.phaseProgress(state),
     met = pr ? pr.goals.filter((g) => g.met).length : 0;
-  return `<button class="company-chip" data-tab="company" title="Company growth: goals for the next phase">Phase ${phase.id} · ${esc(phase.name)}${pr ? ` · ${met}/${pr.goals.length} goals` : ""}</button>`;
+  return `<button class="company-chip" data-tab="company" title="Company growth: goals for the next phase">Phase ${phase.id}<span class="chip-long"> · ${esc(phase.name)}</span>${pr ? ` · ${met}/${pr.goals.length}<span class="chip-long"> goals</span>` : ""}</button>`;
 }
 
 function companyScreen() {

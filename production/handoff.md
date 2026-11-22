@@ -11,8 +11,8 @@ Task: v2.0.0 released
 
 **Updated:** 2026-11-21
 **Branch:** `main`
-**Current task:** After 3.0: T65 done (owner answers).
-**Next step:** T66, a compact top bar on phones. Run `node tools/next-task.cjs`.
+**Current task:** After 3.0: T65–T66 done (owner answers, compact phone top bar).
+**Next step:** T67, carry the hall of fame with saves. Run `node tools/next-task.cjs`.
 **Blocked on:** Nothing.
 **Files in progress:** None.
 **Open questions:** When to schedule the Android wrapper and a physical device test.
@@ -27,7 +27,6 @@ Task: v2.0.0 released
 
 ## Open items
 
-- The top bar takes about a third of the screen at phone width.
 - Balance: in the twelve-seed sample, three careful runs folded and five of twelve reckless runs were fired ([CEO-BALANCE.json](../CEO-BALANCE.json)).
 - Android: the wrapper and a test on a real device ([Android guide](../docs/android.md)).
 

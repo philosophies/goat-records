@@ -130,7 +130,7 @@ assert.doesNotMatch(p.html("content"), /campaignNewGamePlus/);
 // A CEO run shows one ladder: no yearly goal chip, and the year review has no classic goal.
 p = page(G.create(5, { ceo: true }));
 assert.doesNotMatch(p.html("hud"), /campaign-chip/);
-assert.match(p.html("hud"), /company-chip[^>]*>Phase 1 · Home studio/);
+assert.match(p.html("hud").replace(/<\/?span[^>]*>/g, ""), /company-chip[^>]*>Phase 1 · Home studio/);
 for (const tab of ["label", "company", "desk", "office", "locations", "campaign", "promotion", "finance"]) {
   p.click({ tab });
   assert.doesNotMatch(

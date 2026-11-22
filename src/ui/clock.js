@@ -145,7 +145,7 @@ const GoatClock = {
     const bar = $("clockProgress");
     if (bar && bar.style) bar.style.width = Math.round(this.progress * 1000) / 10 + "%";
     const day = $("dateDay");
-    if (day) day.textContent = "DAY " + this.day();
+    if (day) day.textContent = String(this.day());
     const scene = $("scene");
     if (state?.company && scene?.dataset) scene.dataset.time = this.day() >= 5 ? "night" : "day";
   },
