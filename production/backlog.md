@@ -580,7 +580,7 @@ Files: `styles/*.css`, `src/app.js`, tests
 Do: The handoff's open item: the top bar takes about a third of the phone screen. Fold the stats into one row and the controls into another at phone width, keeping every value reachable.
 Done when: at 390 × 844 the top bar takes at most a fifth of the screen in a CEO run; harness and screenshots at phone and desktop width.
 
-### [ ] T67 · Carry the hall of fame with saves
+### [x] T67 · Carry the hall of fame with saves
 
 Depends on: T62
 Files: `src/ui/legacy.js`, `src/app.js`, tests

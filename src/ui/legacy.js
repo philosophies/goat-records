@@ -61,7 +61,14 @@ const GoatLegacy = (() => {
     }).join("");
     return `<label for="newLabelChallenge">Start<select id="newLabelChallenge"><option value="">A normal start</option>${challenges}</select></label><p id="newLabelChallengeText" class="muted"></p><fieldset id="newLabelPerks"><legend>Legacy perks · ${count} of ${G.ACHIEVEMENTS.length} achievements · up to ${G.LEGACY_RULES.maxPerks}</legend>${perks}</fieldset>`;
   }
-  return { profile, sync, setup, dialogHtml, KEY, reset: () => (cache = null) };
+  /** Merges a hall of fame and achievements from an imported save file into this browser's. */
+  function importProfile(incoming) {
+    if (!incoming) return profile();
+    const merged = G.mergeLegacy(profile(), incoming);
+    store(merged);
+    return merged;
+  }
+  return { profile, sync, setup, dialogHtml, importProfile, KEY, reset: () => (cache = null) };
 })();
 
 function hallPanel() {

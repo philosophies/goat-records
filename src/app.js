@@ -1050,7 +1050,16 @@ function downloadSave(raw, filename) {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
-$("export").onclick = () => downloadSave(JSON.stringify(state), `goat-records-week-${state.week}.json`);
+// An exported save carries this browser's hall of fame and achievements; importing merges them back.
+$("export").onclick = () =>
+  downloadSave(
+    JSON.stringify(
+      typeof GoatLegacy !== "undefined" && state.company
+        ? { ...state, legacyProfile: GoatLegacy.profile() }
+        : state,
+    ),
+    `goat-records-week-${state.week}.json`,
+  );
 function refreshClassicBackupButton() {
   try {
     $("exportClassicBackup").hidden = !localStorage.getItem("goat-records-classic-backup");
@@ -1149,6 +1158,8 @@ function acceptLoadedSave(convert) {
         downloadSave(raw, `goat-records-classic-week-${parsed.week}.json`);
       }
     } else if (!next.company) next.classicMode = true;
+    if (pendingSave.legacyProfile && typeof GoatLegacy !== "undefined")
+      GoatLegacy.importProfile(pendingSave.legacyProfile);
     state = next;
     $("loadSaveDialog").close();
     resetView();
@@ -1171,11 +1182,14 @@ $("import").onchange = async (e) => {
     if (f.size > 20e6) throw Error("Save file too large.");
     const raw = await f.text();
     const parsed = JSON.parse(raw);
+    const legacyProfile = parsed?.legacyProfile;
+    if (parsed) delete parsed.legacyProfile;
     if (!validSave(parsed)) throw Error("This is not a supported Goat Records save.");
     G.migrate(parsed);
     if (!validProductionSave(parsed) || !G.validManagementSave(parsed) || !G.validRoadSave(parsed))
       throw Error("Album production data is invalid.");
     offerLoadedSave(parsed, raw, true);
+    if (pendingSave) pendingSave.legacyProfile = legacyProfile;
   } catch (err) {
     $("message").textContent = err.message;
   }

@@ -165,6 +165,56 @@ test("perks are small: none over the cap, at most two, opened by achievements", 
   assert.equal(sys.trainingAdjust(hands).discount, 0.05);
 });
 
+test("a hall of fame from a save file merges into this browser's: once each, newest first, capped", () => {
+  const entry = (label, when, extra = {}) => ({
+    label,
+    ending: "complete",
+    years: 20,
+    peakPhase: 6,
+    bestAlbum: null,
+    superstars: [],
+    score: 1,
+    challenge: null,
+    achievements: 3,
+    seed: 1,
+    when,
+    ...extra,
+  });
+  const local = { hall: [entry("A", 3), entry("B", 1)], achievements: ["award", "first-sign"] };
+  const incoming = {
+    hall: [
+      entry("B", 1),
+      entry("C", 2),
+      { label: 5 },
+      null,
+      entry("D", 4, { ending: "sold", challenge: "moon" }),
+    ],
+    achievements: ["first-sign", "number-one", "not-an-achievement"],
+  };
+  const m = G.mergeLegacy(local, incoming);
+  assert.deepEqual(
+    m.hall.map((e) => e.label),
+    ["D", "A", "C", "B"],
+  );
+  assert.equal(m.hall[0].ending, "complete", "an unknown ending is tidied");
+  assert.equal(m.hall[0].challenge, null, "an unknown challenge is dropped");
+  assert.deepEqual(m.achievements, ["first-sign", "number-one", "award"], "the union, in table order");
+  // Missing or broken files change nothing.
+  assert.deepEqual(G.mergeLegacy(local, undefined).hall.length, 2);
+  assert.deepEqual(G.mergeLegacy(local, { hall: "x", achievements: 7 }).achievements, [
+    "first-sign",
+    "award",
+  ]);
+  // The cap.
+  const many = {
+    hall: Array.from({ length: R.hallSize + 10 }, (_, i) => entry("R" + i, i)),
+    achievements: [],
+  };
+  const capped = G.mergeLegacy(local, many);
+  assert.equal(capped.hall.length, R.hallSize);
+  assert.equal(capped.hall[0].when, R.hallSize + 9);
+});
+
 test("saves check their legacy data; classic runs have none", () => {
   const s = run();
   const bad = roundTrip(s);
