@@ -11,8 +11,8 @@ Task: v2.0.0 released
 
 **Updated:** 2026-11-21
 **Branch:** `main`
-**Current task:** After 3.0: T65–T69 done (owner answers, phone top bar, hall of fame in saves, playthrough and notes, Android wrapper).
-**Next step:** T70, balance, continuity and playability audit. Run `node tools/next-task.cjs`.
+**Current task:** main (T70 merged)
+**Next step:** Await owner answers to the four audit questions in production/qa/audit-3.0.md; then build and test the Android app on a device
 **Blocked on:** Nothing.
 **Files in progress:** None.
 **Open questions:** When to schedule the Android wrapper and a physical device test.

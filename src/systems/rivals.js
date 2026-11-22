@@ -67,32 +67,34 @@
       const lab = labelById.get(r.id),
         P = personality(r),
         str = strengthOf(s, r),
-        rid = "r" + s.nextId++,
-        album = {
-          id: rid,
-          title: releaseTitle(s),
-          artistName: r.roster[r.releases.length % r.roster.length].name,
-          label: lab.name,
-          companyId: r.id,
-          genre: lab.genre,
-          age: 0,
-          baseUnits: Math.round(
-            ((R.release.unitsByPhase[(s.company.phase || 1) - 1] * r.strength) / 50) *
-              (1 - R.release.unitSpread / 2 + roll(s, "rivals") * R.release.unitSpread) *
-              (feuding(s, r) ? 1 + R.feudSales : 1),
+        rid = "r" + s.nextId++;
+      // A rival whose artists were all bid away signs a newcomer.
+      if (!r.roster.length) r.roster.push({ name: core.uniqueName(s, roll(s, "rivals")) });
+      const album = {
+        id: rid,
+        title: releaseTitle(s),
+        artistName: r.roster[r.releases.length % r.roster.length].name,
+        label: lab.name,
+        companyId: r.id,
+        genre: lab.genre,
+        age: 0,
+        baseUnits: Math.round(
+          ((R.release.unitsByPhase[(s.company.phase || 1) - 1] * r.strength) / 50) *
+            (1 - R.release.unitSpread / 2 + roll(s, "rivals") * R.release.unitSpread) *
+            (feuding(s, r) ? 1 + R.feudSales : 1),
+        ),
+        units: 0,
+        quality: Math.round(
+          clamp(
+            R.release.quality +
+              str * R.release.qualityPerStrength +
+              P.quality +
+              roll(s, "rivals") * R.release.qualitySpread,
           ),
-          units: 0,
-          quality: Math.round(
-            clamp(
-              R.release.quality +
-                str * R.release.qualityPerStrength +
-                P.quality +
-                roll(s, "rivals") * R.release.qualitySpread,
-            ),
-          ),
-          releaseWeek: s.week,
-          year: core.operatingYear(s.week),
-        };
+        ),
+        releaseWeek: s.week,
+        year: core.operatingYear(s.week),
+      };
       s.charts.rivals.push(album);
       s.rivalArchive[rid] = { ...album, best: null };
       r.releases = [...r.releases, { id: rid, week: s.week, title: album.title }].slice(-6);

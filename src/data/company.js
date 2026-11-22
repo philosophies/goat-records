@@ -287,7 +287,12 @@
     weeks: [0, 0, 0, 12, 16, 20, 26, 32, 40, 52],
   };
 
+  // A CEO label's reputation slowly recovers while it is low: `step` every `every` weeks while
+  // under `below`, so a run of bad choices never shuts signings (30 reputation) for good.
+  const REPUTATION_RECOVERY = { below: 40, every: 4, step: 1 };
+
   const data = {
+    REPUTATION_RECOVERY,
     FLOOR_LEVELS,
     PHASES,
     SLOGANS,

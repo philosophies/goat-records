@@ -71,7 +71,18 @@ function eventChoice(s, name) {
     return pick.index;
   }
   if (!options.length) return entry.options.findIndex((option) => option.defer);
-  if (entry.type !== "companyEvent") return options[Math.min(1, options.length - 1)].index;
+  if (entry.type !== "companyEvent") {
+    // Album checkpoints and other cards: careful and average players weigh money against the
+    // label's reputation and the artist; the reckless player takes the second choice as before.
+    if (name === "reckless") return options[Math.min(1, options.length - 1)].index;
+    const worth = (o) =>
+      ((o.cash || 0) - (o.cost || 0)) / 600 +
+      (o.reputation || 0) * 3 +
+      (o.trust || 0) +
+      (o.fame || 0) / 2 +
+      (o.morale || 0) / 2;
+    return options.toSorted((x, y) => worth(y.option) - worth(x.option))[0].index;
+  }
   const choices = events.get(entry.eventId).choices;
   function merit(option) {
     const choice = choices[option.choice];

@@ -600,7 +600,7 @@ Files: `android/` or `twa/`, `docs/android.md`
 Do: Build the wrapper the Android guide describes and check it in an emulator if one can run here. A test on a physical device stays with the owner.
 Done when: the wrapper builds, the guide lists the steps, and what was and was not tested is written down.
 
-### [ ] T70 · Balance, continuity and playability audit
+### [x] T70 · Balance, continuity and playability audit
 
 Depends on: T65, T68
 Files: any, tests

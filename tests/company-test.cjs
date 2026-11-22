@@ -803,4 +803,31 @@ test("company revenue is in whole dollars, and older saves with a fractional ana
   assert.ok(G.validSystemsSave(JSON.parse(JSON.stringify(s))));
 });
 
+test("a low reputation recovers a point a month in CEO runs, up to 40; classic runs keep theirs", () => {
+  const R = G.REPUTATION_RECOVERY ?? require("../src/data/company.js").REPUTATION_RECOVERY;
+  const s = G.create(70, { ceo: true });
+  G.setStarter(s, false);
+  s.company.stories = { arcs: [], log: {}, lastWeek: 1e9 };
+  s.company.rivalCardWeek = 1e9;
+  s.reputation = 10;
+  const settle = () => {
+    while (s.event) G.choose(s, s.event.options.length - 1);
+    G.advance(s);
+  };
+  while (s.week % R.every !== R.every - 1) settle();
+  const before = s.reputation;
+  settle();
+  assert.equal(s.reputation, before + R.step);
+  s.reputation = R.below;
+  for (let i = 0; i < R.every; i++) settle();
+  assert.equal(s.reputation, R.below, "no recovery at 40 or above");
+  const c = G.create(70, { ceo: false });
+  c.reputation = 10;
+  for (let i = 0; i < 8; i++) {
+    while (c.event) G.choose(c, c.event.options.length - 1);
+    G.advance(c);
+  }
+  assert.ok(c.reputation <= 10 + 4, "classic runs do not recover this way");
+});
+
 console.log(`${count} company tests passed.`);

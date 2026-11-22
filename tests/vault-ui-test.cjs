@@ -50,7 +50,7 @@ run(`state = G.create(64, { ceo: true }); state.cash = 1e6; G.setStarter(state, 
   save(); render();`);
 assert.match(
   element("town").innerHTML || run("GoatPlaces.town()"),
-  /Trophy case<\/span><small>0 awards · 1 offer/,
+  /Trophy case<\/span><small>1 offer waiting/,
 );
 click({ tab: "vault" });
 assert.match(screen(), /The vault/);

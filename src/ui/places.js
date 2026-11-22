@@ -330,7 +330,10 @@ function lotTown() {
         "#f3d25b",
         30,
         "Trophy case",
-        `${state.awards} award${state.awards === 1 ? "" : "s"}${state.company.catalog?.offers.length ? ` · ${state.company.catalog.offers.length} offer${state.company.catalog.offers.length === 1 ? "" : "s"}` : ""}`,
+        // Waiting Vault offers take the line (it is short on the street); otherwise the award count.
+        state.company.catalog?.offers.length
+          ? `${state.company.catalog.offers.length} offer${state.company.catalog.offers.length === 1 ? "" : "s"} waiting`
+          : `${state.awards} award${state.awards === 1 ? "" : "s"}`,
       ),
     );
   return `<div class="town" role="group" aria-label="Street destinations">${props.join("")}</div>`;
