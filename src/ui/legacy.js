@@ -59,7 +59,7 @@ const GoatLegacy = (() => {
       const ok = open.includes(p.id);
       return `<label class="perk ${ok ? "" : "locked"}"><input type="checkbox" value="${p.id}" ${ok ? "" : "disabled"} /><span><b>${esc(p.name)}</b> <small>${esc(p.text)}${ok ? "" : ` Opens at ${p.unlock} achievements.`}</small></span></label>`;
     }).join("");
-    return `<label for="newLabelChallenge">Start<select id="newLabelChallenge"><option value="">A normal start</option>${challenges}</select></label><p id="newLabelChallengeText" class="muted"></p><fieldset id="newLabelPerks"><legend>Legacy perks · ${count} of ${G.ACHIEVEMENTS.length} achievements · up to ${G.LEGACY_RULES.maxPerks}</legend>${perks}</fieldset>`;
+    return `<label for="newLabelChallenge">Start<select id="newLabelChallenge"><option value="">A normal start</option>${challenges}</select></label><p id="newLabelChallengeText" class="muted"></p><fieldset id="newLabelPerks"><legend>Hall of fame perks · ${count} of ${G.ACHIEVEMENTS.length} achievements · up to ${G.LEGACY_RULES.maxPerks}</legend><p class="muted">Achievements from every run in this browser open these. Prestige bonuses, bought with a finished run's score, are chosen at New Game+.</p>${perks}</fieldset>`;
   }
   /** Merges a hall of fame and achievements from an imported save file into this browser's. */
   function importProfile(incoming) {
@@ -80,7 +80,7 @@ function hallPanel() {
     ? `<p class="muted">This run: ${esc(G.CHALLENGES.find((c) => c.id === state.company.legacy.challenge.id).name)}${state.company.legacy.challenge.id === "weekly" ? ` (${esc(G.CHALLENGES.find((c) => c.id === state.company.legacy.challenge.twist)?.name || "")})` : ""}.</p>`
     : "";
   const perks = state.company.legacy.perks.length
-    ? `<p class="muted">Perks: ${state.company.legacy.perks.map((id) => esc(G.PERKS.find((x) => x.id === id).name)).join(", ")}.</p>`
+    ? `<p class="muted">Hall of fame perks: ${state.company.legacy.perks.map((id) => esc(G.PERKS.find((x) => x.id === id).name)).join(", ")}.</p>`
     : "";
   const endings = { complete: "Twenty years", fired: "Removed as CEO", folded: "Folded" };
   const hall = p.hall.length

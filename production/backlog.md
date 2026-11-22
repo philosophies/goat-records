@@ -606,3 +606,33 @@ Depends on: T65, T68
 Files: any, tests
 Do: Analyse the game for imbalances, continuity breaks (wording, dates, names, states that contradict each other) and anything that can stall or soft-lock a run. Fix what is found and record the rest.
 Done when: an audit report in `production/qa/`, every fix with a test, and the balance report rerun.
+
+## After the audit: owner answers of 2026-11-22
+
+### [x] T71 · Prestige points and hall of fame perks
+
+Depends on: T62
+Files: `src/ui/*.js`, `docs/rules.md`, tests
+Do: Owner decision: the two "legacy" ideas get clearly different names. In CEO runs, New Game+ points become prestige points (earned from a run's score, spent on starting bonuses) and the achievement perks become hall of fame perks (opened by achievements, kept in the browser). The new-label dialog explains each in one line. Save keys stay the same.
+Done when: no CEO screen says "legacy points" or "legacy perks"; a harness checks both names and their explanations; classic text unchanged.
+
+### [ ] T72 · Rivals that keep pace
+
+Depends on: T60
+Files: `src/data/rivals.js`, `src/systems/rivals.js`, `src/ui/*.js`, tests
+Do: Owner decision: rivals stay a threat at every phase. Rival records are benchmarked on the label's own recent releases, not a fixed table; rival strength climbs faster from phase 4; a weak rival can be taken over by a stronger one; a rival that leaves the charts is replaced by a new label.
+Done when: tests for the benchmark, faster growth, takeovers and replacements; the balance report shows hand players winning well under 90% of chart battles; rules updated.
+
+### [ ] T73 · Studio capacity and touring
+
+Depends on: T63
+Files: `src/data/company.js`, `src/engine.js` or a system, `src/systems/delegation.js`, tests
+Do: Owner decision: the label can only make so many albums at once (by phase), so touring is how idle artists earn while the studio is full. Albums already in production when a save loads are kept. The head of Live books tours for artists waiting on the studio.
+Done when: tests for the limit, old saves over the limit, and the delegated booking; the balance report's delegated label within 10% of hand play; rules updated.
+
+### [ ] T74 · Investing in a streaming platform
+
+Depends on: T61
+Files: `src/data/company.js` or a new data file, a system, `src/ui/*.js`, tests
+Do: Owner decision: late-game cash can buy into a streaming platform that inflates the label's sales numbers. Stakes rise in steps with rising prices; each lifts album sales and chart units. Shown in the Company panel.
+Done when: tests for buying each stake, the sales lift and save round trips; balance report shows late cash being spent; rules updated.
