@@ -15,6 +15,19 @@ On Android, Back closes the top open panel. For example, Back from the Inbox ret
 3. Extract the game ZIP and open `index.html`. Check the same game entry point and save controls over `file://`.
 4. When updating the game shell, update the `sw.js` cache version and include any new JavaScript, CSS, and icon paths. The old shell stays with existing sessions until the new worker can replace it.
 
+## The Android app
+
+`android-app/` holds a Capacitor wrapper that bundles the game's files into an Android app, so it opens offline from the first launch. The app id is `com.goatrecords.game` and the app is locked to landscape. Its launcher icons and splash screens are made from the game's icon.
+
+1. Install Node 22 or newer and Android Studio (with the Android SDK and a JDK 21).
+2. In `android-app/`, run `npm install`, then `npm run sync`. This copies `index.html`, the manifest, the service worker, `src/`, `styles/` and `icons/` into `www/` and updates the Android project.
+3. Run `npm run open` to open the project in Android Studio. Run it on an emulator or a device, then build a signed Android App Bundle (**Build → Generate Signed App Bundle**). Keep the signing key out of the repository.
+4. Run `npm run sync` again after every change to the game.
+
+In the app, **Export save** writes the save file and opens Android's share sheet, so it can go to Files, Drive or another app. **Import save** uses the system file picker. Back closes the top open panel. On short screens such as a phone held sideways, the top bar takes two short rows.
+
+What has been checked, and what has not: the project is generated from Capacitor 8 with the file and share plugins, and `tests/android-ui-test.cjs` checks the export path and that every file the page and the offline cache name is bundled. The game was laid out at 844 × 390 and 740 × 360. The app has not been built here, run on an emulator, or tested on a physical device; the Android SDK was not available in the build environment. Do those before any release.
+
 ## Prepare a Play Store build
 
 - **Trusted Web Activity.** Host the game and manifest on a stable HTTPS origin. Use Bubblewrap to create a wrapper for that manifest, set the Android package ID, and sign an Android App Bundle. Publish Digital Asset Links at `/.well-known/assetlinks.json` on the game origin using the package ID and the Play signing certificate fingerprint. Test domain verification and offline relaunch on a device. This route uses the browser's storage for the hosted origin. [Android's TWA quick start](https://developer.android.com/develop/ui/views/layout/webapps/guide-trusted-web-activities-version2)

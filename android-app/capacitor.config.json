@@ -1,0 +1,8 @@
+{
+  "appId": "com.goatrecords.game",
+  "appName": "Goat Records",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#0b0a0a"
+  }
+}
