@@ -66,7 +66,7 @@ assert.match(
   "a new label starts paused with a hint",
 );
 assert.match(element("clock").innerHTML, /data-action="clockSpeed"/);
-assert.match(element("date").innerHTML, /YEAR 01 · WEEK 1 · .*DAY 1/);
+assert.match(element("date").innerHTML.replace(/<[^>]+>/g, ""), /^YEAR 01 · WEEK 1 · DAY 1$/);
 function click(data) {
   listeners.click({ target: { closest: () => ({ dataset: data }) } });
 }

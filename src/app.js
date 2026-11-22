@@ -687,7 +687,8 @@ function render() {
       : `<span class="stars">${"★".repeat(rank.rank)}<i>${"★".repeat(G.RANKS.length - rank.rank)}</i></span> ${esc(rank.name)}`,
   );
   $("date").innerHTML =
-    `YEAR ${String(1 + Math.floor((s.week - 1) / 52)).padStart(2, "0")} · WEEK ${1 + ((s.week - 1) % 52)} · <span id="dateDay">DAY ${GoatClock.day()}</span>`;
+    // On phones the words shorten to their first letters (Y01 · W1 · D1).
+    `Y<span class="date-long">EAR </span>${String(1 + Math.floor((s.week - 1) / 52)).padStart(2, "0")} · W<span class="date-long">EEK </span>${1 + ((s.week - 1) % 52)} · D<span class="date-long">AY </span><span id="dateDay">${GoatClock.day()}</span>`;
   const era = G.currentEra?.(s);
   $("trend").textContent =
     `${era ? era.name + " · " : ""}Trending: ${s.trend} · Overhead ${money(G.upkeep(s))}/week`;

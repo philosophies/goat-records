@@ -574,7 +574,7 @@ Files: `src/engine.js`, `src/data/board.js`, `src/systems/board.js`, `src/data/d
 Do: Owner decisions of 2026-11-22. (1) The piracy years keep album sales at 0.7×. (2) A CEO label with no artists may sign one up-and-comer even with reputation under 30. (3) A board that refuses spending still allows a minimum album budget each period; at a review with high confidence the CEO can negotiate a bigger minimum as a perk. (4) The default delegated renewal wage limit rises with the phase.
 Done when: tests for the empty-roster signing (only one, only up-and-comers, only while empty), the album floor under a refusing board, the review negotiation and its limits, and the renewal limit by phase; rules updated; balance report rerun.
 
-### [ ] T66 · A compact top bar on phones
+### [x] T66 · A compact top bar on phones
 
 Files: `styles/*.css`, `src/app.js`, tests
 Do: The handoff's open item: the top bar takes about a third of the phone screen. Fold the stats into one row and the controls into another at phone width, keeping every value reachable.
