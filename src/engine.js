@@ -23,6 +23,7 @@
     "catalog",
     "legacy",
     "delegation",
+    "platform",
   ];
   function optionalRequire(path) {
     try {

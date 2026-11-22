@@ -42,6 +42,7 @@
             ? [{ name: `Superstars, ×${face.toFixed(2)}`, value: Math.round(faced - base) }]
             : []),
           { name: "Cash", value: Math.round(s.cash) },
+          ...(v.platform ? [{ name: "Streaming platform stake", value: v.platform }] : []),
           ...(v.debt ? [{ name: "Debt", value: -Math.round(v.debt) }] : []),
         ],
         multiple: [

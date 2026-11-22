@@ -71,7 +71,7 @@
               "floorLevel": 8,
               "averageFloor": 6,
               "headSkill": 81.3,
-              "value": 32870889
+              "value": 32450261
             },
             {
               "artistLevel": 12,
@@ -80,7 +80,7 @@
               "floorLevel": 9,
               "averageFloor": 7,
               "headSkill": 85.9,
-              "value": 47028990
+              "value": 46940914
             },
             {
               "artistLevel": 13,
@@ -89,7 +89,7 @@
               "floorLevel": 10,
               "averageFloor": 7.6,
               "headSkill": 89.3,
-              "value": 76014749
+              "value": 76669701
             },
             {
               "artistLevel": 14,
@@ -98,7 +98,7 @@
               "floorLevel": 10,
               "averageFloor": 8.6,
               "headSkill": 91.1,
-              "value": 114899540
+              "value": 114861454
             },
             {
               "artistLevel": 15,
@@ -107,7 +107,7 @@
               "floorLevel": 10,
               "averageFloor": 9.2,
               "headSkill": 92.7,
-              "value": 128704949
+              "value": 129391528
             },
             {
               "artistLevel": 16,
@@ -116,7 +116,7 @@
               "floorLevel": 10,
               "averageFloor": 9.6,
               "headSkill": 93.9,
-              "value": 162128266
+              "value": 164031014
             },
             {
               "artistLevel": 17,
@@ -125,7 +125,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.9,
-              "value": 199649217
+              "value": 196999736
             },
             {
               "artistLevel": 18,
@@ -134,7 +134,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.9,
-              "value": 241642558
+              "value": 241664811
             },
             {
               "artistLevel": 19,
@@ -143,7 +143,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97,
-              "value": 299558612
+              "value": 302231193
             },
             {
               "artistLevel": 19,
@@ -152,7 +152,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.7,
-              "value": 385658913
+              "value": 394483139
             },
             {
               "artistLevel": 20,
@@ -161,7 +161,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.3,
-              "value": 428011377
+              "value": 424470616
             },
             {
               "artistLevel": 21,
@@ -170,7 +170,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.6,
-              "value": 490986841
+              "value": 492648931
             },
             {
               "artistLevel": 22,
@@ -179,7 +179,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.6,
-              "value": 530097363
+              "value": 535553696
             },
             {
               "artistLevel": 22,
@@ -188,7 +188,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.6,
-              "value": 626709285
+              "value": 640069994
             },
             {
               "artistLevel": 23,
@@ -197,7 +197,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.6,
-              "value": 637437747
+              "value": 652780417
             }
           ],
           "peaks": {
@@ -214,18 +214,20 @@
           "year": 20,
           "ipoYear": 5,
           "score": 6750,
-          "value": 637434547,
+          "value": 652777217,
           "stars": 5,
           "releases": 373,
           "hits": 368,
-          "revenue": 51895531,
-          "fame": 15229,
-          "cash": 369347673,
+          "revenue": 55547616,
+          "fame": 15530,
+          "cash": 270805828,
           "confidence": 100,
-          "catalogShare": 0.287218092029549,
+          "catalogShare": 0.28769680912793083,
           "lostToRivals": 0,
           "battles": 285,
-          "battlesWon": 218
+          "battlesWon": 221,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 2,
@@ -274,7 +276,7 @@
               "floorLevel": 8,
               "averageFloor": 6.5,
               "headSkill": 82.1,
-              "value": 28234060
+              "value": 27656620
             },
             {
               "artistLevel": 11,
@@ -283,7 +285,7 @@
               "floorLevel": 9,
               "averageFloor": 7.3,
               "headSkill": 86.3,
-              "value": 44213824
+              "value": 44073853
             },
             {
               "artistLevel": 12,
@@ -292,7 +294,7 @@
               "floorLevel": 10,
               "averageFloor": 8,
               "headSkill": 89.3,
-              "value": 57119262
+              "value": 56971360
             },
             {
               "artistLevel": 13,
@@ -301,7 +303,7 @@
               "floorLevel": 10,
               "averageFloor": 8.8,
               "headSkill": 90.9,
-              "value": 77288135
+              "value": 75202421
             },
             {
               "artistLevel": 14,
@@ -310,7 +312,7 @@
               "floorLevel": 10,
               "averageFloor": 9.3,
               "headSkill": 92,
-              "value": 97724665
+              "value": 96382295
             },
             {
               "artistLevel": 15,
@@ -319,7 +321,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 93.6,
-              "value": 104832653
+              "value": 103909568
             },
             {
               "artistLevel": 16,
@@ -328,7 +330,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.9,
-              "value": 169395541
+              "value": 170137736
             },
             {
               "artistLevel": 16,
@@ -337,7 +339,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96,
-              "value": 220599751
+              "value": 217073693
             },
             {
               "artistLevel": 17,
@@ -346,7 +348,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.9,
-              "value": 239557355
+              "value": 237433853
             },
             {
               "artistLevel": 18,
@@ -355,7 +357,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98,
-              "value": 338403131
+              "value": 342128259
             },
             {
               "artistLevel": 19,
@@ -364,7 +366,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.9,
-              "value": 358375364
+              "value": 363062778
             },
             {
               "artistLevel": 19,
@@ -373,7 +375,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.1,
-              "value": 414069418
+              "value": 407611160
             },
             {
               "artistLevel": 20,
@@ -382,7 +384,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.1,
-              "value": 437805178
+              "value": 434441101
             },
             {
               "artistLevel": 21,
@@ -391,7 +393,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.1,
-              "value": 527697544
+              "value": 531376785
             },
             {
               "artistLevel": 21,
@@ -400,7 +402,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.1,
-              "value": 588687538
+              "value": 597468810
             },
             {
               "artistLevel": 22,
@@ -409,7 +411,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.1,
-              "value": 654851121
+              "value": 669384350
             }
           ],
           "peaks": {
@@ -426,18 +428,20 @@
           "year": 20,
           "ipoYear": 5,
           "score": 6800,
-          "value": 654849921,
+          "value": 669383150,
           "stars": 5,
           "releases": 351,
           "hits": 347,
-          "revenue": 46967059,
-          "fame": 14500,
-          "cash": 355506305,
+          "revenue": 50176523,
+          "fame": 14723,
+          "cash": 254416195,
           "confidence": 100,
-          "catalogShare": 0.3371320017431795,
+          "catalogShare": 0.3365089607439831,
           "lostToRivals": 0,
           "battles": 323,
-          "battlesWon": 275
+          "battlesWon": 279,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 3,
@@ -495,7 +499,7 @@
               "floorLevel": 8,
               "averageFloor": 6.8,
               "headSkill": 80.3,
-              "value": 30646750
+              "value": 30145251
             },
             {
               "artistLevel": 11,
@@ -504,7 +508,7 @@
               "floorLevel": 9,
               "averageFloor": 7.5,
               "headSkill": 84.1,
-              "value": 41738073
+              "value": 41539534
             },
             {
               "artistLevel": 12,
@@ -513,7 +517,7 @@
               "floorLevel": 10,
               "averageFloor": 8.5,
               "headSkill": 86.7,
-              "value": 54606253
+              "value": 54601437
             },
             {
               "artistLevel": 13,
@@ -522,7 +526,7 @@
               "floorLevel": 10,
               "averageFloor": 9,
               "headSkill": 89,
-              "value": 90645005
+              "value": 89681175
             },
             {
               "artistLevel": 14,
@@ -531,7 +535,7 @@
               "floorLevel": 10,
               "averageFloor": 9.5,
               "headSkill": 91.1,
-              "value": 116122363
+              "value": 116226797
             },
             {
               "artistLevel": 15,
@@ -540,7 +544,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 92.7,
-              "value": 137191842
+              "value": 138659857
             },
             {
               "artistLevel": 15,
@@ -549,7 +553,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 93.7,
-              "value": 188986055
+              "value": 192798651
             },
             {
               "artistLevel": 16,
@@ -558,7 +562,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.4,
-              "value": 209032520
+              "value": 208577027
             },
             {
               "artistLevel": 17,
@@ -567,7 +571,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.3,
-              "value": 259510013
+              "value": 262432102
             },
             {
               "artistLevel": 18,
@@ -576,7 +580,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.3,
-              "value": 303138828
+              "value": 309137284
             },
             {
               "artistLevel": 19,
@@ -585,7 +589,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.7,
-              "value": 369953707
+              "value": 380471147
             },
             {
               "artistLevel": 19,
@@ -594,7 +598,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.7,
-              "value": 424285923
+              "value": 424758338
             },
             {
               "artistLevel": 20,
@@ -603,7 +607,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.7,
-              "value": 479357290
+              "value": 484610263
             },
             {
               "artistLevel": 21,
@@ -612,7 +616,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.7,
-              "value": 540302045
+              "value": 550823298
             },
             {
               "artistLevel": 21,
@@ -621,7 +625,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.7,
-              "value": 601668285
+              "value": 617724566
             }
           ],
           "peaks": {
@@ -638,18 +642,20 @@
           "year": 20,
           "ipoYear": 5,
           "score": 6800,
-          "value": 601665085,
+          "value": 617721366,
           "stars": 5,
           "releases": 338,
           "hits": 333,
-          "revenue": 43851799,
-          "fame": 13434,
-          "cash": 322462932,
+          "revenue": 47104533,
+          "fame": 13626,
+          "cash": 222702234,
           "confidence": 100,
-          "catalogShare": 0.2728555133874123,
+          "catalogShare": 0.27228122711316266,
           "lostToRivals": 0,
           "battles": 302,
-          "battlesWon": 247
+          "battlesWon": 251,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 4,
@@ -707,7 +713,7 @@
               "floorLevel": 8,
               "averageFloor": 6.4,
               "headSkill": 84,
-              "value": 35915694
+              "value": 35560683
             },
             {
               "artistLevel": 11,
@@ -716,7 +722,7 @@
               "floorLevel": 9,
               "averageFloor": 7,
               "headSkill": 87.9,
-              "value": 49306490
+              "value": 49194537
             },
             {
               "artistLevel": 12,
@@ -725,7 +731,7 @@
               "floorLevel": 10,
               "averageFloor": 8,
               "headSkill": 90.3,
-              "value": 77583945
+              "value": 78055162
             },
             {
               "artistLevel": 13,
@@ -734,7 +740,7 @@
               "floorLevel": 10,
               "averageFloor": 8.8,
               "headSkill": 92,
-              "value": 104370695
+              "value": 103734946
             },
             {
               "artistLevel": 15,
@@ -743,7 +749,7 @@
               "floorLevel": 10,
               "averageFloor": 9.4,
               "headSkill": 93.3,
-              "value": 138094607
+              "value": 138698215
             },
             {
               "artistLevel": 16,
@@ -752,7 +758,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 94.6,
-              "value": 168812213
+              "value": 170445686
             },
             {
               "artistLevel": 16,
@@ -761,7 +767,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.6,
-              "value": 207238950
+              "value": 204452200
             },
             {
               "artistLevel": 17,
@@ -770,7 +776,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.6,
-              "value": 249616153
+              "value": 249259629
             },
             {
               "artistLevel": 18,
@@ -779,7 +785,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.7,
-              "value": 339606585
+              "value": 345114247
             },
             {
               "artistLevel": 19,
@@ -788,7 +794,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.9,
-              "value": 381912222
+              "value": 389235457
             },
             {
               "artistLevel": 20,
@@ -797,7 +803,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.6,
-              "value": 419810504
+              "value": 415467451
             },
             {
               "artistLevel": 21,
@@ -806,7 +812,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.7,
-              "value": 438364349
+              "value": 436780176
             },
             {
               "artistLevel": 21,
@@ -815,7 +821,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.7,
-              "value": 574115996
+              "value": 582301299
             },
             {
               "artistLevel": 22,
@@ -824,7 +830,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.7,
-              "value": 612858212
+              "value": 624898672
             },
             {
               "artistLevel": 23,
@@ -833,7 +839,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.7,
-              "value": 660397511
+              "value": 676672836
             }
           ],
           "peaks": {
@@ -850,18 +856,20 @@
           "year": 20,
           "ipoYear": 5,
           "score": 6850,
-          "value": 660393811,
+          "value": 676669136,
           "stars": 5,
           "releases": 382,
           "hits": 378,
-          "revenue": 52580165,
-          "fame": 15451,
-          "cash": 382584628,
+          "revenue": 56247150,
+          "fame": 15647,
+          "cash": 284437385,
           "confidence": 100,
-          "catalogShare": 0.3095967520313605,
+          "catalogShare": 0.3087565356930978,
           "lostToRivals": 0,
           "battles": 352,
-          "battlesWon": 194
+          "battlesWon": 202,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 5,
@@ -910,7 +918,7 @@
               "floorLevel": 8,
               "averageFloor": 6.2,
               "headSkill": 80.1,
-              "value": 35671947
+              "value": 35269020
             },
             {
               "artistLevel": 11,
@@ -919,7 +927,7 @@
               "floorLevel": 9,
               "averageFloor": 7,
               "headSkill": 84.6,
-              "value": 49727412
+              "value": 49822012
             },
             {
               "artistLevel": 13,
@@ -928,7 +936,7 @@
               "floorLevel": 10,
               "averageFloor": 7.6,
               "headSkill": 87.1,
-              "value": 68972132
+              "value": 69316240
             },
             {
               "artistLevel": 14,
@@ -937,7 +945,7 @@
               "floorLevel": 10,
               "averageFloor": 8.6,
               "headSkill": 88.4,
-              "value": 108120959
+              "value": 107664829
             },
             {
               "artistLevel": 15,
@@ -946,7 +954,7 @@
               "floorLevel": 10,
               "averageFloor": 9.4,
               "headSkill": 90.7,
-              "value": 116712899
+              "value": 116763372
             },
             {
               "artistLevel": 16,
@@ -955,7 +963,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 92.3,
-              "value": 161559666
+              "value": 163013538
             },
             {
               "artistLevel": 17,
@@ -964,7 +972,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 93.4,
-              "value": 207873857
+              "value": 204911383
             },
             {
               "artistLevel": 18,
@@ -973,7 +981,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.4,
-              "value": 237030925
+              "value": 235935987
             },
             {
               "artistLevel": 18,
@@ -982,7 +990,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.3,
-              "value": 281330149
+              "value": 282271316
             },
             {
               "artistLevel": 19,
@@ -991,7 +999,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.6,
-              "value": 356716853
+              "value": 362256252
             },
             {
               "artistLevel": 20,
@@ -1000,7 +1008,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.3,
-              "value": 421315476
+              "value": 415287146
             },
             {
               "artistLevel": 21,
@@ -1009,7 +1017,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.9,
-              "value": 460657581
+              "value": 458525042
             },
             {
               "artistLevel": 21,
@@ -1018,7 +1026,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.9,
-              "value": 520672619
+              "value": 523385603
             },
             {
               "artistLevel": 22,
@@ -1027,7 +1035,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.9,
-              "value": 617041879
+              "value": 626402785
             },
             {
               "artistLevel": 23,
@@ -1036,7 +1044,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.9,
-              "value": 686958478
+              "value": 702367621
             },
             {
               "artistLevel": 23,
@@ -1045,7 +1053,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.9,
-              "value": 761320967
+              "value": 783578645
             }
           ],
           "peaks": {
@@ -1062,18 +1070,20 @@
           "year": 20,
           "ipoYear": 4,
           "score": 6750,
-          "value": 761319267,
+          "value": 783576945,
           "stars": 5,
           "releases": 381,
           "hits": 377,
-          "revenue": 54052912,
-          "fame": 15774,
-          "cash": 416377587,
+          "revenue": 57799717,
+          "fame": 16062,
+          "cash": 319497841,
           "confidence": 100,
-          "catalogShare": 0.3730877314757158,
+          "catalogShare": 0.3743614576760162,
           "lostToRivals": 0,
           "battles": 325,
-          "battlesWon": 209
+          "battlesWon": 224,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 6,
@@ -1122,7 +1132,7 @@
               "floorLevel": 8,
               "averageFloor": 6.2,
               "headSkill": 81.6,
-              "value": 41196505
+              "value": 40824365
             },
             {
               "artistLevel": 12,
@@ -1131,7 +1141,7 @@
               "floorLevel": 9,
               "averageFloor": 7,
               "headSkill": 85.7,
-              "value": 48843953
+              "value": 48730312
             },
             {
               "artistLevel": 13,
@@ -1140,7 +1150,7 @@
               "floorLevel": 10,
               "averageFloor": 7.8,
               "headSkill": 89.4,
-              "value": 60804722
+              "value": 61144316
             },
             {
               "artistLevel": 14,
@@ -1149,7 +1159,7 @@
               "floorLevel": 10,
               "averageFloor": 8.6,
               "headSkill": 91.1,
-              "value": 92925008
+              "value": 92111816
             },
             {
               "artistLevel": 15,
@@ -1158,7 +1168,7 @@
               "floorLevel": 10,
               "averageFloor": 9.4,
               "headSkill": 92.7,
-              "value": 115572288
+              "value": 115561517
             },
             {
               "artistLevel": 16,
@@ -1167,7 +1177,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 93.9,
-              "value": 130301751
+              "value": 130670660
             },
             {
               "artistLevel": 17,
@@ -1176,7 +1186,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.4,
-              "value": 192246755
+              "value": 194671865
             },
             {
               "artistLevel": 18,
@@ -1185,7 +1195,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.4,
-              "value": 228623424
+              "value": 227319333
             },
             {
               "artistLevel": 19,
@@ -1194,7 +1204,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.9,
-              "value": 243472377
+              "value": 243139174
             },
             {
               "artistLevel": 19,
@@ -1203,7 +1213,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99,
-              "value": 364767656
+              "value": 371265490
             },
             {
               "artistLevel": 20,
@@ -1212,7 +1222,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.9,
-              "value": 426360362
+              "value": 436165323
             },
             {
               "artistLevel": 21,
@@ -1221,7 +1231,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 100,
-              "value": 455549034
+              "value": 453983015
             },
             {
               "artistLevel": 21,
@@ -1230,7 +1240,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 100,
-              "value": 505810195
+              "value": 508547351
             },
             {
               "artistLevel": 22,
@@ -1239,7 +1249,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 100,
-              "value": 571078385
+              "value": 579322477
             },
             {
               "artistLevel": 23,
@@ -1248,7 +1258,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 100,
-              "value": 671244404
+              "value": 687457564
             },
             {
               "artistLevel": 24,
@@ -1257,7 +1267,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 100,
-              "value": 745566453
+              "value": 768770451
             }
           ],
           "peaks": {
@@ -1274,18 +1284,20 @@
           "year": 20,
           "ipoYear": 4,
           "score": 6750,
-          "value": 745565253,
+          "value": 768769251,
           "stars": 5,
           "releases": 398,
           "hits": 391,
-          "revenue": 53521731,
-          "fame": 16024,
-          "cash": 404780604,
+          "revenue": 57383675,
+          "fame": 16335,
+          "cash": 308152806,
           "confidence": 100,
-          "catalogShare": 0.3655960211955266,
+          "catalogShare": 0.3672211406862897,
           "lostToRivals": 0,
           "battles": 373,
-          "battlesWon": 211
+          "battlesWon": 233,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 7,
@@ -1343,7 +1355,7 @@
               "floorLevel": 9,
               "averageFloor": 6.8,
               "headSkill": 83.6,
-              "value": 36145331
+              "value": 35928336
             },
             {
               "artistLevel": 13,
@@ -1352,7 +1364,7 @@
               "floorLevel": 10,
               "averageFloor": 7.4,
               "headSkill": 87.4,
-              "value": 60217151
+              "value": 60102893
             },
             {
               "artistLevel": 14,
@@ -1361,7 +1373,7 @@
               "floorLevel": 10,
               "averageFloor": 8.4,
               "headSkill": 90.3,
-              "value": 92242239
+              "value": 90750088
             },
             {
               "artistLevel": 15,
@@ -1370,7 +1382,7 @@
               "floorLevel": 10,
               "averageFloor": 9,
               "headSkill": 92.4,
-              "value": 126335033
+              "value": 126164174
             },
             {
               "artistLevel": 16,
@@ -1379,7 +1391,7 @@
               "floorLevel": 10,
               "averageFloor": 9.6,
               "headSkill": 93.4,
-              "value": 139488169
+              "value": 140324449
             },
             {
               "artistLevel": 17,
@@ -1388,7 +1400,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.6,
-              "value": 185715021
+              "value": 188321875
             },
             {
               "artistLevel": 18,
@@ -1397,7 +1409,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.7,
-              "value": 223796331
+              "value": 222557559
             },
             {
               "artistLevel": 18,
@@ -1406,7 +1418,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.1,
-              "value": 267167885
+              "value": 268502191
             },
             {
               "artistLevel": 19,
@@ -1415,7 +1427,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98,
-              "value": 341207738
+              "value": 347428138
             },
             {
               "artistLevel": 20,
@@ -1424,7 +1436,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.6,
-              "value": 403572606
+              "value": 413399880
             },
             {
               "artistLevel": 21,
@@ -1433,7 +1445,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.9,
-              "value": 465837907
+              "value": 466259536
             },
             {
               "artistLevel": 22,
@@ -1442,7 +1454,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.9,
-              "value": 529859611
+              "value": 536014895
             },
             {
               "artistLevel": 22,
@@ -1451,7 +1463,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.9,
-              "value": 597529951
+              "value": 609369049
             },
             {
               "artistLevel": 23,
@@ -1460,7 +1472,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.9,
-              "value": 668781886
+              "value": 687158779
             },
             {
               "artistLevel": 23,
@@ -1469,7 +1481,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.9,
-              "value": 769374085
+              "value": 796826340
             }
           ],
           "peaks": {
@@ -1486,18 +1498,20 @@
           "year": 20,
           "ipoYear": 5,
           "score": 6750,
-          "value": 769370885,
+          "value": 796823140,
           "stars": 5,
           "releases": 382,
           "hits": 376,
-          "revenue": 53333576,
-          "fame": 15723,
-          "cash": 402026306,
+          "revenue": 57357023,
+          "fame": 16101,
+          "cash": 306437798,
           "confidence": 100,
-          "catalogShare": 0.3172836089447044,
+          "catalogShare": 0.31648116346985344,
           "lostToRivals": 0,
           "battles": 303,
-          "battlesWon": 202
+          "battlesWon": 214,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 8,
@@ -1555,7 +1569,7 @@
               "floorLevel": 8,
               "averageFloor": 5.8,
               "headSkill": 81.7,
-              "value": 30704642
+              "value": 30233266
             },
             {
               "artistLevel": 12,
@@ -1564,7 +1578,7 @@
               "floorLevel": 9,
               "averageFloor": 6.3,
               "headSkill": 86,
-              "value": 53365384
+              "value": 53399748
             },
             {
               "artistLevel": 13,
@@ -1573,7 +1587,7 @@
               "floorLevel": 10,
               "averageFloor": 7.2,
               "headSkill": 89.4,
-              "value": 78921846
+              "value": 79399422
             },
             {
               "artistLevel": 14,
@@ -1582,7 +1596,7 @@
               "floorLevel": 10,
               "averageFloor": 7.8,
               "headSkill": 91.3,
-              "value": 116831050
+              "value": 116722397
             },
             {
               "artistLevel": 15,
@@ -1591,7 +1605,7 @@
               "floorLevel": 10,
               "averageFloor": 8.3,
               "headSkill": 92.7,
-              "value": 126422707
+              "value": 126833458
             },
             {
               "artistLevel": 16,
@@ -1600,7 +1614,7 @@
               "floorLevel": 10,
               "averageFloor": 8.8,
               "headSkill": 94.1,
-              "value": 159286376
+              "value": 160825323
             },
             {
               "artistLevel": 17,
@@ -1609,7 +1623,7 @@
               "floorLevel": 10,
               "averageFloor": 9.3,
               "headSkill": 95.1,
-              "value": 194878887
+              "value": 191584920
             },
             {
               "artistLevel": 17,
@@ -1618,7 +1632,7 @@
               "floorLevel": 10,
               "averageFloor": 9.7,
               "headSkill": 96.1,
-              "value": 234054342
+              "value": 233145827
             },
             {
               "artistLevel": 18,
@@ -1627,7 +1641,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 97.3,
-              "value": 305728803
+              "value": 307817836
             },
             {
               "artistLevel": 19,
@@ -1636,7 +1650,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.3,
-              "value": 374150300
+              "value": 381433533
             },
             {
               "artistLevel": 20,
@@ -1645,7 +1659,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.4,
-              "value": 434131948
+              "value": 445026328
             },
             {
               "artistLevel": 21,
@@ -1654,7 +1668,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 100,
-              "value": 477826940
+              "value": 478003390
             },
             {
               "artistLevel": 21,
@@ -1663,7 +1677,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 100,
-              "value": 543080823
+              "value": 548745434
             },
             {
               "artistLevel": 22,
@@ -1672,7 +1686,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 100,
-              "value": 580630912
+              "value": 590083364
             },
             {
               "artistLevel": 22,
@@ -1681,7 +1695,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 100,
-              "value": 734013941
+              "value": 755653179
             }
           ],
           "peaks": {
@@ -1698,18 +1712,20 @@
           "year": 20,
           "ipoYear": 5,
           "score": 6750,
-          "value": 734012241,
+          "value": 755651479,
           "stars": 5,
           "releases": 360,
           "hits": 355,
-          "revenue": 50313963,
-          "fame": 15201,
-          "cash": 359676161,
+          "revenue": 53813990,
+          "fame": 15375,
+          "cash": 259960391,
           "confidence": 100,
-          "catalogShare": 0.287000749544111,
+          "catalogShare": 0.2874833715951392,
           "lostToRivals": 0,
           "battles": 302,
-          "battlesWon": 252
+          "battlesWon": 252,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 9,
@@ -1758,7 +1774,7 @@
               "floorLevel": 8,
               "averageFloor": 6.8,
               "headSkill": 80.9,
-              "value": 35919714
+              "value": 35501905
             },
             {
               "artistLevel": 11,
@@ -1767,7 +1783,7 @@
               "floorLevel": 9,
               "averageFloor": 7.5,
               "headSkill": 85.3,
-              "value": 55012785
+              "value": 54865661
             },
             {
               "artistLevel": 12,
@@ -1776,7 +1792,7 @@
               "floorLevel": 10,
               "averageFloor": 8.5,
               "headSkill": 88.9,
-              "value": 74650837
+              "value": 74689584
             },
             {
               "artistLevel": 13,
@@ -1785,7 +1801,7 @@
               "floorLevel": 10,
               "averageFloor": 9,
               "headSkill": 91.1,
-              "value": 90599441
+              "value": 89204542
             },
             {
               "artistLevel": 14,
@@ -1794,7 +1810,7 @@
               "floorLevel": 10,
               "averageFloor": 9.5,
               "headSkill": 92.4,
-              "value": 113846941
+              "value": 113204289
             },
             {
               "artistLevel": 15,
@@ -1803,7 +1819,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 93.6,
-              "value": 142378515
+              "value": 142233220
             },
             {
               "artistLevel": 16,
@@ -1812,7 +1828,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.7,
-              "value": 188343622
+              "value": 189385260
             },
             {
               "artistLevel": 17,
@@ -1821,7 +1837,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.7,
-              "value": 220732808
+              "value": 217583751
             },
             {
               "artistLevel": 18,
@@ -1830,7 +1846,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.7,
-              "value": 273364735
+              "value": 272521503
             },
             {
               "artistLevel": 18,
@@ -1839,7 +1855,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.6,
-              "value": 362829137
+              "value": 367111559
             },
             {
               "artistLevel": 19,
@@ -1848,7 +1864,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 92.9,
-              "value": 383817172
+              "value": 389385167
             },
             {
               "artistLevel": 20,
@@ -1857,7 +1873,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 93.6,
-              "value": 406832035
+              "value": 399862442
             },
             {
               "artistLevel": 20,
@@ -1866,7 +1882,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95,
-              "value": 498941464
+              "value": 498288141
             },
             {
               "artistLevel": 21,
@@ -1875,7 +1891,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.4,
-              "value": 517192973
+              "value": 519265629
             },
             {
               "artistLevel": 22,
@@ -1884,7 +1900,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96,
-              "value": 623914364
+              "value": 633665266
             },
             {
               "artistLevel": 22,
@@ -1893,7 +1909,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.6,
-              "value": 691055727
+              "value": 706415071
             }
           ],
           "peaks": {
@@ -1910,18 +1926,20 @@
           "year": 20,
           "ipoYear": 4,
           "score": 6800,
-          "value": 691055727,
+          "value": 706415071,
           "stars": 5,
           "releases": 362,
           "hits": 356,
-          "revenue": 48851349,
-          "fame": 14795,
-          "cash": 379765857,
+          "revenue": 52086839,
+          "fame": 15084,
+          "cash": 279371342,
           "confidence": 100,
-          "catalogShare": 0.4014210637795618,
+          "catalogShare": 0.40190535604748573,
           "lostToRivals": 0,
           "battles": 339,
-          "battlesWon": 245
+          "battlesWon": 256,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 10,
@@ -1979,7 +1997,7 @@
               "floorLevel": 9,
               "averageFloor": 7,
               "headSkill": 84.3,
-              "value": 40549234
+              "value": 40300008
             },
             {
               "artistLevel": 13,
@@ -1988,7 +2006,7 @@
               "floorLevel": 10,
               "averageFloor": 7.8,
               "headSkill": 87.3,
-              "value": 67562308
+              "value": 67835310
             },
             {
               "artistLevel": 13,
@@ -1997,7 +2015,7 @@
               "floorLevel": 10,
               "averageFloor": 8.6,
               "headSkill": 90.4,
-              "value": 90950196
+              "value": 89936735
             },
             {
               "artistLevel": 14,
@@ -2006,7 +2024,7 @@
               "floorLevel": 10,
               "averageFloor": 9.4,
               "headSkill": 92.9,
-              "value": 117115193
+              "value": 117304682
             },
             {
               "artistLevel": 15,
@@ -2015,7 +2033,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 94,
-              "value": 153654949
+              "value": 155032044
             },
             {
               "artistLevel": 16,
@@ -2024,7 +2042,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95,
-              "value": 191328408
+              "value": 194017951
             },
             {
               "artistLevel": 17,
@@ -2033,7 +2051,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96,
-              "value": 221622449
+              "value": 220280800
             },
             {
               "artistLevel": 18,
@@ -2042,7 +2060,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.9,
-              "value": 262972547
+              "value": 263725268
             },
             {
               "artistLevel": 19,
@@ -2051,7 +2069,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.6,
-              "value": 370191571
+              "value": 377764863
             },
             {
               "artistLevel": 20,
@@ -2060,7 +2078,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.3,
-              "value": 392811241
+              "value": 401867889
             },
             {
               "artistLevel": 20,
@@ -2069,7 +2087,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.3,
-              "value": 452063987
+              "value": 450887245
             },
             {
               "artistLevel": 21,
@@ -2078,7 +2096,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.3,
-              "value": 536828802
+              "value": 542360414
             },
             {
               "artistLevel": 22,
@@ -2087,7 +2105,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.3,
-              "value": 580814268
+              "value": 590456681
             },
             {
               "artistLevel": 22,
@@ -2096,7 +2114,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.3,
-              "value": 648775856
+              "value": 664306250
             },
             {
               "artistLevel": 22,
@@ -2105,7 +2123,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.3,
-              "value": 721080070
+              "value": 742698071
             }
           ],
           "peaks": {
@@ -2122,18 +2140,20 @@
           "year": 20,
           "ipoYear": 4,
           "score": 6750,
-          "value": 721080070,
+          "value": 742698071,
           "stars": 5,
           "releases": 382,
           "hits": 377,
-          "revenue": 51776687,
-          "fame": 15205,
-          "cash": 390956144,
+          "revenue": 55451155,
+          "fame": 15437,
+          "cash": 293946661,
           "confidence": 100,
-          "catalogShare": 0.32368197420975636,
+          "catalogShare": 0.3248077889239089,
           "lostToRivals": 0,
           "battles": 329,
-          "battlesWon": 202
+          "battlesWon": 214,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 11,
@@ -2182,7 +2202,7 @@
               "floorLevel": 8,
               "averageFloor": 6.2,
               "headSkill": 79.9,
-              "value": 38942449
+              "value": 38582496
             },
             {
               "artistLevel": 12,
@@ -2191,7 +2211,7 @@
               "floorLevel": 9,
               "averageFloor": 7,
               "headSkill": 84,
-              "value": 57622807
+              "value": 57344440
             },
             {
               "artistLevel": 13,
@@ -2200,7 +2220,7 @@
               "floorLevel": 10,
               "averageFloor": 7.8,
               "headSkill": 88,
-              "value": 71540186
+              "value": 71269172
             },
             {
               "artistLevel": 14,
@@ -2209,7 +2229,7 @@
               "floorLevel": 10,
               "averageFloor": 8.6,
               "headSkill": 90.4,
-              "value": 101372374
+              "value": 100104826
             },
             {
               "artistLevel": 15,
@@ -2218,7 +2238,7 @@
               "floorLevel": 10,
               "averageFloor": 9.4,
               "headSkill": 92.3,
-              "value": 127840144
+              "value": 127306935
             },
             {
               "artistLevel": 16,
@@ -2227,7 +2247,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 93.6,
-              "value": 147830891
+              "value": 147804568
             },
             {
               "artistLevel": 17,
@@ -2236,7 +2256,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.7,
-              "value": 200685923
+              "value": 195985436
             },
             {
               "artistLevel": 18,
@@ -2245,7 +2265,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.6,
-              "value": 272843692
+              "value": 272756067
             },
             {
               "artistLevel": 19,
@@ -2254,7 +2274,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.6,
-              "value": 304596366
+              "value": 306318058
             },
             {
               "artistLevel": 19,
@@ -2263,7 +2283,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.3,
-              "value": 363406096
+              "value": 368103215
             },
             {
               "artistLevel": 20,
@@ -2272,7 +2292,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.9,
-              "value": 420367501
+              "value": 413862254
             },
             {
               "artistLevel": 21,
@@ -2281,7 +2301,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.1,
-              "value": 459494107
+              "value": 457232506
             },
             {
               "artistLevel": 22,
@@ -2290,7 +2310,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.1,
-              "value": 541096351
+              "value": 545210029
             },
             {
               "artistLevel": 22,
@@ -2299,7 +2319,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.1,
-              "value": 582860098
+              "value": 590669751
             },
             {
               "artistLevel": 23,
@@ -2308,7 +2328,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.1,
-              "value": 701434300
+              "value": 718977522
             },
             {
               "artistLevel": 24,
@@ -2317,7 +2337,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.1,
-              "value": 806063881
+              "value": 832470807
             }
           ],
           "peaks": {
@@ -2334,18 +2354,20 @@
           "year": 20,
           "ipoYear": 4,
           "score": 6750,
-          "value": 806060681,
+          "value": 832467607,
           "stars": 5,
           "releases": 374,
           "hits": 371,
-          "revenue": 52682456,
-          "fame": 15224,
-          "cash": 413755521,
+          "revenue": 56463323,
+          "fame": 15479,
+          "cash": 316665311,
           "confidence": 100,
-          "catalogShare": 0.394857013891776,
+          "catalogShare": 0.39387364528221364,
           "lostToRivals": 0,
           "battles": 299,
-          "battlesWon": 258
+          "battlesWon": 266,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 12,
@@ -2394,7 +2416,7 @@
               "floorLevel": 8,
               "averageFloor": 6.4,
               "headSkill": 81.7,
-              "value": 40279264
+              "value": 40040068
             },
             {
               "artistLevel": 12,
@@ -2403,7 +2425,7 @@
               "floorLevel": 9,
               "averageFloor": 7,
               "headSkill": 85.9,
-              "value": 63211608
+              "value": 63314506
             },
             {
               "artistLevel": 13,
@@ -2412,7 +2434,7 @@
               "floorLevel": 10,
               "averageFloor": 7.8,
               "headSkill": 89.3,
-              "value": 82965950
+              "value": 83107812
             },
             {
               "artistLevel": 14,
@@ -2421,7 +2443,7 @@
               "floorLevel": 10,
               "averageFloor": 8.6,
               "headSkill": 91.4,
-              "value": 108009228
+              "value": 107209839
             },
             {
               "artistLevel": 15,
@@ -2430,7 +2452,7 @@
               "floorLevel": 10,
               "averageFloor": 9.4,
               "headSkill": 92.9,
-              "value": 140019606
+              "value": 139870210
             },
             {
               "artistLevel": 16,
@@ -2439,7 +2461,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 94,
-              "value": 167963162
+              "value": 168524850
             },
             {
               "artistLevel": 17,
@@ -2448,7 +2470,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.1,
-              "value": 222639833
+              "value": 219389086
             },
             {
               "artistLevel": 18,
@@ -2457,7 +2479,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.3,
-              "value": 261951455
+              "value": 260612708
             },
             {
               "artistLevel": 19,
@@ -2466,7 +2488,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.6,
-              "value": 308226757
+              "value": 308942229
             },
             {
               "artistLevel": 19,
@@ -2475,7 +2497,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.7,
-              "value": 434299120
+              "value": 442116782
             },
             {
               "artistLevel": 20,
@@ -2484,7 +2506,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.3,
-              "value": 419828088
+              "value": 413131876
             },
             {
               "artistLevel": 21,
@@ -2493,7 +2515,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.4,
-              "value": 528920598
+              "value": 529563676
             },
             {
               "artistLevel": 22,
@@ -2502,7 +2524,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.4,
-              "value": 596416849
+              "value": 602361121
             },
             {
               "artistLevel": 22,
@@ -2511,7 +2533,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.4,
-              "value": 669568028
+              "value": 681673358
             },
             {
               "artistLevel": 23,
@@ -2520,7 +2542,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.4,
-              "value": 748010682
+              "value": 767360462
             },
             {
               "artistLevel": 24,
@@ -2529,7 +2551,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.4,
-              "value": 827512762
+              "value": 854042636
             }
           ],
           "peaks": {
@@ -2546,21 +2568,23 @@
           "year": 20,
           "ipoYear": 4,
           "score": 6750,
-          "value": 827512762,
+          "value": 854042636,
           "stars": 5,
           "releases": 418,
           "hits": 412,
-          "revenue": 58514855,
-          "fame": 17252,
-          "cash": 454193332,
+          "revenue": 62678301,
+          "fame": 17613,
+          "cash": 358865245,
           "confidence": 100,
-          "catalogShare": 0.41110664701603244,
+          "catalogShare": 0.41178358923658037,
           "lostToRivals": 0,
           "battles": 309,
-          "battlesWon": 192
+          "battlesWon": 193,
+          "platformShare": 70,
+          "platformPaid": 118000000
         }
       ],
-      "medianValue": 734012241
+      "medianValue": 755651479
     },
     "average": {
       "fired": 0,
@@ -2569,7 +2593,7 @@
       "medianPeakYear": {
         "artistLevel": 20,
         "topThreeLevel": 20,
-        "craft": 15,
+        "craft": 14,
         "floorLevel": 8,
         "averageFloor": 12,
         "headSkill": 17,
@@ -2632,16 +2656,16 @@
               "floorLevel": 9,
               "averageFloor": 6.4,
               "headSkill": 80.3,
-              "value": 34302059
+              "value": 33921481
             },
             {
               "artistLevel": 12,
-              "topThreeLevel": 10.3,
+              "topThreeLevel": 10,
               "craft": 71.3,
               "floorLevel": 10,
               "averageFloor": 7,
-              "headSkill": 84.4,
-              "value": 53605439
+              "headSkill": 84.7,
+              "value": 53482236
             },
             {
               "artistLevel": 14,
@@ -2649,8 +2673,8 @@
               "craft": 71.3,
               "floorLevel": 10,
               "averageFloor": 8,
-              "headSkill": 88,
-              "value": 78698883
+              "headSkill": 87.9,
+              "value": 78842301
             },
             {
               "artistLevel": 15,
@@ -2659,7 +2683,7 @@
               "floorLevel": 10,
               "averageFloor": 8.8,
               "headSkill": 90.1,
-              "value": 103030769
+              "value": 101941295
             },
             {
               "artistLevel": 16,
@@ -2667,8 +2691,8 @@
               "craft": 71.3,
               "floorLevel": 10,
               "averageFloor": 9.4,
-              "headSkill": 92.1,
-              "value": 145619593
+              "headSkill": 92.3,
+              "value": 129535457
             },
             {
               "artistLevel": 17,
@@ -2677,7 +2701,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 93.3,
-              "value": 167159179
+              "value": 169049423
             },
             {
               "artistLevel": 18,
@@ -2686,7 +2710,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.1,
-              "value": 204401451
+              "value": 202370150
             },
             {
               "artistLevel": 18,
@@ -2695,7 +2719,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95,
-              "value": 247416274
+              "value": 247028077
             },
             {
               "artistLevel": 19,
@@ -2704,7 +2728,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.6,
-              "value": 293190439
+              "value": 295501883
             },
             {
               "artistLevel": 20,
@@ -2712,8 +2736,8 @@
               "craft": 71.3,
               "floorLevel": 10,
               "averageFloor": 10,
-              "headSkill": 96.6,
-              "value": 368907193
+              "headSkill": 96.4,
+              "value": 376882688
             },
             {
               "artistLevel": 21,
@@ -2721,8 +2745,8 @@
               "craft": 71.3,
               "floorLevel": 10,
               "averageFloor": 10,
-              "headSkill": 97,
-              "value": 435909241
+              "headSkill": 96.7,
+              "value": 433130666
             },
             {
               "artistLevel": 22,
@@ -2731,7 +2755,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97,
-              "value": 501922975
+              "value": 505660423
             },
             {
               "artistLevel": 23,
@@ -2740,7 +2764,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97,
-              "value": 595166362
+              "value": 606731688
             },
             {
               "artistLevel": 23,
@@ -2749,7 +2773,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97,
-              "value": 667879226
+              "value": 685587999
             },
             {
               "artistLevel": 24,
@@ -2758,7 +2782,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97,
-              "value": 683978704
+              "value": 704733555
             }
           ],
           "peaks": {
@@ -2767,7 +2791,7 @@
             "craft": 6,
             "floorLevel": 7,
             "averageFloor": 12,
-            "headSkill": 16,
+            "headSkill": 17,
             "value": 20
           },
           "phase": 6,
@@ -2775,18 +2799,20 @@
           "year": 20,
           "ipoYear": 5,
           "score": 6750,
-          "value": 683977504,
+          "value": 704732355,
           "stars": 5,
           "releases": 382,
           "hits": 373,
-          "revenue": 53517297,
-          "fame": 15546,
-          "cash": 377050372,
+          "revenue": 57533148,
+          "fame": 15775,
+          "cash": 279776582,
           "confidence": 100,
-          "catalogShare": 0.29308410242220156,
+          "catalogShare": 0.2897528754747184,
           "lostToRivals": 0,
-          "battles": 311,
-          "battlesWon": 232
+          "battles": 313,
+          "battlesWon": 241,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 2,
@@ -2835,7 +2861,7 @@
               "floorLevel": 8,
               "averageFloor": 6.4,
               "headSkill": 78.1,
-              "value": 29001336
+              "value": 28411893
             },
             {
               "artistLevel": 11,
@@ -2844,7 +2870,7 @@
               "floorLevel": 9,
               "averageFloor": 7,
               "headSkill": 82.6,
-              "value": 55017847
+              "value": 55141917
             },
             {
               "artistLevel": 12,
@@ -2853,7 +2879,7 @@
               "floorLevel": 10,
               "averageFloor": 7.8,
               "headSkill": 86.6,
-              "value": 65022350
+              "value": 65251703
             },
             {
               "artistLevel": 13,
@@ -2862,7 +2888,7 @@
               "floorLevel": 10,
               "averageFloor": 8.6,
               "headSkill": 88.7,
-              "value": 84315138
+              "value": 83092630
             },
             {
               "artistLevel": 15,
@@ -2871,7 +2897,7 @@
               "floorLevel": 10,
               "averageFloor": 9.4,
               "headSkill": 90.9,
-              "value": 116681898
+              "value": 116500052
             },
             {
               "artistLevel": 16,
@@ -2880,7 +2906,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 92.1,
-              "value": 160330211
+              "value": 161556401
             },
             {
               "artistLevel": 17,
@@ -2889,7 +2915,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 92.9,
-              "value": 190056426
+              "value": 192049942
             },
             {
               "artistLevel": 18,
@@ -2898,16 +2924,16 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 93.7,
-              "value": 216444004
+              "value": 213787969
             },
             {
               "artistLevel": 19,
-              "topThreeLevel": 11.3,
+              "topThreeLevel": 11.7,
               "craft": 63.3,
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.3,
-              "value": 256741130
+              "value": 256022702
             },
             {
               "artistLevel": 20,
@@ -2916,7 +2942,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.1,
-              "value": 348504739
+              "value": 353235719
             },
             {
               "artistLevel": 21,
@@ -2925,7 +2951,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.6,
-              "value": 368736089
+              "value": 375041250
             },
             {
               "artistLevel": 21,
@@ -2934,7 +2960,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.7,
-              "value": 423360641
+              "value": 418788886
             },
             {
               "artistLevel": 15,
@@ -2943,7 +2969,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.7,
-              "value": 471922398
+              "value": 470968591
             },
             {
               "artistLevel": 16,
@@ -2952,7 +2978,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.7,
-              "value": 557209072
+              "value": 562686649
             },
             {
               "artistLevel": 17,
@@ -2961,7 +2987,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.7,
-              "value": 649372628
+              "value": 662725487
             },
             {
               "artistLevel": 18,
@@ -2970,7 +2996,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.7,
-              "value": 697512295
+              "value": 715800200
             }
           ],
           "peaks": {
@@ -2987,18 +3013,20 @@
           "year": 20,
           "ipoYear": 5,
           "score": 6850,
-          "value": 697510595,
+          "value": 715798500,
           "stars": 5,
           "releases": 376,
           "hits": 368,
-          "revenue": 50036852,
-          "fame": 14832,
-          "cash": 379568459,
-          "confidence": 96,
-          "catalogShare": 0.40747780920723164,
+          "revenue": 53546169,
+          "fame": 15090,
+          "cash": 280408017,
+          "confidence": 100,
+          "catalogShare": 0.4065616896048432,
           "lostToRivals": 3,
           "battles": 320,
-          "battlesWon": 196
+          "battlesWon": 211,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 3,
@@ -3056,7 +3084,7 @@
               "floorLevel": 8,
               "averageFloor": 5.5,
               "headSkill": 79.7,
-              "value": 31205956
+              "value": 30783603
             },
             {
               "artistLevel": 11,
@@ -3065,7 +3093,7 @@
               "floorLevel": 9,
               "averageFloor": 6,
               "headSkill": 83.6,
-              "value": 45265310
+              "value": 45093197
             },
             {
               "artistLevel": 12,
@@ -3074,7 +3102,7 @@
               "floorLevel": 10,
               "averageFloor": 6.8,
               "headSkill": 86.3,
-              "value": 67322137
+              "value": 67208419
             },
             {
               "artistLevel": 13,
@@ -3083,7 +3111,7 @@
               "floorLevel": 10,
               "averageFloor": 7.5,
               "headSkill": 88.3,
-              "value": 90901958
+              "value": 89550262
             },
             {
               "artistLevel": 14,
@@ -3092,7 +3120,7 @@
               "floorLevel": 10,
               "averageFloor": 8,
               "headSkill": 90.9,
-              "value": 117556885
+              "value": 117433448
             },
             {
               "artistLevel": 15,
@@ -3101,7 +3129,7 @@
               "floorLevel": 10,
               "averageFloor": 8.8,
               "headSkill": 92.6,
-              "value": 157950548
+              "value": 159718558
             },
             {
               "artistLevel": 16,
@@ -3110,7 +3138,7 @@
               "floorLevel": 10,
               "averageFloor": 9.5,
               "headSkill": 93.4,
-              "value": 206468416
+              "value": 210192880
             },
             {
               "artistLevel": 17,
@@ -3119,7 +3147,7 @@
               "floorLevel": 10,
               "averageFloor": 9.7,
               "headSkill": 94.3,
-              "value": 249977072
+              "value": 251069579
             },
             {
               "artistLevel": 18,
@@ -3128,7 +3156,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 95,
-              "value": 285465107
+              "value": 289100083
             },
             {
               "artistLevel": 17,
@@ -3137,7 +3165,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 90,
-              "value": 336447591
+              "value": 343582117
             },
             {
               "artistLevel": 17,
@@ -3146,7 +3174,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 91.3,
-              "value": 383446570
+              "value": 393744576
             },
             {
               "artistLevel": 18,
@@ -3155,7 +3183,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 92.7,
-              "value": 457664600
+              "value": 459428584
             },
             {
               "artistLevel": 19,
@@ -3164,7 +3192,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 93.4,
-              "value": 474256106
+              "value": 479140247
             },
             {
               "artistLevel": 19,
@@ -3173,7 +3201,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.1,
-              "value": 535923773
+              "value": 546484155
             },
             {
               "artistLevel": 20,
@@ -3182,7 +3210,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.6,
-              "value": 653098895
+              "value": 673473067
             }
           ],
           "peaks": {
@@ -3199,18 +3227,20 @@
           "year": 20,
           "ipoYear": 5,
           "score": 6850,
-          "value": 653097195,
+          "value": 673471367,
           "stars": 5,
           "releases": 355,
           "hits": 349,
-          "revenue": 46377323,
-          "fame": 13635,
-          "cash": 334669342,
-          "confidence": 99,
-          "catalogShare": 0.2853008258916841,
+          "revenue": 49900779,
+          "fame": 14018,
+          "cash": 235559824,
+          "confidence": 100,
+          "catalogShare": 0.2840349658404146,
           "lostToRivals": 2,
           "battles": 283,
-          "battlesWon": 190
+          "battlesWon": 196,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 4,
@@ -3268,7 +3298,7 @@
               "floorLevel": 8,
               "averageFloor": 6.8,
               "headSkill": 83.6,
-              "value": 38122740
+              "value": 37744203
             },
             {
               "artistLevel": 12,
@@ -3277,7 +3307,7 @@
               "floorLevel": 9,
               "averageFloor": 7.5,
               "headSkill": 87.7,
-              "value": 52869983
+              "value": 52767905
             },
             {
               "artistLevel": 13,
@@ -3286,7 +3316,7 @@
               "floorLevel": 10,
               "averageFloor": 8.8,
               "headSkill": 90.1,
-              "value": 63022909
+              "value": 62823494
             },
             {
               "artistLevel": 14,
@@ -3295,7 +3325,7 @@
               "floorLevel": 10,
               "averageFloor": 9.3,
               "headSkill": 91.3,
-              "value": 87686383
+              "value": 85817520
             },
             {
               "artistLevel": 15,
@@ -3304,7 +3334,7 @@
               "floorLevel": 10,
               "averageFloor": 9.5,
               "headSkill": 92.4,
-              "value": 129712657
+              "value": 128957635
             },
             {
               "artistLevel": 16,
@@ -3313,7 +3343,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 93.6,
-              "value": 151906778
+              "value": 151943887
             },
             {
               "artistLevel": 17,
@@ -3322,7 +3352,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.9,
-              "value": 183435022
+              "value": 184662031
             },
             {
               "artistLevel": 17,
@@ -3331,7 +3361,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.9,
-              "value": 230493825
+              "value": 227912548
             },
             {
               "artistLevel": 18,
@@ -3340,7 +3370,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.7,
-              "value": 285265349
+              "value": 285838819
             },
             {
               "artistLevel": 19,
@@ -3349,7 +3379,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.4,
-              "value": 335667767
+              "value": 338964616
             },
             {
               "artistLevel": 19,
@@ -3358,7 +3388,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98,
-              "value": 389118014
+              "value": 395648063
             },
             {
               "artistLevel": 20,
@@ -3367,7 +3397,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.3,
-              "value": 465522495
+              "value": 462946197
             },
             {
               "artistLevel": 21,
@@ -3376,7 +3406,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.3,
-              "value": 498263650
+              "value": 499157074
             },
             {
               "artistLevel": 21,
@@ -3385,7 +3415,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.3,
-              "value": 567042024
+              "value": 573462599
             },
             {
               "artistLevel": 22,
@@ -3394,7 +3424,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.3,
-              "value": 633222728
+              "value": 645356806
             }
           ],
           "peaks": {
@@ -3411,18 +3441,20 @@
           "year": 20,
           "ipoYear": 6,
           "score": 6700,
-          "value": 633219528,
+          "value": 645353606,
           "stars": 5,
           "releases": 315,
           "hits": 304,
-          "revenue": 46661477,
-          "fame": 13049,
-          "cash": 336342082,
+          "revenue": 49752266,
+          "fame": 13223,
+          "cash": 233741906,
           "confidence": 100,
-          "catalogShare": 0.33805618866537646,
+          "catalogShare": 0.3368748440092476,
           "lostToRivals": 0,
           "battles": 262,
-          "battlesWon": 170
+          "battlesWon": 186,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 5,
@@ -3480,7 +3512,7 @@
               "floorLevel": 9,
               "averageFloor": 7.8,
               "headSkill": 84.9,
-              "value": 35139505
+              "value": 34795030
             },
             {
               "artistLevel": 12,
@@ -3489,7 +3521,7 @@
               "floorLevel": 10,
               "averageFloor": 8.5,
               "headSkill": 88.3,
-              "value": 49252971
+              "value": 49144285
             },
             {
               "artistLevel": 13,
@@ -3498,7 +3530,7 @@
               "floorLevel": 10,
               "averageFloor": 9,
               "headSkill": 90.6,
-              "value": 69851777
+              "value": 70300498
             },
             {
               "artistLevel": 14,
@@ -3507,112 +3539,112 @@
               "floorLevel": 10,
               "averageFloor": 9.5,
               "headSkill": 92.1,
-              "value": 94387021
+              "value": 93955168
             },
             {
               "artistLevel": 14,
-              "topThreeLevel": 13,
-              "craft": 71.3,
+              "topThreeLevel": 10.7,
+              "craft": 71,
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 93.4,
-              "value": 121422372
+              "value": 116159606
             },
             {
-              "artistLevel": 16,
-              "topThreeLevel": 14.3,
-              "craft": 71.3,
+              "artistLevel": 15,
+              "topThreeLevel": 6.3,
+              "craft": 68.7,
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.7,
-              "value": 159905296
+              "value": 136166286
             },
             {
               "artistLevel": 16,
-              "topThreeLevel": 15,
-              "craft": 71.3,
+              "topThreeLevel": 8.3,
+              "craft": 83.7,
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.6,
-              "value": 202342398
+              "value": 166601619
             },
             {
               "artistLevel": 17,
-              "topThreeLevel": 16,
-              "craft": 71.3,
+              "topThreeLevel": 10.3,
+              "craft": 83.7,
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.4,
-              "value": 243268128
+              "value": 196308393
             },
             {
-              "artistLevel": 18,
-              "topThreeLevel": 16.7,
-              "craft": 71.3,
+              "artistLevel": 17,
+              "topThreeLevel": 11.3,
+              "craft": 83.7,
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.3,
-              "value": 299150855
+              "value": 256213895
             },
             {
-              "artistLevel": 19,
-              "topThreeLevel": 17.7,
-              "craft": 71.3,
+              "artistLevel": 18,
+              "topThreeLevel": 12.7,
+              "craft": 83.7,
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.9,
-              "value": 355228937
+              "value": 301356512
+            },
+            {
+              "artistLevel": 19,
+              "topThreeLevel": 13.7,
+              "craft": 83.7,
+              "floorLevel": 10,
+              "averageFloor": 10,
+              "headSkill": 98.1,
+              "value": 344659945
+            },
+            {
+              "artistLevel": 19,
+              "topThreeLevel": 14.3,
+              "craft": 83.7,
+              "floorLevel": 10,
+              "averageFloor": 10,
+              "headSkill": 98.1,
+              "value": 386949049
             },
             {
               "artistLevel": 20,
-              "topThreeLevel": 18.7,
-              "craft": 71.3,
+              "topThreeLevel": 15.3,
+              "craft": 83.7,
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.1,
-              "value": 427687070
+              "value": 446419181
+            },
+            {
+              "artistLevel": 20,
+              "topThreeLevel": 16,
+              "craft": 83.7,
+              "floorLevel": 10,
+              "averageFloor": 10,
+              "headSkill": 98.1,
+              "value": 482621986
             },
             {
               "artistLevel": 21,
-              "topThreeLevel": 19,
-              "craft": 71.3,
+              "topThreeLevel": 17,
+              "craft": 83.7,
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.1,
-              "value": 469532358
-            },
-            {
-              "artistLevel": 21,
-              "topThreeLevel": 19.7,
-              "craft": 71.3,
-              "floorLevel": 10,
-              "averageFloor": 10,
-              "headSkill": 98.1,
-              "value": 531583426
-            },
-            {
-              "artistLevel": 22,
-              "topThreeLevel": 20.3,
-              "craft": 71.3,
-              "floorLevel": 10,
-              "averageFloor": 10,
-              "headSkill": 98.1,
-              "value": 597456005
-            },
-            {
-              "artistLevel": 23,
-              "topThreeLevel": 21.3,
-              "craft": 71.3,
-              "floorLevel": 10,
-              "averageFloor": 10,
-              "headSkill": 98.1,
-              "value": 667374488
+              "value": 546333808
             }
           ],
           "peaks": {
             "artistLevel": 20,
             "topThreeLevel": 20,
-            "craft": 6,
+            "craft": 12,
             "floorLevel": 7,
             "averageFloor": 11,
             "headSkill": 16,
@@ -3622,19 +3654,21 @@
           "ending": "complete",
           "year": 20,
           "ipoYear": 5,
-          "score": 6750,
-          "value": 667372788,
+          "score": 6950,
+          "value": 546332608,
           "stars": 5,
-          "releases": 329,
-          "hits": 321,
-          "revenue": 49150285,
-          "fame": 13914,
-          "cash": 353967860,
-          "confidence": 100,
-          "catalogShare": 0.32530271510838094,
-          "lostToRivals": 1,
-          "battles": 315,
-          "battlesWon": 260
+          "releases": 331,
+          "hits": 323,
+          "revenue": 44509655,
+          "fame": 13216,
+          "cash": 196447643,
+          "confidence": 90,
+          "catalogShare": 0.34393527479438507,
+          "lostToRivals": 4,
+          "battles": 303,
+          "battlesWon": 207,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 6,
@@ -3755,76 +3789,76 @@
               "floorLevel": 8,
               "averageFloor": 7.2,
               "headSkill": 92.6,
-              "value": 70551848
+              "value": 70121351
             },
             {
               "artistLevel": 13,
-              "topThreeLevel": 12.3,
+              "topThreeLevel": 12,
               "craft": 70.7,
               "floorLevel": 8,
               "averageFloor": 8,
-              "headSkill": 93.7,
-              "value": 91387042
+              "headSkill": 93.6,
+              "value": 79027509
+            },
+            {
+              "artistLevel": 14,
+              "topThreeLevel": 13.3,
+              "craft": 70.7,
+              "floorLevel": 8,
+              "averageFloor": 8,
+              "headSkill": 94.7,
+              "value": 121401867
             },
             {
               "artistLevel": 15,
-              "topThreeLevel": 14,
-              "craft": 70.7,
-              "floorLevel": 8,
-              "averageFloor": 8,
-              "headSkill": 95.1,
-              "value": 128716862
-            },
-            {
-              "artistLevel": 16,
-              "topThreeLevel": 15,
+              "topThreeLevel": 14.3,
               "craft": 70.7,
               "floorLevel": 8,
               "averageFloor": 8,
               "headSkill": 96.1,
-              "value": 156477880
+              "value": 149992599
             },
             {
               "artistLevel": 16,
-              "topThreeLevel": 10.7,
-              "craft": 71.3,
+              "topThreeLevel": 15.3,
+              "craft": 70.7,
               "floorLevel": 8,
               "averageFloor": 8,
               "headSkill": 97.1,
-              "value": 206464423
+              "value": 199385762
             },
             {
               "artistLevel": 17,
+              "topThreeLevel": 16.3,
+              "craft": 70.7,
+              "floorLevel": 8,
+              "averageFloor": 8,
+              "headSkill": 98.3,
+              "value": 254125848
+            },
+            {
+              "artistLevel": 18,
+              "topThreeLevel": 17.3,
+              "craft": 70.7,
+              "floorLevel": 8,
+              "averageFloor": 8,
+              "headSkill": 99.4,
+              "value": 303081891
+            },
+            {
+              "artistLevel": 18,
               "topThreeLevel": 13,
               "craft": 71.3,
               "floorLevel": 8,
               "averageFloor": 8,
-              "headSkill": 98.4,
-              "value": 257380473
-            },
-            {
-              "artistLevel": 17,
-              "topThreeLevel": 14,
-              "craft": 71.3,
-              "floorLevel": 8,
-              "averageFloor": 8,
-              "headSkill": 99.4,
-              "value": 304713387
-            },
-            {
-              "artistLevel": 18,
-              "topThreeLevel": 15.3,
-              "craft": 71.3,
-              "floorLevel": 8,
-              "averageFloor": 8,
-              "headSkill": 100,
-              "value": 342643109
+              "headSkill": 99.9,
+              "value": 337486886
             }
           ],
           "peaks": {
-            "artistLevel": 20,
-            "topThreeLevel": 20,
-            "craft": 17,
+            "artistLevel": 19,
+            "topThreeLevel": 19,
+            "craft": 20,
             "floorLevel": 13,
             "averageFloor": 14,
             "headSkill": 20,
@@ -3834,19 +3868,21 @@
           "ending": "complete",
           "year": 20,
           "ipoYear": null,
-          "score": 6950,
-          "value": 342639909,
+          "score": 6900,
+          "value": 337484686,
           "stars": 5,
-          "releases": 282,
-          "hits": 272,
-          "revenue": 31760243,
-          "fame": 10485,
-          "cash": 159145403,
-          "confidence": 44,
+          "releases": 271,
+          "hits": 261,
+          "revenue": 31463267,
+          "fame": 10357,
+          "cash": 152968522,
+          "confidence": 33,
           "catalogShare": 0.02995445629094643,
           "lostToRivals": 5,
-          "battles": 264,
-          "battlesWon": 206
+          "battles": 251,
+          "battlesWon": 216,
+          "platformShare": 10,
+          "platformPaid": 3000000
         },
         {
           "seed": 7,
@@ -3904,7 +3940,7 @@
               "floorLevel": 8,
               "averageFloor": 6.8,
               "headSkill": 83.6,
-              "value": 32156415
+              "value": 31625393
             },
             {
               "artistLevel": 12,
@@ -3913,7 +3949,7 @@
               "floorLevel": 9,
               "averageFloor": 7.5,
               "headSkill": 87.1,
-              "value": 42875193
+              "value": 42640827
             },
             {
               "artistLevel": 14,
@@ -3922,7 +3958,7 @@
               "floorLevel": 10,
               "averageFloor": 8.5,
               "headSkill": 89.9,
-              "value": 65240603
+              "value": 65393631
             },
             {
               "artistLevel": 15,
@@ -3931,7 +3967,7 @@
               "floorLevel": 10,
               "averageFloor": 9.3,
               "headSkill": 91.7,
-              "value": 85103080
+              "value": 83730881
             },
             {
               "artistLevel": 16,
@@ -3940,7 +3976,7 @@
               "floorLevel": 10,
               "averageFloor": 9.5,
               "headSkill": 92.7,
-              "value": 101074222
+              "value": 100510138
             },
             {
               "artistLevel": 17,
@@ -3949,7 +3985,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 93.6,
-              "value": 136249142
+              "value": 136737865
             },
             {
               "artistLevel": 18,
@@ -3958,7 +3994,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.6,
-              "value": 159362010
+              "value": 160698832
             },
             {
               "artistLevel": 18,
@@ -3967,7 +4003,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.4,
-              "value": 202114690
+              "value": 199411797
             },
             {
               "artistLevel": 18,
@@ -3976,7 +4012,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.3,
-              "value": 257461163
+              "value": 257990944
             },
             {
               "artistLevel": 18,
@@ -3985,7 +4021,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.3,
-              "value": 281206915
+              "value": 282886133
             },
             {
               "artistLevel": 19,
@@ -3994,7 +4030,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.7,
-              "value": 360907665
+              "value": 366610868
             },
             {
               "artistLevel": 20,
@@ -4003,7 +4039,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.9,
-              "value": 396245210
+              "value": 389893775
             },
             {
               "artistLevel": 21,
@@ -4012,7 +4048,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.9,
-              "value": 447410787
+              "value": 445768864
             },
             {
               "artistLevel": 21,
@@ -4021,22 +4057,22 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.9,
-              "value": 501841429
+              "value": 505000248
             },
             {
-              "artistLevel": 19,
-              "topThreeLevel": 11.3,
-              "craft": 71.7,
+              "artistLevel": 22,
+              "topThreeLevel": 17.7,
+              "craft": 62,
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.9,
-              "value": 601401810
+              "value": 616260265
             }
           ],
           "peaks": {
-            "artistLevel": 18,
-            "topThreeLevel": 19,
-            "craft": 20,
+            "artistLevel": 20,
+            "topThreeLevel": 20,
+            "craft": 14,
             "floorLevel": 8,
             "averageFloor": 12,
             "headSkill": 17,
@@ -4047,18 +4083,20 @@
           "year": 20,
           "ipoYear": 5,
           "score": 6800,
-          "value": 601400610,
+          "value": 616259065,
           "stars": 5,
-          "releases": 320,
-          "hits": 308,
-          "revenue": 41012513,
-          "fame": 12113,
-          "cash": 298711015,
+          "releases": 319,
+          "hits": 307,
+          "revenue": 44119789,
+          "fame": 12278,
+          "cash": 194975583,
           "confidence": 100,
-          "catalogShare": 0.30690057064853493,
-          "lostToRivals": 4,
-          "battles": 309,
-          "battlesWon": 236
+          "catalogShare": 0.3058121520874184,
+          "lostToRivals": 3,
+          "battles": 305,
+          "battlesWon": 234,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 8,
@@ -4125,7 +4163,7 @@
               "floorLevel": 8,
               "averageFloor": 6,
               "headSkill": 79.1,
-              "value": 31846534
+              "value": 31282544
             },
             {
               "artistLevel": 11,
@@ -4134,7 +4172,7 @@
               "floorLevel": 9,
               "averageFloor": 6.6,
               "headSkill": 83.7,
-              "value": 46458177
+              "value": 46451748
             },
             {
               "artistLevel": 13,
@@ -4143,7 +4181,7 @@
               "floorLevel": 10,
               "averageFloor": 7.8,
               "headSkill": 87.7,
-              "value": 68507346
+              "value": 69049252
             },
             {
               "artistLevel": 13,
@@ -4152,7 +4190,7 @@
               "floorLevel": 10,
               "averageFloor": 8.8,
               "headSkill": 90.3,
-              "value": 99304586
+              "value": 98862690
             },
             {
               "artistLevel": 15,
@@ -4161,7 +4199,7 @@
               "floorLevel": 10,
               "averageFloor": 9.2,
               "headSkill": 91.3,
-              "value": 127248905
+              "value": 127953557
             },
             {
               "artistLevel": 16,
@@ -4170,7 +4208,7 @@
               "floorLevel": 10,
               "averageFloor": 9.6,
               "headSkill": 92.7,
-              "value": 168368766
+              "value": 170421516
             },
             {
               "artistLevel": 17,
@@ -4179,7 +4217,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 93.9,
-              "value": 184612073
+              "value": 181414970
             },
             {
               "artistLevel": 18,
@@ -4188,7 +4226,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.1,
-              "value": 238552450
+              "value": 238360657
             },
             {
               "artistLevel": 19,
@@ -4197,7 +4235,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.1,
-              "value": 295092708
+              "value": 298681920
             },
             {
               "artistLevel": 20,
@@ -4206,7 +4244,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.7,
-              "value": 324817843
+              "value": 330382102
             },
             {
               "artistLevel": 20,
@@ -4215,7 +4253,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.3,
-              "value": 401591573
+              "value": 396933797
             },
             {
               "artistLevel": 21,
@@ -4224,7 +4262,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.7,
-              "value": 487397909
+              "value": 489700074
             },
             {
               "artistLevel": 22,
@@ -4233,7 +4271,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.9,
-              "value": 554055167
+              "value": 562059917
             },
             {
               "artistLevel": 23,
@@ -4242,7 +4280,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.9,
-              "value": 613776576
+              "value": 626304983
             }
           ],
           "peaks": {
@@ -4259,18 +4297,20 @@
           "year": 20,
           "ipoYear": 6,
           "score": 6750,
-          "value": 613774376,
+          "value": 626302783,
           "stars": 5,
           "releases": 325,
           "hits": 316,
-          "revenue": 46747885,
-          "fame": 13209,
-          "cash": 315775570,
+          "revenue": 49810870,
+          "fame": 13411,
+          "cash": 213683270,
           "confidence": 100,
-          "catalogShare": 0.23131463581500383,
+          "catalogShare": 0.23065937884560886,
           "lostToRivals": 1,
           "battles": 313,
-          "battlesWon": 267
+          "battlesWon": 268,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 9,
@@ -4347,7 +4387,9 @@
           "catalogShare": null,
           "lostToRivals": 2,
           "battles": 16,
-          "battlesWon": 14
+          "battlesWon": 14,
+          "platformShare": 0,
+          "platformPaid": 0
         },
         {
           "seed": 10,
@@ -4432,7 +4474,7 @@
               "floorLevel": 9,
               "averageFloor": 7.3,
               "headSkill": 85.4,
-              "value": 55983492
+              "value": 55731950
             },
             {
               "artistLevel": 12,
@@ -4441,7 +4483,7 @@
               "floorLevel": 10,
               "averageFloor": 8,
               "headSkill": 88.1,
-              "value": 71597328
+              "value": 71892021
             },
             {
               "artistLevel": 13,
@@ -4450,7 +4492,7 @@
               "floorLevel": 10,
               "averageFloor": 8.8,
               "headSkill": 90.3,
-              "value": 95086214
+              "value": 94315496
             },
             {
               "artistLevel": 15,
@@ -4459,7 +4501,7 @@
               "floorLevel": 10,
               "averageFloor": 9.3,
               "headSkill": 91.7,
-              "value": 108597029
+              "value": 108076791
             },
             {
               "artistLevel": 15,
@@ -4468,7 +4510,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 93,
-              "value": 124999180
+              "value": 124855838
             },
             {
               "artistLevel": 17,
@@ -4477,7 +4519,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 93.9,
-              "value": 184233906
+              "value": 186294868
             },
             {
               "artistLevel": 17,
@@ -4486,7 +4528,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.7,
-              "value": 219449859
+              "value": 217508736
             },
             {
               "artistLevel": 18,
@@ -4495,7 +4537,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.6,
-              "value": 244890094
+              "value": 244673102
             },
             {
               "artistLevel": 19,
@@ -4504,7 +4546,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.3,
-              "value": 282464011
+              "value": 284478279
             },
             {
               "artistLevel": 20,
@@ -4513,7 +4555,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97,
-              "value": 352238349
+              "value": 358236328
             },
             {
               "artistLevel": 21,
@@ -4522,7 +4564,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.3,
-              "value": 367958349
+              "value": 375594960
             },
             {
               "artistLevel": 21,
@@ -4531,7 +4573,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.3,
-              "value": 415124439
+              "value": 412101823
             }
           ],
           "peaks": {
@@ -4548,18 +4590,20 @@
           "year": 20,
           "ipoYear": 9,
           "score": 7100,
-          "value": 415123239,
+          "value": 412100623,
           "stars": 5,
           "releases": 290,
           "hits": 280,
-          "revenue": 32019600,
-          "fame": 10495,
-          "cash": 212877241,
-          "confidence": 85,
-          "catalogShare": 0.15713322280040695,
+          "revenue": 33870147,
+          "fame": 10682,
+          "cash": 103276726,
+          "confidence": 98,
+          "catalogShare": 0.15605305128224267,
           "lostToRivals": 4,
           "battles": 199,
-          "battlesWon": 96
+          "battlesWon": 100,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 11,
@@ -4617,7 +4661,7 @@
               "floorLevel": 8,
               "averageFloor": 6.8,
               "headSkill": 83.7,
-              "value": 30726265
+              "value": 30262950
             },
             {
               "artistLevel": 11,
@@ -4626,7 +4670,7 @@
               "floorLevel": 9,
               "averageFloor": 7.5,
               "headSkill": 87.4,
-              "value": 43426169
+              "value": 43064809
             },
             {
               "artistLevel": 12,
@@ -4635,7 +4679,7 @@
               "floorLevel": 10,
               "averageFloor": 8.8,
               "headSkill": 89.6,
-              "value": 61870390
+              "value": 61686326
             },
             {
               "artistLevel": 13,
@@ -4644,7 +4688,7 @@
               "floorLevel": 10,
               "averageFloor": 9.3,
               "headSkill": 91.4,
-              "value": 78485132
+              "value": 76690167
             },
             {
               "artistLevel": 14,
@@ -4653,7 +4697,7 @@
               "floorLevel": 10,
               "averageFloor": 9.5,
               "headSkill": 92.7,
-              "value": 112306308
+              "value": 112026718
             },
             {
               "artistLevel": 15,
@@ -4662,7 +4706,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 94.1,
-              "value": 131388961
+              "value": 131695621
             },
             {
               "artistLevel": 16,
@@ -4671,7 +4715,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95,
-              "value": 192572551
+              "value": 195221170
             },
             {
               "artistLevel": 16,
@@ -4680,7 +4724,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.7,
-              "value": 224400689
+              "value": 223464962
             },
             {
               "artistLevel": 17,
@@ -4689,7 +4733,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.4,
-              "value": 270571560
+              "value": 272562256
             },
             {
               "artistLevel": 18,
@@ -4698,7 +4742,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.1,
-              "value": 318424990
+              "value": 323441168
             },
             {
               "artistLevel": 19,
@@ -4707,7 +4751,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.4,
-              "value": 334868902
+              "value": 341514146
             },
             {
               "artistLevel": 19,
@@ -4716,7 +4760,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.4,
-              "value": 441438690
+              "value": 440707662
             },
             {
               "artistLevel": 20,
@@ -4725,7 +4769,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.4,
-              "value": 461741571
+              "value": 464010483
             },
             {
               "artistLevel": 21,
@@ -4734,7 +4778,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.4,
-              "value": 562803826
+              "value": 573249543
             },
             {
               "artistLevel": 22,
@@ -4743,7 +4787,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.4,
-              "value": 629676143
+              "value": 646298065
             }
           ],
           "peaks": {
@@ -4760,18 +4804,20 @@
           "year": 20,
           "ipoYear": 5,
           "score": 6750,
-          "value": 629674943,
+          "value": 646296865,
           "stars": 5,
           "releases": 314,
           "hits": 305,
-          "revenue": 44977998,
-          "fame": 13178,
-          "cash": 320559649,
+          "revenue": 48258554,
+          "fame": 13392,
+          "cash": 219511246,
           "confidence": 100,
-          "catalogShare": 0.29303087462340066,
+          "catalogShare": 0.29016063041977985,
           "lostToRivals": 2,
           "battles": 264,
-          "battlesWon": 224
+          "battlesWon": 230,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 12,
@@ -4829,7 +4875,7 @@
               "floorLevel": 8,
               "averageFloor": 6.8,
               "headSkill": 81.4,
-              "value": 35915275
+              "value": 35601993
             },
             {
               "artistLevel": 12,
@@ -4838,7 +4884,7 @@
               "floorLevel": 9,
               "averageFloor": 7.5,
               "headSkill": 85.6,
-              "value": 48747274
+              "value": 49032004
             },
             {
               "artistLevel": 13,
@@ -4847,7 +4893,7 @@
               "floorLevel": 10,
               "averageFloor": 8.5,
               "headSkill": 88.6,
-              "value": 65638790
+              "value": 66145455
             },
             {
               "artistLevel": 14,
@@ -4856,7 +4902,7 @@
               "floorLevel": 10,
               "averageFloor": 9,
               "headSkill": 90.4,
-              "value": 75225991
+              "value": 74013280
             },
             {
               "artistLevel": 15,
@@ -4865,7 +4911,7 @@
               "floorLevel": 10,
               "averageFloor": 9.5,
               "headSkill": 92.1,
-              "value": 108030464
+              "value": 107921532
             },
             {
               "artistLevel": 15,
@@ -4874,7 +4920,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 93.3,
-              "value": 147960570
+              "value": 149833960
             },
             {
               "artistLevel": 16,
@@ -4883,7 +4929,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.3,
-              "value": 180152249
+              "value": 183227509
             },
             {
               "artistLevel": 17,
@@ -4892,7 +4938,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.1,
-              "value": 216832391
+              "value": 215912650
             },
             {
               "artistLevel": 18,
@@ -4901,7 +4947,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.3,
-              "value": 292850269
+              "value": 296826106
             },
             {
               "artistLevel": 19,
@@ -4910,7 +4956,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97,
-              "value": 312356981
+              "value": 318064972
             },
             {
               "artistLevel": 20,
@@ -4919,7 +4965,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.6,
-              "value": 383121518
+              "value": 393423110
             },
             {
               "artistLevel": 20,
@@ -4928,7 +4974,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98,
-              "value": 446674777
+              "value": 447431820
             },
             {
               "artistLevel": 21,
@@ -4937,7 +4983,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.1,
-              "value": 530428394
+              "value": 538424694
             },
             {
               "artistLevel": 22,
@@ -4946,7 +4992,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.1,
-              "value": 545125057
+              "value": 555375396
             },
             {
               "artistLevel": 23,
@@ -4955,7 +5001,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.1,
-              "value": 643207863
+              "value": 662079218
             }
           ],
           "peaks": {
@@ -4972,21 +5018,23 @@
           "year": 20,
           "ipoYear": 5,
           "score": 6330,
-          "value": 643206163,
+          "value": 662077518,
           "stars": 5,
           "releases": 337,
           "hits": 326,
-          "revenue": 48126346,
-          "fame": 13149,
-          "cash": 336611910,
+          "revenue": 51710890,
+          "fame": 13486,
+          "cash": 237467995,
           "confidence": 100,
-          "catalogShare": 0.32762592628475534,
+          "catalogShare": 0.3282099220145682,
           "lostToRivals": 0,
           "battles": 332,
-          "battlesWon": 202
+          "battlesWon": 223,
+          "platformShare": 70,
+          "platformPaid": 118000000
         }
       ],
-      "medianValue": 633219528
+      "medianValue": 645353606
     },
     "reckless": {
       "fired": 6,
@@ -5185,7 +5233,9 @@
           "catalogShare": 0.04366689980796366,
           "lostToRivals": 4,
           "battles": 105,
-          "battlesWon": 9
+          "battlesWon": 9,
+          "platformShare": 0,
+          "platformPaid": 0
         },
         {
           "seed": 2,
@@ -5298,7 +5348,9 @@
           "catalogShare": null,
           "lostToRivals": 2,
           "battles": 60,
-          "battlesWon": 30
+          "battlesWon": 30,
+          "platformShare": 0,
+          "platformPaid": 0
         },
         {
           "seed": 3,
@@ -5492,7 +5544,9 @@
           "catalogShare": 0.08062965794426785,
           "lostToRivals": 1,
           "battles": 98,
-          "battlesWon": 28
+          "battlesWon": 28,
+          "platformShare": 0,
+          "platformPaid": 0
         },
         {
           "seed": 4,
@@ -5704,7 +5758,9 @@
           "catalogShare": 0.04567289978700484,
           "lostToRivals": 10,
           "battles": 119,
-          "battlesWon": 6
+          "battlesWon": 6,
+          "platformShare": 0,
+          "platformPaid": 0
         },
         {
           "seed": 5,
@@ -5916,7 +5972,9 @@
           "catalogShare": 0.030032471818157817,
           "lostToRivals": 2,
           "battles": 122,
-          "battlesWon": 33
+          "battlesWon": 33,
+          "platformShare": 0,
+          "platformPaid": 0
         },
         {
           "seed": 6,
@@ -6128,7 +6186,9 @@
           "catalogShare": 0.06992374305286286,
           "lostToRivals": 1,
           "battles": 103,
-          "battlesWon": 43
+          "battlesWon": 43,
+          "platformShare": 0,
+          "platformPaid": 0
         },
         {
           "seed": 7,
@@ -6268,7 +6328,9 @@
           "catalogShare": 0.12203727078139222,
           "lostToRivals": 2,
           "battles": 84,
-          "battlesWon": 10
+          "battlesWon": 10,
+          "platformShare": 0,
+          "platformPaid": 0
         },
         {
           "seed": 8,
@@ -6480,7 +6542,9 @@
           "catalogShare": 0.3143790466130704,
           "lostToRivals": 4,
           "battles": 106,
-          "battlesWon": 14
+          "battlesWon": 14,
+          "platformShare": 0,
+          "platformPaid": 0
         },
         {
           "seed": 9,
@@ -6611,7 +6675,9 @@
           "catalogShare": 0.15296429253792676,
           "lostToRivals": 4,
           "battles": 62,
-          "battlesWon": 10
+          "battlesWon": 10,
+          "platformShare": 0,
+          "platformPaid": 0
         },
         {
           "seed": 10,
@@ -6823,7 +6889,9 @@
           "catalogShare": 0.13015138465131895,
           "lostToRivals": 2,
           "battles": 105,
-          "battlesWon": 21
+          "battlesWon": 21,
+          "platformShare": 0,
+          "platformPaid": 0
         },
         {
           "seed": 11,
@@ -7035,7 +7103,9 @@
           "catalogShare": 0.01980665068371515,
           "lostToRivals": 5,
           "battles": 117,
-          "battlesWon": 9
+          "battlesWon": 9,
+          "platformShare": 0,
+          "platformPaid": 0
         },
         {
           "seed": 12,
@@ -7247,7 +7317,9 @@
           "catalogShare": 0.13595788056924568,
           "lostToRivals": 6,
           "battles": 104,
-          "battlesWon": 15
+          "battlesWon": 15,
+          "platformShare": 0,
+          "platformPaid": 0
         }
       ],
       "medianValue": 24023079
@@ -7322,7 +7394,7 @@
               "floorLevel": 8,
               "averageFloor": 6.2,
               "headSkill": 79.9,
-              "value": 32242849
+              "value": 31808183
             },
             {
               "artistLevel": 12,
@@ -7331,7 +7403,7 @@
               "floorLevel": 9,
               "averageFloor": 7,
               "headSkill": 83,
-              "value": 46534522
+              "value": 46423344
             },
             {
               "artistLevel": 13,
@@ -7340,7 +7412,7 @@
               "floorLevel": 10,
               "averageFloor": 8,
               "headSkill": 86.9,
-              "value": 65418388
+              "value": 65699433
             },
             {
               "artistLevel": 14,
@@ -7349,7 +7421,7 @@
               "floorLevel": 10,
               "averageFloor": 8.8,
               "headSkill": 89.4,
-              "value": 110803885
+              "value": 110386802
             },
             {
               "artistLevel": 15,
@@ -7358,7 +7430,7 @@
               "floorLevel": 10,
               "averageFloor": 9.2,
               "headSkill": 91.7,
-              "value": 124783294
+              "value": 125255362
             },
             {
               "artistLevel": 16,
@@ -7367,7 +7439,7 @@
               "floorLevel": 10,
               "averageFloor": 9.6,
               "headSkill": 92.7,
-              "value": 156978447
+              "value": 158443823
             },
             {
               "artistLevel": 17,
@@ -7376,7 +7448,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 93.9,
-              "value": 192166814
+              "value": 195012974
             },
             {
               "artistLevel": 18,
@@ -7385,7 +7457,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.3,
-              "value": 232204360
+              "value": 231409701
             },
             {
               "artistLevel": 19,
@@ -7394,7 +7466,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.1,
-              "value": 288563513
+              "value": 290457411
             },
             {
               "artistLevel": 19,
@@ -7403,7 +7475,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.9,
-              "value": 372693052
+              "value": 380431837
             },
             {
               "artistLevel": 20,
@@ -7412,7 +7484,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.6,
-              "value": 413908811
+              "value": 424413418
             },
             {
               "artistLevel": 21,
@@ -7421,7 +7493,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.3,
-              "value": 474757771
+              "value": 475159591
             },
             {
               "artistLevel": 22,
@@ -7430,7 +7502,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.4,
-              "value": 512388966
+              "value": 516691060
             },
             {
               "artistLevel": 22,
@@ -7439,7 +7511,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.6,
-              "value": 608045673
+              "value": 620094337
             },
             {
               "artistLevel": 23,
@@ -7448,7 +7520,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.6,
-              "value": 615913595
+              "value": 629793573
             }
           ],
           "peaks": {
@@ -7465,18 +7537,20 @@
           "year": 20,
           "ipoYear": 5,
           "score": 6750,
-          "value": 615913595,
+          "value": 629793573,
           "stars": 5,
           "releases": 374,
           "hits": 369,
-          "revenue": 51467257,
-          "fame": 15330,
-          "cash": 350130900,
+          "revenue": 55004169,
+          "fame": 15561,
+          "cash": 250701481,
           "confidence": 100,
-          "catalogShare": 0.2867254868383163,
+          "catalogShare": 0.2864384360988546,
           "lostToRivals": 0,
           "battles": 296,
-          "battlesWon": 213
+          "battlesWon": 224,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 2,
@@ -7534,7 +7608,7 @@
               "floorLevel": 9,
               "averageFloor": 7.3,
               "headSkill": 84.3,
-              "value": 44348774
+              "value": 44203751
             },
             {
               "artistLevel": 12,
@@ -7543,7 +7617,7 @@
               "floorLevel": 10,
               "averageFloor": 8,
               "headSkill": 88,
-              "value": 56724468
+              "value": 56715818
             },
             {
               "artistLevel": 13,
@@ -7552,7 +7626,7 @@
               "floorLevel": 10,
               "averageFloor": 8.8,
               "headSkill": 90.1,
-              "value": 76729531
+              "value": 76957807
             },
             {
               "artistLevel": 14,
@@ -7561,7 +7635,7 @@
               "floorLevel": 10,
               "averageFloor": 9.3,
               "headSkill": 91.6,
-              "value": 95674663
+              "value": 94474653
             },
             {
               "artistLevel": 15,
@@ -7570,7 +7644,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 93,
-              "value": 122287108
+              "value": 122093223
             },
             {
               "artistLevel": 16,
@@ -7579,7 +7653,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.3,
-              "value": 168174280
+              "value": 169252918
             },
             {
               "artistLevel": 17,
@@ -7588,7 +7662,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.4,
-              "value": 209699210
+              "value": 206092287
             },
             {
               "artistLevel": 17,
@@ -7597,7 +7671,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.3,
-              "value": 237622878
+              "value": 236023801
             },
             {
               "artistLevel": 18,
@@ -7606,7 +7680,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.4,
-              "value": 339394698
+              "value": 343532482
             },
             {
               "artistLevel": 19,
@@ -7615,7 +7689,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.3,
-              "value": 361053035
+              "value": 366375211
             },
             {
               "artistLevel": 19,
@@ -7624,7 +7698,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.7,
-              "value": 417052449
+              "value": 425919125
             },
             {
               "artistLevel": 20,
@@ -7633,7 +7707,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.7,
-              "value": 444137453
+              "value": 441786010
             },
             {
               "artistLevel": 21,
@@ -7642,7 +7716,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.7,
-              "value": 536365190
+              "value": 540579567
             },
             {
               "artistLevel": 21,
@@ -7651,7 +7725,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.7,
-              "value": 599746539
+              "value": 609463693
             },
             {
               "artistLevel": 22,
@@ -7660,7 +7734,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.7,
-              "value": 668537915
+              "value": 684502097
             }
           ],
           "peaks": {
@@ -7677,18 +7751,20 @@
           "year": 20,
           "ipoYear": 5,
           "score": 6850,
-          "value": 668536215,
+          "value": 684500397,
           "stars": 5,
           "releases": 354,
           "hits": 349,
-          "revenue": 49625880,
-          "fame": 14982,
-          "cash": 352139046,
+          "revenue": 52976795,
+          "fame": 15172,
+          "cash": 251624582,
           "confidence": 100,
-          "catalogShare": 0.34633704554081807,
+          "catalogShare": 0.3455014161403368,
           "lostToRivals": 0,
           "battles": 328,
-          "battlesWon": 291
+          "battlesWon": 296,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 3,
@@ -7755,7 +7831,7 @@
               "floorLevel": 9,
               "averageFloor": 7.5,
               "headSkill": 82.1,
-              "value": 38763902
+              "value": 38490164
             },
             {
               "artistLevel": 11,
@@ -7764,7 +7840,7 @@
               "floorLevel": 10,
               "averageFloor": 8.5,
               "headSkill": 85.4,
-              "value": 50471389
+              "value": 50360770
             },
             {
               "artistLevel": 12,
@@ -7773,7 +7849,7 @@
               "floorLevel": 10,
               "averageFloor": 9,
               "headSkill": 88.3,
-              "value": 85266832
+              "value": 85587842
             },
             {
               "artistLevel": 14,
@@ -7782,7 +7858,7 @@
               "floorLevel": 10,
               "averageFloor": 9.5,
               "headSkill": 89.9,
-              "value": 115184480
+              "value": 114628569
             },
             {
               "artistLevel": 14,
@@ -7791,7 +7867,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 91.6,
-              "value": 139118673
+              "value": 140359782
             },
             {
               "artistLevel": 15,
@@ -7800,7 +7876,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 92.7,
-              "value": 181771832
+              "value": 184577395
             },
             {
               "artistLevel": 16,
@@ -7809,7 +7885,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 93.6,
-              "value": 188674317
+              "value": 186651167
             },
             {
               "artistLevel": 17,
@@ -7818,7 +7894,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.3,
-              "value": 266512924
+              "value": 268712776
             },
             {
               "artistLevel": 18,
@@ -7827,7 +7903,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.1,
-              "value": 312432592
+              "value": 317751434
             },
             {
               "artistLevel": 19,
@@ -7836,7 +7912,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.9,
-              "value": 377367764
+              "value": 387089370
             },
             {
               "artistLevel": 19,
@@ -7845,7 +7921,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.6,
-              "value": 415327907
+              "value": 413425695
             },
             {
               "artistLevel": 20,
@@ -7854,7 +7930,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.7,
-              "value": 490978447
+              "value": 495894367
             },
             {
               "artistLevel": 21,
@@ -7863,7 +7939,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.7,
-              "value": 504305420
+              "value": 511195769
             },
             {
               "artistLevel": 22,
@@ -7872,7 +7948,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.7,
-              "value": 593399148
+              "value": 607992032
             }
           ],
           "peaks": {
@@ -7889,18 +7965,20 @@
           "year": 20,
           "ipoYear": 5,
           "score": 6800,
-          "value": 593393948,
+          "value": 607986832,
           "stars": 5,
           "releases": 335,
           "hits": 330,
-          "revenue": 44867932,
-          "fame": 13358,
-          "cash": 307417718,
+          "revenue": 48086750,
+          "fame": 13600,
+          "cash": 206385587,
           "confidence": 100,
-          "catalogShare": 0.2670604223359668,
+          "catalogShare": 0.2662253487297249,
           "lostToRivals": 0,
           "battles": 319,
-          "battlesWon": 244
+          "battlesWon": 253,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 4,
@@ -7958,7 +8036,7 @@
               "floorLevel": 9,
               "averageFloor": 6.6,
               "headSkill": 83.1,
-              "value": 45110605
+              "value": 45152488
             },
             {
               "artistLevel": 11,
@@ -7967,7 +8045,7 @@
               "floorLevel": 10,
               "averageFloor": 7.2,
               "headSkill": 86,
-              "value": 51194386
+              "value": 51404741
             },
             {
               "artistLevel": 12,
@@ -7976,7 +8054,7 @@
               "floorLevel": 10,
               "averageFloor": 8.4,
               "headSkill": 89,
-              "value": 78793102
+              "value": 79424353
             },
             {
               "artistLevel": 13,
@@ -7985,7 +8063,7 @@
               "floorLevel": 10,
               "averageFloor": 9,
               "headSkill": 91.4,
-              "value": 91832367
+              "value": 91054386
             },
             {
               "artistLevel": 14,
@@ -7994,7 +8072,7 @@
               "floorLevel": 10,
               "averageFloor": 9.4,
               "headSkill": 92.4,
-              "value": 137071889
+              "value": 137914561
             },
             {
               "artistLevel": 15,
@@ -8003,7 +8081,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 93.7,
-              "value": 158982066
+              "value": 160703252
             },
             {
               "artistLevel": 16,
@@ -8012,7 +8090,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95,
-              "value": 192958439
+              "value": 189716709
             },
             {
               "artistLevel": 17,
@@ -8021,7 +8099,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.6,
-              "value": 230859431
+              "value": 229920089
             },
             {
               "artistLevel": 18,
@@ -8030,7 +8108,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.6,
-              "value": 352763555
+              "value": 358765559
             },
             {
               "artistLevel": 19,
@@ -8039,7 +8117,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.6,
-              "value": 433880154
+              "value": 443910335
             },
             {
               "artistLevel": 20,
@@ -8048,7 +8126,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.3,
-              "value": 410330026
+              "value": 405258123
             },
             {
               "artistLevel": 20,
@@ -8057,7 +8135,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.6,
-              "value": 497057788
+              "value": 498634428
             },
             {
               "artistLevel": 21,
@@ -8066,7 +8144,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.7,
-              "value": 562115739
+              "value": 569490068
             },
             {
               "artistLevel": 22,
@@ -8075,7 +8153,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.7,
-              "value": 629551651
+              "value": 642544568
             },
             {
               "artistLevel": 22,
@@ -8084,7 +8162,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.7,
-              "value": 677039800
+              "value": 694968620
             }
           ],
           "peaks": {
@@ -8101,18 +8179,20 @@
           "year": 20,
           "ipoYear": 5,
           "score": 6800,
-          "value": 677038600,
+          "value": 694967420,
           "stars": 5,
           "releases": 370,
           "hits": 367,
-          "revenue": 52625667,
-          "fame": 15276,
-          "cash": 367705531,
+          "revenue": 56260221,
+          "fame": 15546,
+          "cash": 269140370,
           "confidence": 100,
-          "catalogShare": 0.33116047701551965,
+          "catalogShare": 0.3311812312155019,
           "lostToRivals": 0,
           "battles": 322,
-          "battlesWon": 179
+          "battlesWon": 200,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 5,
@@ -8161,7 +8241,7 @@
               "floorLevel": 8,
               "averageFloor": 6.2,
               "headSkill": 77.9,
-              "value": 38950643
+              "value": 38645719
             },
             {
               "artistLevel": 11,
@@ -8170,7 +8250,7 @@
               "floorLevel": 9,
               "averageFloor": 7,
               "headSkill": 82,
-              "value": 52781487
+              "value": 52863604
             },
             {
               "artistLevel": 12,
@@ -8179,7 +8259,7 @@
               "floorLevel": 10,
               "averageFloor": 7.8,
               "headSkill": 84.9,
-              "value": 77351326
+              "value": 77806217
             },
             {
               "artistLevel": 13,
@@ -8188,7 +8268,7 @@
               "floorLevel": 10,
               "averageFloor": 8.6,
               "headSkill": 87,
-              "value": 113040515
+              "value": 112701733
             },
             {
               "artistLevel": 14,
@@ -8197,7 +8277,7 @@
               "floorLevel": 10,
               "averageFloor": 9.4,
               "headSkill": 89.4,
-              "value": 121416452
+              "value": 122194459
             },
             {
               "artistLevel": 15,
@@ -8206,7 +8286,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 91.1,
-              "value": 170117234
+              "value": 172538782
             },
             {
               "artistLevel": 16,
@@ -8215,7 +8295,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 92.4,
-              "value": 219098553
+              "value": 217114041
             },
             {
               "artistLevel": 17,
@@ -8224,7 +8304,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 93.4,
-              "value": 250038805
+              "value": 250514556
             },
             {
               "artistLevel": 18,
@@ -8233,7 +8313,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.4,
-              "value": 297513012
+              "value": 300601555
             },
             {
               "artistLevel": 18,
@@ -8242,7 +8322,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.3,
-              "value": 380314978
+              "value": 389570571
             },
             {
               "artistLevel": 19,
@@ -8251,7 +8331,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.3,
-              "value": 450769898
+              "value": 449530919
             },
             {
               "artistLevel": 20,
@@ -8260,7 +8340,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.4,
-              "value": 493789047
+              "value": 497070999
             },
             {
               "artistLevel": 21,
@@ -8269,7 +8349,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.7,
-              "value": 558716234
+              "value": 567647183
             },
             {
               "artistLevel": 21,
@@ -8278,7 +8358,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.9,
-              "value": 664625298
+              "value": 682383276
             },
             {
               "artistLevel": 22,
@@ -8287,7 +8367,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.9,
-              "value": 743041517
+              "value": 768510357
             },
             {
               "artistLevel": 22,
@@ -8296,7 +8376,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.9,
-              "value": 824938036
+              "value": 858369251
             }
           ],
           "peaks": {
@@ -8313,18 +8393,20 @@
           "year": 20,
           "ipoYear": 4,
           "score": 6750,
-          "value": 824936836,
+          "value": 858368051,
           "stars": 5,
           "releases": 401,
           "hits": 397,
-          "revenue": 60292024,
-          "fame": 16818,
-          "cash": 439406868,
+          "revenue": 64944884,
+          "fame": 17168,
+          "cash": 347773280,
           "confidence": 100,
-          "catalogShare": 0.38399520768837836,
+          "catalogShare": 0.3842089526342238,
           "lostToRivals": 0,
           "battles": 304,
-          "battlesWon": 183
+          "battlesWon": 197,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 6,
@@ -8373,7 +8455,7 @@
               "floorLevel": 8,
               "averageFloor": 6.2,
               "headSkill": 80.3,
-              "value": 44327865
+              "value": 44010585
             },
             {
               "artistLevel": 11,
@@ -8382,7 +8464,7 @@
               "floorLevel": 9,
               "averageFloor": 6.8,
               "headSkill": 83.7,
-              "value": 53045475
+              "value": 52892112
             },
             {
               "artistLevel": 13,
@@ -8391,7 +8473,7 @@
               "floorLevel": 10,
               "averageFloor": 8,
               "headSkill": 87.1,
-              "value": 69070479
+              "value": 69319424
             },
             {
               "artistLevel": 14,
@@ -8400,7 +8482,7 @@
               "floorLevel": 10,
               "averageFloor": 8.6,
               "headSkill": 89.6,
-              "value": 95844936
+              "value": 94839096
             },
             {
               "artistLevel": 15,
@@ -8409,7 +8491,7 @@
               "floorLevel": 10,
               "averageFloor": 9.4,
               "headSkill": 91.9,
-              "value": 120968782
+              "value": 120837351
             },
             {
               "artistLevel": 16,
@@ -8418,7 +8500,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 93,
-              "value": 134053850
+              "value": 134110262
             },
             {
               "artistLevel": 17,
@@ -8427,7 +8509,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.3,
-              "value": 199647163
+              "value": 201675680
             },
             {
               "artistLevel": 17,
@@ -8436,7 +8518,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.7,
-              "value": 237875214
+              "value": 236042922
             },
             {
               "artistLevel": 18,
@@ -8445,7 +8527,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.9,
-              "value": 252703675
+              "value": 252057330
             },
             {
               "artistLevel": 19,
@@ -8454,7 +8536,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.9,
-              "value": 380961660
+              "value": 387455555
             },
             {
               "artistLevel": 20,
@@ -8463,7 +8545,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99,
-              "value": 446033914
+              "value": 456300076
             },
             {
               "artistLevel": 20,
@@ -8472,7 +8554,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.7,
-              "value": 475435495
+              "value": 474126307
             },
             {
               "artistLevel": 21,
@@ -8481,7 +8563,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.9,
-              "value": 531008041
+              "value": 535010525
             },
             {
               "artistLevel": 22,
@@ -8490,7 +8572,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 100,
-              "value": 598590975
+              "value": 608345883
             },
             {
               "artistLevel": 23,
@@ -8499,7 +8581,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 100,
-              "value": 707481365
+              "value": 726505869
             },
             {
               "artistLevel": 23,
@@ -8508,7 +8590,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 100,
-              "value": 786675013
+              "value": 812931229
             }
           ],
           "peaks": {
@@ -8525,18 +8607,20 @@
           "year": 20,
           "ipoYear": 4,
           "score": 6750,
-          "value": 786673313,
+          "value": 812929529,
           "stars": 5,
           "releases": 416,
           "hits": 409,
-          "revenue": 57980578,
-          "fame": 17264,
-          "cash": 416878184,
+          "revenue": 62149124,
+          "fame": 17631,
+          "cash": 321215331,
           "confidence": 100,
-          "catalogShare": 0.38815825833060635,
+          "catalogShare": 0.38937439778121546,
           "lostToRivals": 0,
           "battles": 343,
-          "battlesWon": 229
+          "battlesWon": 242,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 7,
@@ -8594,7 +8678,7 @@
               "floorLevel": 9,
               "averageFloor": 6.8,
               "headSkill": 81,
-              "value": 35741591
+              "value": 35429405
             },
             {
               "artistLevel": 13,
@@ -8603,7 +8687,7 @@
               "floorLevel": 10,
               "averageFloor": 7.4,
               "headSkill": 85.4,
-              "value": 59724725
+              "value": 59810752
             },
             {
               "artistLevel": 14,
@@ -8612,7 +8696,7 @@
               "floorLevel": 10,
               "averageFloor": 8.4,
               "headSkill": 88.6,
-              "value": 92942027
+              "value": 93685561
             },
             {
               "artistLevel": 15,
@@ -8621,7 +8705,7 @@
               "floorLevel": 10,
               "averageFloor": 9,
               "headSkill": 90.6,
-              "value": 126016062
+              "value": 126412221
             },
             {
               "artistLevel": 16,
@@ -8630,7 +8714,7 @@
               "floorLevel": 10,
               "averageFloor": 9.6,
               "headSkill": 92,
-              "value": 136664981
+              "value": 137445381
             },
             {
               "artistLevel": 16,
@@ -8639,7 +8723,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 93.1,
-              "value": 183793414
+              "value": 186083889
             },
             {
               "artistLevel": 17,
@@ -8648,7 +8732,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.1,
-              "value": 221660221
+              "value": 219840823
             },
             {
               "artistLevel": 18,
@@ -8657,7 +8741,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.6,
-              "value": 264260096
+              "value": 264733505
             },
             {
               "artistLevel": 19,
@@ -8666,7 +8750,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.6,
-              "value": 338851219
+              "value": 344539344
             },
             {
               "artistLevel": 20,
@@ -8675,7 +8759,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.6,
-              "value": 401130821
+              "value": 410030461
             },
             {
               "artistLevel": 20,
@@ -8684,7 +8768,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.4,
-              "value": 463754146
+              "value": 462735902
             },
             {
               "artistLevel": 21,
@@ -8693,7 +8777,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.9,
-              "value": 526182374
+              "value": 530606204
             },
             {
               "artistLevel": 22,
@@ -8702,7 +8786,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.9,
-              "value": 595485796
+              "value": 605638756
             },
             {
               "artistLevel": 22,
@@ -8711,7 +8795,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.9,
-              "value": 665769268
+              "value": 682285986
             },
             {
               "artistLevel": 23,
@@ -8720,7 +8804,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.9,
-              "value": 766937489
+              "value": 792267446
             }
           ],
           "peaks": {
@@ -8737,18 +8821,20 @@
           "year": 20,
           "ipoYear": 5,
           "score": 6750,
-          "value": 766934289,
+          "value": 792264246,
           "stars": 5,
           "releases": 392,
           "hits": 386,
-          "revenue": 54510509,
-          "fame": 16086,
-          "cash": 391702616,
+          "revenue": 58386268,
+          "fame": 16342,
+          "cash": 295056631,
           "confidence": 100,
-          "catalogShare": 0.3294250330371261,
+          "catalogShare": 0.3299746037477068,
           "lostToRivals": 0,
           "battles": 314,
-          "battlesWon": 204
+          "battlesWon": 213,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 8,
@@ -8806,7 +8892,7 @@
               "floorLevel": 8,
               "averageFloor": 5.8,
               "headSkill": 79.3,
-              "value": 32118913
+              "value": 31656204
             },
             {
               "artistLevel": 12,
@@ -8815,7 +8901,7 @@
               "floorLevel": 9,
               "averageFloor": 6.3,
               "headSkill": 83.3,
-              "value": 59164995
+              "value": 59234275
             },
             {
               "artistLevel": 13,
@@ -8824,7 +8910,7 @@
               "floorLevel": 10,
               "averageFloor": 7.2,
               "headSkill": 86.4,
-              "value": 83520992
+              "value": 83780645
             },
             {
               "artistLevel": 14,
@@ -8833,7 +8919,7 @@
               "floorLevel": 10,
               "averageFloor": 7.8,
               "headSkill": 89.9,
-              "value": 116059480
+              "value": 115831938
             },
             {
               "artistLevel": 15,
@@ -8842,7 +8928,7 @@
               "floorLevel": 10,
               "averageFloor": 8.3,
               "headSkill": 91.3,
-              "value": 130209717
+              "value": 130703028
             },
             {
               "artistLevel": 16,
@@ -8851,7 +8937,7 @@
               "floorLevel": 10,
               "averageFloor": 8.8,
               "headSkill": 92.4,
-              "value": 163106629
+              "value": 164654744
             },
             {
               "artistLevel": 16,
@@ -8860,7 +8946,7 @@
               "floorLevel": 10,
               "averageFloor": 9.3,
               "headSkill": 93.7,
-              "value": 199648563
+              "value": 202387399
             },
             {
               "artistLevel": 17,
@@ -8869,7 +8955,7 @@
               "floorLevel": 10,
               "averageFloor": 9.7,
               "headSkill": 94.9,
-              "value": 237664687
+              "value": 236754460
             },
             {
               "artistLevel": 18,
@@ -8878,7 +8964,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 95.9,
-              "value": 310503934
+              "value": 312850439
             },
             {
               "artistLevel": 19,
@@ -8887,7 +8973,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97,
-              "value": 380422948
+              "value": 387948820
             },
             {
               "artistLevel": 20,
@@ -8896,7 +8982,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.3,
-              "value": 441394347
+              "value": 452493540
             },
             {
               "artistLevel": 20,
@@ -8905,7 +8991,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.3,
-              "value": 484268220
+              "value": 484652650
             },
             {
               "artistLevel": 21,
@@ -8914,7 +9000,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.9,
-              "value": 550128389
+              "value": 556139062
             },
             {
               "artistLevel": 22,
@@ -8923,7 +9009,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 100,
-              "value": 587362484
+              "value": 597177415
             },
             {
               "artistLevel": 22,
@@ -8932,7 +9018,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 100,
-              "value": 744691130
+              "value": 767076165
             }
           ],
           "peaks": {
@@ -8949,18 +9035,20 @@
           "year": 20,
           "ipoYear": 5,
           "score": 6750,
-          "value": 744687930,
+          "value": 767072965,
           "stars": 5,
           "releases": 366,
           "hits": 361,
-          "revenue": 52025030,
-          "fame": 15226,
-          "cash": 357521707,
+          "revenue": 55588906,
+          "fame": 15450,
+          "cash": 258044004,
           "confidence": 100,
-          "catalogShare": 0.30079616649234836,
+          "catalogShare": 0.30032872487441903,
           "lostToRivals": 0,
           "battles": 302,
-          "battlesWon": 208
+          "battlesWon": 224,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 9,
@@ -9018,7 +9106,7 @@
               "floorLevel": 9,
               "averageFloor": 7.5,
               "headSkill": 85.3,
-              "value": 46659582
+              "value": 46633105
             },
             {
               "artistLevel": 12,
@@ -9027,7 +9115,7 @@
               "floorLevel": 10,
               "averageFloor": 8.5,
               "headSkill": 88.4,
-              "value": 69637968
+              "value": 69905109
             },
             {
               "artistLevel": 13,
@@ -9036,7 +9124,7 @@
               "floorLevel": 10,
               "averageFloor": 9,
               "headSkill": 90.6,
-              "value": 86454081
+              "value": 86907575
             },
             {
               "artistLevel": 14,
@@ -9045,7 +9133,7 @@
               "floorLevel": 10,
               "averageFloor": 9.5,
               "headSkill": 92.1,
-              "value": 104121108
+              "value": 103566356
             },
             {
               "artistLevel": 15,
@@ -9054,7 +9142,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 93.4,
-              "value": 134397333
+              "value": 134710217
             },
             {
               "artistLevel": 16,
@@ -9063,7 +9151,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.7,
-              "value": 169674236
+              "value": 171141874
             },
             {
               "artistLevel": 16,
@@ -9072,7 +9160,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.9,
-              "value": 190893682
+              "value": 187403752
             },
             {
               "artistLevel": 17,
@@ -9081,7 +9169,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.9,
-              "value": 242194280
+              "value": 241387622
             },
             {
               "artistLevel": 18,
@@ -9090,7 +9178,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98,
-              "value": 325605382
+              "value": 329835736
             },
             {
               "artistLevel": 19,
@@ -9099,7 +9187,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99,
-              "value": 362922557
+              "value": 369453971
             },
             {
               "artistLevel": 20,
@@ -9108,7 +9196,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.7,
-              "value": 384845571
+              "value": 377532596
             },
             {
               "artistLevel": 20,
@@ -9117,7 +9205,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.7,
-              "value": 452736409
+              "value": 451817347
             },
             {
               "artistLevel": 21,
@@ -9126,7 +9214,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.7,
-              "value": 496564432
+              "value": 499240301
             },
             {
               "artistLevel": 22,
@@ -9135,7 +9223,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.7,
-              "value": 603543938
+              "value": 615377598
             },
             {
               "artistLevel": 22,
@@ -9144,7 +9232,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.7,
-              "value": 724758934
+              "value": 744147534
             }
           ],
           "peaks": {
@@ -9161,18 +9249,20 @@
           "year": 20,
           "ipoYear": 5,
           "score": 6750,
-          "value": 724755234,
+          "value": 744143834,
           "stars": 5,
-          "releases": 353,
-          "hits": 347,
-          "revenue": 49729898,
-          "fame": 14171,
-          "cash": 354895207,
+          "releases": 351,
+          "hits": 345,
+          "revenue": 52926127,
+          "fame": 14327,
+          "cash": 255128953,
           "confidence": 100,
-          "catalogShare": 0.3864053415598713,
+          "catalogShare": 0.3861418254155786,
           "lostToRivals": 0,
-          "battles": 292,
-          "battlesWon": 211
+          "battles": 301,
+          "battlesWon": 233,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 10,
@@ -9230,7 +9320,7 @@
               "floorLevel": 9,
               "averageFloor": 7,
               "headSkill": 82.1,
-              "value": 41894725
+              "value": 41761235
             },
             {
               "artistLevel": 12,
@@ -9239,7 +9329,7 @@
               "floorLevel": 10,
               "averageFloor": 7.6,
               "headSkill": 85.6,
-              "value": 67864737
+              "value": 68309320
             },
             {
               "artistLevel": 13,
@@ -9248,7 +9338,7 @@
               "floorLevel": 10,
               "averageFloor": 8.6,
               "headSkill": 89.6,
-              "value": 91068410
+              "value": 90060177
             },
             {
               "artistLevel": 14,
@@ -9257,7 +9347,7 @@
               "floorLevel": 10,
               "averageFloor": 9.2,
               "headSkill": 90.9,
-              "value": 115817936
+              "value": 116120288
             },
             {
               "artistLevel": 15,
@@ -9266,7 +9356,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 92.4,
-              "value": 152942890
+              "value": 154421980
             },
             {
               "artistLevel": 16,
@@ -9275,7 +9365,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 93.6,
-              "value": 189472624
+              "value": 192289453
             },
             {
               "artistLevel": 17,
@@ -9284,7 +9374,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.6,
-              "value": 218205576
+              "value": 216831845
             },
             {
               "artistLevel": 18,
@@ -9293,7 +9383,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.9,
-              "value": 259675586
+              "value": 260575783
             },
             {
               "artistLevel": 19,
@@ -9302,7 +9392,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.9,
-              "value": 371799888
+              "value": 380139013
             },
             {
               "artistLevel": 19,
@@ -9311,7 +9401,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.4,
-              "value": 392318205
+              "value": 401864901
             },
             {
               "artistLevel": 20,
@@ -9320,7 +9410,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98,
-              "value": 451879066
+              "value": 451242384
             },
             {
               "artistLevel": 21,
@@ -9329,7 +9419,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.3,
-              "value": 538166177
+              "value": 544632655
             },
             {
               "artistLevel": 22,
@@ -9338,7 +9428,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.3,
-              "value": 583288353
+              "value": 594326704
             },
             {
               "artistLevel": 22,
@@ -9347,7 +9437,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.3,
-              "value": 650783543
+              "value": 667875190
             },
             {
               "artistLevel": 22,
@@ -9356,7 +9446,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.3,
-              "value": 751077687
+              "value": 777166005
             }
           ],
           "peaks": {
@@ -9373,18 +9463,20 @@
           "year": 20,
           "ipoYear": 4,
           "score": 6750,
-          "value": 751076487,
+          "value": 777164805,
           "stars": 5,
           "releases": 382,
           "hits": 377,
-          "revenue": 53358921,
-          "fame": 15521,
-          "cash": 383405276,
+          "revenue": 57270504,
+          "fame": 15734,
+          "cash": 287226491,
           "confidence": 100,
-          "catalogShare": 0.3336710935029377,
+          "catalogShare": 0.3351835071594587,
           "lostToRivals": 0,
           "battles": 308,
-          "battlesWon": 187
+          "battlesWon": 210,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 11,
@@ -9433,7 +9525,7 @@
               "floorLevel": 8,
               "averageFloor": 6.4,
               "headSkill": 78.4,
-              "value": 43239555
+              "value": 43022110
             },
             {
               "artistLevel": 11,
@@ -9442,7 +9534,7 @@
               "floorLevel": 9,
               "averageFloor": 7,
               "headSkill": 82.6,
-              "value": 66603928
+              "value": 66925522
             },
             {
               "artistLevel": 12,
@@ -9451,7 +9543,7 @@
               "floorLevel": 10,
               "averageFloor": 8,
               "headSkill": 86,
-              "value": 80380303
+              "value": 80862208
             },
             {
               "artistLevel": 13,
@@ -9460,7 +9552,7 @@
               "floorLevel": 10,
               "averageFloor": 8.6,
               "headSkill": 88.9,
-              "value": 104233450
+              "value": 103663364
             },
             {
               "artistLevel": 14,
@@ -9469,7 +9561,7 @@
               "floorLevel": 10,
               "averageFloor": 9.4,
               "headSkill": 91.1,
-              "value": 132670566
+              "value": 132984297
             },
             {
               "artistLevel": 15,
@@ -9478,7 +9570,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 92.7,
-              "value": 163466012
+              "value": 164963281
             },
             {
               "artistLevel": 16,
@@ -9487,7 +9579,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 93.7,
-              "value": 234713076
+              "value": 232869211
             },
             {
               "artistLevel": 17,
@@ -9496,7 +9588,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.7,
-              "value": 318474588
+              "value": 322073763
             },
             {
               "artistLevel": 18,
@@ -9505,7 +9597,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.7,
-              "value": 341576903
+              "value": 346802169
             },
             {
               "artistLevel": 19,
@@ -9514,7 +9606,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 96.9,
-              "value": 400108083
+              "value": 408790072
             },
             {
               "artistLevel": 19,
@@ -9523,7 +9615,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.4,
-              "value": 481297055
+              "value": 481046177
             },
             {
               "artistLevel": 20,
@@ -9532,7 +9624,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97.9,
-              "value": 476891071
+              "value": 478163781
             },
             {
               "artistLevel": 21,
@@ -9541,7 +9633,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98,
-              "value": 614217682
+              "value": 625598097
             },
             {
               "artistLevel": 21,
@@ -9550,7 +9642,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.1,
-              "value": 604234310
+              "value": 616507619
             },
             {
               "artistLevel": 22,
@@ -9559,7 +9651,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.1,
-              "value": 732716798
+              "value": 755763253
             },
             {
               "artistLevel": 23,
@@ -9568,7 +9660,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.1,
-              "value": 808570461
+              "value": 838703518
             }
           ],
           "peaks": {
@@ -9585,18 +9677,20 @@
           "year": 20,
           "ipoYear": 4,
           "score": 6750,
-          "value": 808569261,
+          "value": 838702318,
           "stars": 5,
           "releases": 391,
           "hits": 388,
-          "revenue": 57246986,
-          "fame": 16493,
-          "cash": 442702617,
+          "revenue": 61540631,
+          "fame": 16738,
+          "cash": 350118465,
           "confidence": 100,
-          "catalogShare": 0.4090661325008811,
+          "catalogShare": 0.408927229812505,
           "lostToRivals": 0,
           "battles": 348,
-          "battlesWon": 303
+          "battlesWon": 315,
+          "platformShare": 70,
+          "platformPaid": 118000000
         },
         {
           "seed": 12,
@@ -9645,7 +9739,7 @@
               "floorLevel": 8,
               "averageFloor": 6.4,
               "headSkill": 80.3,
-              "value": 40534112
+              "value": 40501852
             },
             {
               "artistLevel": 12,
@@ -9654,7 +9748,7 @@
               "floorLevel": 9,
               "averageFloor": 7,
               "headSkill": 83.7,
-              "value": 66779018
+              "value": 67378526
             },
             {
               "artistLevel": 13,
@@ -9663,7 +9757,7 @@
               "floorLevel": 10,
               "averageFloor": 7.8,
               "headSkill": 86.9,
-              "value": 85867170
+              "value": 86662227
             },
             {
               "artistLevel": 14,
@@ -9672,7 +9766,7 @@
               "floorLevel": 10,
               "averageFloor": 8.6,
               "headSkill": 90.3,
-              "value": 109260659
+              "value": 109158011
             },
             {
               "artistLevel": 15,
@@ -9681,7 +9775,7 @@
               "floorLevel": 10,
               "averageFloor": 9.4,
               "headSkill": 92.1,
-              "value": 142306609
+              "value": 143132183
             },
             {
               "artistLevel": 16,
@@ -9690,7 +9784,7 @@
               "floorLevel": 10,
               "averageFloor": 9.8,
               "headSkill": 93.1,
-              "value": 170213683
+              "value": 171888959
             },
             {
               "artistLevel": 17,
@@ -9699,7 +9793,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 94.1,
-              "value": 227885726
+              "value": 226015782
             },
             {
               "artistLevel": 18,
@@ -9708,7 +9802,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 95.4,
-              "value": 268132041
+              "value": 268584923
             },
             {
               "artistLevel": 18,
@@ -9717,7 +9811,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 97,
-              "value": 312764756
+              "value": 315600384
             },
             {
               "artistLevel": 19,
@@ -9726,7 +9820,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98,
-              "value": 444500511
+              "value": 455552649
             },
             {
               "artistLevel": 20,
@@ -9735,7 +9829,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 98.7,
-              "value": 427947463
+              "value": 424179653
             },
             {
               "artistLevel": 21,
@@ -9744,7 +9838,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.1,
-              "value": 540814531
+              "value": 544994052
             },
             {
               "artistLevel": 21,
@@ -9753,7 +9847,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.4,
-              "value": 609199748
+              "value": 618879192
             },
             {
               "artistLevel": 22,
@@ -9762,7 +9856,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.4,
-              "value": 684704579
+              "value": 700939916
             },
             {
               "artistLevel": 23,
@@ -9771,7 +9865,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.4,
-              "value": 762209773
+              "value": 785560439
             },
             {
               "artistLevel": 23,
@@ -9780,7 +9874,7 @@
               "floorLevel": 10,
               "averageFloor": 10,
               "headSkill": 99.4,
-              "value": 843849003
+              "value": 838972711
             }
           ],
           "peaks": {
@@ -9797,27 +9891,29 @@
           "year": 20,
           "ipoYear": 4,
           "score": 6750,
-          "value": 843845803,
+          "value": 838969511,
           "stars": 5,
           "releases": 436,
           "hits": 430,
-          "revenue": 60941162,
-          "fame": 17996,
-          "cash": 455215565,
+          "revenue": 65386156,
+          "fame": 18320,
+          "cash": 182670244,
           "confidence": 100,
-          "catalogShare": 0.41891571518916276,
+          "catalogShare": 0.42117133462979284,
           "lostToRivals": 0,
           "battles": 369,
-          "battlesWon": 263
+          "battlesWon": 275,
+          "platformShare": 100,
+          "platformPaid": 298000000
         }
       ],
-      "medianValue": 751076487
+      "medianValue": 777164805
     }
   },
   "delegation": {
-    "hand": 734012241,
-    "delegated": 751076487,
-    "ratio": 1.023
+    "hand": 755651479,
+    "delegated": 777164805,
+    "ratio": 1.028
   },
   "eraPlans": [
     {

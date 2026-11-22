@@ -286,11 +286,16 @@
       const debt = (s.company.loan?.balance || 0) + owned.reduce((total, row) => total + row.debt, 0);
       // Superstars are the face of the company: their standing and their news move its value.
       const face = core.api().faceMultiplier?.(s) ?? 1;
-      const value = Math.max(0, Math.round((revenue * multiple + catalogValue) * face + s.cash - debt));
+      // A stake in the streaming platform counts at part of what was paid.
+      const platform = core.api().platformValue?.(s) ?? 0;
+      const value = Math.max(
+        0,
+        Math.round((revenue * multiple + catalogValue) * face + s.cash + platform - debt),
+      );
       const mood = s.company.marketMood ?? 1;
       const shares = s.company.shares || { total: COMPANY_VALUE.shares };
       const sharePrice = Math.round((value / shares.total) * mood * 100) / 100;
-      return { value, sharePrice, mood, multiple, revenue, growth, hitRate, catalogValue, debt };
+      return { value, sharePrice, mood, multiple, revenue, growth, hitRate, catalogValue, platform, debt };
     }
     function metric(s, key) {
       const released = s.albums.filter((p) => p.released);

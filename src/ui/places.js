@@ -222,7 +222,8 @@ function recordSection(a) {
     body = `<div class="empty">The contract is complete. <button data-tab="artist:${a.id}~sec-artist">Review contract</button></div>`;
   else if (!insp.canRecord)
     body = `<div class="empty">Inspiration ${Math.round(insp.value)}/100. Recording needs 25; it recovers about 10 a week between albums.</div>`;
-  else if (!freeRoom)
+  // A full studio is the reason to give first: another room would not help.
+  else if (!freeRoom && !(state.company && G.studioCapacity(state).full))
     body =
       '<div class="empty">Every recording room is busy. <button data-tab="newroom">Build another room</button></div>';
   else body = albumFormCard({ artistId: a.id });

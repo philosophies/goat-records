@@ -1,6 +1,6 @@
 // Change the cache version whenever a shipped shell file changes.
 const CACHE_PREFIX = "goat-records-shell-";
-const CACHE_NAME = CACHE_PREFIX + "20";
+const CACHE_NAME = CACHE_PREFIX + "21";
 const APP_SHELL = [
   "index.html",
   "icons/goat-512.png",
@@ -45,6 +45,7 @@ const APP_SHELL = [
   "src/data/catalog.js",
   "src/data/legacy.js",
   "src/data/delegation.js",
+  "src/data/platform.js",
   "src/systems/label.js",
   "src/systems/campaign.js",
   "src/systems/locations.js",
@@ -64,6 +65,7 @@ const APP_SHELL = [
   "src/systems/catalog.js",
   "src/systems/legacy.js",
   "src/systems/delegation.js",
+  "src/systems/platform.js",
   "src/engine.js",
   "src/ui/registry.js",
   "src/ui/label-ui.js",
