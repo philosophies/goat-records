@@ -784,4 +784,23 @@ test("A majority can veto a purchase above budget even under high creative freed
   assert.equal(board.spent, spent + offer.price);
 });
 
+test("company revenue is in whole dollars, and older saves with a fractional analyst figure still load", () => {
+  const s = G.create(69, { ceo: true });
+  s.company.phase = 6;
+  s.company.eras.starts = [1 - 104, 1 - 52, 1, 2000];
+  s.company.eras.seen = s.company.eras.announced = 2;
+  s.financeHistory = [{ albumIncome: 1000.4, hqIncome: 0.3, otherIncome: 0.2 }];
+  assert.equal(G.yearRevenue(s), 1001);
+  for (const v of Object.values(G.companyRevenue(s)))
+    assert.ok(Number.isInteger(v), "each line in whole dollars");
+  Object.assign(s.company, {
+    public: true,
+    ownership: 0.75,
+    shares: { total: 10000, yours: 7500, investors: 2500 },
+    offering: { week: 10, proceeds: 100, price: 1.5, scene: false },
+    analyst: { dueWeek: 30, revenue: 100, last: { revenue: 3620502.5, target: 3557963, met: true } },
+  });
+  assert.ok(G.validSystemsSave(JSON.parse(JSON.stringify(s))));
+});
+
 console.log(`${count} company tests passed.`);

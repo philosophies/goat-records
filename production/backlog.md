@@ -587,7 +587,7 @@ Files: `src/ui/legacy.js`, `src/app.js`, tests
 Do: Exported saves carry the browser's hall of fame and achievements; importing merges them (no duplicates, newest first, the hall cap kept). Old exports without them still import.
 Done when: a harness exports, clears storage, imports and finds the same hall and achievements; a merge test with overlapping runs.
 
-### [ ] T68 · A full playthrough, performance and 3.0 notes
+### [x] T68 · A full playthrough, performance and 3.0 notes
 
 Depends on: T65
 Files: `production/qa/`, `CHANGELOG.md`, tests
