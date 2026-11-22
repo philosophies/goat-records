@@ -206,6 +206,51 @@
       const ids = new Set([...(Array.isArray(stored) ? stored : []), ...(L(s)?.achievements || [])]);
       return ACHIEVEMENTS.filter((a) => ids.has(a.id)).map((a) => a.id);
     }
+    /** A hall of fame entry that came from a file: a known shape, or null. */
+    function cleanEntry(e) {
+      if (!e || typeof e !== "object" || typeof e.label !== "string" || !Number.isFinite(e.when ?? 0))
+        return null;
+      return {
+        label: e.label.slice(0, 80),
+        ending: ["complete", "fired", "folded"].includes(e.ending) ? e.ending : "complete",
+        years: Number.isInteger(e.years) ? e.years : 0,
+        peakPhase: Number.isInteger(e.peakPhase) ? e.peakPhase : 1,
+        bestAlbum:
+          e.bestAlbum && typeof e.bestAlbum.title === "string"
+            ? {
+                title: e.bestAlbum.title.slice(0, 80),
+                artist: String(e.bestAlbum.artist ?? "").slice(0, 80),
+                quality: Number(e.bestAlbum.quality) || 0,
+              }
+            : null,
+        superstars: Array.isArray(e.superstars)
+          ? e.superstars.filter((x) => typeof x === "string").slice(0, 10)
+          : [],
+        score: Number(e.score) || 0,
+        challenge: CHALLENGES.some((c) => c.id === e.challenge) ? e.challenge : null,
+        achievements: Number(e.achievements) || 0,
+        seed: Number.isFinite(e.seed) ? e.seed : null,
+        when: Number(e.when) || 0,
+      };
+    }
+    /**
+     * Merges a hall of fame and achievements carried in a save file into this browser's: the same run
+     * is kept once, newest first, within the hall's size; achievements are the union.
+     */
+    function mergeLegacy(local, incoming) {
+      const key = (e) => [e.label, e.ending, e.years, e.peakPhase, e.when, e.seed].join("|");
+      const seen = new Set(),
+        hall = [...(local?.hall || []), ...(Array.isArray(incoming?.hall) ? incoming.hall : [])]
+          .map(cleanEntry)
+          .filter((e) => e && !seen.has(key(e)) && seen.add(key(e)))
+          .sort((a, b) => b.when - a.when)
+          .slice(0, R.hallSize);
+      const ids = new Set([
+        ...(local?.achievements || []),
+        ...(Array.isArray(incoming?.achievements) ? incoming.achievements : []),
+      ]);
+      return { hall, achievements: ACHIEVEMENTS.filter((a) => ids.has(a.id)).map((a) => a.id) };
+    }
     /** Perks open to a player with this many achievements unlocked. */
     function perksOpen(count) {
       return PERKS.filter((p) => count >= p.unlock).map((p) => p.id);
@@ -243,6 +288,7 @@
         hallEntry,
         recordRun,
         unlockedAchievements,
+        mergeLegacy,
         perksOpen,
         noLoans,
       },

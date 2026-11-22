@@ -11,8 +11,8 @@ Task: v2.0.0 released
 
 **Updated:** 2026-11-21
 **Branch:** `main`
-**Current task:** After 3.0: T65–T66 done (owner answers, compact phone top bar).
-**Next step:** T67, carry the hall of fame with saves. Run `node tools/next-task.cjs`.
+**Current task:** After 3.0: T65–T67 done (owner answers, phone top bar, hall of fame in saves).
+**Next step:** T68, a full playthrough, performance and 3.0 notes. Run `node tools/next-task.cjs`.
 **Blocked on:** Nothing.
 **Files in progress:** None.
 **Open questions:** When to schedule the Android wrapper and a physical device test.
