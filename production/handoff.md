@@ -9,13 +9,13 @@ Task: v2.0.0 released
 
 <!-- CHECKPOINT -->
 
-**Updated:** 2026-11-21
+**Updated:** 2026-11-22
 **Branch:** `main`
 **Current task:** main (T70 merged)
 **Next step:** Await owner answers to the four audit questions in production/qa/audit-3.0.md; then build and test the Android app on a device
 **Blocked on:** Nothing.
 **Files in progress:** None.
-**Open questions:** When to schedule the Android wrapper and a physical device test.
+**Open questions:** The four in production/qa/audit-3.0.md.
 <!-- /CHECKPOINT -->
 
 ## Resume here
@@ -27,8 +27,8 @@ Task: v2.0.0 released
 
 ## Open items
 
-- Balance: in the twelve-seed sample, three careful runs folded and five of twelve reckless runs were fired ([CEO-BALANCE.json](../CEO-BALANCE.json)).
-- Android: the wrapper and a test on a real device ([Android guide](../docs/android.md)).
+- Balance: in the twelve-seed sample no careful or average run folds and 7 of 12 reckless runs are fired; delegated touring ends 25% below hand play ([CEO-BALANCE.json](../CEO-BALANCE.json), [audit](qa/audit-3.0.md)).
+- Android: the wrapper is in `android-app/`; building it and a test on a real device remain ([Android guide](../docs/android.md)).
 
 ## Verification
 
