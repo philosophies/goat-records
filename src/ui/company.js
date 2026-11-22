@@ -38,6 +38,22 @@ function acquisitionCards() {
     .join("")}</div>`;
 }
 
+function platformCard() {
+  const p = G.platformInfo(state);
+  if (!p || (!p.open && !p.level)) return "";
+  const pct = (x) => `+${Math.round(x * 1000) / 10}%`;
+  const now = p.level
+    ? `The label owns ${p.share}% of ${esc(p.name)}: its albums sell ${pct(p.lift)} more and chart higher.`
+    : `Buy into ${esc(p.name)}, a streaming service, and the label's albums sell more and chart higher.`;
+  const next = p.next
+    ? `<div class="actions"><button data-action="platformStake" ${disable(blocked() || state.cash < p.next.price)}>Buy up to ${p.next.share}% for ${money(p.next.price)} · sales ${pct(p.next.lift)}</button></div>`
+    : `<p class="muted">The label owns all of it.</p>`;
+  const scrutiny = p.scrutiny
+    ? `<p class="muted">At this size the press asks questions about the numbers now and then (reputation −${Math.abs(G.PLATFORM.scrutiny.reputation)}).</p>`
+    : `<p class="muted">From a ${G.PLATFORM.stakes[G.PLATFORM.scrutiny.from - 1].share}% stake the press starts asking questions about the numbers.</p>`;
+  return `<h3>Streaming platform</h3><article class="card platform-card"><h4>${esc(p.name)}${p.level ? ` · ${p.share}% owned` : ""}</h4><p>${now} The lift follows the era: it is biggest in the streaming years.${p.paid ? ` ${money(p.paid)} invested; ${Math.round(G.PLATFORM.bookValue * 100)}% of that counts toward company value.` : ""}</p>${scrutiny}${next}</article>`;
+}
+
 function companyChip() {
   const phase = G.companyPhase(state);
   if (!phase) return "";
@@ -65,7 +81,7 @@ function companyScreen() {
           "",
         )}</ul><p class="muted">The label moves up at the weekly settlement once every goal is met. A phase is never lost.</p>`
     : "";
-  return `<p class="slogan">${esc(G.SLOGANS[phase.id - 1] || "")}</p><h2>Phase ${phase.id} · ${esc(phase.name)}</h2><p class="muted">Since week ${state.company.since}. Scouting reaches ${esc(G.REACH_SCOUTING[phase.reach].name)}.</p>${goals}${typeof GoatBoard !== "undefined" ? GoatBoard.summary() : ""}${listingCard()}${acquisitionCards()}<h3>The road to a public company</h3><ol class="phase-ladder">${ladder}</ol>`;
+  return `<p class="slogan">${esc(G.SLOGANS[phase.id - 1] || "")}</p><h2>Phase ${phase.id} · ${esc(phase.name)}</h2><p class="muted">Since week ${state.company.since}. Scouting reaches ${esc(G.REACH_SCOUTING[phase.reach].name)}.</p>${goals}${typeof GoatBoard !== "undefined" ? GoatBoard.summary() : ""}${listingCard()}${platformCard()}${acquisitionCards()}<h3>The road to a public company</h3><ol class="phase-ladder">${ladder}</ol>`;
 }
 
 /** The office's name card: works in every run. */
@@ -85,6 +101,9 @@ function companyClick(b) {
       return true;
     case "ackIPO":
       act(() => G.acknowledgeIPO(state));
+      return true;
+    case "platformStake":
+      act(() => G.buyPlatformStake(state));
       return true;
     case "buyAcquisition":
       act(() => G.buyAcquisition(state, b.dataset.offer, b.dataset.financed === "true"));

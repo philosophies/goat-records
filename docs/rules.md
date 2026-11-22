@@ -454,6 +454,18 @@ A grab comes to a head 26 weeks after the gossip. With a board, it succeeds when
 
 **Acquisitions.** In phase 6, buy a rival's catalog or a small label from the Company panel. The catalog pays weekly royalties, and a small label sends an artist into a free roster slot. Pay the price in cash or finance it with 35% down. A majority board vote is required when a deal exceeds your remaining budget.
 
+**The streaming platform.** From phase 5 the Company panel offers stakes in Tributary, a streaming service. They are bought in order and each lifts the label's album sales, and so its chart units, × the era's catalog number (×0.8 in the tapes years up to ×1.4 in streaming):
+
+| Stake |        Price | Sales lift |
+| ----: | -----------: | ---------: |
+|   10% |   $3,000,000 |        +3% |
+|   25% |  $10,000,000 |        +6% |
+|   45% |  $30,000,000 |        +9% |
+|   70% |  $75,000,000 |       +12% |
+|  100% | $180,000,000 |       +15% |
+
+80% of what was paid counts toward company value. A stake is a payment like any other, so with a board it counts against the budget. From a 45% stake, every 13 weeks there is a 6% chance (12% at 70%, 18% at 100%) that the press asks about the numbers: reputation −4, and a board counts it as a scandal.
+
 **Final review.** A CEO run ends after 20 years, dismissal, or bankruptcy. Company value, your equity, hits, awards, artists developed, and whether you held the chair contribute to the grade. Any CEO ending allows a CEO New Game+ run. In CEO runs the points are called prestige points and the bonuses prestige bonuses: same table and prices, earned from the run's score and spent only at New Game+.
 
 **Classic conversion.** Earlier labels can stay in Classic or convert on load. Conversion keeps the year, cash, roster, records, and history, maps rank to company phase, moves rooms and facilities into buildings, and turns existing staff into department heads. Converted phases with board seats start at 60 confidence. Export the original from **Export classic backup**.

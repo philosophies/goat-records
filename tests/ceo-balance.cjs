@@ -389,6 +389,20 @@ function work(s, name, policy) {
   }
 }
 
+/** Late cash: careful and average players buy the next platform stake once they hold twice
+ *  its price on top of their reserve (and the board's budget, if any, has room for it). */
+function invest(s, name, policy) {
+  const p = G.platformInfo(s);
+  if (name === "reckless" || !p?.open || !p.next || s.cash < 2 * p.next.price + policy.reserve) return;
+  const board = s.company.board;
+  if (board && board.budget - board.spent < p.next.price) return;
+  try {
+    G.buyPlatformStake(s);
+  } catch {
+    // Waiting for the board: try again next week.
+  }
+}
+
 /** Vault offers: free money is always taken; paid offers when the policy can afford them. */
 function vault(s, name) {
   for (const o of [...(s.company.catalog?.offers || [])]) {
@@ -441,6 +455,7 @@ function run(seed, label, policy) {
       }
     }
     vault(s, name);
+    invest(s, name, policy);
     clearDecisions(s, name);
     const year = G.operatingYear(s.week);
     // With a tour on the road (booked by delegation) the week plays day by day.
@@ -487,6 +502,8 @@ function run(seed, label, policy) {
     lostToRivals: (s.company.rivals || []).reduce((n, r) => n + r.roster.filter((x) => x.from).length, 0),
     battles: s.albums.filter((p) => p.battle).length,
     battlesWon: s.albums.filter((p) => p.battle?.won).length,
+    platformShare: G.platformInfo(s)?.share ?? 0,
+    platformPaid: s.company.platform?.paid ?? 0,
   };
 }
 
@@ -531,6 +548,9 @@ for (const [name, policy] of Object.entries(policies)) {
     );
   console.log(
     `  rivals: ${sum("lostToRivals")} artists lost to bids, ${sum("battlesWon")} of ${sum("battles")} chart battles won`,
+  );
+  console.log(
+    `  late cash: median $${median(runs.map((r) => r.cash)).toLocaleString("en-US")} at the end; platform stakes ${runs.map((r) => r.platformShare + "%").join(", ")} (median $${median(runs.map((r) => r.platformPaid)).toLocaleString("en-US")} invested)`,
   );
   if (quick) console.log(runs);
 }

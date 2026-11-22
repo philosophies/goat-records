@@ -11,8 +11,8 @@ Task: v2.0.0 released
 
 **Updated:** 2026-11-21
 **Branch:** `main`
-**Current task:** T74 · Investing in a streaming platform
-**Next step:** Stakes in a streaming platform that lift album sales and chart units; Company panel; balance shows late cash spent
+**Current task:** main (T74 merged)
+**Next step:** Owner review of T71–T74; the questions in production/status.md
 **Blocked on:** Nothing.
 **Files in progress:** None.
 **Open questions:** The four in production/qa/audit-3.0.md.

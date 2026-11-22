@@ -630,7 +630,7 @@ Files: `src/data/company.js`, `src/engine.js` or a system, `src/systems/delegati
 Do: Owner decision: the label can only make so many albums at once (by phase), so touring is how idle artists earn while the studio is full. Albums already in production when a save loads are kept. The head of Live books tours for artists waiting on the studio.
 Done when: tests for the limit, old saves over the limit, and the delegated booking; the balance report's delegated label within 10% of hand play; rules updated.
 
-### [ ] T74 · Investing in a streaming platform
+### [x] T74 · Investing in a streaming platform
 
 Depends on: T61
 Files: `src/data/company.js` or a new data file, a system, `src/ui/*.js`, tests

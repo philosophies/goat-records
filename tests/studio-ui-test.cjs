@@ -48,6 +48,10 @@ assert.match(
 );
 assert.match(form, /data-tab="bus"/);
 assert.doesNotMatch(form, /id="albumForm"/);
+// The artist's Record section gives the full studio as the reason, not the busy rooms.
+const section = run("recordSection(state.artists[1])");
+assert.match(section, /The studio is full/);
+assert.doesNotMatch(section, /Every recording room is busy/);
 
 run(`state = G.create(73, { ceo: false }); state.cash = 1e6; G.sign(state, state.candidates[0].id);`);
 assert.doesNotMatch(run("albumFormCard()"), /Studio:|studio is full/);
