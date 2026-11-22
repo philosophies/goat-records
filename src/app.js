@@ -168,7 +168,8 @@ function validProductionSave(s) {
         typeof d.releaseReady === "boolean" &&
         Number.isInteger(d.artistLevel) &&
         d.artistLevel >= 1 &&
-        d.artistLevel <= 10 &&
+        // CEO runs: careers go to level 30 (T49); classic careers stop at 10.
+        d.artistLevel <= (s.company ? G.LEVELS.cap.superstar : 10) &&
         Number.isInteger(d.rerollLimit) &&
         d.rerollLimit === Math.min(3, d.artistLevel) &&
         Number.isInteger(d.rerollsUsed) &&

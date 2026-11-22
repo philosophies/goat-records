@@ -188,7 +188,8 @@
           !isCount(c.analyst.revenue) ||
           (c.analyst.last !== null &&
             (!c.analyst.last ||
-              !isCount(c.analyst.last.revenue) ||
+              // Saves from before whole-dollar revenue may hold a fraction here.
+              !(Number.isFinite(c.analyst.last.revenue) && c.analyst.last.revenue >= 0) ||
               !isCount(c.analyst.last.target) ||
               typeof c.analyst.last.met !== "boolean")))
       )
@@ -242,13 +243,16 @@
       return s.company ? PHASES[s.company.phase - 1] : null;
     }
     function revenueFor(rows) {
-      return rows.reduce(
-        (n, w) =>
-          n +
-          Math.max(0, w.albumIncome || 0) +
-          Math.max(0, w.hqIncome || 0) +
-          Math.max(0, w.otherIncome || 0),
-        0,
+      // Whole dollars: some income lines are scaled by the music era.
+      return Math.round(
+        rows.reduce(
+          (n, w) =>
+            n +
+            Math.max(0, w.albumIncome || 0) +
+            Math.max(0, w.hqIncome || 0) +
+            Math.max(0, w.otherIncome || 0),
+          0,
+        ),
       );
     }
     /** Income over the last 52 settled weeks: album sales plus every system's weekly income. */
@@ -459,7 +463,7 @@
         // With the Vault, catalog royalties are paid album by album (catalog system) instead.
         COMPANY_REVENUE.filter(
           (stream) => stream.phase <= s.company.phase && !(stream.id === "catalog" && s.company.catalog),
-        ).map(({ id, source, rate }) => [id, activity[source] * rate * era(id)]),
+        ).map(({ id, source, rate }) => [id, Math.round(activity[source] * rate * era(id))]),
       );
       if (s.company.acquisitions?.length)
         income.acquisitions =
