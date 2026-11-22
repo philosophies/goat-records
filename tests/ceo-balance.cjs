@@ -320,6 +320,28 @@ function measure(s) {
   };
 }
 
+/** Books the biggest paying solo tour for an artist's recent album; true if one was booked. */
+function tour(s, a, policy) {
+  const p = s.albums.find((x) => x.artist === a.id && G.popularAlbum(s, x));
+  if (!p) return false;
+  for (const scale of ["world", "national", "regional"]) {
+    let q;
+    try {
+      q = G.tourQuote(s, { albumId: p.id, scale, mode: "solo" });
+    } catch {
+      continue;
+    }
+    if (q.expectedNet <= 0 || s.cash < q.upfront + q.weekly + policy.reserve) continue;
+    try {
+      G.startTour(s, { albumId: p.id, scale, mode: "solo" });
+      return true;
+    } catch {
+      // Too big for the artist's tier or energy: try a smaller one.
+    }
+  }
+  return false;
+}
+
 function work(s, name, policy) {
   for (const a of s.artists) {
     if (s.event) return;
@@ -332,7 +354,13 @@ function work(s, name, policy) {
     const booth = s.booths.find((b) => !s.albums.some((p) => !p.released && p.booth === b.id));
     // A policy spends what the artist's tier allows.
     const budget = Math.min(s.cash > 60000 ? policy.budget : 4000, G.tierInfo(a).budget);
-    if (booth && a.energy >= 35 && G.inspirationInfo(a).canRecord && s.cash >= budget + policy.reserve) {
+    if (
+      booth &&
+      !G.studioCapacity(s).full &&
+      a.energy >= 35 &&
+      G.inspirationInfo(a).canRecord &&
+      s.cash >= budget + policy.reserve
+    ) {
       // Under low creative freedom a risky theme needs the board's approval; a careful CEO avoids it.
       const lowFreedom = s.company.board?.freedom === "low";
       const theme = s.themes
@@ -351,6 +379,10 @@ function work(s, name, policy) {
       );
       if (p || s.event) continue;
     }
+    // Waiting on a full studio: tour the latest album if it qualifies and the forecast pays.
+    // (With tour booking delegated, the head of Live does this.)
+    if (G.studioCapacity(s).full && !(policy.delegate && s.company.delegation.tours.on) && tour(s, a, policy))
+      continue;
     const gigs = G.GIGS.map(({ id }) => G.gigQuote(s, a.id, id)).filter(({ ready }) => ready);
     const gig = gigs.toSorted((x, y) => y.pay.expected - x.pay.expected)[0];
     if (gig && (name !== "reckless" || s.cash < 10000)) G.playGig(s, a.id, gig.id);

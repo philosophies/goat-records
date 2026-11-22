@@ -11,8 +11,8 @@ Task: v2.0.0 released
 
 **Updated:** 2026-11-21
 **Branch:** `main`
-**Current task:** T73 · Studio capacity and touring
-**Next step:** Limit albums in production by phase, keep older saves' albums, and have the head of Live book tours for artists waiting on the studio
+**Current task:** T74 · Investing in a streaming platform
+**Next step:** Stakes in a streaming platform that lift album sales and chart units; Company panel; balance shows late cash spent
 **Blocked on:** Nothing.
 **Files in progress:** None.
 **Open questions:** The four in production/qa/audit-3.0.md.

@@ -663,13 +663,31 @@
       log(s, `Analysts: ${met ? "revenue beat" : "revenue missed"} the half-year target.`);
     }
 
+    /** Albums in production against the phase's studio capacity. */
+    function studioCapacity(s) {
+      const used = s.albums.filter((p) => !p.released).length,
+        max = D.STUDIO_CAPACITY.byPhase[(s.company?.phase || 1) - 1];
+      return { used, max, full: used >= max };
+    }
+    function validatePlan(s) {
+      if (!s.company) return;
+      const c = studioCapacity(s);
+      if (c.full)
+        throw Error(
+          `The studio is full: ${c.used} album${c.used === 1 ? "" : "s"} in production, ${c.max} at phase ${s.company.phase}. Finish one first, or send artists on tour while they wait.`,
+        );
+    }
+
     return {
       init,
       validSave,
+      validatePlan,
       upkeep: companyUpkeep,
       weekly,
       afterSettlement,
       api: {
+        studioCapacity,
+        STUDIO_CAPACITY: D.STUDIO_CAPACITY,
         PHASES,
         SLOGANS: D.SLOGANS,
         REACHES,

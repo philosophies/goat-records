@@ -291,8 +291,13 @@
   // under `below`, so a run of bad choices never shuts signings (30 reputation) for good.
   const REPUTATION_RECOVERY = { below: 40, every: 4, step: 1 };
 
+  // How many albums a CEO label can have in production at once, by phase. Artists waiting for the
+  // studio can tour; albums already in production when a save loads are kept.
+  const STUDIO_CAPACITY = { byPhase: [1, 2, 2, 2, 3, 3] };
+
   const data = {
     REPUTATION_RECOVERY,
+    STUDIO_CAPACITY,
     FLOOR_LEVELS,
     PHASES,
     SLOGANS,

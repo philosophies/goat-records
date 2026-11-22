@@ -623,7 +623,7 @@ Files: `src/data/rivals.js`, `src/systems/rivals.js`, `src/ui/*.js`, tests
 Do: Owner decision: rivals stay a threat at every phase. Rival records are benchmarked on the label's own recent releases, not a fixed table; rival strength climbs faster from phase 4; a weak rival can be taken over by a stronger one; a rival that leaves the charts is replaced by a new label.
 Done when: tests for the benchmark, faster growth, takeovers and replacements; the balance report shows hand players winning well under 90% of chart battles; rules updated.
 
-### [ ] T73 · Studio capacity and touring
+### [x] T73 · Studio capacity and touring
 
 Depends on: T63
 Files: `src/data/company.js`, `src/engine.js` or a system, `src/systems/delegation.js`, tests
