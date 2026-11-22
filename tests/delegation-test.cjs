@@ -105,35 +105,59 @@ test("renewals by rule: quality and wage limits; never a superstar", () => {
   assert.equal(a.contract.remaining, 0, "a superstar's contract is the player's call");
 });
 
-test("tour booking: the biggest tour under the cap, only with a head of Live; undo cancels it", () => {
+/** A studio with no free place (capacity 0 at every phase) for the length of fn. */
+function studioFull(fn) {
+  const saved = G.STUDIO_CAPACITY.byPhase;
+  G.STUDIO_CAPACITY.byPhase = saved.map(() => 0);
+  try {
+    return fn();
+  } finally {
+    G.STUDIO_CAPACITY.byPhase = saved;
+  }
+}
+
+test("tour booking waits for a full studio: an artist who could record is left to record", () => {
   const { s, a } = label(4);
   a.tier = "star";
-  const p = album(s, a);
+  album(s, a);
   G.setDelegation(s, "tours", { on: true, cap: 20000 });
+  assert.equal(G.studioCapacity(s).full, false);
   settle(s);
-  const tour = s.tours.find((t) => t.albumId === p.id || t.album === p.id) || s.tours.at(-1);
-  assert.equal(tour.scale, "national", "world costs $35,000, over the cap");
-  const entry = notes(s, "tour")[0];
-  assert.match(entry.text, /booked a national tour/);
-  G.undoDelegated(s, entry.id);
-  assert.notEqual(s.tours.find((t) => t.id === tour.id).status, "active");
-  assert.throws(() => G.undoDelegated(s, entry.id), /cannot be undone/);
-  // Under a small cap nothing fits but a regional run; with no head, nothing at all.
-  const two = label(4, 64);
-  album(two.s, two.a);
-  G.setDelegation(two.s, "tours", { on: true, cap: 1000 });
-  settle(two.s);
-  assert.equal(two.s.tours.length, 0, "regional costs $4,500, over a $1,000 cap");
-  const three = label(4, 65);
-  album(three.s, three.a);
-  three.a.tier = "superstar";
-  G.setDelegation(three.s, "tours", { on: true });
-  settle(three.s);
-  assert.equal(three.s.tours.length, 0, "a superstar's tour is the player's call");
-  const four = label(4, 66);
-  four.s.company.departments.live.head = null;
-  assert.throws(() => G.setDelegation(four.s, "tours", { on: true }), /head of Live/);
+  assert.equal(s.tours.length, 0, "the studio has room");
+  studioFull(() => settle(s));
+  assert.equal(s.tours.length, 1, "with the studio full, the head of Live books the tour");
 });
+
+test("tour booking: the biggest tour under the cap, only with a head of Live; undo cancels it", () =>
+  studioFull(() => {
+    const { s, a } = label(4);
+    a.tier = "star";
+    const p = album(s, a);
+    G.setDelegation(s, "tours", { on: true, cap: 20000 });
+    settle(s);
+    const tour = s.tours.find((t) => t.albumId === p.id || t.album === p.id) || s.tours.at(-1);
+    assert.equal(tour.scale, "national", "world costs $35,000, over the cap");
+    const entry = notes(s, "tour")[0];
+    assert.match(entry.text, /booked a national tour/);
+    G.undoDelegated(s, entry.id);
+    assert.notEqual(s.tours.find((t) => t.id === tour.id).status, "active");
+    assert.throws(() => G.undoDelegated(s, entry.id), /cannot be undone/);
+    // Under a small cap nothing fits but a regional run; with no head, nothing at all.
+    const two = label(4, 64);
+    album(two.s, two.a);
+    G.setDelegation(two.s, "tours", { on: true, cap: 1000 });
+    settle(two.s);
+    assert.equal(two.s.tours.length, 0, "regional costs $4,500, over a $1,000 cap");
+    const three = label(4, 65);
+    album(three.s, three.a);
+    three.a.tier = "superstar";
+    G.setDelegation(three.s, "tours", { on: true });
+    settle(three.s);
+    assert.equal(three.s.tours.length, 0, "a superstar's tour is the player's call");
+    const four = label(4, 66);
+    four.s.company.departments.live.head = null;
+    assert.throws(() => G.setDelegation(four.s, "tours", { on: true }), /head of Live/);
+  }));
 
 test("autopilot: a policy sets the steps per month and the cash it keeps; never a superstar", () => {
   const { s, a } = label(5);

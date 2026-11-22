@@ -88,6 +88,8 @@
     function tours(s) {
       const t = Dg(s).tours;
       if (!t.on || !open(s, "tours") || !s.company.departments[X.tours.department]?.head) return;
+      // The head of Live books artists who are waiting on a full studio, not ones who could record.
+      if (!api().studioCapacity(s).full) return;
       for (const a of s.artists) {
         if (superstar(a) || api().busy(s, a.id)) continue;
         const p = s.albums.find((x) => x.artist === a.id && api().popularAlbum(s, x));

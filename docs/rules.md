@@ -383,6 +383,8 @@ The company starts with $2,000, a home studio, and full ownership. The Company p
 
 A label with no artists can sign one up-and-comer whatever its reputation; otherwise a signing needs 30 reputation. Label reputation below 40 recovers 1 point every 4 weeks, up to 40, so a run is never locked out of signing for good.
 
+**Studio capacity.** A CEO label can have only so many albums in production at once: 1 at phase 1, 2 at phases 2–4 and 3 at phases 5–6, however many rooms it has. While the studio is full, artists who are waiting can tour. Albums already in production when a save loads are kept, even over the limit.
+
 For phases 2–5, the goals are fame, revenue over the last 52 weeks, releases, and hits. Where an outside board exists, it must approve the phase change. Phases never go backward. The office shows weekly income by source and rent, insurance, and interest in the expense breakdown.
 
 **Phone and events.** The Inbox shows current and queued decisions. Once a quarter an eligible opportunity, crisis, or political problem can arrive. The label's phase, finances, roster, albums, staff, and board affect which offers can appear. A decision pauses the clock. Choose a response or defer to a later week. The choice card names the fallback that applies at expiry.
@@ -576,6 +578,6 @@ A strength-50 rival record's first week sells a blend of a typical album at your
 **Delegation.** From phase 3 the office's Delegation section hands chores over. Every delegated step is logged; a notice sums up each four weeks, and a delegated tour or junior hire can be undone. Delegation never makes story choices, superstar decisions or board decisions.
 
 - **Contract renewals (phase 3):** a finished contract is renewed for three albums when the artist's average album quality is at least your limit (65 to start) and the new wage at most your limit. Until you set one, the wage limit follows the phase: $800 a week at phase 3, $900 at 4, $1,200 at 5 and $1,500 at 6.
-- **Tour booking (phase 4):** with a head of Live, an album that qualifies for a tour gets the biggest solo tour (world, national, regional) its artist's tier allows and whose upfront cost fits your cap ($15,000 to start).
+- **Tour booking (phase 4):** with a head of Live and the studio full, an album that qualifies for a tour gets the biggest solo tour (world, national, regional) its artist's tier allows and whose upfront cost fits your cap ($15,000 to start).
 - **Department autopilot (phase 5):** every four weeks, on a policy. Safe takes one step and keeps 52 weeks of overhead in cash, training heads only. Balanced takes two and keeps 26 weeks; aggressive takes four and keeps 8. Both also add juniors and develop artists.
 - **Chief operating officer (phase 6):** settles company events within a cash limit ($10,000 to start), picking the choice worth most (cash less cost ÷ 600, plus fame, half of morale, three times board confidence, less four per week of album delay). Board politics and superstar events always come to you.
