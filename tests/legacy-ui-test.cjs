@@ -79,7 +79,7 @@ assert.equal(s.company.loan.balance, 20000);
 // The hall of fame shows the run's challenge and perks; finishing records it once.
 click({ tab: "hall" });
 assert.match(screen(), /This run: In the red\./);
-assert.match(screen(), /Perks: Word of mouth\./);
+assert.match(screen(), /Hall of fame perks: Word of mouth\./);
 assert.match(screen(), /Finished runs are listed here/);
 run(`state.finished = true; state.bankrupt = true; state.cash = -100; save(); render();`);
 const profile = JSON.parse(run("localStorage.getItem(GoatLegacy.KEY)"));

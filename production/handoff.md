@@ -9,10 +9,10 @@ Task: v2.0.0 released
 
 <!-- CHECKPOINT -->
 
-**Updated:** 2026-11-22
+**Updated:** 2026-11-21
 **Branch:** `main`
-**Current task:** main (T70 merged)
-**Next step:** Await owner answers to the four audit questions in production/qa/audit-3.0.md; then build and test the Android app on a device
+**Current task:** T72 · Rivals that keep pace
+**Next step:** Benchmark rival records on the label's own releases, faster growth from phase 4, takeovers and replacements
 **Blocked on:** Nothing.
 **Files in progress:** None.
 **Open questions:** The four in production/qa/audit-3.0.md.

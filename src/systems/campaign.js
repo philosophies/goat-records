@@ -461,12 +461,16 @@
             ? "New Game+ opens once the CEO run ends."
             : "New Game+ opens after year 20, or after running out of cash once year one is complete.",
         );
-      if (!Array.isArray(choices)) throw Error("Choose legacy bonuses from the list.");
+      const word = prev.company ? "prestige" : "legacy";
+      if (!Array.isArray(choices)) throw Error(`Choose ${word} bonuses from the list.`);
       const ids = [...new Set(choices)];
-      if (ids.some((id) => !bonusById[id])) throw Error("Unknown legacy bonus.");
+      if (ids.some((id) => !bonusById[id])) throw Error(`Unknown ${word} bonus.`);
       const cost = ids.reduce((n, id) => n + bonusById[id].cost, 0),
         points = legacyPoints(prev);
-      if (cost > points) throw Error(`Those bonuses cost ${cost} legacy points; you have ${points}.`);
+      if (cost > points)
+        throw Error(
+          `Those bonuses cost ${cost} ${prev.company ? "prestige" : "legacy"} points; you have ${points}.`,
+        );
       const review = finalReview(prev),
         has = (id) => ids.includes(id);
       const legacy = {
@@ -558,7 +562,7 @@
       c.yearStart = snapshot(s);
       log(
         s,
-        `Run ${c.run} begins${c.legacy.length ? " with legacy bonuses: " + c.legacy.map((id) => bonusById[id].name).join(", ") : ""}.`,
+        `Run ${c.run} begins${c.legacy.length ? ` with ${s.company ? "prestige" : "legacy"} bonuses: ` + c.legacy.map((id) => bonusById[id].name).join(", ") : ""}.`,
       );
     }
     function addLegacyFloor(s, floor) {
