@@ -1043,7 +1043,25 @@ $("testFunds").onclick = () =>
     }
     state.news.unshift(`W${state.week}: Testing grant +$100,000.`);
   });
+/** In the Android app (a web view) a file download does nothing: write the file, then share it. */
+async function shareSaveNatively(raw, filename) {
+  const { Filesystem, Share } = globalThis.Capacitor.Plugins;
+  const file = await Filesystem.writeFile({
+    path: filename,
+    data: raw,
+    directory: "CACHE",
+    encoding: "utf8",
+  });
+  await Share.share({ title: filename, files: [file.uri] });
+}
 function downloadSave(raw, filename) {
+  const native = globalThis.Capacitor?.isNativePlatform?.() && globalThis.Capacitor.Plugins?.Share;
+  if (native) {
+    shareSaveNatively(raw, filename).catch(
+      (err) => ($("message").textContent = `Export failed: ${err.message}`),
+    );
+    return;
+  }
   let url = URL.createObjectURL(new Blob([raw], { type: "application/json" })),
     a = document.createElement("a");
   a.href = url;

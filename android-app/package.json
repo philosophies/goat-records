@@ -1,0 +1,19 @@
+{
+  "name": "goat-records-android",
+  "private": true,
+  "description": "Android wrapper for Goat Records: the game's files bundled into a Capacitor app.",
+  "scripts": {
+    "copy-web": "node copy-web.cjs",
+    "sync": "node copy-web.cjs && cap sync android",
+    "open": "cap open android"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.6.2"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/core": "^8.6.2",
+    "@capacitor/filesystem": "^8.1.5",
+    "@capacitor/share": "^8.0.3"
+  }
+}

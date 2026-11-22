@@ -371,3 +371,100 @@ body.ceo-run .notice.starter button.link {
     padding: 3px 5px;
   }
 }
+
+/* Phones held sideways and other short screens (the Android app is landscape): the top bar keeps
+   the wide layout but shrinks to two short rows. */
+@media (max-height: 520px) and (min-width: 761px) {
+  body.ceo-run .hudbar {
+    padding: 3px 8px 0;
+  }
+  body.ceo-run .hud-top {
+    gap: 6px;
+  }
+  body.ceo-run .hudbar .logo {
+    width: 24px;
+    height: 24px;
+  }
+  body.ceo-run .brand b {
+    font-size: 14px;
+  }
+  body.ceo-run .hud-rank,
+  body.ceo-run .hud-rank .stars {
+    font-size: 10px;
+  }
+  body.ceo-run #stats .stat {
+    padding: 1px 6px;
+  }
+  body.ceo-run #stats .stat small {
+    font-size: 8px;
+    line-height: 1.1;
+  }
+  body.ceo-run #stats .stat b {
+    font-size: 12px;
+    line-height: 1.2;
+  }
+  body.ceo-run .hud-sound {
+    padding: 1px 6px;
+    font-size: 10px;
+    min-height: 0;
+  }
+  body.ceo-run .hud-bottom {
+    gap: 6px;
+    padding: 3px 0;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+  body.ceo-run .hud-date strong {
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  body.ceo-run .hud-date small {
+    display: none;
+  }
+  body.ceo-run .company-chip,
+  body.ceo-run .campaign-chip {
+    font-size: 10px;
+    padding: 1px 6px;
+    white-space: nowrap;
+  }
+  body.ceo-run .clock-buttons button {
+    min-width: 26px;
+    padding: 2px 4px;
+    font-size: 11px;
+    min-height: 0;
+  }
+  body.ceo-run .clock .step {
+    padding: 3px 8px;
+    font-size: 11px;
+    min-height: 0;
+  }
+  body.ceo-run .clock-reason {
+    padding: 1px 6px;
+    font-size: 10px;
+    min-height: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+  }
+}
+@media (max-height: 520px) and (max-width: 760px) and (orientation: landscape) {
+  body.ceo-run .hud-top {
+    flex-wrap: nowrap;
+  }
+  body.ceo-run #stats.stats {
+    order: 0;
+    flex: 1 1 auto;
+    flex-basis: auto;
+  }
+  body.ceo-run .hud-bottom {
+    flex-wrap: nowrap;
+  }
+  body.ceo-run .clock-reason {
+    flex-basis: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+  }
+}

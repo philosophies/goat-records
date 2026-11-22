@@ -2,3 +2,4 @@ production/qa/evidence export-ignore
 .github export-ignore
 AGENTS.md export-ignore
 tools export-ignore
+android-app/ export-ignore

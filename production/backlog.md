@@ -594,7 +594,7 @@ Files: `production/qa/`, `CHANGELOG.md`, tests
 Do: Play a 20-year CEO run in the browser end to end with every 3.0 system; measure week times late in a run; draft 3.0 notes under Unreleased (no version heading).
 Done when: a playthrough report with screenshots, a performance budget test, and the Unreleased notes.
 
-### [ ] T69 · Android wrapper
+### [x] T69 · Android wrapper
 
 Files: `android/` or `twa/`, `docs/android.md`
 Do: Build the wrapper the Android guide describes and check it in an emulator if one can run here. A test on a physical device stays with the owner.
