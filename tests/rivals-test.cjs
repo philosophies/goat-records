@@ -72,6 +72,21 @@ test("rivals release into the charts on their schedule", () => {
   });
 });
 
+test("a rival whose artists were all bid away signs a newcomer and keeps releasing", () => {
+  const s = label();
+  withRules(quiet(), () => {
+    const r = s.company.rivals[0];
+    r.roster = [];
+    r.nextRelease = s.week + 1;
+    settle(s);
+    assert.equal(r.releases.length, 1);
+    assert.equal(r.roster.length, 1);
+    const album = s.charts.rivals.find((x) => x.id === r.releases[0].id);
+    assert.equal(album.artistName, r.roster[0].name);
+    assert.ok(!s.artists.some((a) => a.name === r.roster[0].name), "a name nobody at your label has");
+  });
+});
+
 test("releases within two weeks meet in a chart battle, decided by best position", () => {
   const s = label();
   withRules(quiet(), () => {

@@ -381,7 +381,7 @@ The company starts with $2,000, a home studio, and full ownership. The Company p
 | 5 Global label   | Media center and warehouse, worldwide scouting        | Publishing and catalog royalties    |
 | 6 Public company | IPO, overseas offices, acquisitions                   | Catalog purchases can add royalties |
 
-A label with no artists can sign one up-and-comer whatever its reputation; otherwise a signing needs 30 reputation.
+A label with no artists can sign one up-and-comer whatever its reputation; otherwise a signing needs 30 reputation. Label reputation below 40 recovers 1 point every 4 weeks, up to 40, so a run is never locked out of signing for good.
 
 For phases 2–5, the goals are fame, revenue over the last 52 weeks, releases, and hits. Where an outside board exists, it must approve the phase change. Phases never go backward. The office shows weekly income by source and rent, insurance, and interest in the expense breakdown.
 
@@ -537,7 +537,7 @@ Four tips appear once, the first time each matters: an album ready for a listeni
 - **Chart battles.** When your album and a rival's come out within two weeks of each other, the battle is called once both have charted for three weeks: the better best chart position wins. A rival that wins gains 3 strength; one that loses drops 3.
 - **Bids for your artists.** From phase 3 a rival may bid for a star or superstar who has one album left on their contract or morale under 40 and is not busy. Match it (8 weeks of their pay; morale +5, loyalty +4), counter (half that; they stay with a chance of 50% + loyalty ÷ 200 + relationship ÷ 200, at most 95%) or let them go (standing −5). Rival cards come at most once every 26 weeks, and the same artist is bid for at most once a year.
 - **Feuds.** Standing with a rival runs from −100 to 100. Stories about them move it, and so does awards night: a rival's album beating yours in a genre costs 5, yours beating theirs 3. At −40 or lower you are feuding: both labels sell 5% more, and each week there is a 3% chance an artist is dragged in (trust −4, counted by the board as a scandal). A superstar can start one: back them (standing −20, their relationship with you +6, fans +5) or calm it (standing +10, relationship −4).
-- **Your moves.** From phase 3, bid for a rival's artist from the billboard's Rivals section: $150 per talent point, a chance of 40% + (your fame − their strength) ÷ 400 (10–80%), and standing −10 either way. A winner waits at the front desk to be signed. From phase 5, a rival under 55 strength can be bought for 40 × strength × 104; it leaves the charts and its catalog pays 40 × strength a week.
+- **Your moves.** From phase 3, bid for a rival's artist from the billboard's Rivals section: $150 per talent point, a chance of 40% + (your fame − their strength) ÷ 400 (10–80%), and standing −10 either way. A winner waits at the front desk to be signed. A rival whose artists have all been bid away signs a newcomer before its next release. From phase 5, a rival under 55 strength can be bought for 40 × strength × 104; it leaves the charts and its catalog pays 40 × strength a week.
 
 **Music eras.** A CEO run passes through four eras. Each change usually comes in year 5, 9 and 13, but every run moves each change one or two years earlier or later (fixed by the run's seed), and no era lasts under two years. The top bar names the era; the billboard's Market section shows its numbers.
 

@@ -496,6 +496,9 @@
     function weekly(s, revenues = companyRevenue(s)) {
       if (!s.company) return 0;
       renovationWeek(s);
+      const RR = D.REPUTATION_RECOVERY;
+      if (s.week % RR.every === 0 && s.reputation < RR.below)
+        s.reputation = Math.min(RR.below, s.reputation + RR.step);
       for (const row of s.company.acquisitions || []) {
         const due = acquisitionDues(row);
         row.debt = Math.max(0, row.debt + due.interest - due.total);
