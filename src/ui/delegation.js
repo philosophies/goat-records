@@ -12,8 +12,13 @@ function delegationPanel() {
     `<article class="card delegate ${d.open[key] ? "" : "locked"}"><span class="tag">${d.open[key] ? "OPEN" : `OPENS AT PHASE ${X[key].phase}`}</span><h3>${title}</h3>${d.open[key] ? body : `<p class="muted">${esc(LOCKED_TEXT[key])}</p>`}</article>`;
   const toggle = (key) =>
     `<button data-action="delegateToggle" data-key="${key}" aria-pressed="${S[key].on}" ${disable(locked)}>${S[key].on ? "On" : "Off"}</button>`;
-  const number = (key, field, label, step) =>
-    `<label class="delegate-field">${label}<input type="number" min="0" step="${step}" data-delegate="${key}" data-field="${field}" value="${S[key][field]}" ${disable(locked)} /></label>`;
+  const number = (key, field, label, step, value = S[key][field]) =>
+    `<label class="delegate-field">${label}<input type="number" min="0" step="${step}" data-delegate="${key}" data-field="${field}" value="${value}" ${disable(locked)} /></label>`;
+  const wage = G.renewWageLimit(state),
+    wageNote =
+      S.renew.maxWage === null
+        ? `<small class="muted">Follows the phase.</small>`
+        : `<button data-action="delegateWageAuto" ${disable(locked)}>Follow the phase (${money(X.renew.maxWageByPhase[state.company.phase - 1])})</button>`;
   const policies = Object.entries(X.autopilot.policies)
     .map(
       ([id, p]) =>
@@ -31,7 +36,7 @@ function delegationPanel() {
   return `<p class="place-intro">Delegation handles chores, never stories, superstars or the board.</p>${row(
     "renew",
     "Contract renewals",
-    `<p class="muted">Renew a finished contract for ${X.renew.term} albums when the artist's average album quality and new wage meet your limits.</p><div class="row">${toggle("renew")}${number("renew", "minQuality", "Lowest average quality", 1)}${number("renew", "maxWage", "Highest weekly wage", 50)}</div>`,
+    `<p class="muted">Renew a finished contract for ${X.renew.term} albums when the artist's average album quality and new wage meet your limits.</p><div class="row">${toggle("renew")}${number("renew", "minQuality", "Lowest average quality", 1)}${number("renew", "maxWage", "Highest weekly wage", 50, wage)}${wageNote}</div>`,
   )}${row(
     "tours",
     "Tour booking",
@@ -61,6 +66,7 @@ GoatUI.click.push((b) => {
   else if (d.action === "delegatePolicy")
     act(() => G.setDelegation(state, "autopilot", { policy: d.policy || null }));
   else if (d.action === "delegateUndo") act(() => G.undoDelegated(state, d.id));
+  else if (d.action === "delegateWageAuto") act(() => G.setDelegation(state, "renew", { maxWage: null }));
   else return false;
   return true;
 });

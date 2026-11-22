@@ -97,6 +97,19 @@
   // albums with a risky theme, and a genre the label has never released. Low and medium: any payment
   // that would go past the budget. The board grants a request at `grant` confidence or more; an approval
   // lasts for the rest of the week it was given.
+  // The album floor: each period the board lets album budgets up to the phase's amount through
+  // without approval and without counting them against the budget, however it feels about you.
+  // Right after a review at `levels[n].at` confidence or more, the CEO can negotiate the next level
+  // (a bigger floor, × mult), once per review; a review under dropBelow loses a level.
+  const ALBUM_FLOOR = {
+    byPhase: [8000, 12000, 16000, 24000, 32000, 48000],
+    levels: [
+      { at: 60, mult: 1.5 },
+      { at: 70, mult: 2 },
+      { at: 80, mult: 2.5 },
+    ],
+    dropBelow: 50,
+  };
   const APPROVAL = {
     bigSigning: 0.25,
     riskyThemes: ["Rebellion", "Revenge", "Money", "Party"],
@@ -160,6 +173,7 @@
     REVIEW,
     OVERSPEND,
     APPROVAL,
+    ALBUM_FLOOR,
     LOBBY,
     BACKERS,
     VALUATION,

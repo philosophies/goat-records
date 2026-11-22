@@ -381,6 +381,8 @@ The company starts with $2,000, a home studio, and full ownership. The Company p
 | 5 Global label   | Media center and warehouse, worldwide scouting        | Publishing and catalog royalties    |
 | 6 Public company | IPO, overseas offices, acquisitions                   | Catalog purchases can add royalties |
 
+A label with no artists can sign one up-and-comer whatever its reputation; otherwise a signing needs 30 reputation.
+
 For phases 2–5, the goals are fame, revenue over the last 52 weeks, releases, and hits. Where an outside board exists, it must approve the phase change. Phases never go backward. The office shows weekly income by source and rent, insurance, and interest in the expense breakdown.
 
 **Phone and events.** The Inbox shows current and queued decisions. Once a quarter an eligible opportunity, crisis, or political problem can arrive. The label's phase, finances, roster, albums, staff, and board affect which offers can appear. A decision pauses the clock. Choose a response or defer to a later week. The choice card names the fallback that applies at expiry.
@@ -427,6 +429,8 @@ The board appears with the first angel or venture money. Each director is the Ac
 Confidence below 35 at a review means probation for the next period. A no-confidence vote follows below 10 at any review, or below 20 while on probation. Each director under 25 satisfaction votes against you; the vote passes with more than half the seats, unless you own more than half the company. A lost vote is game over: you are fired. With a board, moving up a phase also needs 50 confidence.
 
 **Budget and freedom in play.** Every payment counts against the period's budget; weekly costs do not. Past the budget, every director loses a point for each 2% of overage, up to 30. With medium or low creative freedom, a payment that would go past the budget needs the board's approval first. With low freedom, so do a signing whose fee is a quarter of the budget or more, an album with a risky theme (Rebellion, Revenge, Money, Party), and a genre the label has never released. A request goes to the Inbox; the board says yes at 50 confidence or more, and the approval lasts for the rest of that week.
+
+**The album floor.** Whatever the board thinks of you, each period it lets album budgets through up to a floor: $8,000 at phase 1, then $12,000, $16,000, $24,000, $32,000 and $48,000 at phase 6. Albums within the floor need no approval and do not count against the budget; other payments past the budget still do. Right after a review at 60 confidence or more you can ask for a bigger floor (×1.5); at 70 for ×2 and at 80 for ×2.5, one level a review. Asking takes your week with the board and can be done once per review; with too little confidence the board says no. A review under 50 confidence loses a level.
 
 **Lobbying.** Before a review you can work the board. Meeting a director takes your week (one meeting a week) and adds 4 to your relationship, up to 25. A promise picks a target from their agenda: today's figure plus 5 money steps, 10%, or 5 points (or no more scandals). It adds 2 at once; at the next review a kept promise adds 6 and a broken one costs 12. Favors add relationship too: hiring a director's pick as a department head (+8, any director; their pick has the lowest skill your reach finds), shelving an album in production with a risky theme (+10, the Old Guard), or giving up a perk until the next review (+6, the Accountant).
 
@@ -567,7 +571,7 @@ Four tips appear once, the first time each matters: an album ready for a listeni
 
 **Delegation.** From phase 3 the office's Delegation section hands chores over. Every delegated step is logged; a notice sums up each four weeks, and a delegated tour or junior hire can be undone. Delegation never makes story choices, superstar decisions or board decisions.
 
-- **Contract renewals (phase 3):** a finished contract is renewed for three albums when the artist's average album quality is at least your limit (65 to start) and the new wage at most your limit ($600 a week to start).
+- **Contract renewals (phase 3):** a finished contract is renewed for three albums when the artist's average album quality is at least your limit (65 to start) and the new wage at most your limit. Until you set one, the wage limit follows the phase: $800 a week at phase 3, $900 at 4, $1,200 at 5 and $1,500 at 6.
 - **Tour booking (phase 4):** with a head of Live, an album that qualifies for a tour gets the biggest solo tour (world, national, regional) its artist's tier allows and whose upfront cost fits your cap ($15,000 to start).
 - **Department autopilot (phase 5):** every four weeks, on a policy. Safe takes one step and keeps 52 weeks of overhead in cash, training heads only. Balanced takes two and keeps 26 weeks; aggressive takes four and keeps 8. Both also add juniors and develop artists.
 - **Chief operating officer (phase 6):** settles company events within a cash limit ($10,000 to start), picking the choice worth most (cash less cost ÷ 600, plus fame, half of morale, three times board confidence, less four per week of album delay). Board politics and superstar events always come to you.

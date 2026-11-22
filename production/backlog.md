@@ -564,3 +564,45 @@ Depends on: T51
 Files: `src/data/delegation.js`, `src/systems/delegation.js`, `src/ui/*.js`, tests
 Do: design 7.7. Renewal rules at phase 3, tour booking within a cap at phase 4, department autopilot policies at phase 5, and a chief operating officer for small inbox decisions at phase 6. A monthly summary of every automated action. Never touches story, superstar or board choices.
 Done when: tests for each unlock, its limits, the summary, and that story, superstar and board decisions are never automated; balance report shows a delegated phase-6 label within 10% of the hand-played result; harness sets a policy.
+
+## After 3.0: owner answers and release readiness
+
+### [x] T65 · Owner answers: empty roster, board floor, renewal limits
+
+Depends on: T63
+Files: `src/engine.js`, `src/data/board.js`, `src/systems/board.js`, `src/data/delegation.js`, `src/systems/delegation.js`, `src/ui/*.js`, tests
+Do: Owner decisions of 2026-11-22. (1) The piracy years keep album sales at 0.7×. (2) A CEO label with no artists may sign one up-and-comer even with reputation under 30. (3) A board that refuses spending still allows a minimum album budget each period; at a review with high confidence the CEO can negotiate a bigger minimum as a perk. (4) The default delegated renewal wage limit rises with the phase.
+Done when: tests for the empty-roster signing (only one, only up-and-comers, only while empty), the album floor under a refusing board, the review negotiation and its limits, and the renewal limit by phase; rules updated; balance report rerun.
+
+### [ ] T66 · A compact top bar on phones
+
+Files: `styles/*.css`, `src/app.js`, tests
+Do: The handoff's open item: the top bar takes about a third of the phone screen. Fold the stats into one row and the controls into another at phone width, keeping every value reachable.
+Done when: at 390 × 844 the top bar takes at most a fifth of the screen in a CEO run; harness and screenshots at phone and desktop width.
+
+### [ ] T67 · Carry the hall of fame with saves
+
+Depends on: T62
+Files: `src/ui/legacy.js`, `src/app.js`, tests
+Do: Exported saves carry the browser's hall of fame and achievements; importing merges them (no duplicates, newest first, the hall cap kept). Old exports without them still import.
+Done when: a harness exports, clears storage, imports and finds the same hall and achievements; a merge test with overlapping runs.
+
+### [ ] T68 · A full playthrough, performance and 3.0 notes
+
+Depends on: T65
+Files: `production/qa/`, `CHANGELOG.md`, tests
+Do: Play a 20-year CEO run in the browser end to end with every 3.0 system; measure week times late in a run; draft 3.0 notes under Unreleased (no version heading).
+Done when: a playthrough report with screenshots, a performance budget test, and the Unreleased notes.
+
+### [ ] T69 · Android wrapper
+
+Files: `android/` or `twa/`, `docs/android.md`
+Do: Build the wrapper the Android guide describes and check it in an emulator if one can run here. A test on a physical device stays with the owner.
+Done when: the wrapper builds, the guide lists the steps, and what was and was not tested is written down.
+
+### [ ] T70 · Balance, continuity and playability audit
+
+Depends on: T65, T68
+Files: any, tests
+Do: Analyse the game for imbalances, continuity breaks (wording, dates, names, states that contradict each other) and anything that can stall or soft-lock a run. Fix what is found and record the rest.
+Done when: an audit report in `production/qa/`, every fix with a test, and the balance report rerun.
