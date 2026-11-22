@@ -310,4 +310,140 @@ test("stories name one of the run's own rivals", () => {
   assert.equal(G.validSystemsSave(bad), false);
 });
 
+/** The rival system with a fixed roll, so takeovers and entries can be forced. */
+function fixedRivals(value) {
+  return require("../src/systems/rivals.js").create(
+    {
+      clamp: (x, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, x)),
+      log() {},
+      roll: () => value,
+      pay() {},
+      requireAction() {},
+      busy: () => true,
+      operatingYear: () => 1,
+      uniqueName: () => "New Face",
+      api: () => G,
+    },
+    require("../src/data/rivals.js"),
+  );
+}
+function withAlbums(s, units) {
+  units.forEach((u, i) =>
+    s.albums.push({
+      id: 9000 + i,
+      released: true,
+      age: 4,
+      gross: u * 8 * 4,
+      title: "A" + i,
+      chart: { history: [] },
+    }),
+  );
+}
+
+test("rival records are measured against the label's own recent releases", () => {
+  const s = label(6);
+  assert.equal(G.rivalBenchmark(s), R.release.unitsByPhase[5], "too few releases: the phase table");
+  const table = R.release.unitsByPhase[5],
+    B = R.benchmark,
+    blend = (own) => Math.round(table ** (1 - B.own) * Math.max(table, own * B.lift) ** B.own);
+  withAlbums(s, [1000, 3000, 5000, 7000]);
+  assert.equal(
+    G.rivalBenchmark(s),
+    blend(4000),
+    "median of the average weekly units, blended with the phase",
+  );
+  withAlbums(s, Array(B.releases).fill(10000));
+  assert.equal(G.rivalBenchmark(s), blend(10000), "only the latest releases count");
+  assert.ok(blend(10000) > blend(4000) && blend(4000) > table, "a stronger label meets stronger rivals");
+  const weakLabel = label(6);
+  withAlbums(weakLabel, [50, 60, 70]);
+  assert.equal(G.rivalBenchmark(weakLabel), table, "never below the phase's typical record");
+  // A strength-50 rival's record starts near that benchmark.
+  const r = s.company.rivals[0];
+  Object.assign(r, { strength: 50, nextRelease: s.week });
+  withRules([...quiet(), [R.release, "unitSpread", 0], [R, "drift", 0]], () => fixedRivals(0.5).weekly(s));
+  const album = s.charts.rivals.find((x) => x.companyId === r.id && x.releaseWeek === s.week);
+  assert.ok(
+    Math.abs(album.baseUnits - G.rivalBenchmark(s)) <= G.rivalBenchmark(s) * 0.1,
+    "rival record near the label's",
+  );
+});
+
+test("a weakened rival recovers, faster from phase 4", () => {
+  const climb = (phase) => {
+    const s = label(phase),
+      r = s.company.rivals[0];
+    r.strength = 10;
+    const sys = fixedRivals(0.5);
+    withRules([...quiet(), [R, "drift", 0]], () => {
+      for (let i = 0; i < 26; i++) sys.weekly(s);
+    });
+    return r.strength;
+  };
+  const early = climb(2),
+    late = climb(5);
+  assert.ok(early > 10, "rivals recover at any phase");
+  assert.ok(late > early + 10, `faster late: ${early} vs ${late}`);
+  const s = label(6),
+    r = s.company.rivals[0];
+  r.strength = 100;
+  withRules([...quiet(), [R, "drift", 0]], () => fixedRivals(0.5).weekly(s));
+  assert.ok(r.strength < 100 && r.strength > 95, "a runaway rival settles slowly");
+});
+
+test("a strong rival takes over a weak one, which is replaced by a new label later", () => {
+  const s = label(4);
+  s.week = R.takeover.every * 4;
+  const [weak, strong] = s.company.rivals;
+  weak.strength = 10;
+  strong.strength = 70;
+  const artists = weak.roster.length + strong.roster.length;
+  withRules([...quiet(), [R, "drift", 0], [R.recover, "pull", 0], [R.recover, "latePull", 0]], () =>
+    fixedRivals(0).weekly(s),
+  );
+  assert.equal(weak.merged, true);
+  assert.equal(weak.mergedInto, strong.id);
+  assert.equal(strong.roster.length, artists, "the buyer takes the artists");
+  assert.equal(strong.strength, 70 + 10 * R.takeover.gain);
+  assert.ok(!s.rivalCompanies.some((c) => c.id === weak.id));
+  assert.equal(G.rivalsInfo(s).length, R.count - 1);
+  assert.ok(s.notifications.some((n) => /takes over/.test(n.title)));
+  assert.ok(G.validSystemsSave(roundTrip(s)));
+  // After `replace.after` weeks a label not yet seen in this run arrives.
+  const sys = fixedRivals(0.5),
+    seen = new Set(s.company.rivals.map((r) => r.id));
+  for (let i = 0; i < R.replace.after; i++) {
+    s.week++;
+    withRules([...quiet(), [R, "drift", 0]], () => sys.weekly(s));
+  }
+  const now = G.rivalsInfo(s);
+  assert.equal(now.length, R.count);
+  const added = now.find((x) => !seen.has(x.id));
+  assert.ok(added, "a new rival");
+  assert.ok(s.rivalCompanies.some((c) => c.id === added.id && c.authored));
+  assert.ok(s.notifications.some((n) => n.title === `A new rival: ${added.name}`));
+});
+
+test("buying a rival also makes room for a new one", () => {
+  const s = label(5),
+    r = s.company.rivals[0];
+  r.strength = 0;
+  G.buyRival(s, r.id);
+  assert.equal(G.rivalsInfo(s).length, R.count - 1);
+  const sys = fixedRivals(0.5);
+  for (let i = 0; i <= R.replace.after; i++) {
+    s.week++;
+    withRules([...quiet(), [R, "drift", 0]], () => sys.weekly(s));
+  }
+  assert.equal(G.rivalsInfo(s).length, R.count);
+});
+
+test("no takeover without a weak rival and a strong one", () => {
+  const s = label(4);
+  s.week = R.takeover.every * 2;
+  s.company.rivals.forEach((r) => (r.strength = 45));
+  withRules([...quiet(), [R, "drift", 0]], () => fixedRivals(0).weekly(s));
+  assert.ok(s.company.rivals.every((r) => !r.merged));
+});
+
 console.log(`\n${count} rival tests passed.`);

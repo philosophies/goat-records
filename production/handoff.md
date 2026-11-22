@@ -11,8 +11,8 @@ Task: v2.0.0 released
 
 **Updated:** 2026-11-21
 **Branch:** `main`
-**Current task:** T72 · Rivals that keep pace
-**Next step:** Benchmark rival records on the label's own releases, faster growth from phase 4, takeovers and replacements
+**Current task:** T73 · Studio capacity and touring
+**Next step:** Limit albums in production by phase, keep older saves' albums, and have the head of Live book tours for artists waiting on the studio
 **Blocked on:** Nothing.
 **Files in progress:** None.
 **Open questions:** The four in production/qa/audit-3.0.md.
