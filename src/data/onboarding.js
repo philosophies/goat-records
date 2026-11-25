@@ -11,8 +11,10 @@
     { id: "chart", text: "Reach the chart", reward: { cash: 1500 } },
     { id: "profit", text: "End a week in profit", reward: { reputation: 5 } },
   ];
-  // While the checklist is on, the run's first album has no wait between stages.
-  const STARTER = { fastFirstAlbum: true };
+  // While the checklist is on, the run's first album has no wait between stages, the first signing
+  // costs no advance and the first album's base budget (up to `freeAlbumBudget`) is paid for, so
+  // every goal can be done without borrowing. Add-ons and location rent are still paid.
+  const STARTER = { fastFirstAlbum: true, freeFirstSigning: true, freeAlbumBudget: 4000 };
   // One-time tips: shown the first time each matters, never before.
   const TIPS = [
     {

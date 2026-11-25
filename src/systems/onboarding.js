@@ -43,6 +43,32 @@
       const first = s.albums.reduce((low, x) => (x.id < low.id ? x : low), s.albums[0]);
       return first?.id === p.id;
     }
+    /** The first signing of a run on the checklist costs no advance. */
+    function signingDiscount(s, a, q) {
+      const o = state(s);
+      if (!o?.on || !STARTER.freeFirstSigning || o.done.includes("sign")) return 0;
+      return s.artists.length || s.albums.length ? 0 : q.fee;
+    }
+    /** ...and its first album's base budget is paid for. */
+    function planCost(s, plan) {
+      const o = state(s);
+      if (!o?.on || !STARTER.freeAlbumBudget || s.albums.length) return 0;
+      return -Math.min(Number(plan.budget ?? 4000) || 0, STARTER.freeAlbumBudget);
+    }
+    /** What the checklist still pays for: { signing, album } (false once used or off). */
+    function starterFree(s) {
+      const o = state(s);
+      return {
+        signing: !!(
+          o?.on &&
+          STARTER.freeFirstSigning &&
+          !o.done.includes("sign") &&
+          !s.artists.length &&
+          !s.albums.length
+        ),
+        album: !!(o?.on && STARTER.freeAlbumBudget && !s.albums.length),
+      };
+    }
     const tipDue = {
       party: (s) => s.albums.some((p) => !p.released && p.production?.releaseReady),
       starSlot: (s) => (core.api().tierSlots?.(s)?.star || 0) > 0,
@@ -95,7 +121,18 @@
       init,
       weekly,
       validSave,
-      api: { STARTER_GOALS, TIPS, starterGoals, setStarter, fastFirstAlbum, checkTips: tips },
+      signingDiscount,
+      planCost,
+      api: {
+        STARTER_GOALS,
+        STARTER,
+        TIPS,
+        starterGoals,
+        starterFree,
+        setStarter,
+        fastFirstAlbum,
+        checkTips: tips,
+      },
     };
   }
 

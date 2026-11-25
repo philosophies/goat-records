@@ -636,3 +636,10 @@ Depends on: T61
 Files: `src/data/company.js` or a new data file, a system, `src/ui/*.js`, tests
 Do: Owner decision: late-game cash can buy into a streaming platform that inflates the label's sales numbers. Stakes rise in steps with rising prices; each lifts album sales and chart units. Shown in the Company panel.
 Done when: tests for buying each stake, the sales lift and save round trips; balance report shows late cash being spent; rules updated.
+
+### [x] T75 · A free start
+
+Depends on: T59
+Files: `src/data/onboarding.js`, `src/systems/onboarding.js`, `src/engine.js`, `src/app.js`, `src/ui/onboarding.js`, tests
+Do: Owner decision (2026-11-25): the starter checklist can be finished for free. While it is on, the first signing costs no advance and the first album's base budget is paid for; add-ons and location rent are still paid. The checklist, the front desk and the album form say so.
+Done when: tests for each free item, that each is used once, that nothing is free with the checklist off, and that new labels finish every goal without a loan; rules updated.

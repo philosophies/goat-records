@@ -445,6 +445,10 @@
   function busy(s, id) {
     return s.albums.some((x) => x.artist === id && !x.released) || !!onTour(s, id);
   }
+  /** What a signing costs now: the contract's advance, less any CEO-run discount (signingDiscount). */
+  function signingFee(s, a, q = contractQuote(s, a, 3)) {
+    return s.company ? Math.max(0, q.fee - hooks.sum("signingDiscount", s, a, q)) : q.fee;
+  }
   function sign(s, id, term = 3) {
     requireAction(s);
     if (s.artists.length >= slots(s))
@@ -464,7 +468,7 @@
       );
     const q = contractQuote(s, a, term);
     if (s.company) hooks.each("approveSigning", s, a, q);
-    pay(s, q.fee);
+    pay(s, signingFee(s, a, q));
     a.inspiration ??= 60;
     a.momentum ??= 25;
     a.career ??= { releases: 0, awards: 0, albumRevenue: 0, showDays: 0 };
@@ -3624,6 +3628,7 @@
     validSystemsSave: (s) => hooks.every("validSave", s),
     compactHistory,
     planCost: (s, plan) => hooks.sum("planCost", s, plan),
+    signingFee,
     systems: SYS,
     roll,
     tourInteractionBudget,
