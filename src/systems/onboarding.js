@@ -5,7 +5,7 @@
 
   /** @param {object} core engine helpers  @param {object} D data tables */
   function create(core, D) {
-    const { STARTER_GOALS, STARTER, TIPS } = D;
+    const { STARTER_GOALS, STARTER, TIPS, MENTOR } = D;
     const { log } = core;
 
     function state(s) {
@@ -14,7 +14,7 @@
     /** New CEO runs start with the checklist on; older saves and second acts do not get one. */
     function init(s) {
       if (!s.company || s.company.onboarding || s.week > 1 || s.secondAct || s.artists.length) return s;
-      s.company.onboarding = { on: true, done: [], tips: [] };
+      s.company.onboarding = { on: true, done: [], tips: [], mentor: { on: true, seen: [] } };
       return s;
     }
     const met = {
@@ -34,7 +34,53 @@
       const o = state(s);
       if (!o) throw Error("This run has no starter checklist.");
       o.on = !!on;
+      // The mentor follows the checklist: skipping it sends him home, turning it back on brings him back.
+      if (o.mentor && !o.mentor.seen.includes("farewell")) o.mentor.on = !!on;
       return o;
+    }
+
+    // ---- The mentor ----
+    const first = (s) => s.albums.reduce((low, x) => (!low || x.id < low.id ? x : low), null);
+    /** When each beat's moment has come. A beat stays current until a later one's moment comes. */
+    const moment = {
+      intro: () => true,
+      desk: (s, m) => m.seen.includes("intro"),
+      artist: (s) => s.artists.length > 0 || s.albums.length > 0,
+      record: (s, m) => m.seen.includes("artist") || s.albums.length > 0,
+      stages: (s) => s.albums.length > 0,
+      release: (s) => !!(first(s)?.released || first(s)?.production?.releaseReady),
+      charts: (s) => !!first(s)?.released && !first(s)?.launchReview,
+      billboard: (s, m) => m.seen.includes("charts") && !!first(s)?.released,
+      money: (s) => state(s).done.includes("chart"),
+      office: (s, m) => m.seen.includes("money"),
+      // After the money talk, so it is not skipped when the chart and a profit land in one week.
+      farewell: (s, m) =>
+        m.seen.includes("money") && STARTER_GOALS.every((g) => state(s).done.includes(g.id)),
+    };
+    /** The mentor's current beat: { ...beat, seen, step, of } or null when he is not around. */
+    function mentorBeat(s) {
+      const m = state(s)?.mentor;
+      if (!m?.on) return null;
+      let current = null;
+      MENTOR.beats.forEach((b, i) => {
+        if (moment[b.id](s, m)) current = { ...b, step: i + 1, of: MENTOR.beats.length };
+      });
+      return current && { ...current, seen: m.seen.includes(current.id) };
+    }
+    /** The player has read a beat. The farewell ends the mentor's part. */
+    function mentorSeen(s, id) {
+      const m = state(s)?.mentor;
+      if (!m || !MENTOR.beats.some((b) => b.id === id)) throw Error("Nothing to read.");
+      if (!m.seen.includes(id)) m.seen.push(id);
+      if (id === "farewell") m.on = false;
+      return mentorBeat(s);
+    }
+    /** "Let me play on my own": the mentor stops talking; the checklist stays. */
+    function setMentor(s, on) {
+      const m = state(s)?.mentor;
+      if (!m) throw Error("This run has no mentor.");
+      m.on = !!on && !m.seen.includes("farewell");
+      return m;
     }
     /** While the checklist is on, the run's first album skips the waits between stages. */
     function fastFirstAlbum(s, p) {
@@ -113,7 +159,12 @@
         Array.isArray(o.done) &&
         o.done.every((x) => ids.has(x)) &&
         Array.isArray(o.tips) &&
-        o.tips.every((x) => tipIds.has(x))
+        o.tips.every((x) => tipIds.has(x)) &&
+        (o.mentor === undefined ||
+          (!!o.mentor &&
+            typeof o.mentor.on === "boolean" &&
+            Array.isArray(o.mentor.seen) &&
+            o.mentor.seen.every((x) => MENTOR.beats.some((b) => b.id === x))))
       );
     }
 
@@ -132,6 +183,10 @@
         setStarter,
         fastFirstAlbum,
         checkTips: tips,
+        MENTOR,
+        mentorBeat,
+        mentorSeen,
+        setMentor,
       },
     };
   }
