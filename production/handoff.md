@@ -22,7 +22,7 @@ Task: v2.0.0 released
 
 1. Read [the project rules](../AGENTS.md), [current status](status.md) and [validation](../VALIDATION.md). Run `node tools/next-task.cjs` to see the backlog.
 2. Run `node run-checks.cjs` with Node 22 or newer. Open `index.html` directly, or serve the repository root with `python -m http.server 8765 --bind 127.0.0.1`.
-3. To play the CEO mode: press **New label**, keep CEO and name the label. Take the bank loan from the boardroom (the phase chip in the top bar, the front desk's "Short by" note, or the phone's Wallet), sign a local artist on a one-album deal and record from their panel.
+3. To play the CEO mode: press **New label**, keep CEO and name the label. Sign a local artist and record from their panel: with the starter checklist on, the first signing and the first album's base budget are free, so no loan is needed.
 4. Before the next push, update this checkpoint and `production/status.md` with the tests you ran and the first action for the next session.
 
 ## Open items
