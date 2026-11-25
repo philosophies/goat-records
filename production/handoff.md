@@ -11,8 +11,8 @@ Task: v2.0.0 released
 
 **Updated:** 2026-11-25
 **Branch:** `main`
-**Current task:** main (T75 merged)
-**Next step:** Owner review of T71–T75; the questions in production/status.md
+**Current task:** main (T76 merged)
+**Next step:** Owner review of T71–T76; the questions in production/status.md
 **Blocked on:** Nothing.
 **Files in progress:** None.
 **Open questions:** Whether platform stakes should skip the board budget; whether late-game tours should pay more now that the studio limit makes them the main way to earn.

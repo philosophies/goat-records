@@ -59,6 +59,8 @@ Add new public functions to the engine API through the system object; `LabelGame
 
 Album form controls that should refresh the quote carry a `data-album-field` attribute.
 
+`GoatUI.sheetNotes` (`{ render(placeId, section) }`) adds notes at the top of an open panel, and `GoatUI.productionNotes` (`{ render(album) }`) at the top of an album's production card. Banners take an optional `order` (default 50): the first card with a button is shown over the lot, and cards at 90 or more (the mentor's talks) wait behind milestones and results.
+
 Two more points serve the lot screen: `GoatUI.pauses` (`{ reason() }`; any non-empty text holds the live clock and is shown as the pause reason) and `GoatUI.lotDecor` (`{ render() }`; drawn on the street in front of the building). A banner with a button is shown as a card over the lot and holds the clock; one without a button sits in the side ticker.
 
 Page globals for feature scripts: `GoatLot.say(text, key, facilityId)` shows a speech bubble over an artist (`"a" + id`) or staff member (`"s" + role`); `GoatClock` has `speed`, `setSpeed(n)` and `day()`; `openPanel(id)` and `closePanel()` open and close a place's panel (any id `GoatPlaces` knows, or a button's `data-tab`); `paintHTML(id, html)` rewrites a region only when it changed.

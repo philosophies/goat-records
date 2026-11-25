@@ -468,3 +468,106 @@ body.ceo-run .notice.starter button.link {
     max-width: 160px;
   }
 }
+
+/* The mentor (T76): Augie's talks, pointers and the glow on the button that matters. */
+.mentor-head {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.mentor-head small {
+  display: block;
+  opacity: 0.75;
+}
+.mentor-face {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f4e3b5, #c99a3b 60%, #7a5418);
+  color: #1b1208;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  border: 2px solid #e3b23c;
+  box-shadow: 0 0 0 2px #000;
+}
+.notice.mentor-talk {
+  max-width: 560px;
+}
+.notice.mentor-talk h3 {
+  margin: 4px 0 8px;
+}
+.notice.mentor-talk p {
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+.notice.mentor-talk .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+}
+.notice.mentor-line {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.notice.mentor-line .mentor-face {
+  width: 28px;
+  height: 28px;
+  font-size: 11px;
+}
+.mentor-note {
+  border: 1px solid #e3b23c;
+  border-left-width: 4px;
+  background: rgba(227, 178, 60, 0.08);
+  padding: 10px 12px;
+  margin: 0 0 12px;
+  border-radius: 4px;
+}
+.mentor-note ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+.mentor-note li,
+.mentor-note p {
+  margin: 4px 0;
+  line-height: 1.45;
+}
+@keyframes mentor-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(227, 178, 60, 0.85);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(227, 178, 60, 0);
+  }
+}
+body[data-mentor="desk"] [data-action="sign"],
+body[data-mentor="record"] #beginAlbum,
+body[data-mentor="stages"] [data-action="stage"],
+body[data-mentor="release"] [data-action="release"],
+body[data-mentor="charts"] #advance,
+body[data-mentor="billboard"] #advance,
+body[data-mentor="money"] #advance,
+body[data-mentor="office"] #advance {
+  animation: mentor-glow 1.6s ease-in-out infinite;
+  outline: 2px solid #e3b23c;
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  body[data-mentor] * {
+    animation: none !important;
+  }
+}
+
+/* Phones: cards over the lot start below the top bar instead of under it. */
+@media (max-width: 760px) {
+  body.ceo-run .modal {
+    top: var(--hud-h);
+  }
+}

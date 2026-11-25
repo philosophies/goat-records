@@ -143,6 +143,7 @@ function productionPanels(waiting = false) {
           .join("");
         body = `<span class="tag">STAGE ${d.stage + 1} OF 5 · ${esc(stage.area)}</span><h2>${esc(p.title)} / ${esc(stage.name)}</h2><p>${esc(stage.question)}</p><div class="options stage-options">${options}</div><details class="decision-details"><summary>Rating breakdown</summary>${details}<p>${esc(a.name)} · ${esc(p.genre)} / ${esc(p.audience)} · Trend: ${esc(state.trend)}</p></details>`;
       }
+      body = GoatUI.html("productionNotes", p) + body;
       const promotion = !p.released && GoatUI.html("productionPanel", p);
       if (promotion)
         body += `<details class="decision-details"><summary>Singles and promotion</summary>${promotion}</details>`;
@@ -728,7 +729,7 @@ function render() {
     panelOpen = false;
     clearPanelHistory();
   }
-  const html = sheet ? sheet.render() : "";
+  const html = sheet ? GoatUI.html("sheetNotes", tab, sheetSection) + sheet.render() : "";
   sheetForms = { album: html.includes('id="albumForm"'), tour: html.includes('id="tourForm"') };
   $("drawer").hidden = !panelOpen;
   $("drawerTitle").textContent = sheet ? sheet.title() : "";
@@ -736,13 +737,25 @@ function render() {
   paintHTML("roster", GoatPlaces.roster());
   paintHTML("hud", GoatUI.html("hud"));
   $("brandName").textContent = G.labelName(state).toUpperCase();
-  const banners = GoatUI.banners.map((b) => b.render() || "").filter(Boolean),
+  const rendered = [...GoatUI.banners]
+      .sort((a, b) => (a.order ?? 50) - (b.order ?? 50))
+      .map((b) => ({ html: b.render() || "", late: (b.order ?? 50) >= 90 }))
+      .filter((b) => b.html),
+    banners = rendered.map((b) => b.html),
     // A banner with a button (an action or a screen to open) is shown as a card over the lot.
     // A banner marked data-ticker stays in the side ticker even with a button.
-    inputBanners = banners.filter((h) => /data-(action|tab)=/.test(h) && !/data-ticker/.test(h));
+    isInput = (h) => /data-(action|tab)=/.test(h) && !/data-ticker/.test(h),
+    inputBanners = banners.filter(isInput),
+    // Late cards (order 90+, such as the mentor's talks) wait behind milestones and results.
+    lateCard = rendered.find((b) => b.late && isInput(b.html))?.html;
   paintHTML("notices", banners.filter((h) => !inputBanners.includes(h)).join(""));
   const production = s.event ? "" : productionPanels();
-  paintHTML("milestones", s.event || production ? "" : inputBanners[0] || milestoneBanner());
+  paintHTML(
+    "milestones",
+    s.event || production
+      ? ""
+      : inputBanners.find((h) => h !== lateCard) || milestoneBanner() || lateCard || "",
+  );
   paintHTML("activities", activityHub());
   paintHTML("production", production);
   paintHTML("studioQueue", productionPanels(true));

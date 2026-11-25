@@ -19,7 +19,7 @@ function settle(s) {
 
 test("new CEO runs start with the checklist; classic runs, old saves and second acts do not", () => {
   const s = G.create(111, { ceo: true });
-  assert.deepEqual(s.company.onboarding, { on: true, done: [], tips: [] });
+  assert.deepEqual(s.company.onboarding, { on: true, done: [], tips: [], mentor: { on: true, seen: [] } });
   assert.equal(G.starterGoals(s).length, 5);
   assert.equal(G.create(111, { ceo: false }).company, undefined);
   const old = roundTrip(s);
@@ -199,6 +199,123 @@ test("a new label can finish every starter goal without borrowing", () => {
     assert.ok(!s.company.loan, `seed ${seed}: no bank loan`);
     assert.ok(low >= 0, `seed ${seed}: cash never below $0 (lowest $${low})`);
   }
+});
+
+/** Plays a new label through the checklist, reading every mentor beat, and returns the beats seen in order. */
+function playWithMentor(seed) {
+  const s = G.create(seed, { ceo: true }),
+    order = [];
+  const read = () => {
+    const b = G.mentorBeat(s);
+    if (b && order.at(-1) !== b.id) order.push(b.id);
+    if (b && !b.seen && b.kind !== "pointers") G.mentorSeen(s, b.id);
+  };
+  read();
+  read();
+  G.sign(s, s.candidates[0].id, 1);
+  read();
+  read();
+  const a = s.artists[0];
+  G.record(s, {
+    artistId: a.id,
+    boothId: s.booths[0].id,
+    genre: a.genre,
+    audience: a.audience,
+    budget: 4000,
+  });
+  for (let w = 0; w < 40 && G.mentorBeat(s); w++) {
+    read();
+    const p = s.albums.find((x) => !x.released);
+    if (p) {
+      if (p.production.releaseReady) G.releaseAlbum(s, p.id, p.title, "fans");
+      else if (p.production.review) G.continueProduction(s, p.id);
+      else if (!p.production.cooldown) G.decideStage(s, p.id, 1);
+      if (p.production.review || p.production.releaseReady || !p.production.cooldown) continue;
+    }
+    // The release-day results are acknowledged before the week turns, as in play.
+    s.albums.forEach((x) => (x.launchReview = false));
+    read();
+    read();
+    settle(s);
+    read();
+  }
+  return { s, order };
+}
+
+test("the mentor talks the player through the checklist, in order, then retires", () => {
+  const { s, order } = playWithMentor(121);
+  assert.deepEqual(
+    order,
+    G.MENTOR.beats.map((b) => b.id),
+    "every beat, in order",
+  );
+  assert.equal(G.mentorBeat(s), null, "gone after the farewell");
+  assert.equal(s.company.onboarding.mentor.on, false);
+  assert.ok(s.company.onboarding.mentor.seen.includes("farewell"));
+  assert.equal(G.starterGoals(s), null, "and the checklist is done");
+});
+
+test("every beat has words, and every talk has a way forward", () => {
+  for (const b of G.MENTOR.beats) {
+    assert.ok(["talk", "pointers", "note"].includes(b.kind), b.id);
+    assert.ok(b.title, b.id);
+    if (b.kind === "pointers") assert.ok(b.place && b.here.length >= 3, b.id);
+    else assert.ok(b.text.length >= 2, b.id);
+    if (b.kind === "talk") assert.ok(b.goLabel, b.id);
+  }
+});
+
+test("a beat stays until it is read; reading moves the mentor on", () => {
+  const s = G.create(122, { ceo: true });
+  let b = G.mentorBeat(s);
+  assert.equal(b.id, "intro");
+  assert.equal(b.seen, false);
+  assert.equal(b.step, 1);
+  G.advance(s);
+  assert.equal(G.mentorBeat(s).id, "intro", "time does not skip a talk");
+  b = G.mentorSeen(s, "intro");
+  assert.equal(b.id, "desk");
+  assert.equal(b.kind, "pointers");
+  assert.throws(() => G.mentorSeen(s, "nope"), /Nothing to read/);
+});
+
+test("skipping the checklist sends the mentor home; letting him go keeps the checklist", () => {
+  const s = G.create(123, { ceo: true });
+  G.setStarter(s, false);
+  assert.equal(G.mentorBeat(s), null);
+  G.setStarter(s, true);
+  assert.equal(G.mentorBeat(s).id, "intro", "back with the checklist");
+  G.setMentor(s, false);
+  assert.equal(G.mentorBeat(s), null);
+  assert.ok(G.starterGoals(s), "the checklist stays");
+  const done = playWithMentor(124).s;
+  G.setMentor(done, true);
+  G.setStarter(done, true);
+  assert.equal(G.mentorBeat(done), null, "after the farewell he stays retired");
+});
+
+test("the money talk is not skipped when the chart and a profit come in one week", () => {
+  const s = G.create(126, { ceo: true });
+  s.company.onboarding.done = ["sign", "stage", "release", "chart", "profit"];
+  s.company.onboarding.mentor.seen = ["intro", "artist", "charts"];
+  assert.equal(G.mentorBeat(s).id, "money");
+  G.mentorSeen(s, "money");
+  assert.equal(G.mentorBeat(s).id, "farewell");
+});
+
+test("saves keep the mentor; older saves load without one, and bad ones are refused", () => {
+  const s = G.create(125, { ceo: true });
+  G.mentorSeen(s, "intro");
+  const copy = roundTrip(s);
+  assert.ok(G.validSystemsSave(copy));
+  assert.deepEqual(copy.company.onboarding.mentor, { on: true, seen: ["intro"] });
+  const old = roundTrip(s);
+  delete old.company.onboarding.mentor;
+  assert.ok(G.validSystemsSave(old));
+  assert.equal(G.mentorBeat(old), null, "no mentor in a run started before him");
+  const bad = roundTrip(s);
+  bad.company.onboarding.mentor.seen.push("speech");
+  assert.equal(G.validSystemsSave(bad), false);
 });
 
 console.log(`\n${count} onboarding tests passed.`);

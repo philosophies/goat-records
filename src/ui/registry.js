@@ -15,12 +15,16 @@ const GoatUI = {
   catalogCard: [],
   /** Extra rows under an album that is in production: { render(album) }. */
   productionPanel: [],
+  /** Notes at the top of an album's production card (the decision, review or results): { render(album) }. */
+  productionNotes: [],
+  /** Notes at the top of an open panel: { render(placeId, section) } for the place shown. */
+  sheetNotes: [],
   /** Small status chips in the top bar beside the date: { render() }. */
   hud: [],
   /**
    * Notices (rank-ups and similar): { render() }. A banner with a data-action button is shown as
    * a card over the lot and pauses the clock; one without, or one marked data-ticker, is shown in the
-   * side ticker.
+   * side ticker. An optional `order` (default 50) sorts them; the first card with a button is shown.
    */
   banners: [],
   /**

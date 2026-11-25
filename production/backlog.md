@@ -643,3 +643,10 @@ Depends on: T59
 Files: `src/data/onboarding.js`, `src/systems/onboarding.js`, `src/engine.js`, `src/app.js`, `src/ui/onboarding.js`, tests
 Do: Owner decision (2026-11-25): the starter checklist can be finished for free. While it is on, the first signing costs no advance and the first album's base budget is paid for; add-ons and location rent are still paid. The checklist, the front desk and the album form say so.
 Done when: tests for each free item, that each is used once, that nothing is free with the checklist off, and that new labels finish every goal without a loan; rules updated.
+
+### [x] T76 · The mentor
+
+Depends on: T75
+Files: `src/data/onboarding.js`, `src/systems/onboarding.js`, `src/ui/onboarding.js`, `src/ui/registry.js`, `src/app.js`, `styles/dynasty.css`, tests
+Do: Owner decision (2026-11-25): a tutorial that follows the checklist, told by a CEO mentor about to retire, who explains the game's features and walks the player through the menus.
+Done when: tests for the order of the beats, reading and skipping, saves, and the interface (talks, Show me, pointers, album notes, glow, letting him go); screenshots on desktop and phone; rules updated.
