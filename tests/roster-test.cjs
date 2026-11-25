@@ -127,6 +127,7 @@ test("Two flops in a row drop an artist a tier; up-and-comers do not drop", () =
 
 test("A tier caps the album budget", () => {
   const s = ceo(1);
+  G.setStarter(s, false); // the full budget is paid, not the starter's free first album
   G.sign(s, s.candidates[0].id, 1);
   const a = s.artists[0];
   Object.assign(a, { energy: 100, inspiration: 90 });

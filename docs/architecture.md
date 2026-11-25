@@ -32,6 +32,7 @@ A system object may implement any of these. All are optional.
 | `afterTour(s, tour, completed)`                   | Tour ends                                                    | —                                          |
 | `yearEnd(s, year)`                                | After the annual awards at a year boundary                   | —                                          |
 | `approveSigning(s, artist, quote)`                | Before a CEO-run signing is paid for                         | throws to refuse                           |
+| `signingDiscount(s, artist, quote)`               | CEO-run signing price (`signingFee`)                         | amount off the advance                     |
 | `approvePlan(s, plan, artist)`                    | Before a CEO-run album is paid for                           | throws to refuse                           |
 | `approveTour(s, quote)`                           | Before a CEO-run tour is paid for                            | throws to refuse                           |
 | `beforeSpend(s, amount)`, `onSpend(s, amount)`    | Around every CEO-run payment                                 | throws to refuse / —                       |
