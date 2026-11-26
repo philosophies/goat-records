@@ -186,4 +186,32 @@ test("company events scale with the outcome too", () => {
   assert.ok(results.size >= 2, "outcomes vary");
 });
 
+test("album delays stay whole weeks, and a part-week wait from an older save finishes", () => {
+  const out = (id) => G.FORTUNE.risks.bold.concat(G.FORTUNE.risks.safe).find((t) => t.id === id);
+  for (const id of ["triumph", "backfire", "better", "worse"])
+    for (const v of [1, 2, 3]) {
+      const d = G.scaleFortune({ delayAlbum: v }, out(id)).delayAlbum;
+      assert.ok(Number.isInteger(d) && d >= 1, `${id} ${v} → ${d}`);
+    }
+  // An album left with a part-week wait at its last stage comes out of the studio.
+  const s = G.create(78, { ceo: true });
+  s.cash = 1e6;
+  G.sign(s, s.candidates[0].id, 3);
+  const a = s.artists[0];
+  s.albums.push({
+    id: 990,
+    artist: a.id,
+    title: "Stuck",
+    released: false,
+    addOns: [],
+    boosts: [],
+    remaining: 0.8,
+    production: { stage: 5, cooldown: 0.8, review: false, releaseReady: false, results: [] },
+  });
+  s.event = null;
+  s.eventQueue = [];
+  G.advance(s);
+  assert.equal(s.albums.find((p) => p.id === 990).production.releaseReady, true);
+});
+
 console.log(`\n${count} fortune tests passed.`);

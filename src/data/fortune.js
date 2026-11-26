@@ -77,6 +77,8 @@
       ],
       mult: ["mult", "tourMult", "albumBoost"],
       whole: ["extension"],
+      // Weeks of delay: scaled like `bad`, then kept to whole weeks, never less than one.
+      wholeBad: ["delayAlbum"],
     },
     // How much an option puts at stake, to rate it: points per unit of each effect, with cash and
     // costs per dollar; an option that can fail outright adds `gamble`.
