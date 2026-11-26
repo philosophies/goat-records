@@ -650,3 +650,29 @@ Depends on: T75
 Files: `src/data/onboarding.js`, `src/systems/onboarding.js`, `src/ui/onboarding.js`, `src/ui/registry.js`, `src/app.js`, `styles/dynasty.css`, tests
 Do: Owner decision (2026-11-25): a tutorial that follows the checklist, told by a CEO mentor about to retire, who explains the game's features and walks the player through the menus.
 Done when: tests for the order of the beats, reading and skipping, saves, and the interface (talks, Show me, pointers, album notes, glow, letting him go); screenshots on desktop and phone; rules updated.
+
+## Owner requests of 2026-11-25: time, chance and stories
+
+### [x] T77 · Time in weeks
+
+Files: `src/ui/clock.js`, `src/engine.js`, `src/app.js`, `src/systems/locations.js`, tests
+Do: Owner decision: one unit of time. Weeks are the unit; a week has seven days, and days appear only as the day of the week (and on the road, where a tour plays one date a day). In CEO runs tour days run at the clock's normal pace, a tour starts on the day the clock has reached, and the week settles after its seventh day. Tour lengths, progress, reviews and break-even, gig waits and development waits are worded in weeks.
+Done when: tests for the tour calendar, the clock's pace on tour and the wording; classic play unchanged.
+
+### [ ] T78 · Choices with odds
+
+Files: `src/data/fortune.js`, `src/systems/fortune.js`, `src/engine.js`, `src/systems/events.js`, tests
+Do: Owner decision: the effects of decision cards vary by chance, and each card's options run from safe to bold with a wider spread of risk and reward. Every option is rated safe, steady or bold; the outcome is drawn when it is chosen.
+Done when: tests for the ratings, the draw, the scaling of each kind of effect and that the outcome is recorded.
+
+### [ ] T79 · Outcomes revealed after the choice
+
+Files: `src/ui/*.js`, `styles/*.css`, tests
+Do: Owner decision: a card hides what each option will do until the choice is made, then reveals the outcome with a short animation. A testing switch shows or hides outcomes before choosing.
+Done when: harness for hidden and shown outcomes, the reveal and the switch; screenshots.
+
+### [ ] T80 · Stories in context
+
+Files: `src/data/story-context.js`, `src/systems/stories.js`, tests
+Do: Owner decision: interactions depend on what the artist is doing: headlining a tour, sharing a tour, recording, with an album just out, or waiting to record. Several are multi-part stories drawn from the kinds of headlines artists in each genre make (no real names), and some can cost the label an artist, sales or tour dates. Major moments get a short animation.
+Done when: tests for each context, the new effects (an artist leaving, a sales hit, a tour cut short) and a full arc; rules updated.
