@@ -47,6 +47,7 @@ const roundTrip = (s) => JSON.parse(JSON.stringify(s));
 
 function label(phase = 3) {
   const s = G.create(91, { ceo: true });
+  G.setFixedOutcomes(s, true); // written effects; chance is checked in fortune-test
   s.company.phase = phase;
   s.cash = 1e7;
   s.company.stories = { arcs: [], log: {}, lastWeek: -10 };

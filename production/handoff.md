@@ -11,8 +11,8 @@ Task: v2.0.0 released
 
 **Updated:** 2026-11-25
 **Branch:** `main`
-**Current task:** T78 · Choices with odds
-**Next step:** Rate every option safe, steady or bold and draw its outcome when chosen
+**Current task:** T79 · Outcomes revealed after the choice
+**Next step:** Hide option effects until chosen, reveal the outcome with an animation, testing switch
 **Blocked on:** Nothing.
 **Files in progress:** None.
 **Open questions:** Whether platform stakes should skip the board budget; whether late-game tours should pay more now that the studio limit makes them the main way to earn.

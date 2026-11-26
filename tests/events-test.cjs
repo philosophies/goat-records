@@ -8,6 +8,7 @@ const roundTrip = (s) => G.migrate(JSON.parse(JSON.stringify(s)));
 
 function label(seed = 7, ceo = true) {
   const s = G.create(seed, { ceo });
+  if (ceo) G.setFixedOutcomes(s, true); // these checks read each choice's written effects; chance is in fortune-test
   s.cash = 100000;
   G.sign(s, s.candidates[0].id);
   s.artists[0].morale = 60;
@@ -28,7 +29,12 @@ const template = {
       cost: 100,
       chance: 0.5,
       effects: {
-        cash: 75, fame: 5, confidence: -5, morale: -8, artistFame: 12, delayAlbum: 2,
+        cash: 75,
+        fame: 5,
+        confidence: -5,
+        morale: -8,
+        artistFame: 12,
+        delayAlbum: 2,
         loan: { amount: 400, payment: 100 },
       },
       failure: { cash: -20 },
@@ -52,8 +58,11 @@ function fixture() {
   s.company.ownership = 0.8;
   Object.values(s.company.departments)[0].head = { ambition: 75 };
   s.albums.push({
-    id: 90, artist: s.artists[0].id, genre: "Pop",
-    production: { cooldown: 0, releaseReady: true }, remaining: 0,
+    id: 90,
+    artist: s.artists[0].id,
+    genre: "Pop",
+    production: { cooldown: 0, releaseReady: true },
+    remaining: 0,
   });
   s.week = COMPANY_EVENT_INTERVAL;
   return s;
@@ -64,15 +73,33 @@ assert.ok(!events.eligible(label(7, false), COMPANY_EVENTS[0]));
 const eligible = fixture();
 assert.deepEqual(events.eligible(eligible, template), { artist: eligible.artists[0].id, album: 90 });
 for (const invalidate of [
-  (s) => { s.cash = 499; },
-  (s) => { s.company.phase = 1; },
-  (s) => { s.company.ownership = 1; },
-  (s) => { delete s.company.board; },
-  (s) => { s.company.board.freedom = "high"; },
-  (s) => { s.artists[0].morale = 49; },
-  (s) => { s.albums[0].artist = 999; },
-  (s) => { s.albums[0].released = true; },
-  (s) => { Object.values(s.company.departments)[0].head.ambition = 49; },
+  (s) => {
+    s.cash = 499;
+  },
+  (s) => {
+    s.company.phase = 1;
+  },
+  (s) => {
+    s.company.ownership = 1;
+  },
+  (s) => {
+    delete s.company.board;
+  },
+  (s) => {
+    s.company.board.freedom = "high";
+  },
+  (s) => {
+    s.artists[0].morale = 49;
+  },
+  (s) => {
+    s.albums[0].artist = 999;
+  },
+  (s) => {
+    s.albums[0].released = true;
+  },
+  (s) => {
+    Object.values(s.company.departments)[0].head.ambition = 49;
+  },
 ]) {
   const s = fixture();
   invalidate(s);
@@ -80,16 +107,25 @@ for (const invalidate of [
 }
 
 function system(draw, outcome, table = [template]) {
-  return create({
-    clamp: (n, min = 0, max = 100) => Math.max(min, Math.min(max, n)),
-    log: () => {},
-    pay: (s, cost) => { s.cash -= cost; },
-    roll: (_, key) => key.endsWith(":draw") ? draw : outcome,
-  }, { COMPANY_EVENTS: table, COMPANY_EVENT_INTERVAL });
+  return create(
+    {
+      clamp: (n, min = 0, max = 100) => Math.max(min, Math.min(max, n)),
+      log: () => {},
+      pay: (s, cost) => {
+        s.cash -= cost;
+      },
+      roll: (_, key) => (key.endsWith(":draw") ? draw : outcome),
+    },
+    { COMPANY_EVENTS: table, COMPANY_EVENT_INTERVAL },
+  );
 }
 
 const weighted = { ...template, id: "weighted", weight: 3 };
-for (const [draw, id] of [[0.249, "fixture"], [0.25, "weighted"], [0.99, "weighted"]]) {
+for (const [draw, id] of [
+  [0.249, "fixture"],
+  [0.25, "weighted"],
+  [0.99, "weighted"],
+]) {
   const s = fixture();
   system(draw, 0, [template, weighted]).queue(s);
   assert.equal(s.eventQueue.at(-1).eventId, id);
@@ -116,11 +152,17 @@ for (const succeeds of [true, false]) {
   assert.equal(s.albums[0].production.cooldown, succeeds ? 2 : 0);
   assert.equal(s.albums[0].production.releaseReady, !succeeds);
   assert.equal(s.albums[0].remaining, succeeds ? 2 : 0);
-  assert.deepEqual(s.company.loan, succeeds ? { amount: 400, balance: 400, payment: 100, week: s.week } : null);
+  assert.deepEqual(
+    s.company.loan,
+    succeeds ? { amount: 400, balance: 400, payment: 100, week: s.week } : null,
+  );
   assert.equal(sys.available(s, option, entry), !succeeds);
   if (succeeds)
-    assert.ok(G.boardReport(s).directors.some((director) =>
-      director.reasons.some(({ key, points }) => key === "events" && points === -5)));
+    assert.ok(
+      G.boardReport(s).directors.some((director) =>
+        director.reasons.some(({ key, points }) => key === "events" && points === -5),
+      ),
+    );
 }
 
 const first = label();
@@ -195,7 +237,11 @@ function checkPack(kind, minimum) {
         const album = s.albums[0];
         const board = s.company.board;
         const subjects = {
-          label: s, company: s.company, board, artist, album,
+          label: s,
+          company: s.company,
+          board,
+          artist,
+          album,
           executive: Object.values(s.company.departments)[0].head,
         };
         artist.fame = 55;
@@ -226,10 +272,19 @@ function checkPack(kind, minimum) {
           loan: effects.loan?.amount,
         };
         sys.resolve(s, entry, selected);
-        assert.deepEqual({
-          cash: s.cash, fame: s.fame, confidence: board.confidence, morale: artist.morale,
-          artistFame: artist.fame, cooldown: album.production.cooldown, loan: s.company.loan?.amount,
-        }, expected, `${event.id}: ${selected.label}, roll ${outcome}`);
+        assert.deepEqual(
+          {
+            cash: s.cash,
+            fame: s.fame,
+            confidence: board.confidence,
+            morale: artist.morale,
+            artistFame: artist.fame,
+            cooldown: album.production.cooldown,
+            loan: s.company.loan?.amount,
+          },
+          expected,
+          `${event.id}: ${selected.label}, roll ${outcome}`,
+        );
       }
     });
   }

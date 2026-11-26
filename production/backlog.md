@@ -659,7 +659,7 @@ Files: `src/ui/clock.js`, `src/engine.js`, `src/app.js`, `src/systems/locations.
 Do: Owner decision: one unit of time. Weeks are the unit; a week has seven days, and days appear only as the day of the week (and on the road, where a tour plays one date a day). In CEO runs tour days run at the clock's normal pace, a tour starts on the day the clock has reached, and the week settles after its seventh day. Tour lengths, progress, reviews and break-even, gig waits and development waits are worded in weeks.
 Done when: tests for the tour calendar, the clock's pace on tour and the wording; classic play unchanged.
 
-### [ ] T78 · Choices with odds
+### [x] T78 · Choices with odds
 
 Files: `src/data/fortune.js`, `src/systems/fortune.js`, `src/engine.js`, `src/systems/events.js`, tests
 Do: Owner decision: the effects of decision cards vary by chance, and each card's options run from safe to bold with a wider spread of risk and reward. Every option is rated safe, steady or bold; the outcome is drawn when it is chosen.

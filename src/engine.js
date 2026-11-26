@@ -24,6 +24,7 @@
     "legacy",
     "delegation",
     "platform",
+    "fortune",
   ];
   function optionalRequire(path) {
     try {
@@ -852,13 +853,20 @@
   }
   function choose(s, index) {
     if (s.finished || !s.event) throw Error("No active event.");
-    const e = s.event,
-      o = e.options[index];
+    const e = s.event;
+    let o = e.options[index];
     if (!o) throw Error("Invalid choice.");
     if (!eventOptionAvailable(s, o, e))
       throw Error(
         o.extension ? "Not enough cash or the 18-week extension limit was reached." : "Not enough cash.",
       );
+    // CEO runs: the outcome is drawn now, and the option's effects scaled to it (src/systems/fortune.js).
+    const luck = s.company ? api.drawFortune?.(s, e, index) : null;
+    if (luck) {
+      o = luck.option;
+      e.fortune = { risk: luck.risk, tier: luck.tier, gain: luck.gain, loss: luck.loss };
+    }
+    const before = luck ? api.fortuneSnapshot(s, e) : null;
     if (e.type === "companyEvent") {
       try {
         E.resolve(s, e, o);
@@ -891,7 +899,20 @@
         if (o.mult) p.boosts.push({ start: s.week + 1, until: s.week + (o.boostWeeks || 3), mult: o.mult });
       }
       if (o.delay) s.effects.push({ ...o.delay, week: s.week + o.delay.after, artist: e.artist });
-      log(s, `${e.title}: ${o.label}.`);
+      log(s, `${e.title}: ${o.label}.${luck ? ` ${luck.name}.` : ""}`);
+    }
+    if (luck && s.event === e) {
+      s.company.lastOutcome = {
+        week: s.week,
+        title: e.title,
+        label: o.label,
+        risk: luck.risk,
+        tier: luck.tier,
+        name: luck.name,
+        effects: api.fortuneChanges(s, e, before),
+        seen: false,
+      };
+      delete e.fortune;
     }
     s.event = s.eventQueue.shift() || null;
     if (!s.event && s.pendingTourWeek) {
