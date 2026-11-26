@@ -69,6 +69,7 @@ function clockLabel(c, hint) {
 const GoatClock = {
   speed: 0,
   progress: 0,
+  week: null,
   hint: false,
   blockers: [],
   timer: null,
@@ -110,11 +111,25 @@ const GoatClock = {
   current() {
     return clockState(state, this.ui());
   },
-  /** Day of the label week shown in the top bar: the tour day on the road, else clock progress. */
+  /**
+   * Day of the label week shown in the top bar. A week is seven days at the same pace with or
+   * without a tour: on the road each day is one show (or rest) day, settled as the clock reaches it.
+   * A tour decision shows the day it is about.
+   */
   day() {
-    if (state.tours.some((t) => t.status === "active"))
+    if (!state.company && state.tours.some((t) => t.status === "active"))
       return Math.min(7, state.event?.type === "tourDay" ? state.tourDayInWeek : state.tourDayInWeek + 1);
-    return Math.min(7, 1 + Math.floor(this.progress * 7));
+    if (state.event?.type === "tourDay") return Math.max(1, Math.min(7, state.tourDayInWeek));
+    return Math.min(7, Math.max(1 + Math.floor(this.progress * 7), (state.tourDayInWeek || 0) + 1));
+  },
+  /** Keeps the clock's place in the week in step with days already played on tour. */
+  sync() {
+    if (state.week !== this.week) {
+      this.week = state.week;
+      this.progress = 0;
+    }
+    const played = (state.tourDayInWeek || 0) / 7;
+    if (this.progress < played) this.progress = played;
   },
   /** Called after every render with the page's own reasons to hold time. */
   update(blockers) {
@@ -142,6 +157,7 @@ const GoatClock = {
   },
   /** Updates the progress bar and the day without a full render. */
   paint() {
+    if (state) this.sync();
     const bar = $("clockProgress");
     if (bar && bar.style) bar.style.width = Math.round(this.progress * 1000) / 10 + "%";
     const day = $("dateDay");
@@ -156,7 +172,17 @@ const GoatClock = {
     if (typeof document !== "undefined" && document.hidden) return;
     const c = this.current();
     if (!c.run) return;
+    this.sync();
     this.progress += dt / c.interval;
+    // On tour, each day is settled when the clock reaches it, at the pace of any other day.
+    if (this.progress < 1 && state.company && state.tours.some((t) => t.status === "active")) {
+      const reached = Math.floor(this.progress * 7);
+      if ((state.tourDayInWeek || 0) < reached) {
+        act(() => G.advanceTourDay(state));
+        if ($("message").textContent) this.setSpeed(0);
+        return;
+      }
+    }
     if (this.progress >= 1) {
       this.progress = 0;
       this.tick();

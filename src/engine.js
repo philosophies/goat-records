@@ -1936,6 +1936,18 @@
     const people = [a, ...(q.partner ? [q.partner] : [])];
     if (people.some((a) => busy(s, a.id)))
       throw Error("Every participating label artist must be free of albums and other tours.");
+    // In a CEO run the first tour on the road starts on the day of the week the clock has reached,
+    // so the week still has seven days in all (plan.weekDay: days of this week already gone, 0–6).
+    const weekDay = Number(plan.weekDay);
+    if (
+      s.company &&
+      Number.isInteger(weekDay) &&
+      weekDay > 0 &&
+      weekDay < 7 &&
+      !s.tours.some((t) => t.status === "active") &&
+      !s.tourDayInWeek
+    )
+      s.tourDayInWeek = weekDay;
     if (people.some((a) => a.energy < q.mode.minEnergy))
       throw Error(`This lineup requires ${q.mode.minEnergy} energy for each label artist.`);
     if (s.cash < q.upfront + q.weekly)
@@ -1986,6 +1998,8 @@
       fatigueWarning: false,
       profitMilestone: false,
     };
+    // CEO runs remember the day of the week the tour began, to give its dates on the label's calendar.
+    if (s.company) t.startDay = s.tourDayInWeek || 0;
     s.tours.push(t);
     p.tourLaunched = true;
     p.boosts.push({ start: s.week + 1, until: s.week + q.scale.weeks + 1, mult: 1.12, sourceTour: t.id });
@@ -2934,6 +2948,16 @@
     t.lastInteractionAt = s.week * 7 + s.tourDayInWeek;
     t.lastDecisionSpan = gap;
   }
+  /** A length of tour time in weeks and odd days: "4 weeks 2 days". */
+  function dur(days) {
+    const w = Math.floor(days / 7),
+      d = days % 7;
+    return (
+      [w && `${w} week${w === 1 ? "" : "s"}`, d && `${d} day${d === 1 ? "" : "s"}`]
+        .filter(Boolean)
+        .join(" ") || "0 days"
+    );
+  }
   function advanceTourToNextActivity(s) {
     requireAction(s);
     const week = s.week;
@@ -3392,7 +3416,7 @@
         const before = t.plannedDays,
           after = Math.max(t.day, Math.min(t.baseDays * 2, before + o.lengthDelta));
         o.lengthDelta = after - before;
-        o.hint += ` Itinerary: ${before} → ${after} calendar days (${o.lengthDelta >= 0 ? "+" : ""}${o.lengthDelta} actual).`;
+        o.hint += ` Itinerary: ${dur(before)} → ${dur(after)} (${o.lengthDelta >= 0 ? "+" : ""}${o.lengthDelta} day${Math.abs(o.lengthDelta) === 1 ? "" : "s"}).`;
         if (o.restDays) {
           o.restDays = Math.max(0, o.lengthDelta);
           o.recoveryEnergy = o.restDays * 9;

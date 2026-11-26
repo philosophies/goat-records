@@ -145,7 +145,10 @@
       else if (labelRank(s) < g.rank) reason = `Reach ${core.api().ladderLabel(s, g.rank)} first.`;
       else if (!a.contract?.remaining) reason = "Renew this artist's contract before booking gigs.";
       else if (busy(s, a.id)) reason = "Gigs are not possible while recording or touring.";
-      else if (wait) reason = `Next gig available in ${wait} week${wait === 1 ? "" : "s"}.`;
+      else if (wait)
+        reason = s.company
+          ? `Next gig in week ${st.readyWeek} (${wait} week${wait === 1 ? "" : "s"}).`
+          : `Next gig available in ${wait} week${wait === 1 ? "" : "s"}.`;
       else if (a.energy < g.energy) reason = `Artist needs ${g.energy} energy.`;
       return {
         gig: g,
