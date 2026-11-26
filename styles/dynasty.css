@@ -571,3 +571,168 @@ body[data-mentor="office"] #advance {
     top: var(--hud-h);
   }
 }
+
+/* Choices with odds (T79): how bold an option is, and the card that reveals its outcome. */
+.options .risk {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: middle;
+  border: 1px solid currentColor;
+}
+.risk-safe {
+  color: #7fd4a0;
+}
+.risk-steady {
+  color: #e3b23c;
+}
+.risk-bold {
+  color: #ff7a6b;
+}
+.outcome-switch {
+  display: block;
+  margin: 0 0 8px auto;
+  font-size: 12px;
+}
+.outcome-reveal {
+  text-align: center;
+  animation: outcome-in 0.45s ease-out both;
+  transform-origin: 50% 0;
+}
+.outcome-reveal .outcome-choice {
+  opacity: 0.85;
+}
+.outcome-stamp {
+  display: inline-block;
+  margin: 10px auto 14px;
+  padding: 8px 22px;
+  border: 4px solid currentColor;
+  border-radius: 6px;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transform: rotate(-4deg);
+  animation: outcome-stamp 0.5s 0.35s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+.tier-triumph .outcome-stamp {
+  color: #ffd54a;
+  text-shadow: 0 0 12px rgba(255, 213, 74, 0.7);
+}
+.tier-better .outcome-stamp {
+  color: #7fd4a0;
+}
+.tier-planned .outcome-stamp {
+  color: #cfd6e6;
+}
+.tier-worse .outcome-stamp {
+  color: #f0a35e;
+}
+.tier-backfire .outcome-stamp {
+  color: #ff5a4a;
+}
+.tier-backfire.outcome-reveal {
+  animation:
+    outcome-in 0.45s ease-out both,
+    outcome-shake 0.4s 0.85s ease-in-out;
+}
+.tier-triumph.outcome-reveal {
+  box-shadow: 0 0 0 0 rgba(255, 213, 74, 0.6);
+  animation:
+    outcome-in 0.45s ease-out both,
+    outcome-glow 1.4s 0.85s ease-out;
+}
+.outcome-effects {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto 12px;
+  max-width: 420px;
+  text-align: left;
+}
+.outcome-effects li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 2px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+  animation: outcome-line 0.3s calc(0.8s + var(--i) * 0.08s) ease-out both;
+}
+.outcome-reveal h2,
+.outcome-reveal .outcome-choice,
+.outcome-effects li {
+  color: #ece4d2;
+}
+.outcome-reveal .actions {
+  justify-content: center;
+}
+.outcome-effects li.up b {
+  color: #7fd4a0;
+}
+.outcome-effects li.down b {
+  color: #ff7a6b;
+}
+.outcome-effects li.news {
+  justify-content: center;
+  font-weight: 700;
+}
+@keyframes outcome-in {
+  from {
+    opacity: 0;
+    transform: perspective(800px) rotateX(-70deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes outcome-stamp {
+  from {
+    opacity: 0;
+    transform: scale(2.4) rotate(-12deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(-4deg);
+  }
+}
+@keyframes outcome-line {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes outcome-shake {
+  20%,
+  60% {
+    transform: translateX(-7px);
+  }
+  40%,
+  80% {
+    transform: translateX(7px);
+  }
+}
+@keyframes outcome-glow {
+  from {
+    box-shadow: 0 0 0 0 rgba(255, 213, 74, 0.6);
+  }
+  to {
+    box-shadow: 0 0 0 26px rgba(255, 213, 74, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .outcome-reveal,
+  .outcome-reveal *,
+  .tier-backfire.outcome-reveal,
+  .tier-triumph.outcome-reveal {
+    animation: none !important;
+  }
+}

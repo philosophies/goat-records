@@ -42,6 +42,7 @@ const G = require("../src/engine.js");
 function touring(seed) {
   const s = G.create(seed, { ceo: true });
   G.setStarter(s, false);
+  G.setFixedOutcomes(s, true); // tour choices here are about time, not odds (no reveal cards)
   s.company.stories = { arcs: [], log: {}, lastWeek: 1e9 };
   s.company.rivalCardWeek = 1e9;
   Object.assign(s, { cash: 1e6, reputation: 80 });

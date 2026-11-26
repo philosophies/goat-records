@@ -302,6 +302,23 @@ function tourPoint(t, day) {
   const at = t.startWeek * 7 + (t.startDay || 0) + day - 1;
   return `week ${Math.floor(at / 7)}, day ${(at % 7) + 1}`;
 }
+/** The options on a decision card. CEO runs hide what an option will do until it is chosen. */
+function eventOptions(s) {
+  const e = s.event,
+    risks = s.company ? G.optionRisks(s, e) : [],
+    hidden = !outcomesShown();
+  return e.options
+    .map((o, i) => {
+      const risk = risks[i],
+        notes = `${o.extension && s.albums.find((p) => p.id === e.album)?.salesWeeks >= 18 ? " Extension cap reached." : ""}${s.staff.includes("Public Relations") && o.trust < 0 && !(risk && hidden) ? " PR staff reduces the immediate trust loss." : ""}`;
+      const text =
+        risk && hidden
+          ? `${o.cost ? `Costs ${money(o.cost)}. ` : ""}What it does shows once you choose.`
+          : `${o.hint}${risk ? " " + oddsText(risk) : ""}`;
+      return `<button data-action="choose" data-id="${i}" ${disable(!G.eventOptionAvailable(s, o))}>${esc(o.label)}${risk ? `<span class="risk risk-${risk}">${G.FORTUNE.riskNames[risk]}</span>` : ""}<small>${esc(text)}${notes}</small></button>`;
+    })
+    .join("");
+}
 function tourReviewText(t) {
   if (t.awaitingDayEvent) return "Current decision pending · your selection sets the next review.";
   const remaining = Math.max(0, 3 - G.tourInteractionBudget(state).count),
@@ -730,11 +747,15 @@ function render() {
       : G.campaignGoalText(s) + " " + rankLine();
   // The campaign system shows the run's final review as a card, so no separate outcome card.
   paintHTML("outcome", "");
+  // In a CEO run the outcome of the last choice is revealed before anything else (src/ui/fortune.js).
+  const reveal = s.company ? outcomeReveal() : "";
   paintHTML(
     "event",
-    s.event
-      ? `<div class="event ${s.event.type === "story" ? "story-event" : ""}"><span class="tag">${s.event.type === "story" ? esc(G.storyCardName(s, s.event) + "'s story").toUpperCase() : /^rival/.test(s.event.type) ? "RIVAL LABEL" : s.event.type === "era" ? "THE MUSIC BUSINESS" : "INDUSTRY MOMENT"} · TIME IS PAUSED</span><h2>${esc(s.event.title)}</h2><p>${esc(s.event.body)}</p><div class="options">${s.event.options.map((o, i) => `<button data-action="choose" data-id="${i}" ${disable(!G.eventOptionAvailable(s, o))}>${esc(o.label)}<small>${esc(o.hint)}${o.extension && s.albums.find((p) => p.id === s.event.album)?.salesWeeks >= 18 ? " Extension cap reached." : ""}${s.staff.includes("Public Relations") && o.trust < 0 ? " PR staff reduces the immediate trust loss." : ""}</small></button>`).join("")}</div></div>`
-      : "",
+    reveal
+      ? reveal
+      : s.event
+        ? `<div class="event ${s.event.type === "story" ? "story-event" : ""}"><span class="tag">${s.event.type === "story" ? esc(G.storyCardName(s, s.event) + "'s story").toUpperCase() : /^rival/.test(s.event.type) ? "RIVAL LABEL" : s.event.type === "era" ? "THE MUSIC BUSINESS" : "INDUSTRY MOMENT"} · TIME IS PAUSED</span><h2>${esc(s.event.title)}</h2><p>${esc(s.event.body)}</p>${s.company ? outcomeSwitch() : ""}<div class="options">${eventOptions(s)}</div></div>`
+        : "",
   );
   // The open sheet belongs to a person or place; it closes if they leave (a released artist).
   const sheet = panelOpen && GoatPlaces.sheet(tab);
@@ -775,6 +796,7 @@ function render() {
   paintHTML("feed", newsFeed());
   const key = [
     s.finished ? "finished:" + s.outcome : undefined,
+    reveal ? `outcome:${s.company.lastOutcome.week}:${s.company.lastOutcome.title}` : undefined,
     s.event?.title,
     ...s.albums
       .filter((p) => !s.finished && (!p.released || p.launchReview) && !inStudioWaiting(p))

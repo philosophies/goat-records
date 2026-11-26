@@ -665,7 +665,7 @@ Files: `src/data/fortune.js`, `src/systems/fortune.js`, `src/engine.js`, `src/sy
 Do: Owner decision: the effects of decision cards vary by chance, and each card's options run from safe to bold with a wider spread of risk and reward. Every option is rated safe, steady or bold; the outcome is drawn when it is chosen.
 Done when: tests for the ratings, the draw, the scaling of each kind of effect and that the outcome is recorded.
 
-### [ ] T79 · Outcomes revealed after the choice
+### [x] T79 · Outcomes revealed after the choice
 
 Files: `src/ui/*.js`, `styles/*.css`, tests
 Do: Owner decision: a card hides what each option will do until the choice is made, then reveals the outcome with a short animation. A testing switch shows or hides outcomes before choosing.
