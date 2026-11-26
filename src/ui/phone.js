@@ -126,7 +126,7 @@ function calendarItems() {
     out.push({
       week: null,
       kind: "On tour",
-      text: `${t.artistName} · week ${Math.max(1, Math.ceil((t.day || 1) / 7))} of ${Math.ceil((t.plannedDays || 7) / 7)}`,
+      text: `${t.artistName} · week ${t.byWeek ? Math.max(1, t.weeksPlayed) : Math.max(1, Math.ceil((t.day || 1) / 7))} of ${t.byWeek ? t.plannedWeeks : Math.ceil((t.plannedDays || 7) / 7)}`,
       tab: "bus",
     });
   for (const ad of state.promotion?.ads || [])

@@ -134,7 +134,11 @@
       return {
         label: Object.fromEntries(WATCH.map(([k, , f]) => [k, f(s)])),
         artist: a && { id: a.id, name: a.name, ...Object.fromEntries(ARTIST.map(([k]) => [k, a[k]])) },
-        tour: t && { quality: t.quality, days: t.plannedDays, status: t.status },
+        tour: t && {
+          quality: t.quality,
+          ...(t.byWeek ? { weeks: t.plannedWeeks } : { days: t.plannedDays }),
+          status: t.status,
+        },
         album: p && { weeks: p.salesWeeks, boosts: p.boosts?.length || 0 },
         roster: s.artists.length,
       };
@@ -154,7 +158,8 @@
       if (before.artist && !now.artist) out.push({ name: `${before.artist.name} left the label`, delta: 0 });
       if (before.tour && now.tour) {
         add("Tour quality", now.tour.quality - before.tour.quality);
-        add("Tour days", now.tour.days - before.tour.days);
+        if (before.tour.weeks !== undefined) add("Tour weeks", now.tour.weeks - before.tour.weeks);
+        else add("Tour days", now.tour.days - before.tour.days);
         if (before.tour.status === "active" && now.tour.status !== "active")
           out.push({ name: "The tour ended", delta: 0 });
       }

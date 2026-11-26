@@ -83,8 +83,16 @@ function tour(s, a, mode = "solo", partner = null) {
     mode,
     status: "active",
     startWeek: s.week,
+    // A CEO tour runs in weeks (T85): one week played of four.
+    byWeek: true,
+    duration: 4,
+    weeksPlayed: 1,
+    plannedWeeks: 4,
+    baseWeeks: 4,
+    restWeeks: 0,
+    showWeeks: 1,
     elapsed: 1,
-    day: 9,
+    day: 7,
     plannedDays: 28,
     baseDays: 28,
     quality: 70,
@@ -225,10 +233,10 @@ test("a feud on tour runs over three cards, cuts dates, and follows the artist h
   const next = due(s, a, "diss-on-stage");
   assert.equal(next.beat.id, "venues-pull-out");
   assert.ok(next.soon);
-  const days = t.plannedDays;
+  const weeks = t.plannedWeeks;
   card = play(s, a, "diss-on-stage", 2); // drop the cities that balked
-  assert.equal(t.plannedDays, days - 5);
-  assert.ok(card.storyNotes.includes("5 tour dates cut"));
+  assert.equal(t.plannedWeeks, weeks - 2);
+  assert.ok(card.storyNotes.includes("2 weeks of tour dates cut"));
   // The last card waits until the tour is over.
   s.week += 5;
   assert.ok(!due(s, a, "diss-on-stage"), "still on tour");
@@ -430,7 +438,7 @@ test("the card text names every consequence when outcomes are shown", () => {
   assert.match(text, /Trust -2, energy \+25, a 70% chance the rest of the tour is called off\./);
   assert.match(G.storyChoiceText(arcOf("old-posts").beats[0].choices[2]), /album sales ×0\.75 for 5 weeks/);
   assert.match(G.storyChoiceText(arcOf("band-blows-up").beats[1].choices[2]), /\{name\} leaves the label/);
-  assert.match(G.storyChoiceText(arcOf("wrecked-suite").beats[0].choices[1]), /2 tour dates cut/);
+  assert.match(G.storyChoiceText(arcOf("wrecked-suite").beats[0].choices[1]), /1 week of tour dates cut/);
 });
 
 test("a shared-tour card names the other act, and saves with context stories load", () => {
