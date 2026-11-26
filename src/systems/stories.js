@@ -303,7 +303,9 @@
         choice = beat?.choices[o.storyChoice],
         who = run && runSubject(s, run);
       if (!run || !choice) return;
-      const st = choice.story || {},
+      // The drawn outcome scales the story's own effects too (relationship, loyalty, skill, standing).
+      const scaleFortune = core.api().scaleFortune,
+        st = (e.fortune && scaleFortune ? scaleFortune(choice.story, e.fortune) : choice.story) || {},
         x = who?.obj;
       Object.assign(run.flags, st.set || {});
       if (who?.kind === "artist") {

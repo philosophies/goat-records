@@ -133,7 +133,10 @@
       const choice = event.choices[option.choice];
       if (choice.cost) pay(s, choice.cost);
       const succeeded = choice.chance === undefined || roll(s, "company-events:choice") < choice.chance;
-      effect(s, entry, succeeded ? choice.effects : choice.failure);
+      // In CEO runs the drawn outcome (entry.fortune) scales whichever way the plan went.
+      const scaleFortune = core.api?.()?.scaleFortune;
+      const effects = succeeded ? choice.effects : choice.failure;
+      effect(s, entry, entry.fortune && scaleFortune ? scaleFortune(effects, entry.fortune) : effects);
       log(s, `${event.title}: ${choice.label}.${succeeded ? "" : " The plan fell through."}`);
     }
 
