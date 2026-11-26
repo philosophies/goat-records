@@ -586,8 +586,11 @@ test("The tour manager raises ticket revenue and saves energy on the road", () =
   };
   const a = tour(plain),
     b = tour(s);
+  // teamGate multiplies every system's tour gate (tour pay too, T82); check the team's own share.
+  const staff = G.systems.find((x) => x.name === "staff");
   assert.ok(b.t.teamGate > 1);
-  assert.equal(a.t.teamGate, 1, "no tour manager, no lift");
+  assert.ok(staff.tourGate(s, b.t) > 1, "the tour manager's lift");
+  assert.equal(staff.tourGate(plain, a.t), 1, "no tour manager, no lift");
   assert.ok(b.t.revenue > a.t.revenue, "more ticket revenue");
   assert.ok(b.energy > a.energy, "less energy drain");
 });

@@ -214,3 +214,10 @@
     animation: none;
   }
 }
+.tour-rate {
+  margin: 6px 0;
+  font-size: 13px;
+}
+.tour-rate b {
+  color: var(--gold, #e8b64c);
+}

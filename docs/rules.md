@@ -385,6 +385,15 @@ A label with no artists can sign one up-and-comer whatever its reputation; other
 
 **Studio capacity.** A CEO label can have only so many albums in production at once: 1 at phase 1, 2 at phases 2–4 and 3 at phases 5–6, however many rooms it has. While the studio is full, artists who are waiting can tour. Albums already in production when a save loads are kept, even over the limit.
 
+**Tour pay.** In a CEO run each tour has a ticket rate, worked out again every show day, that multiplies ticket sales. It starts at ×1 and adds:
+
+- the artist's fame: (fame − 50) × 0.2%, from −10% at 0 to +10% at 100;
+- the tour's quality: (quality − 70) × 0.3%, so +9% at 100 and −9% at 40 (on top of the way quality already sets ticket sales);
+- the artist's tier: up-and-comer +0%, star +3%, superstar +8%;
+- the label's reputation: (reputation − 60) × 0.2%, +8% at 100.
+
+A shared tour adds 5%, plus (the other act's fame − 40) × 0.15%, +2% for a star or +4% for a superstar (a rival's artist counts as a star from 40 fame and a superstar from 75), and (the two labels' average standing − 60) × 0.15%, where a rival label's standing is its strength. Each of those counts only upward, and the shared part is at most +15%. The rate stays between ×0.8 and ×1.45. A rival's artist records for one of the run's rival labels, named on the quote. The tour form shows the rate and its parts before booking, and the forecast uses it; a tour on the road shows today's rate.
+
 For phases 2–5, the goals are fame, revenue over the last 52 weeks, releases, and hits. Where an outside board exists, it must approve the phase change. Phases never go backward. The office shows weekly income by source and rent, insurance, and interest in the expense breakdown.
 
 **Phone and events.** The Inbox shows current and queued decisions. Once a quarter an eligible opportunity, crisis, or political problem can arrive. The label's phase, finances, roster, albums, staff, and board affect which offers can appear. A decision pauses the clock. Choose a response or defer to a later week. The choice card names the fallback that applies at expiry.
