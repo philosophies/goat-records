@@ -27,7 +27,7 @@ Task: v2.0.0 released
 
 ## Open items
 
-- Balance: in the twelve-seed sample one average run folds and 6 of 12 reckless runs are fired; hand players win about two thirds of chart battles; the delegated label ends 3% above hand play; careful players still end with about $290M in cash ([CEO-BALANCE.json](../CEO-BALANCE.json), [audit](qa/audit-3.0.md)).
+- Balance (twelve seeds, after T81–T84): careful players never fold and all list by year 12; one average run folds and 5 of 12 reckless runs are fired; hand players win about 70% of chart battles; the delegated label ends 4% above hand play; careful players lose 1–2 stars to stories a run and take about $8M from tours ([CEO-BALANCE.json](../CEO-BALANCE.json), [audit](qa/audit-3.0.md)).
 - Android: the wrapper is in `android-app/`; building it and a test on a real device remain ([Android guide](../docs/android.md)).
 
 ## Verification
