@@ -22,8 +22,17 @@
   "use strict";
 
   // albumOut: weeks after a release that count as "album out". tourWeeks: default length of a
-  // ticket change. leaveMorale: morale lost by an artist who would leave but is mid-record.
-  const STORY_CONTEXT = { albumOut: 10, tourWeeks: 2, leaveMorale: -15 };
+  // ticket change. leaveMorale: morale lost by an artist who would leave but is mid-record, or by an
+  // up-and-comer told to go (owner decision 2026-11-26: only stars and superstars leave after a
+  // story). leaveScale: how much likelier a star or superstar is to go than the card's base chance,
+  // up to leaveMax.
+  const STORY_CONTEXT = {
+    albumOut: 10,
+    tourWeeks: 2,
+    leaveMorale: -15,
+    leaveScale: { rising: 0, star: 1.75, superstar: 2.25 },
+    leaveMax: 0.9,
+  };
 
   const ch = (label, effects = {}, story = {}, note) => ({
     label,
@@ -224,7 +233,7 @@
           ch("Stay quiet and let it pass", { trust: -6, fans: -6 }, {}),
           ch(
             "Fire back at the other artist",
-            { attention: 14, fans: 8, trust: -8, leaveChance: 0.05 },
+            { attention: 14, fans: 8, trust: -8, leaveChance: 0.1 },
             {},
             "Turns an embarrassment into a feud.",
           ),
@@ -255,7 +264,7 @@
           ),
           ch(
             "Let them settle it themselves",
-            { attention: 10, tourEndChance: 0.3 },
+            { attention: 10, tourEndChance: 0.3, leaveChance: 0.1 },
             { set: { left: true }, next: "rumours" },
             "It could clear the air, or end the tour.",
           ),
@@ -416,7 +425,7 @@
             ),
             ch(
               "Remind them what they signed",
-              { morale: -10 },
+              { morale: -10, leaveChance: 0.15 },
               { relation: -6, set: { refused: true }, next: "the-letter" },
             ),
           ],
@@ -619,7 +628,7 @@
           ch("Book them a writing trip", { cost: 4000, morale: 12, energy: 10 }, {}),
           ch(
             "Let them vent",
-            { morale: -4, attention: 6 },
+            { morale: -4, attention: 6, leaveChance: 0.1 },
             { set: { ignored: true }, next: "the-announcement" },
           ),
         ],
@@ -685,8 +694,72 @@
         [
           ch("Give them a lighter year", { morale: 12, energy: 15, fans: -4 }, { loyalty: 6 }),
           ch("Build the next record around home", { cost: 2000, morale: 6 }, { xp: 1 }),
-          ch("Ask them to keep to the plan", { morale: -10, leaveChance: 0.15 }, { relation: -4 }),
+          ch("Ask them to keep to the plan", { morale: -10, leaveChance: 0.25 }, { relation: -4 }),
         ],
+      ),
+    ]),
+
+    // ---------------- Stars who want more ----------------
+    arc("own-imprint", { ...out, tier: "superstar", context: ["albumOut", "waiting"] }, [
+      beat(
+        "the-pitch",
+        0,
+        "{name} wants their own imprint",
+        "{name} arrives with a logo, a name and two young acts they want to sign. They want their own imprint inside {label}, or they want out.",
+        [
+          ch(
+            "Give them the imprint",
+            { cost: 25000, morale: 14, labelFame: 3 },
+            { relation: 8, loyalty: 6 },
+            "Their name on the door, your money behind it.",
+          ),
+          ch("Offer a profit share instead", { cost: 8000, morale: 4, leaveChance: 0.2 }, { relation: 2 }),
+          ch(
+            "Tell them the label has one name on it",
+            { morale: -12, leaveChance: 0.35 },
+            { relation: -8, set: { refused: true }, next: "the-walkout" },
+          ),
+        ],
+        null,
+        { headline: "{name} pushes {label} for an imprint of their own", major: true },
+      ),
+      beat(
+        "the-walkout",
+        3,
+        "{name} skips the label's showcase",
+        "{name} didn't turn up to {label}'s showcase, and posted from a rival's party instead. Their manager says they are weighing their options.",
+        [
+          ch("Reopen the imprint talks", { cost: 15000, morale: 10 }, { relation: 6 }),
+          ch(
+            "Fine them for missing the showcase",
+            { cash: 5000, morale: -10, leaveChance: 0.4 },
+            { relation: -6 },
+          ),
+          ch("Let it blow over", { morale: -2, leaveChance: 0.2 }, {}),
+        ],
+        { flags: { refused: true }, context: ["albumOut", "waiting"] },
+        { lapse: 10, headline: "{name} seen at a rival label's party", major: true },
+      ),
+    ]),
+
+    arc("bigger-check", { ...out, tier: "star", context: ["albumOut", "waiting"], hit: true }, [
+      beat(
+        "the-numbers",
+        0,
+        "{name} has seen the numbers",
+        "After a hit, {name} has worked out what the label made from it, and what they got. They want a bigger share of the next one.",
+        [
+          ch("Raise their bonus", { cost: 10000, morale: 12 }, { relation: 4, loyalty: 4 }),
+          ch("Promise a bigger push for the next record", { morale: 2, leaveChance: 0.15 }, {}),
+          ch(
+            "Point at the contract",
+            { morale: -10, leaveChance: 0.3 },
+            { relation: -6 },
+            "They signed it. They may not stay for the next one.",
+          ),
+        ],
+        null,
+        { headline: "{name} says the label owes them more" },
       ),
     ]),
   ];

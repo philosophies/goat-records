@@ -679,7 +679,7 @@ Done when: tests for each context, the new effects (an artist leaving, a sales h
 
 ## Owner requests of 2026-11-26: departures, tour pay, the album form and awards
 
-### [ ] T81 · Only stars leave, and more often
+### [x] T81 · Only stars leave, and more often
 
 Files: `src/data/story-context.js`, `src/systems/stories.js`, tests
 Do: Owner decision: a story can only cost the label a star or a superstar, and it should happen more often. Up-and-comers never leave from a story; for stars and superstars the chances on the card are higher.

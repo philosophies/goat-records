@@ -33,11 +33,11 @@ const EFFECTS = [
   "leaves",
 ];
 const STORY = ["set", "next", "relation", "xp", "loyalty", "rival"];
-const WHEN = ["releases", "fame", "morale", "touring", "flags", "context", "genre"];
+const WHEN = ["releases", "fame", "morale", "touring", "flags", "context", "genre", "tier", "hit"];
 const roundTrip = (s) => JSON.parse(JSON.stringify(s));
 
 // A CEO label with one artist, choices played as written (chance is checked in its own test).
-function label(genre = "Rap", seed = 80) {
+function label(genre = "Rap", seed = 80, tier = "star") {
   const s = G.create(seed, { ceo: true });
   G.setFixedOutcomes(s, true);
   s.company.phase = 3;
@@ -51,6 +51,7 @@ function label(genre = "Rap", seed = 80) {
   a.genre = genre;
   a.morale = 60;
   a.fame = 40;
+  a.tier = tier;
   album(s, a, 30);
   return { s, a };
 }
@@ -364,6 +365,10 @@ test("leaving and cancelling are bold calls, and chance decides them", () => {
     x.week += 3;
     G.choose(x, 2); // let them vent
     x.company.lastOutcome.seen = true;
+    if (!x.artists.some((y) => y.id === a.id)) {
+      left++; // letting a star vent can lose them already
+      continue;
+    }
     x.week += 8;
     const d2 = due(
       x,
@@ -374,7 +379,7 @@ test("leaving and cancelling are bold calls, and chance decides them", () => {
     G.playStory(x, d2);
     x.event = x.eventQueue.shift();
     assert.deepEqual(G.optionRisks(x, x.event), ["safe", "steady", "bold"]);
-    G.choose(x, 2); // call their bluff: a 45% chance they go
+    G.choose(x, 2); // call their bluff: 45% × 1.75 for a star, a 79% chance they go
     const gone = !x.artists.some((y) => y.id === a.id);
     if (gone) {
       left++;
@@ -383,7 +388,41 @@ test("leaving and cancelling are bold calls, and chance decides them", () => {
     } else stayed++;
     assert.match(x.company.lastOutcome.headline, /stepping away/);
   }
-  assert.ok(left > 5 && stayed > 5, `${left} left, ${stayed} stayed`);
+  assert.ok(left > 15 && stayed > 3, `${left} left, ${stayed} stayed`);
+});
+
+test("only stars and superstars leave after a story, and at higher odds", () => {
+  const S = STORY_CONTEXT;
+  const bluff = arcOf("cryptic-posts").beats[1].choices[2],
+    letGo = arcOf("band-blows-up").beats[1].choices[2];
+  const tiered = (tier) => ({ tier });
+  // Up-and-comers: no chance of leaving; told to go, they lose morale instead.
+  const rookieBluff = G.storyDepartureOdds(tiered("rising"), bluff);
+  assert.equal(rookieBluff.leaveChance, undefined);
+  assert.equal(rookieBluff.morale, bluff.morale);
+  const rookieGo = G.storyDepartureOdds(tiered("rising"), letGo);
+  assert.equal(rookieGo.leaves, undefined);
+  assert.equal(rookieGo.morale, S.leaveMorale);
+  assert.doesNotMatch(G.storyChoiceText(rookieGo), /leaves the label/);
+  // Stars and superstars: the card's chance raised, up to the cap.
+  assert.equal(
+    G.storyDepartureOdds(tiered("star"), bluff).leaveChance,
+    Math.round(bluff.leaveChance * S.leaveScale.star * 100) / 100,
+  );
+  assert.equal(
+    G.storyDepartureOdds(tiered("superstar"), bluff).leaveChance,
+    Math.min(S.leaveMax, bluff.leaveChance * S.leaveScale.superstar),
+  );
+  assert.equal(G.storyDepartureOdds(tiered("superstar"), letGo).leaves, true);
+  // Played through the engine: an up-and-comer told to go stays.
+  const { s, a } = label("Rock", 80, "rising");
+  const t = tour(s, a);
+  play(s, a, "band-blows-up", 0);
+  t.status = "completed";
+  s.week += 8;
+  const card = play(s, a, "band-blows-up", 2);
+  assert.ok(s.artists.includes(a), "an up-and-comer stays");
+  assert.ok(!card.options[2].leaves);
 });
 
 test("the card text names every consequence when outcomes are shown", () => {
