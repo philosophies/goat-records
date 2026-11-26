@@ -89,7 +89,7 @@
         place: "artist",
         title: "Planning the album",
         here: [
-          "Genre and theme: a good match adds points, and the combo notebook on your sign remembers every match you've tried.",
+          "The album is in the artist's own genre. Pick a theme that suits it: a good match adds points, and the combo notebook on your sign remembers every match you've tried.",
           "The audience should be the artist's own unless you have a reason.",
           "Lean is fine for a first record. Add-ons (a video, a press run, live spots, a star producer) cost extra and take a week each.",
           "Press Begin recording when it looks right.",

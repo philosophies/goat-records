@@ -119,6 +119,12 @@ function productionPanels(waiting = false) {
       let body = "";
       if (p.released) {
         body = `<span class="tag">RELEASE-DAY RESULTS</span><h2>${esc(p.title)}</h2><p>Your five stage ratings averaged <strong>${p.quality}/100</strong>${p.hit ? " · HIT RECORD" : ""}. Release-day reception sets a <strong>×${p.launchMultiplier.toFixed(2)}</strong> sales multiplier. Catalog revenue starts when you advance the week. The artist’s inspiration has reset to 0; allow recovery before the next album.</p><details class="decision-details"><summary>Reception breakdown</summary><div class="grid">${p.launchRatings.map((r) => calculation(r)).join("")}</div></details><button data-action="ackLaunch" data-id="${p.id}" class="primary" ${disable(locked)}>Continue to the label →</button>`;
+      } else if (d.review && calculating(p.id)) {
+        body = calculatingCard(
+          p,
+          d.results[d.lastResult],
+          d.reshuffleReview ? "RESHUFFLE" : "STAGE " + d.stage + " OF 5",
+        );
       } else if (d.review) {
         const r = d.results[d.lastResult];
         body = `<span class="tag">${d.reshuffleReview ? "RESHUFFLE RESULT" : "STAGE " + d.stage + " OF 5 · RESULT"}</span><h2>${esc(p.title)} / ${esc(r.name)}</h2>${d.reshuffleReview ? `<p>${esc(r.area)}: ${d.lastChange.before} → ${d.lastChange.after}. ${d.rerollLimit - d.rerollsUsed} reshuffles left.</p>` : ""}<p class="decision-score"><strong>${r.score}/100</strong></p><details class="decision-details"><summary>How this was scored</summary>${calculation(r)}</details><button class="primary" data-action="${d.reshuffleReview ? "ackShuffle" : "continue"}" data-id="${p.id}" ${disable(locked)}>${d.reshuffleReview ? "Return to release review" : "Accept result & schedule next step"} →</button>`;
@@ -240,7 +246,7 @@ function albumFormCard({ artistId, boothId } = {}) {
   const studio = state.company && G.studioCapacity(state);
   if (studio?.full)
     return `<div class="empty studio-full">The studio is full: ${studio.used} of ${studio.max} albums in production at phase ${state.company.phase}. Artists waiting for it can tour. <button data-tab="bus">Tour bus</button></div>`;
-  return `<div class="card">${studio ? `<p class="muted studio-line">Studio: ${studio.used} of ${studio.max} albums in production.</p>` : ""}<form id="albumForm" class="form"><label>Artist<select id="artist">${free.map((a) => `<option value="${a.id}">${esc(a.name)} · ${a.genre} · inspiration ${Math.round(G.inspirationInfo(a).value)}/100</option>`).join("")}</select></label><label>Recording room<select id="booth">${booths.map((b) => `<option value="${b.id}">${G.BOOTHS[b.id].name} · rank ${b.id + 1}</option>`).join("")}</select></label><label>Genre<select id="genre">${G.GENRES.map((g) => `<option ${free[0]?.genre === g ? "selected" : ""}>${g}</option>`).join("")}</select></label>${GoatUI.albumForm.map((x) => x.fields?.() || "").join("")}<label>Target audience<select id="audience">${["Youth", "Teen", "Adult"].map((g) => `<option ${free[0]?.audience === g ? "selected" : ""}>${g}</option>`).join("")}</select></label><label>Base production budget<select id="budget"><option value="4000">Lean · $4,000</option><option value="8000">Standard · $8,000${state.company ? " · stars and superstars" : ""}</option><option value="12000">Premium · $12,000${state.company ? " · superstars" : ""}</option></select></label><label>Album title<input id="title" maxlength="45" placeholder="Name your next record"></label><details class="form-full decision-details"><summary>Production add-ons · +1 week each</summary><fieldset class="album-addons" aria-label="Production add-ons">${G.ALBUM_ADDONS.map((o) => `<label><input type="checkbox" name="albumAddon" value="${o.id}"><span><b>${o.name} · ${money(o.cost)}</b><small>${o.description}</small></span></label>`).join("")}</fieldset></details><div id="albumQuote" class="plan-quote form-full" aria-live="polite">Choose your album package.</div><button id="beginAlbum" class="primary" ${disable(blocked() || !free.length || !booths.length || state.cash < (state.company && G.starterFree(state).album ? 0 : 4000) || !G.inspirationInfo(free[0] || {}).canRecord)}>Begin recording →</button></form></div>`;
+  return `<div class="card">${studio ? `<p class="muted studio-line">Studio: ${studio.used} of ${studio.max} albums in production.</p>` : ""}<form id="albumForm" class="form"><label>Artist<select id="artist">${free.map((a) => `<option value="${a.id}">${esc(a.name)} · ${a.genre} · inspiration ${Math.round(G.inspirationInfo(a).value)}/100</option>`).join("")}</select></label><label>Recording room<select id="booth">${booths.map((b) => `<option value="${b.id}">${G.BOOTHS[b.id].name} · rank ${b.id + 1}</option>`).join("")}</select></label>${state.company ? `<p class="muted album-genre form-full" id="album-genre">Genre: ${esc(free[0]?.genre || "")}, the artist's own.</p>` : `<label>Genre<select id="genre">${G.GENRES.map((g) => `<option ${free[0]?.genre === g ? "selected" : ""}>${g}</option>`).join("")}</select></label>`}${GoatUI.albumForm.map((x) => x.fields?.() || "").join("")}<label>Target audience<select id="audience">${["Youth", "Teen", "Adult"].map((g) => `<option ${free[0]?.audience === g ? "selected" : ""}>${g}</option>`).join("")}</select></label><label>Base production budget<select id="budget"><option value="4000">Lean · $4,000</option><option value="8000">Standard · $8,000${state.company ? " · stars and superstars" : ""}</option><option value="12000">Premium · $12,000${state.company ? " · superstars" : ""}</option></select></label><label>Album title<input id="title" maxlength="45" placeholder="Name your next record"></label><details class="form-full decision-details"><summary>Production add-ons · +1 week each</summary><fieldset class="album-addons" aria-label="Production add-ons">${G.ALBUM_ADDONS.map((o) => `<label><input type="checkbox" name="albumAddon" value="${o.id}"><span><b>${o.name} · ${money(o.cost)}</b><small>${o.description}</small></span></label>`).join("")}</fieldset></details><div id="albumQuote" class="plan-quote form-full" aria-live="polite">Choose your album package.</div><button id="beginAlbum" class="primary" ${disable(blocked() || !free.length || !booths.length || state.cash < (state.company && G.starterFree(state).album ? 0 : 4000) || !G.inspirationInfo(free[0] || {}).canRecord)}>Begin recording →</button></form></div>`;
 }
 /** The album plan as entered in the album form, including fields added by feature scripts. */
 function readAlbumPlan() {
@@ -248,7 +254,10 @@ function readAlbumPlan() {
     {
       artistId: $("artist").value,
       boothId: $("booth").value,
-      genre: $("genre").value,
+      // A CEO album is in its artist's genre.
+      genre: state.company
+        ? state.artists.find((a) => a.id === Number($("artist").value))?.genre
+        : $("genre").value,
       audience: $("audience").value,
       budget: $("budget").value,
       title: $("title").value,
@@ -269,6 +278,8 @@ function updateAlbumQuote() {
     return;
   }
   const inspiration = G.inspirationInfo(a);
+  if (state.company && $("album-genre"))
+    $("album-genre").textContent = `Genre: ${a.genre}, the artist's own.`;
   const selected = selectedAddons(),
     plan = readAlbumPlan(),
     base = Number($("budget").value) || 4000,
@@ -897,6 +908,7 @@ document.addEventListener("click", (e) => {
           break;
         case "stage":
           G.decideStage(state, id, Number(b.dataset.option));
+          startCalculating(state.albums.find((p) => p.id === id));
           break;
         case "continue":
           G.continueProduction(state, id);
@@ -907,6 +919,7 @@ document.addEventListener("click", (e) => {
               .value.trim()
               .slice(0, 45) || state.albums.find((p) => p.id === id).title;
           G.reshuffle(state, id, Number($("reshuffle-" + id).value));
+          startCalculating(state.albums.find((p) => p.id === id));
           break;
         case "ackShuffle":
           G.acknowledgeReshuffle(state, id);
@@ -1004,7 +1017,7 @@ document.addEventListener("change", (e) => {
   if (e.target.id === "artist") {
     let a = state.artists.find((a) => a.id === Number(e.target.value));
     if (a) {
-      $("genre").value = a.genre;
+      if ($("genre")) $("genre").value = a.genre;
       $("audience").value = a.audience;
     }
   }

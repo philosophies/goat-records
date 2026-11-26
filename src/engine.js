@@ -564,6 +564,8 @@
     requireAction(s);
     const a = artist(s, artistId),
       b = s.booths.find((x) => x.id === Number(boothId));
+    // A CEO album is always in its artist's genre (owner decision 2026-11-26).
+    if (s.company) genre = a.genre;
     budget = Number(budget);
     if (
       !b ||
