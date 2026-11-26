@@ -10,7 +10,8 @@
     const GOOD = new Set(F.keys.good),
       BAD = new Set(F.keys.bad),
       MULT = new Set(F.keys.mult),
-      WHOLE = new Set(F.keys.whole);
+      WHOLE = new Set(F.keys.whole),
+      WHOLE_BAD = new Set(F.keys.wholeBad || []);
     const companyEvents = new Map((D.COMPANY_EVENTS || []).map((e) => [e.id, e]));
 
     /** The effects an option can have, for rating it: { effects, failure, chance, cost }. */
@@ -35,7 +36,8 @@
           if (k === "cash") n += Math.abs(v) * S.cash;
           else if (S.keys?.[k]) n += Math.abs(v) * S.keys[k];
           else if (MULT.has(k)) n += Math.abs(v - 1) * S.mult;
-          else if (GOOD.has(k) || BAD.has(k) || WHOLE.has(k)) n += Math.abs(v) * S.default;
+          else if (GOOD.has(k) || BAD.has(k) || WHOLE.has(k) || WHOLE_BAD.has(k))
+            n += Math.abs(v) * S.default;
         }
       return n;
     }
@@ -78,6 +80,7 @@
         }
         if (MULT.has(k))
           r[k] = Math.max(0.1, Math.round((1 + (v - 1) * (v >= 1 ? out.gain : out.loss)) * 100) / 100);
+        else if (WHOLE_BAD.has(k)) r[k] = v > 0 ? Math.max(1, Math.round(v * out.loss)) : v;
         else if (BAD.has(k)) r[k] = Math.round(v * (v > 0 ? out.loss : out.gain) * 100) / 100;
         else if (WHOLE.has(k)) r[k] = Math.max(0, Math.round(v * Math.max(0, out.gain)));
         else if (GOOD.has(k)) {

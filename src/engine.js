@@ -949,7 +949,10 @@
     for (const p of s.albums) {
       if (!p.released && p.production) {
         const d = p.production;
-        if (d.cooldown > 0) d.cooldown--;
+        // A wait is whole weeks; a save with a part-week wait (from chance-scaled delays before they
+        // were kept whole) finishes it this week rather than sticking.
+        if (d.cooldown > 0) d.cooldown = Math.max(0, Math.ceil(d.cooldown) - 1);
+        else if (d.cooldown < 0) d.cooldown = 0;
         if (d.cooldown === 0 && d.stage === 5) d.releaseReady = true;
         p.remaining = Math.max(
           0,
