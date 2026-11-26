@@ -553,7 +553,7 @@ function annualAwards() {
           : current),
     program = state.awardPrograms[year] || { entries: {}, results: null },
     closed = !!program.results || year !== current;
-  return `<h2>Annual Silver Groove Awards</h2><p class="muted">Enter at most one album per genre. The album must have been completed and released in that operating year. Change selections until that year closes. The ceremony runs at the transition into the next year; entries compete with rival nominees on quality, critics, fans, Top 300 achievement and jury variation.</p><label class="award-year">Operating year<select id="awardYear">${Object.keys(
+  return `<h2>Annual Silver Groove Awards</h2><p class="muted">${state.company ? "Entries are made for you: in each genre, the year's strongest album by the judges' own weights (quality 60%, critics 20%, fan response 10%, Top 300 achievement 10%) is entered, and a stronger one replaces it as releases and charts come in. The ceremony runs at the transition into the next year, where the jury adds its own variation." : "Enter at most one album per genre. The album must have been completed and released in that operating year. Change selections until that year closes. The ceremony runs at the transition into the next year; entries compete with rival nominees on quality, critics, fans, Top 300 achievement and jury variation."}</p><label class="award-year">Operating year<select id="awardYear">${Object.keys(
     state.awardPrograms,
   )
     .map(
@@ -566,10 +566,26 @@ function annualAwards() {
       : `<p class="plan-quote">Year ${year} entries close after week ${year * 52}. Winners receive $8,000 per genre plus label fame and artist career recognition. Attendance spending cannot buy a win.</p><div class="grid">${G.GENRES.map(
           (g) => {
             const eligible = G.awardEligible(state, year, g);
+            if (state.company) return autoAwardCard(g, eligible, program.entries[g]);
             return `<article class="card"><span class="tag">${g}</span><h3>${g} Album of the Year</h3><label>Eligible album<select id="award-${roleKey(g)}"><option value="">No entry</option>${eligible.map((p) => `<option value="${p.id}" ${program.entries[g] === p.id ? "selected" : ""}>${esc(p.title)} · ${p.quality}/100 · released W${p.releaseWeek}</option>`).join("")}</select></label><button data-action="awardEntry" data-genre="${g}" data-year="${year}" ${disable(blocked() || closed)}>Save genre entry</button><p>${program.entries[g] ? "Entered: " + esc(state.albums.find((p) => p.id === program.entries[g])?.title || "Unavailable") : "No entry submitted."}</p></article>`;
           },
         ).join("")}</div>`
   }`;
+}
+/** A CEO run's genre card: the album entered automatically, then the others ranked by strength. */
+function autoAwardCard(genre, eligible, entered) {
+  const ranked = eligible.toSorted(
+      (a, b) => G.awardStrength(b) - G.awardStrength(a) || a.releaseWeek - b.releaseWeek,
+    ),
+    entry = ranked.find((p) => p.id === entered);
+  return `<article class="card auto-award"><span class="tag">${genre}</span><h3>${genre} Album of the Year</h3>${entry ? `<p class="auto-entry"><b>Entered: ${esc(entry.title)}</b> · strength ${G.awardStrength(entry)} · ${entry.quality}/100 quality${entry.chart?.best ? ` · peak #${entry.chart.best}` : ""}</p>` : `<p class="muted">No ${genre} album released this year yet.</p>`}${
+    ranked.length > 1
+      ? `<p class="muted">Also eligible</p><ol class="auto-others">${ranked
+          .filter((p) => p !== entry)
+          .map((p) => `<li>${esc(p.title)} · strength ${G.awardStrength(p)}</li>`)
+          .join("")}</ol>`
+      : ""
+  }</article>`;
 }
 function companyFinanceLines(row) {
   if (!row.companyRevenue) return "";
