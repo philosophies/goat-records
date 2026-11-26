@@ -455,13 +455,7 @@ function run(seed, label, policy) {
     work(s, name, policy);
     clearDecisions(s, name);
     produce(s);
-    if (s.week % 52 === 0) {
-      const year = G.operatingYear(s.week);
-      for (const genre of G.GENRES) {
-        const p = G.awardEligible(s, year, genre).toSorted((a, b) => b.quality - a.quality)[0];
-        if (p) G.enterAwards(s, year, genre, p.id);
-      }
-    }
+    // Award entries are automatic in CEO runs (T84).
     vault(s, name);
     invest(s, name, policy);
     clearDecisions(s, name);
