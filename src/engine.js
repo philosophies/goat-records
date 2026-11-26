@@ -35,7 +35,7 @@
     }
   }
   // Data files that belong to no single system (story packs).
-  const EXTRA_DATA = ["story-artists", "story-staff"];
+  const EXTRA_DATA = ["story-artists", "story-staff", "story-context"];
   if (isNode)
     for (const n of ["core", ...SYSTEM_NAMES, ...EXTRA_DATA]) optionalRequire("./data/" + n + ".js");
   const D = root.GoatData,
@@ -283,6 +283,7 @@
     busy,
     artist,
     roll,
+    endTour: (s, t, reason) => endTour(s, t, reason),
     operatingYear,
     uniqueName,
     peopleNames: (s) => peopleNames(s),
@@ -910,6 +911,8 @@
         tier: luck.tier,
         name: luck.name,
         effects: api.fortuneChanges(s, e, before),
+        ...(e.major ? { major: true } : {}),
+        ...(e.headline ? { headline: e.headline } : {}),
         seen: false,
       };
       delete e.fortune;

@@ -29,8 +29,11 @@
       let n = (x.cost || 0) * S.cost + (x.chance !== undefined ? S.gamble : 0);
       for (const set of [x.effects, x.failure])
         for (const [k, v] of Object.entries(set || {})) {
+          // A certain outcome (an artist who will leave, a tour called off) counts as a chance of 1.
+          if (v === true && S.keys?.[k]) n += S.keys[k];
           if (typeof v !== "number" || k === "cost") continue;
           if (k === "cash") n += Math.abs(v) * S.cash;
+          else if (S.keys?.[k]) n += Math.abs(v) * S.keys[k];
           else if (MULT.has(k)) n += Math.abs(v - 1) * S.mult;
           else if (GOOD.has(k) || BAD.has(k) || WHOLE.has(k)) n += Math.abs(v) * S.default;
         }
@@ -153,6 +156,9 @@
           out.push({ name: "The tour ended", delta: 0 });
       }
       if (before.album && now.album) add("Earning weeks", now.album.weeks - before.album.weeks);
+      // Lines a system wrote on the card: a tour called off, dates cut, a sales hit.
+      for (const name of e.storyNotes || [])
+        if (!out.some((x) => x.name === name)) out.push({ name, delta: 0 });
       return out;
     }
     function validSave(s) {

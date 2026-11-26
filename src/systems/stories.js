@@ -8,8 +8,9 @@
   /** @param {object} core engine helpers  @param {object} D data tables */
   function create(core, D) {
     const { STORY_RULES } = D;
+    const SC = D.STORY_CONTEXT || { albumOut: 10, tourWeeks: 2, leaveMorale: -15 };
     // Packs add their arcs alongside the starter arcs.
-    const ARCS = [...D.ARCS, ...(D.ARTIST_ARCS || []), ...(D.STAFF_ARCS || [])];
+    const ARCS = [...D.ARCS, ...(D.ARTIST_ARCS || []), ...(D.STAFF_ARCS || []), ...(D.CONTEXT_ARCS || [])];
     const { clamp, log, roll } = core;
     const arcById = new Map(ARCS.map((a) => [a.id, a]));
     const beatOf = (arc, id) => arc.beats.find((b) => b.id === id);
@@ -50,6 +51,23 @@
         : subjectOf(s, "artist", run.artist);
     }
 
+    // ---- What an artist is doing ----
+    const releasedWeek = (s, id) =>
+      s.albums
+        .filter((p) => p.released && p.artist === id)
+        .reduce((n, p) => Math.max(n, p.releaseWeek ?? -Infinity), -Infinity);
+    /**
+     * What an artist is doing now, for stories that depend on it: "headlining" a solo tour, "sharing"
+     * a tour with a labelmate or a rival's artist, "recording" (an album not yet out), "albumOut" (an
+     * album out within STORY_CONTEXT.albumOut weeks) or "waiting" (nothing on).
+     */
+    function contextOf(s, a) {
+      const t = core.api().onTour(s, a.id);
+      if (t) return t.mode === "solo" && t.artists.length === 1 ? "headlining" : "sharing";
+      if (s.albums.some((p) => p.artist === a.id && !p.released)) return "recording";
+      return s.week - releasedWeek(s, a.id) <= SC.albumOut ? "albumOut" : "waiting";
+    }
+
     // ---- Conditions ----
     const within = (v, r) =>
       !r || ((r.min === undefined || v >= r.min) && (r.max === undefined || v <= r.max));
@@ -79,6 +97,7 @@
           return false;
         if (when.sinceRelease && !within(s.week - last, when.sinceRelease)) return false;
         if (when.touring !== undefined && !!api.onTour(s, x.id) !== when.touring) return false;
+        if (!oneOf(x.genre, when.genre) || !oneOf(contextOf(s, x), when.context)) return false;
       }
       if (sub.kind === "head") {
         if (!oneOf(sub.dept, when.dept)) return false;
@@ -122,11 +141,24 @@
           continue;
         }
         if (s.week < run.week + (beat.after || 0)) continue;
+        // A beat that cannot play within `lapse` weeks of coming due is dropped: the moment passed.
+        // It comes due after its wait, and no sooner than a person's next story could play.
+        const wait = Math.max(
+          beat.after || 0,
+          beat.soon || who.kind === "company" ? 0 : STORY_RULES.personGap,
+        );
+        if (beat.lapse !== undefined && s.week > run.week + wait + beat.lapse) {
+          run.done = true;
+          continue;
+        }
         if (beat.when?.flags && !holds(s, who, { flags: beat.when.flags }, run.flags)) {
           run.done = true; // the story went another way
           continue;
         }
-        if (who.kind !== "company" && s.week - lastBeatFor(b, who.key) < STORY_RULES.personGap) continue;
+        // A beat marked `soon` follows straight on from the last one, so the usual wait between a
+        // person's stories does not apply to it.
+        if (!beat.soon && who.kind !== "company" && s.week - lastBeatFor(b, who.key) < STORY_RULES.personGap)
+          continue;
         if (holds(s, who, beat.when, run.flags))
           out.push({
             run,
@@ -135,6 +167,7 @@
             who,
             a: who.kind === "artist" ? who.obj : null,
             weight: STORY_RULES.continueWeight,
+            soon: !!beat.soon,
           });
       }
       const started = new Set(
@@ -190,6 +223,7 @@
       ["rival", (n) => `standing with {rival} ${signed(n)}`],
     ];
     const signed = (n) => (n > 0 ? "+" + n : String(n));
+    const pct = (n) => Math.round(Math.min(1, n) * 100) + "%";
     const dollars = (n) => "$" + Math.abs(n).toLocaleString("en-US");
     /** The choice's flavour line, then every effect in numbers, so the card never misstates them. */
     function choiceText(c) {
@@ -200,6 +234,13 @@
       for (const [k, name] of EFFECT_NAMES) if (c[k]) parts.push(`${name} ${signed(c[k])}`);
       for (const [k, text] of STORY_NAMES) if (st[k]) parts.push(text(st[k]));
       if (c.trust <= -STORY_RULES.scandalTrust) parts.push("a public scandal");
+      if (c.mult) parts.push(`album sales ×${c.mult} for ${c.boostWeeks || 3} weeks`);
+      if (c.tourMult) parts.push(`tour tickets ×${c.tourMult} for ${c.tourWeeks || SC.tourWeeks} weeks`);
+      if (c.tourCut) parts.push(`${c.tourCut} tour dates cut`);
+      if (c.tourEndChance) parts.push(`a ${pct(c.tourEndChance)} chance the rest of the tour is called off`);
+      if (c.tourEnd) parts.push("the rest of the tour is called off");
+      if (c.leaveChance) parts.push(`a ${pct(c.leaveChance)} chance {name} leaves the label`);
+      if (c.leaves) parts.push("{name} leaves the label");
       const effects = parts.length
         ? parts.join(", ").replace(/^./, (x) => x.toUpperCase()) + "."
         : "No change.";
@@ -209,14 +250,21 @@
       const api = core.api(),
         rival = s.rivalCompanies?.find((r) => r.id === run?.rival),
         dept = who?.kind === "head" ? api.DEPARTMENTS?.find((d) => d.id === who.dept) : null,
-        role = who?.kind === "member" ? api.TEAM_ROLES?.find((r) => r.id === who.obj.role) : null;
+        role = who?.kind === "member" ? api.TEAM_ROLES?.find((r) => r.id === who.obj.role) : null,
+        tour = who?.kind === "artist" ? api.onTour?.(s, who.obj.id) : null,
+        partner = tour
+          ? tour.artist === who.obj.id
+            ? tour.partnerName || tour.rival?.name
+            : tour.artistName
+          : null;
       return text
         .replaceAll("{name}", who?.obj?.name || api.labelName?.(s) || "the label")
         .replaceAll("{label}", api.labelName?.(s) || "the label")
         .replaceAll("{dept}", dept?.name || "the department")
         .replaceAll("{role}", role?.name.toLowerCase() || "team member")
         .replaceAll("{rival}", rival?.name || "a rival label")
-        .replaceAll("{rivalCeo}", rival?.ceo || "their CEO");
+        .replaceAll("{rivalCeo}", rival?.ceo || "their CEO")
+        .replaceAll("{partner}", partner || "the other act");
     }
 
     // ---- Playing ----
@@ -258,6 +306,15 @@
       };
       if (who.kind === "artist") card.artist = who.ref;
       else card.subject = { kind: who.kind, ref: who.ref };
+      if (beat.headline) card.headline = fill(beat.headline, s, who, run);
+      if (beat.major) card.major = true;
+      // A beat that can change album sales acts on the artist's latest album.
+      if (who.kind === "artist" && beat.choices.some((c) => c.mult)) {
+        const p = s.albums
+          .filter((p) => p.released && p.artist === who.ref)
+          .reduce((m, p) => (!m || (p.releaseWeek ?? 0) > (m.releaseWeek ?? 0) ? p : m), null);
+        if (p && Array.isArray(p.boosts)) card.album = p.id;
+      }
       s.eventQueue.push(card);
       b.lastWeek = s.week;
       run.pending = beat.id;
@@ -284,8 +341,14 @@
         return false;
       });
       if (s.event?.type === "story" || s.eventQueue.some((e) => e.type === "story")) return 0;
-      if (s.week - b.lastWeek < STORY_RULES.gap) return 0;
       const due = dueBeats(s);
+      // The next part of a story that follows straight on plays as soon as it is due.
+      const soon = due.find((x) => x.soon);
+      if (soon) {
+        play(s, soon);
+        return 0;
+      }
+      if (s.week - b.lastWeek < STORY_RULES.gap) return 0;
       if (!due.length || roll(s, "stories") >= STORY_RULES.chance) return 0;
       const total = due.reduce((n, x) => n + x.weight, 0);
       let r = roll(s, "stories") * total;
@@ -328,6 +391,7 @@
         const r = s.rivalCompanies?.find((c) => c.id === run.rival);
         if (r) r.relationship = clamp((r.relationship || 0) + st.rival, -100, 100);
       }
+      if (who?.kind === "artist") consequences(s, e, o, x);
       delete run.pending;
       run.week = s.week;
       run.next = st.next ?? null;
@@ -338,6 +402,64 @@
       b.log[key] = b.log[key].slice(-STORY_RULES.logSize);
       log(s, `${e.title}: ${o.label}.`);
     }
+    // ---- Consequences for an artist's tour and place at the label ----
+    /** Tour changes, then whether the artist leaves. Notes go on the card for the outcome reveal. */
+    function consequences(s, e, o, a) {
+      const api = core.api(),
+        notes = (e.storyNotes ??= []),
+        t = api.onTour(s, a.id);
+      if (t) {
+        if (o.tourMult) {
+          const weeks = o.tourWeeks || SC.tourWeeks;
+          t.effects.push({ until: t.elapsed + weeks, mult: o.tourMult });
+          notes.push(`Tour tickets ×${o.tourMult} for ${weeks} weeks`);
+        }
+        if (o.tourCut > 0) {
+          const before = t.plannedDays;
+          t.plannedDays = Math.max(t.day + 1, t.plannedDays - Math.round(o.tourCut));
+          if (t.plannedDays < before) notes.push(`${before - t.plannedDays} tour dates cut`);
+        }
+        if (o.tourEnd || (o.tourEndChance > 0 && roll(s, "stories") < o.tourEndChance)) {
+          core.endTour(s, t, "The rest of the dates were called off");
+          notes.push("The rest of the tour was called off");
+          e.major = true;
+        }
+      }
+      if (o.mult && e.album !== undefined)
+        notes.push(`Album sales ×${o.mult} for ${o.boostWeeks || 3} weeks`);
+      if (o.leaves || (o.leaveChance > 0 && roll(s, "stories") < o.leaveChance)) {
+        // An artist in the middle of a record stays to finish it, unhappily.
+        if (s.albums.some((p) => p.artist === a.id && !p.released)) {
+          a.morale = clamp((a.morale ?? 75) + SC.leaveMorale);
+          notes.push(`${a.name} nearly walked, and stays only to finish the record`);
+        } else artistLeaves(s, a, e.title);
+        e.major = true;
+      }
+    }
+    function artistLeaves(s, a, why) {
+      const t = core.api().onTour(s, a.id);
+      if (t) core.endTour(s, t, `${a.name} left the label`);
+      s.artists = s.artists.filter((x) => x.id !== a.id);
+      s.eventQueue = s.eventQueue.filter((x) => x.type === "approval" || x.artist !== a.id);
+      log(s, `${a.name} left the label after ${why}.`);
+      s.notifications.push({
+        id: s.nextId++,
+        kind: "departure",
+        title: `${a.name} left the label`,
+        body: `Their story ended with “${why}”. The label keeps their catalog.`,
+        week: s.week,
+      });
+      core.api().noteWhy?.(s, {
+        kind: "departure",
+        who: "company",
+        title: `${a.name} left the label`,
+        parts: [
+          { name: "Story", value: why },
+          { name: "Their morale", value: Math.round(a.morale ?? 0) },
+        ],
+      });
+    }
+
     /** Whose story a card is, for its tag: a person's name, or the label's. */
     function storyCardName(s, e) {
       if (!e.subject) return s.artists.find((a) => a.id === e.artist)?.name || "An artist";
@@ -395,6 +517,7 @@
         storyHolds: holds,
         storyChoiceText: choiceText,
         storyCardName,
+        storyContext: contextOf,
       },
     };
   }

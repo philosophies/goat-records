@@ -728,7 +728,90 @@ body[data-mentor="office"] #advance {
     box-shadow: 0 0 0 26px rgba(255, 213, 74, 0);
   }
 }
+/* Story press lines and major moments (T80). */
+.press-headline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0 10px;
+  padding: 6px 10px;
+  overflow: hidden;
+  background: #f3ead6;
+  color: #1d1a14;
+  border-left: 5px solid #c8372d;
+  font-family: Georgia, "Times New Roman", serif;
+  animation: press-in 0.5s 0.15s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+.press-headline span {
+  flex: none;
+  padding: 2px 6px;
+  background: #c8372d;
+  color: #fff;
+  font:
+    700 10px/1.2 system-ui,
+    sans-serif;
+  letter-spacing: 0.12em;
+}
+.press-headline b {
+  font-size: 15px;
+  text-align: left;
+}
+.outcome-reveal .press-headline {
+  animation-delay: 0.7s;
+}
+.outcome-breaking {
+  margin: 4px -16px 6px;
+  padding: 4px 0;
+  background: #c8372d;
+  color: #fff;
+  font-weight: 900;
+  letter-spacing: 0.5em;
+  animation: breaking-sweep 0.6s 0.4s ease-out both;
+}
+.major.outcome-reveal .outcome-stamp {
+  font-size: 34px;
+  animation:
+    outcome-stamp 0.5s 0.9s cubic-bezier(0.2, 1.6, 0.4, 1) both,
+    major-thump 0.35s 1.4s ease-in-out;
+}
+.outcome-effects li.exit {
+  color: #ff7a6b;
+  animation:
+    outcome-line 0.3s calc(0.8s + var(--i) * 0.08s) ease-out both,
+    exit-fade 1.2s calc(1.3s + var(--i) * 0.08s) ease-in both;
+}
+@keyframes press-in {
+  from {
+    opacity: 0;
+    transform: translateX(-40px) skewX(-8deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes breaking-sweep {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes major-thump {
+  50% {
+    transform: scale(1.15) rotate(-4deg);
+  }
+}
+@keyframes exit-fade {
+  to {
+    letter-spacing: 0.04em;
+    opacity: 0.55;
+    text-decoration: line-through;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
+  .press-headline,
   .outcome-reveal,
   .outcome-reveal *,
   .tier-backfire.outcome-reveal,

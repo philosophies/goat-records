@@ -51,7 +51,12 @@ function eventChoice(s, name) {
       (o.morale || 0) / 2 +
       (o.fans || 0) / 2 +
       (o.trust || 0) * 1.5 +
-      (o.energy || 0) / 3;
+      (o.energy || 0) / 3 -
+      ((o.leaveChance || 0) + (o.leaves ? 1 : 0)) * 60 -
+      ((o.tourEndChance || 0) + (o.tourEnd ? 1 : 0)) * 20 -
+      (o.tourCut || 0) +
+      ((o.mult || 1) - 1) * 40 +
+      ((o.tourMult || 1) - 1) * 20;
     const sorted = options.toSorted((x, y) => worth(y.option) - worth(x.option));
     return (name === "reckless" ? sorted.at(-1) : sorted[0]).index;
   }
@@ -102,12 +107,15 @@ function eventChoice(s, name) {
   return name === "reckless" && s.company.ownership <= 0.5 ? sorted.at(-1).index : sorted[0].index;
 }
 
+const storyExits = new WeakMap();
 function clearDecisions(s, name) {
   for (let count = 0; s.event && !s.finished; count++) {
     assert.ok(count < 30, "Decision queue did not clear");
     action(() => G.choose(s, eventChoice(s, name)));
   }
   G.acknowledgeRankUp(s);
+  // Artists who left the label after a story, counted before their notices are cleared.
+  storyExits.set(s, (storyExits.get(s) || 0) + s.notifications.filter((n) => n.kind === "departure").length);
   for (const n of [...s.notifications]) G.acknowledgeMilestone(s, n.id);
   G.acknowledgeCampaignReview(s);
   G.ackReview(s);
@@ -500,6 +508,7 @@ function run(seed, label, policy) {
     confidence: s.company.board?.confidence ?? null,
     catalogShare,
     lostToRivals: (s.company.rivals || []).reduce((n, r) => n + r.roster.filter((x) => x.from).length, 0),
+    lostToStories: storyExits.get(s) || 0,
     battles: s.albums.filter((p) => p.battle).length,
     battlesWon: s.albums.filter((p) => p.battle?.won).length,
     platformShare: G.platformInfo(s)?.share ?? 0,
@@ -547,7 +556,7 @@ for (const [name, policy] of Object.entries(policies)) {
       `  catalog share of year-10 revenue: median ${Math.round(100 * shares.toSorted((a, b) => a - b)[Math.floor(shares.length / 2)])}% (${shares.length} runs reached year 10)`,
     );
   console.log(
-    `  rivals: ${sum("lostToRivals")} artists lost to bids, ${sum("battlesWon")} of ${sum("battles")} chart battles won`,
+    `  rivals: ${sum("lostToRivals")} artists lost to bids, ${sum("lostToStories")} left after a story, ${sum("battlesWon")} of ${sum("battles")} chart battles won`,
   );
   console.log(
     `  late cash: median $${median(runs.map((r) => r.cash)).toLocaleString("en-US")} at the end; platform stakes ${runs.map((r) => r.platformShare + "%").join(", ")} (median $${median(runs.map((r) => r.platformPaid)).toLocaleString("en-US")} invested)`,

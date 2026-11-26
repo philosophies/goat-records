@@ -671,7 +671,7 @@ Files: `src/ui/*.js`, `styles/*.css`, tests
 Do: Owner decision: a card hides what each option will do until the choice is made, then reveals the outcome with a short animation. A testing switch shows or hides outcomes before choosing.
 Done when: harness for hidden and shown outcomes, the reveal and the switch; screenshots.
 
-### [ ] T80 · Stories in context
+### [x] T80 · Stories in context
 
 Files: `src/data/story-context.js`, `src/systems/stories.js`, tests
 Do: Owner decision: interactions depend on what the artist is doing: headlining a tour, sharing a tour, recording, with an album just out, or waiting to record. Several are multi-part stories drawn from the kinds of headlines artists in each genre make (no real names), and some can cost the label an artist, sales or tour dates. Major moments get a short animation.
