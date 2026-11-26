@@ -267,6 +267,29 @@
         .replaceAll("{partner}", partner || "the other act");
     }
 
+    // ---- Who can leave ----
+    /**
+     * A choice as it stands for this artist: only stars and superstars leave after a story, at odds
+     * raised by STORY_CONTEXT.leaveScale; an up-and-comer stays, and one who is told to go loses
+     * morale instead.
+     */
+    function departureOdds(a, c) {
+      if (!c.leaves && !c.leaveChance) return c;
+      const tier = core.api().tierOf?.(a) || "rising",
+        scale = SC.leaveScale?.[tier] ?? 1,
+        out = { ...c };
+      delete out.leaves;
+      delete out.leaveChance;
+      if (scale <= 0) {
+        if (c.leaves) out.morale = (c.morale || 0) + SC.leaveMorale;
+        return out;
+      }
+      if (c.leaves) out.leaves = true;
+      if (c.leaveChance)
+        out.leaveChance = Math.round(Math.min(SC.leaveMax, c.leaveChance * scale) * 100) / 100;
+      return out;
+    }
+
     // ---- Playing ----
     /** Queues a beat as a decision card. */
     function play(s, due) {
@@ -284,7 +307,8 @@
         if (arc.rival && pool.length) run.rival = pool[Math.floor(roll(s, "stories") * pool.length)].id;
         b.arcs.push(run);
       }
-      const options = beat.choices.map((c, i) => {
+      const options = beat.choices.map((raw, i) => {
+        const c = who.kind === "artist" ? departureOdds(who.obj, raw) : raw;
         const { label, note, cost, story, ...effects } = c;
         const opt = {
           ...effects,
@@ -427,7 +451,8 @@
       }
       if (o.mult && e.album !== undefined)
         notes.push(`Album sales ×${o.mult} for ${o.boostWeeks || 3} weeks`);
-      if (o.leaves || (o.leaveChance > 0 && roll(s, "stories") < o.leaveChance)) {
+      const canLeave = (SC.leaveScale?.[core.api().tierOf?.(a) || "rising"] ?? 1) > 0;
+      if (canLeave && (o.leaves || (o.leaveChance > 0 && roll(s, "stories") < o.leaveChance))) {
         // An artist in the middle of a record stays to finish it, unhappily.
         if (s.albums.some((p) => p.artist === a.id && !p.released)) {
           a.morale = clamp((a.morale ?? 75) + SC.leaveMorale);
@@ -518,6 +543,7 @@
         storyChoiceText: choiceText,
         storyCardName,
         storyContext: contextOf,
+        storyDepartureOdds: departureOdds,
       },
     };
   }

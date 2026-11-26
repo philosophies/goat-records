@@ -11,7 +11,7 @@ Task: v2.0.0 released
 
 **Updated:** 2026-11-26
 **Branch:** `main`
-**Current task:** t82-tour-pay
+**Current task:** t81-star-departures
 **Next step:** T83 · No genre choice; calculating after each decision
 **Blocked on:** Nothing.
 **Files in progress:** None.

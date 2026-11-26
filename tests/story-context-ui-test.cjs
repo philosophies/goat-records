@@ -43,7 +43,7 @@ const html = (id) => element(id).innerHTML;
 run(`state = G.create(80, { ceo: true }); G.setStarter(state, false); G.setMentor(state, false);
   state.company.stories = { arcs: [], log: {}, lastWeek: -10 }; state.company.rivalCardWeek = 1e9;
   state.cash = 1e6; state.week = 30; G.sign(state, state.candidates[0].id, 3);
-  const a = state.artists[0]; a.genre = "Sacred"; a.morale = 50;
+  const a = state.artists[0]; a.genre = "Sacred"; a.morale = 50; a.tier = "star";
   state.albums.push({ id: state.nextId++, artist: a.id, title: "Old", released: true, releaseWeek: 2, quality: 60, salesWeeks: 0, boosts: [] });
   state.event = null; state.eventQueue = [];
   G.playStory(state, G.storyDue(state).find((x) => x.arc.id === "rival-dinner"));
