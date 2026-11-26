@@ -697,7 +697,7 @@ Files: `src/app.js`, `src/ui/*.js`, `styles/*.css`, tests
 Do: Owner decision: the album form no longer asks for a genre (an album is in its artist's genre). After each album decision a five-second animation calculates the outcome before it shows.
 Done when: harness for the form without a genre and the calculating step; screenshots; rules updated; classic unchanged.
 
-### [ ] T84 · Automatic award entries
+### [x] T84 · Automatic award entries
 
 Files: awards code in `src/engine.js` or a system, the trophy case, tests
 Do: Owner decision: albums are entered for the awards automatically, the strongest of the year in each genre by its stats.

@@ -725,6 +725,7 @@
       s.fame += 8;
     }
     hooks.each("onRelease", s, p);
+    if (s.company) autoEnterAwards(s, operatingYear(p.releaseWeek));
     log(s, `${p.title} released: ${p.quality}/100${p.hit ? " · HIT! Booth prestige +12." : ""}`);
   }
   function makeEvent(s) {
@@ -991,6 +992,8 @@
     }
     assessAlbums(s);
     updateCharts(s);
+    // CEO runs keep each genre's awards entry on the year's strongest album as charts move.
+    if (s.company) autoEnterAwards(s, operatingYear(s.week));
     enqueueAlbumEvents(s);
     for (let e of s.effects.filter((x) => x.week <= s.week)) {
       apply(
@@ -1012,7 +1015,9 @@
     if (s.week % 52 === 49)
       log(
         s,
-        "Annual awards entries close at the end of this operating year. Submit one eligible album per genre.",
+        s.company
+          ? "The awards close at the end of this operating year. Your strongest album in each genre is entered."
+          : "Annual awards entries close at the end of this operating year. Submit one eligible album per genre.",
       );
     const companyRevenue = s.company ? api.companyRevenue?.(s) : null;
     const income = Object.fromEntries(
@@ -2794,8 +2799,43 @@
       (p) => p.released && p.genre === genre && operatingYear(p.releaseWeek) === Number(year),
     );
   }
+  /**
+   * How strong an album's awards entry is, without the jury's variation: the same weights the judges
+   * use (quality 60%, critics 20%, fan response 10%, Top 300 achievement 10%).
+   */
+  function awardStrength(p) {
+    const critics = p.launchRatings?.find((r) => r.name === "Critics")?.score ?? p.quality,
+      fans = p.launchRatings?.find((r) => r.name === "Fan response")?.score ?? p.quality,
+      peak = p.chart?.best,
+      chart = peak ? Math.max(0, 100 * (1 - (Math.min(300, peak) - 1) / 299)) : 0;
+    return Math.round((p.quality * 0.6 + critics * 0.2 + fans * 0.1 + chart * 0.1) * 10) / 10;
+  }
+  /**
+   * CEO runs enter the awards automatically (owner decision 2026-11-26): each genre's entry is the
+   * year's eligible album with the highest strength, the earlier release on a tie.
+   */
+  function autoEnterAwards(s, year = operatingYear(s.week)) {
+    if (!s.company) return;
+    const program = (s.awardPrograms[year] ??= { year, entries: {}, results: null });
+    if (program.results) return;
+    for (const genre of GENRES) {
+      const best = awardEligible(s, year, genre).reduce(
+        (m, p) =>
+          !m ||
+          awardStrength(p) > awardStrength(m) ||
+          (awardStrength(p) === awardStrength(m) && p.releaseWeek < m.releaseWeek)
+            ? p
+            : m,
+        null,
+      );
+      if (best) program.entries[genre] = best.id;
+      else delete program.entries[genre];
+    }
+  }
   function enterAwards(s, year, genre, albumId) {
     requireAction(s);
+    if (s.company)
+      throw Error("Entries are made automatically: the strongest album of the year in each genre.");
     year = Number(year);
     if (year !== operatingYear(s.week) || !GENRES.includes(genre))
       throw Error("Submissions are limited to this operating year and a valid genre.");
@@ -2833,6 +2873,7 @@
   function resolveAnnualAwards(s, year) {
     const program = (s.awardPrograms[year] ??= { year, entries: {}, results: null });
     if (program.results) return;
+    autoEnterAwards(s, year);
     program.results = [];
     for (const genre of GENRES) {
       const pool = Object.values(s.rivalArchive)
@@ -3703,6 +3744,8 @@
     operatingYear,
     advanceTourDay,
     awardEligible,
+    awardStrength,
+    autoEnterAwards,
     enterAwards,
     resolveAnnualAwards,
     makeCEOEvent,

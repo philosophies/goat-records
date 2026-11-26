@@ -11,8 +11,8 @@ Task: v2.0.0 released
 
 **Updated:** 2026-11-26
 **Branch:** `main`
-**Current task:** t83-album-form
-**Next step:** T84 · Automatic award entries
+**Current task:** main (T84 merged)
+**Next step:** Owner review of T81–T84. Backlog has no open tasks; propose new ones from design/gdd/ceo-3.0.md and the handoff before adding them.
 **Blocked on:** Nothing.
 **Files in progress:** None.
 **Open questions:** Whether platform stakes should skip the board budget; whether late-game tours should pay more now that the studio limit makes them the main way to earn; whether one or two artists lost to stories in a 20-year run feels right.
