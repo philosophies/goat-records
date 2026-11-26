@@ -243,7 +243,7 @@ function phoneSettings() {
       )
       .join(
         "",
-      )}</div><h3>Sound</h3><button data-action="phoneSound">${typeof sound !== "undefined" && sound ? "Sound on" : "Sound off"}</button>${state.company?.onboarding ? `<h3>Starter checklist</h3><button data-action="starter" data-on="${state.company.onboarding.on ? "no" : "yes"}">${state.company.onboarding.on ? "Hide the checklist" : "Show the checklist"}</button>` : ""}<h3>Saves</h3><p class="muted">Progress saves itself in this browser. Keep a backup file too.</p><div class="actions"><button data-action="phoneExport">Export save</button></div>`,
+      )}</div><h3>Sound</h3><button data-action="phoneSound">${typeof sound !== "undefined" && sound ? "Sound on" : "Sound off"}</button>${state.company?.onboarding ? `<h3>Starter checklist</h3><button data-action="starter" data-on="${state.company.onboarding.on ? "no" : "yes"}">${state.company.onboarding.on ? "Hide the checklist" : "Show the checklist"}</button>` : ""}<h3>Testing</h3><button data-action="toggleOutcomes" aria-pressed="${outcomesShown()}">${outcomesShown() ? "Hide outcomes before choosing" : "Show outcomes before choosing"}</button><h3>Saves</h3><p class="muted">Progress saves itself in this browser. Keep a backup file too.</p><div class="actions"><button data-action="phoneExport">Export save</button></div>`,
   );
 }
 

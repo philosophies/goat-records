@@ -11,8 +11,8 @@ Task: v2.0.0 released
 
 **Updated:** 2026-11-25
 **Branch:** `main`
-**Current task:** T79 · Outcomes revealed after the choice
-**Next step:** Hide option effects until chosen, reveal the outcome with an animation, testing switch
+**Current task:** T80 · Stories in context
+**Next step:** Context-based multi-part stories, artist loss and sales or tour damage, headline animation
 **Blocked on:** Nothing.
 **Files in progress:** None.
 **Open questions:** Whether platform stakes should skip the board budget; whether late-game tours should pay more now that the studio limit makes them the main way to earn.
