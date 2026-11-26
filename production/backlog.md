@@ -702,3 +702,11 @@ Done when: harness for the form without a genre and the calculating step; screen
 Files: awards code in `src/engine.js` or a system, the trophy case, tests
 Do: Owner decision: albums are entered for the awards automatically, the strongest of the year in each genre by its stats.
 Done when: tests for the choice of entry, a better album replacing a weaker one and the ceremony using them; the trophy case says why; rules updated.
+
+## Owner request of 2026-11-26: tours in weeks
+
+### [x] T85 · Tours run in weeks
+
+Files: `src/engine.js`, `src/data/touring.js`, `src/systems/touring.js`, `src/app.js`, `src/ui/clock.js`, `src/ui/phone.js`, tests
+Do: Owner decision: tours still talk about days and pay out day by day, which confuses. In CEO runs a tour runs in whole weeks: each week on the road settles with the weekly settlement (tickets, costs, energy, fame), decisions come as weekly cards, and every length, rest, boost and cut is counted in weeks. The top bar shows the week only. Classic tours are unchanged. Saves with a tour on the road convert to weeks.
+Done when: tests for a week on the road, the weekly cards and their effects, the end of a tour, converting a save, and the interface wording (no days); balance runs show tour income within reason; rules updated.

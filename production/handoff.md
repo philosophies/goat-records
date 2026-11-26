@@ -11,8 +11,8 @@ Task: v2.0.0 released
 
 **Updated:** 2026-11-26
 **Branch:** `main`
-**Current task:** main (T84 merged)
-**Next step:** Owner review of T81–T84. Backlog has no open tasks; propose new ones from design/gdd/ceo-3.0.md and the handoff before adding them.
+**Current task:** main (T85 merged)
+**Next step:** Owner review of T85. Backlog has no open tasks; propose new ones from design/gdd/ceo-3.0.md and the handoff before adding them.
 **Blocked on:** Nothing.
 **Files in progress:** None.
 **Open questions:** Whether platform stakes should skip the board budget; whether two or three stars lost to stories in a 20-year run feels right.

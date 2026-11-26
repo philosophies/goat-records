@@ -350,6 +350,7 @@ function tourCards(status, artistId) {
         last = t.history.filter((h) => !h.event && !h.rest).at(-1),
         prior = t.history.at(-2)?.net ?? -t.upfront,
         recovered = t.costs ? Math.min(100, (t.revenue / t.costs) * 100) : 0;
+      if (t.byWeek) return weekTourCard(t, scale, mode, prior, recovered);
       const projection = G.tourRemainingForecast(t);
       const card = `<article id="tour-${t.id}" class="card tour-card"><div class="sectionhead"><div><span class="tag">${t.status.toUpperCase()} · ${scale.name} · ${mode.name}</span><h3>${esc(t.artistName)} / ${esc(t.title)}</h3><p>${t.partnerName ? "With " + esc(t.partnerName) : t.rival ? "With rival " + esc(t.rival.name) : "Solo headliner"} · ${weeksText(t.day)} of ${weeksText(t.plannedDays)} played · quality ${Math.round(t.quality)}/100${t.restDays ? " · " + t.restDays + " recovery days scheduled" : ""}</p></div><div class="tour-net ${t.net >= 0 ? "positive" : "negative"}"><small>${t.net >= 0 ? "PROFITABLE" : "UPFRONT LOSS / RECOVERING"}</small><b data-tour-money="${t.net}" data-tour-from="${t.history.length ? prior : 0}" data-tour-key="${t.id}-${t.history.length}-${t.status}">${money(t.net)}</b></div></div><div class="metrics"><span>Tour receipts <b>${money(t.revenue)}</b></span><span>Tour costs & venue fees <b>${money(t.costs)}</b></span><span>Daily operating <b>${money(Math.ceil(t.weekly / 7))}</b></span><span>Last show receipts <b>${money(last?.revenue || 0)}</b></span></div>${t.status === "active" && state.company ? tourRateLine(G.tourRateOf(state, t), "Ticket rate today") : ""}${t.status === "active" ? `<p class="tour-projection"><b>Projected finish: ${money(projection.net)} net at the end (${tourPoint(t, t.plannedDays)})</b><br>${t.net >= 0 ? "Currently profitable" : projection.breakEvenDay ? "Estimated break-even: " + tourPoint(t, projection.breakEvenDay) : "Current itinerary does not forecast break-even"}. ${t.restDays} recovery days pending · next show #${t.showDays + 1}.<br>${tourReviewText(t)}<br><small>Uses current quality, remaining dates and confirmed ticket boosts. Future choices and ticket variation can change this.</small></p>` : ""}<div class="tour-recovery"><span style="--recovered:${recovered}%"></span></div><small>${Math.round(recovered)}% of tour-specific costs recovered. Includes setup, daily operations, 15% venue fees and event costs. Regular label salaries and album revenue are outside this tour net.</small><div class="tour-week-history">${t.history
         .slice(-21)
@@ -372,6 +373,35 @@ function tourCards(status, artistId) {
     })
     .join("");
 }
+const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+/** A CEO tour, counted in weeks: weeks played, rest weeks, a ledger row a week. */
+function weekTourCard(t, scale, mode, prior, recovered) {
+  const active = t.status === "active",
+    projection = active ? G.tourWeeksForecast(t) : null,
+    lastWeek = t.history.filter((h) => !h.event && !h.rest).at(-1),
+    people = t.artists
+      .map((id) => state.artists.find((a) => a.id === id))
+      .filter(Boolean)
+      .map((a) => `${esc(a.name)} · energy ${Math.round(a.energy)} · morale ${Math.round(a.morale)}`)
+      .join("<br>"),
+    next = !active
+      ? ""
+      : t.weeksPlayed + 1 > t.plannedWeeks
+        ? ""
+        : `Next tour decision: week ${Math.max(state.week + 1, t.nextDecision)}, or sooner if an artist tires.`;
+  const card = `<article id="tour-${t.id}" class="card tour-card"><div class="sectionhead"><div><span class="tag">${t.status.toUpperCase()} · ${scale.name} · ${mode.name}</span><h3>${esc(t.artistName)} / ${esc(t.title)}</h3><p>${t.partnerName ? "With " + esc(t.partnerName) : t.rival ? "With rival " + esc(t.rival.name) : "Solo headliner"} · ${plural(t.weeksPlayed, "week")} of ${t.plannedWeeks} played · quality ${Math.round(t.quality)}/100${t.restWeeks ? " · " + plural(t.restWeeks, "rest week") + " booked" : ""}</p></div><div class="tour-net ${t.net >= 0 ? "positive" : "negative"}"><small>${t.net >= 0 ? "PROFITABLE" : "UPFRONT LOSS / RECOVERING"}</small><b data-tour-money="${t.net}" data-tour-from="${t.history.length ? prior : 0}" data-tour-key="${t.id}-${t.history.length}-${t.status}">${money(t.net)}</b></div></div><div class="metrics"><span>Tour receipts <b>${money(t.revenue)}</b></span><span>Tour costs & venue fees <b>${money(t.costs)}</b></span><span>Running cost <b>${money(t.weekly)}/week</b></span><span>Last week's tickets <b>${money(lastWeek?.revenue || 0)}</b></span></div>${active ? tourRateLine(G.tourRateOf(state, t), "Ticket rate this week") : ""}${active ? `<p class="tour-projection"><b>Projected finish: ${money(projection.net)} net after tour week ${t.plannedWeeks}</b><br>${t.net >= 0 ? "Already profitable" : projection.breakEvenWeek ? `Pays back in tour week ${projection.breakEvenWeek}` : "The plan as it stands does not pay back"}. Each week on the road settles with the weekly settlement.<br>${next}<br><small>Uses current quality, the weeks left and confirmed ticket changes. Later choices and ticket variation can change this.</small></p>` : ""}<div class="tour-recovery"><span style="--recovered:${recovered}%"></span></div><small>${Math.round(recovered)}% of tour costs recovered: the booking, weekly running costs, 15% venue fees and event costs. Regular label pay and album sales are outside this tour net.</small><div class="tour-week-history">${t.history
+    .slice(-12)
+    .map(
+      (h) =>
+        `<div class="${h.net >= 0 ? "positive" : "negative"}"><small>W${h.week}${h.rest ? " · REST" : h.event ? " · EVENT" : ""}</small><b>${money(h.net)}</b></div>`,
+    )
+    .join(
+      "",
+    )}</div><p>${people}</p>${active ? `<button data-action="cancelTour" data-id="${t.id}" ${disable(blocked())}>End the rest of the tour</button>` : `<p>${esc(t.reason)}</p>`}</article>`;
+  return active
+    ? card
+    : `<details class="archive-item"><summary><span><b>${esc(t.title)}</b><small>${esc(t.artistName)} · ${scale.name} · ${esc(t.status)} · ${plural(t.weeksPlayed, "week")}</small></span><span class="archive-stat">${money(t.net)}<small>net · quality ${Math.round(t.quality)}</small></span></summary>${card}</details>`;
+}
 /** The tour booking form, for every eligible album or only one artist's. */
 function tourFormCard(artistId) {
   const eligible = state.albums.filter(
@@ -392,7 +422,7 @@ function tourRateLine(rate, label = "Ticket rate") {
   return `<p class="tour-rate"><b>${label} ×${rate.mult.toFixed(2)}</b>${parts ? ` · ${parts}` : ""}</p>`;
 }
 function road() {
-  return `<section id="active-tours"><div class="sectionhead"><h2>Active tours</h2><span class="tag">${state.tours.filter((t) => t.status === "active").length} ON THE ROAD</span></div>${tourCards("active") || '<div class="empty">No active tours. Book your next run below.</div>'}</section><h2>Book a new tour</h2><p class="muted">A recent album qualifies with a Top 10 peak, $10,000 gross revenue, or two earning weeks and 250 weekly units. Each album gets one tour. Touring label artists cannot record or train. Upfront costs make every tour start in the red; ticket demand ramps with completed show days. Daily receipts still settle, but choices cover several days. At most three tour decisions occur per label week across all active tours. Advancing skips quiet days and stops at a review, weekly settlement or required album decision.</p>${tourFormCard()}<details class="archive-section"><summary>Completed & ended tours · ${state.tours.filter((t) => t.status !== "active").length}</summary>${state.tours.some((t) => t.status !== "active") ? tourCards("complete") : '<div class="empty">Book a popular artist’s first tour to watch its costs, ticket revenue, quality, itinerary length and net profit evolve day by day.</div>'}</details>`;
+  return `<section id="active-tours"><div class="sectionhead"><h2>Active tours</h2><span class="tag">${state.tours.filter((t) => t.status === "active").length} ON THE ROAD</span></div>${tourCards("active") || '<div class="empty">No active tours. Book your next run below.</div>'}</section><h2>Book a new tour</h2><p class="muted">${state.company ? "A recent album qualifies with a Top 10 peak, $10,000 gross revenue, or two earning weeks and 250 weekly units. Each album gets one tour, and touring artists cannot record or train. The booking cost puts every tour in the red at first; each week on the road settles with the weekly settlement, and ticket demand builds week by week. A tour decision comes every few weeks." : "A recent album qualifies with a Top 10 peak, $10,000 gross revenue, or two earning weeks and 250 weekly units. Each album gets one tour. Touring label artists cannot record or train. Upfront costs make every tour start in the red; ticket demand ramps with completed show days. Daily receipts still settle, but choices cover several days. At most three tour decisions occur per label week across all active tours. Advancing skips quiet days and stops at a review, weekly settlement or required album decision."}</p>${tourFormCard()}<details class="archive-section"><summary>Completed & ended tours · ${state.tours.filter((t) => t.status !== "active").length}</summary>${state.tours.some((t) => t.status !== "active") ? tourCards("complete") : '<div class="empty">Book a popular artist’s first tour to watch its costs, ticket revenue, quality, itinerary length and net profit evolve ${state.company ? "week by week" : "day by day"}.</div>'}</details>`;
 }
 function readTourPlan() {
   return {
@@ -418,8 +448,12 @@ function updateTourQuote(refreshPartners = false) {
   }
   try {
     const q = G.tourQuote(state, plan);
-    $("tourQuote").innerHTML =
-      `<b>${money(q.upfront)} booking cost · ${money(Math.ceil(q.weekly / 7))}/show or recovery day, plus venue commission</b>${tourRateLine(q.rate)}<p>${q.mode.description}<br>Energy required: ${q.mode.minEnergy} per label artist; drain roughly ${(q.mode.drain / 7).toFixed(1)} per show day. Planned ${q.scale.weeks} weeks, one show a day.<br>Forecast ticket revenue ${money(q.forecast)} against ${money(q.cost)} tour-specific costs: <strong>${money(q.expectedNet)} net</strong> before events and regular label salaries. ${q.breakEvenDay ? "Baseline break-even: day " + q.breakEvenDay + " of " + q.scale.weeks * 7 + " (" + weeksText(q.breakEvenDay) + " in)" : "Baseline does not reach break-even in this itinerary; improve demand or change the lineup."}<br>Baseline uses current quality and the exact live daily ticket formula, without future event boosts, event fees, recovery days or extensions. Ticket variation ±10%; daily events can wildly change quality, add or remove dates, require recovery or end the tour. Forecast costs include 15% venue commission; event fees are additional.</p>`;
+    if (state.company)
+      $("tourQuote").innerHTML =
+        `<b>${money(q.upfront)} booking cost · ${money(q.weekly)} a week to run, plus 15% of ticket sales to venues</b>${tourRateLine(q.rate)}<p>${q.mode.description}<br>Energy needed: ${q.mode.minEnergy} for each label artist; each week on the road takes about ${q.mode.drain}. Planned ${plural(q.scale.weeks, "week")} on the road.<br>Forecast tickets ${money(q.forecast)} against ${money(q.cost)} of tour costs: <strong>${money(q.expectedNet)} net</strong> before tour decisions and regular label pay. ${q.breakEvenDay ? `Pays back in tour week ${Math.ceil(q.breakEvenDay / 7)} of ${q.scale.weeks}.` : "This plan does not pay back; build demand or change the lineup."}<br>The forecast uses today's quality and ticket rate, without later boosts, rest weeks or changes to the plan. Ticket sales vary by ±10% a week, and tour decisions can change quality, add or drop weeks, book rest or end the tour.</p>`;
+    else
+      $("tourQuote").innerHTML =
+        `<b>${money(q.upfront)} booking cost · ${money(Math.ceil(q.weekly / 7))}/show or recovery day, plus venue commission</b>${tourRateLine(q.rate)}<p>${q.mode.description}<br>Energy required: ${q.mode.minEnergy} per label artist; drain roughly ${(q.mode.drain / 7).toFixed(1)} per show day. Planned ${q.scale.weeks} weeks, one show a day.<br>Forecast ticket revenue ${money(q.forecast)} against ${money(q.cost)} tour-specific costs: <strong>${money(q.expectedNet)} net</strong> before events and regular label salaries. ${q.breakEvenDay ? "Baseline break-even: day " + q.breakEvenDay + " of " + q.scale.weeks * 7 + " (" + weeksText(q.breakEvenDay) + " in)" : "Baseline does not reach break-even in this itinerary; improve demand or change the lineup."}<br>Baseline uses current quality and the exact live daily ticket formula, without future event boosts, event fees, recovery days or extensions. Ticket variation ±10%; daily events can wildly change quality, add or remove dates, require recovery or end the tour. Forecast costs include 15% venue commission; event fees are additional.</p>`;
     $("bookTour").disabled =
       blocked() ||
       G.busy(state, q.artist.id) ||
@@ -607,7 +641,7 @@ function companyFinanceLines(row) {
   return "<small>" + esc(income.join(" · ")) + "</small>" + overhead;
 }
 function finance() {
-  return `<h2>Label finances & career economics</h2><p class="muted">New albums pay artist royalties and 4–8% distribution fees (VP skill reduces the baseline). CEO distribution concessions can add fees. Back-to-back releases by the same artist within eight weeks lose 10% launch demand. Momentum rises with successful releases and charts, then fades. Existing contracts and already-produced album models are preserved.</p><div class="grid">${state.artists.map((a) => `<article class="card"><span class="tag">${G.CAREER_NAMES[G.careerTier(a)]} · LEVEL ${G.levelInfo(a).level}/${G.levelInfo(a).max}</span><h3>${esc(a.name)}</h3><p>Market value ${money(G.artistValue(a))}<br>${a.career.releases} releases · ${a.career.awards} annual wins · ${a.career.showDays} show days<br>Career label album revenue ${money(a.career.albumRevenue)}<br>Momentum ${Math.round(a.momentum)}/100 · next level ${G.levelInfo(a).next !== null ? G.levelInfo(a).next + " XP" : G.levelInfo(a).capped ? "tier cap" : "maximum"}</p></article>`).join("")}</div><h2>Weekly settlement history</h2><p class="muted">Daily tour ledgers settle separately. These rows show cash immediately before and after weekly payroll, album receipts and awards. Cash changes during the week (including investments, events and test grants) are outside this weekly delta.</p><div class="finance-table">${state.financeHistory
+  return `<h2>Label finances & career economics</h2><p class="muted">New albums pay artist royalties and 4–8% distribution fees (VP skill reduces the baseline). CEO distribution concessions can add fees. Back-to-back releases by the same artist within eight weeks lose 10% launch demand. Momentum rises with successful releases and charts, then fades. Existing contracts and already-produced album models are preserved.</p><div class="grid">${state.artists.map((a) => `<article class="card"><span class="tag">${G.CAREER_NAMES[G.careerTier(a)]} · LEVEL ${G.levelInfo(a).level}/${G.levelInfo(a).max}</span><h3>${esc(a.name)}</h3><p>Market value ${money(G.artistValue(a))}<br>${a.career.releases} releases · ${a.career.awards} annual wins · ${state.company ? `${Math.round(a.career.showDays / 7)} weeks on tour` : `${a.career.showDays} show days`}<br>Career label album revenue ${money(a.career.albumRevenue)}<br>Momentum ${Math.round(a.momentum)}/100 · next level ${G.levelInfo(a).next !== null ? G.levelInfo(a).next + " XP" : G.levelInfo(a).capped ? "tier cap" : "maximum"}</p></article>`).join("")}</div><h2>Weekly settlement history</h2><p class="muted">${state.company ? "Tours settle with the week." : "Daily tour ledgers settle separately."} These rows show cash immediately before and after weekly payroll, album receipts and awards. Cash changes during the week (including investments, events and test grants) are outside this weekly delta.</p><div class="finance-table">${state.financeHistory
     .slice(-16)
     .reverse()
     .map(
@@ -679,7 +713,7 @@ function activityHub() {
     })
     .join(
       "",
-    )}${tours.map((t) => `<button class="activity-card" data-tab="bus"><span class="tag">TOUR · ${weeksText(t.day).toUpperCase()} OF ${weeksText(t.plannedDays).toUpperCase()}</span><b>${esc(t.artistName)} / ${esc(t.title)}</b><small>Quality ${Math.round(t.quality)}/100 · net ${money(t.net)} · Open tour →</small><div class="progress"><span style="width:${Math.min(100, (t.day / t.plannedDays) * 100)}%"></span></div></button>`).join("")}${!projects.length && !tours.length && !state.event ? '<div class="empty">No active projects. Tap an artist to start an album or book a tour.</div>' : ""}</div>`;
+    )}${tours.map((t) => `<button class="activity-card" data-tab="bus"><span class="tag">TOUR · ${t.byWeek ? `${t.weeksPlayed} OF ${t.plannedWeeks} WEEKS PLAYED` : `${weeksText(t.day).toUpperCase()} OF ${weeksText(t.plannedDays).toUpperCase()}`}</span><b>${esc(t.artistName)} / ${esc(t.title)}</b><small>Quality ${Math.round(t.quality)}/100 · net ${money(t.net)} · Open tour →</small><div class="progress"><span style="width:${Math.min(100, (t.day / t.plannedDays) * 100)}%"></span></div></button>`).join("")}${!projects.length && !tours.length && !state.event ? '<div class="empty">No active projects. Tap an artist to start an album or book a tour.</div>' : ""}</div>`;
 }
 /** The latest label news lines for the side ticker. */
 function newsFeed() {
@@ -694,7 +728,9 @@ let sheetForms = { album: false, tour: false },
 /** Steps time once: to the next tour activity while a tour is on the road, else one week. */
 function advanceOnce() {
   act(() =>
-    state.tours.some((t) => t.status === "active") ? G.advanceTourToNextActivity(state) : G.advance(state),
+    !state.company && state.tours.some((t) => t.status === "active")
+      ? G.advanceTourToNextActivity(state)
+      : G.advance(state),
   );
 }
 const panelHistory =
@@ -764,7 +800,7 @@ function render() {
   );
   $("date").innerHTML =
     // On phones the words shorten to their first letters (Y01 · W1 · D1).
-    `Y<span class="date-long">EAR </span>${String(1 + Math.floor((s.week - 1) / 52)).padStart(2, "0")} · W<span class="date-long">EEK </span>${1 + ((s.week - 1) % 52)} · D<span class="date-long">AY </span><span id="dateDay">${GoatClock.day()}</span>`;
+    `Y<span class="date-long">EAR </span>${String(1 + Math.floor((s.week - 1) / 52)).padStart(2, "0")} · W<span class="date-long">EEK </span>${1 + ((s.week - 1) % 52)}${s.company ? "" : ` · D<span class="date-long">AY </span><span id="dateDay">${GoatClock.day()}</span>`}`;
   const era = G.currentEra?.(s);
   $("trend").textContent =
     `${era ? era.name + " · " : ""}Trending: ${s.trend} · Overhead ${money(G.upkeep(s))}/week`;
@@ -774,7 +810,7 @@ function render() {
     ? "Run over"
     : G.productionBlock(s)
       ? "Decision waiting"
-      : state.tours.some((t) => t.status === "active")
+      : !s.company && state.tours.some((t) => t.status === "active")
         ? "Next activity ›"
         : "Next week ›";
   $("goal").textContent = s.finished
@@ -791,7 +827,7 @@ function render() {
     reveal
       ? reveal
       : s.event
-        ? `<div class="event ${s.event.type === "story" ? "story-event" : ""}"><span class="tag">${s.event.type === "story" ? esc(G.storyCardName(s, s.event) + "'s story").toUpperCase() : /^rival/.test(s.event.type) ? "RIVAL LABEL" : s.event.type === "era" ? "THE MUSIC BUSINESS" : "INDUSTRY MOMENT"} · TIME IS PAUSED</span>${s.event.headline ? pressHeadline(s.event.headline) : ""}<h2>${esc(s.event.title)}</h2><p>${esc(s.event.body)}</p>${s.company ? outcomeSwitch() : ""}<div class="options">${eventOptions(s)}</div></div>`
+        ? `<div class="event ${s.event.type === "story" ? "story-event" : ""}"><span class="tag">${s.event.type === "story" ? esc(G.storyCardName(s, s.event) + "'s story").toUpperCase() : /^rival/.test(s.event.type) ? "RIVAL LABEL" : s.event.type === "era" ? "THE MUSIC BUSINESS" : s.event.type === "tour" || s.event.type === "tourDay" ? "ON THE ROAD" : "INDUSTRY MOMENT"} · TIME IS PAUSED</span>${s.event.headline ? pressHeadline(s.event.headline) : ""}<h2>${esc(s.event.title)}</h2><p>${esc(s.event.body)}</p>${s.company ? outcomeSwitch() : ""}<div class="options">${eventOptions(s)}</div></div>`
         : "",
   );
   // The open sheet belongs to a person or place; it closes if they leave (a released artist).
@@ -993,9 +1029,7 @@ document.addEventListener("click", (e) => {
 document.addEventListener("submit", (e) => {
   if (e.target.id === "tourForm") {
     e.preventDefault();
-    act(() =>
-      G.startTour(state, { ...readTourPlan(), weekDay: state.company ? GoatClock.day() - 1 : undefined }),
-    );
+    act(() => G.startTour(state, readTourPlan()));
     return;
   }
   if (e.target.id !== "albumForm") return;

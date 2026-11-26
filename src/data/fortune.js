@@ -83,14 +83,14 @@
     // How much an option puts at stake, to rate it: points per unit of each effect, with cash and
     // costs per dollar; an option that can fail outright adds `gamble`.
     // `keys` weighs story consequences: per unit of chance an artist leaves or the tour is called
-    // off (a certain one counts as 1), and per tour date cut.
+    // off (a certain one counts as 1), and per week of tour dates cut.
     stakes: {
       cash: 1 / 500,
       cost: 1 / 500,
       mult: 100,
       gamble: 10,
       default: 1,
-      keys: { leaveChance: 100, leaves: 100, tourEndChance: 60, tourEnd: 60, tourCut: 2 },
+      keys: { leaveChance: 100, leaves: 100, tourEndChance: 60, tourEnd: 60, tourCut: 10 },
     },
     // Cards that keep their own odds or are not the label's call.
     exempt: ["approval", "awards", "era", "rivalBid", "rivalFeud"],

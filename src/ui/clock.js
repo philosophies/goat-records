@@ -13,7 +13,7 @@ function clockReasons(state, ui = {}) {
   if (state.finished) out.push("run complete");
   if (state.event)
     out.push(
-      state.event.type === "tourDay"
+      state.event.type === "tourDay" || state.event.type === "tour"
         ? "tour decision"
         : state.event.type === "awards"
           ? "awards night"
@@ -112,9 +112,8 @@ const GoatClock = {
     return clockState(state, this.ui());
   },
   /**
-   * Day of the label week shown in the top bar. A week is seven days at the same pace with or
-   * without a tour: on the road each day is one show (or rest) day, settled as the clock reaches it.
-   * A tour decision shows the day it is about.
+   * Day of the label week, shown in the top bar in classic runs (where a tour plays a day at a time).
+   * CEO runs count only weeks; there it only sets the street's light, from the clock's place in the week.
    */
   day() {
     if (!state.company && state.tours.some((t) => t.status === "active"))
@@ -174,15 +173,6 @@ const GoatClock = {
     if (!c.run) return;
     this.sync();
     this.progress += dt / c.interval;
-    // On tour, each day is settled when the clock reaches it, at the pace of any other day.
-    if (this.progress < 1 && state.company && state.tours.some((t) => t.status === "active")) {
-      const reached = Math.floor(this.progress * 7);
-      if ((state.tourDayInWeek || 0) < reached) {
-        act(() => G.advanceTourDay(state));
-        if ($("message").textContent) this.setSpeed(0);
-        return;
-      }
-    }
     if (this.progress >= 1) {
       this.progress = 0;
       this.tick();

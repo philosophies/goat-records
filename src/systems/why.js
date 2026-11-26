@@ -76,7 +76,13 @@
           put("Shops and bar", r.hqIncome || 0);
           put("Endorsements and other income", (r.otherIncome || 0) - companyIn);
           put("Weekly costs (pay, upkeep, rent, loans)", -(r.overhead || 0));
-          const settled = (r.albumIncome || 0) + (r.hqIncome || 0) + (r.otherIncome || 0) - (r.overhead || 0);
+          put("Tours (tickets less running costs and venue fees)", r.tourIncome || 0);
+          const settled =
+            (r.albumIncome || 0) +
+            (r.hqIncome || 0) +
+            (r.otherIncome || 0) +
+            (r.tourIncome || 0) -
+            (r.overhead || 0);
           put("Awards and events settled at the week's end", (r.cashChange || 0) - settled);
           put("Spending and deals during the week", r.openingCash - before);
         });

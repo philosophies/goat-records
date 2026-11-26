@@ -39,10 +39,11 @@ const fs = require("node:fs"),
 
 run(`state = G.create(66, { ceo: true }); state.week = 60; save(); render();`);
 const date = element("date").innerHTML;
-assert.equal(date.replace(/<[^>]+>/g, ""), "YEAR 02 · WEEK 8 · DAY 1", "the full date on wide screens");
+// CEO runs count weeks, not days (T85).
+assert.equal(date.replace(/<[^>]+>/g, ""), "YEAR 02 · WEEK 8", "the full date on wide screens");
 assert.equal(
   date.replace(/<span class="date-long">[^<]*<\/span>/g, "").replace(/<[^>]+>/g, ""),
-  "Y02 · W8 · D1",
+  "Y02 · W8",
   "the short date on phones",
 );
 const chip = element("hud").innerHTML;

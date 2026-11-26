@@ -57,7 +57,7 @@ assert.match(shared, /Shared with [^(]+ \([^)]+\) \+\d+%/);
 // A tour on the road shows today's rate.
 run(`G.startTour(state, { albumId: 700 }); openPanel("bus"); render();`);
 const all = [...elements.values()].map((x) => x.innerHTML).join("");
-assert.match(all, /<p class="tour-rate"><b>Ticket rate today ×\d\.\d\d<\/b>/);
+assert.match(all, /<p class="tour-rate"><b>Ticket rate this week ×\d\.\d\d<\/b>/);
 // Classic quotes carry no rate, so no line.
 assert.equal(run(`tourRateLine(undefined)`), "");
 console.log("Tour pay harness passed.");

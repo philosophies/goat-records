@@ -14,7 +14,7 @@
 // and its choices can have, besides the usual effects:
 //   mult, boostWeeks      album sales multiplier on the latest album, and for how many weeks
 //   tourMult, tourWeeks   ticket sales multiplier for the tour, and for how many weeks
-//   tourCut               tour dates removed
+//   tourCut               weeks of tour dates removed
 //   tourEndChance         chance the rest of the tour is called off (tourEnd: certain)
 //   leaveChance           chance the artist leaves the label (leaves: certain)
 // Chances, cuts and multipliers are drawn with the choice's outcome like every other effect.
@@ -89,8 +89,8 @@
             { set: { fought: true }, next: "it-follows-home" },
             "Rally the fans and dare the venues to say no.",
           ),
-          ch("Quietly swap in friendlier cities", { cost: 6000, tourCut: 2 }, { next: "it-follows-home" }),
-          ch("Drop the cities that balked", { tourCut: 5, morale: -4 }, { next: "it-follows-home" }),
+          ch("Quietly swap in friendlier cities", { cost: 6000, tourCut: 1 }, { next: "it-follows-home" }),
+          ch("Drop the cities that balked", { tourCut: 2, morale: -4 }, { next: "it-follows-home" }),
         ],
         { flags: { rode: true }, context: "headlining" },
         { soon: true, lapse: 3, headline: "Promoters drop {name} dates as the feud heats up" },
@@ -128,7 +128,7 @@
             {},
             "Own it before anyone else frames it.",
           ),
-          ch("Cancel two shows so {name} can rest", { tourCut: 2, energy: 18, morale: 4 }, {}),
+          ch("Drop a week of shows so {name} can rest", { tourCut: 1, energy: 18, morale: 4 }, {}),
           ch(
             "Laugh it off as a wild night",
             { fans: 6, attention: 8, trust: -6 },
@@ -212,7 +212,7 @@
         "Empty rows on the second leg",
         "Ticket sales for the back half of {name}'s run are soft. The promoter wants an answer before more seats go unsold.",
         [
-          ch("Cut the weakest dates", { tourCut: 5, morale: -4 }, {}, "Smaller tour, fewer losses."),
+          ch("Cut the weakest dates", { tourCut: 2, morale: -4 }, {}, "Smaller tour, fewer losses."),
           ch("Paper the rooms with free tickets", { cost: 5000, fans: 8, tourMult: 1.15 }, {}),
           ch(
             "Postpone the rest, citing exhaustion",

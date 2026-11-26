@@ -236,7 +236,7 @@
       if (c.trust <= -STORY_RULES.scandalTrust) parts.push("a public scandal");
       if (c.mult) parts.push(`album sales ×${c.mult} for ${c.boostWeeks || 3} weeks`);
       if (c.tourMult) parts.push(`tour tickets ×${c.tourMult} for ${c.tourWeeks || SC.tourWeeks} weeks`);
-      if (c.tourCut) parts.push(`${c.tourCut} tour dates cut`);
+      if (c.tourCut) parts.push(`${c.tourCut} week${c.tourCut === 1 ? "" : "s"} of tour dates cut`);
       if (c.tourEndChance) parts.push(`a ${pct(c.tourEndChance)} chance the rest of the tour is called off`);
       if (c.tourEnd) parts.push("the rest of the tour is called off");
       if (c.leaveChance) parts.push(`a ${pct(c.leaveChance)} chance {name} leaves the label`);
@@ -435,13 +435,16 @@
       if (t) {
         if (o.tourMult) {
           const weeks = o.tourWeeks || SC.tourWeeks;
-          t.effects.push({ until: t.elapsed + weeks, mult: o.tourMult });
+          t.effects.push({ until: (t.byWeek ? t.showWeeks : t.elapsed) + weeks, mult: o.tourMult });
           notes.push(`Tour tickets ×${o.tourMult} for ${weeks} weeks`);
         }
-        if (o.tourCut > 0) {
-          const before = t.plannedDays;
-          t.plannedDays = Math.max(t.day + 1, t.plannedDays - Math.round(o.tourCut));
-          if (t.plannedDays < before) notes.push(`${before - t.plannedDays} tour dates cut`);
+        // A cut is in weeks of dates; a tour keeps at least the week after this one.
+        if (o.tourCut > 0 && t.byWeek) {
+          const before = t.plannedWeeks;
+          t.plannedWeeks = Math.max(t.weeksPlayed + 1, t.plannedWeeks - Math.round(o.tourCut));
+          Object.assign(t, { plannedDays: t.plannedWeeks * 7 });
+          const cut = before - t.plannedWeeks;
+          if (cut) notes.push(`${cut} week${cut === 1 ? "" : "s"} of tour dates cut`);
         }
         if (o.tourEnd || (o.tourEndChance > 0 && roll(s, "stories") < o.tourEndChance)) {
           core.endTour(s, t, "The rest of the dates were called off");

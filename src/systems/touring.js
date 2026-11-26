@@ -84,7 +84,16 @@
       return rateOfTour(s, t).mult;
     }
 
-    return { tourGate, api: { TOUR_PAY: P, tourRate, tourRateOf: rateOfTour } };
+    /** Saves from before tours ran in weeks convert any tour on the road (CEO runs). */
+    function init(s) {
+      core.api().toursToWeeks?.(s);
+    }
+
+    return {
+      init,
+      tourGate,
+      api: { TOUR_PAY: P, TOUR_WEEKS: D.TOUR_WEEKS, tourRate, tourRateOf: rateOfTour },
+    };
   }
 
   root.GoatSystems = Object.assign(root.GoatSystems || {}, { touring: create });

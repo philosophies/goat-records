@@ -929,7 +929,7 @@
   }
   function advance(s, options = {}) {
     requireAction(s);
-    if (s.tours.some((t) => t.status === "active") && !options.fromDays)
+    if (!s.company && s.tours.some((t) => t.status === "active") && !options.fromDays)
       throw Error("An active tour advances one day at a time.");
     if (productionBlock(s))
       throw Error("Complete the ready album decision or release review before advancing.");
@@ -940,6 +940,8 @@
     E?.expire(s);
     s.tourDayInWeek = 0;
     s.cash -= weeklyOverhead;
+    // CEO runs: each tour on the road plays a week, settled here with the rest of the week.
+    const tourIncome = s.company ? settleTourWeeks(s) : 0;
     for (let a of s.artists) {
       if (!s.albums.some((p) => !p.released && p.artist === a.id))
         a.inspiration = clamp((a.inspiration ?? 60) + (onTour(s, a.id) ? 5 : 10));
@@ -1034,6 +1036,7 @@
       hqIncome,
       otherIncome,
       ...(companyRevenue ? { companyRevenue, companyCosts } : {}),
+      ...(tourIncome ? { tourIncome } : {}),
       albumIncome: s.albums
         .filter((p) => p.lastSalesWeek === s.week)
         .reduce((n, p) => n + (p.lastNetIncome || 0), 0),
@@ -1914,7 +1917,9 @@
         id: s.nextId++,
         kind: "tour",
         title: "TOUR BREAK-EVEN!",
-        body: `${t.artistName}’s tour recovered setup, daily operations, venue fees and event costs. Net $${Math.round(t.net)}.`,
+        body: t.byWeek
+          ? `${t.artistName}’s tour has paid back its booking, weekly running costs, venue fees and event costs. Net $${Math.round(t.net)}.`
+          : `${t.artistName}’s tour recovered setup, daily operations, venue fees and event costs. Net $${Math.round(t.net)}.`,
         week: s.week,
       });
     }
@@ -1946,7 +1951,14 @@
       quality = clamp(55 + a.talent * 0.25 + a.morale * 0.1),
       // CEO runs: the ticket rate from fame, quality, tier and reputation (src/systems/touring.js).
       rate = s.company ? api.tourRate?.(s, { lead: a, partner, rival, mode, quality }) : null,
-      projection = tourForecast(r, m, demand * (rate?.mult ?? 1), quality, upfront, weekly);
+      projection = tourForecast(
+        r,
+        m,
+        demand * (rate?.mult ?? 1) * (s.company ? (D.TOUR_WEEKS?.ticketScale ?? 1) : 1),
+        quality,
+        upfront,
+        weekly,
+      );
     return {
       album: p,
       artist: a,
@@ -1974,18 +1986,6 @@
     const people = [a, ...(q.partner ? [q.partner] : [])];
     if (people.some((a) => busy(s, a.id)))
       throw Error("Every participating label artist must be free of albums and other tours.");
-    // In a CEO run the first tour on the road starts on the day of the week the clock has reached,
-    // so the week still has seven days in all (plan.weekDay: days of this week already gone, 0–6).
-    const weekDay = Number(plan.weekDay);
-    if (
-      s.company &&
-      Number.isInteger(weekDay) &&
-      weekDay > 0 &&
-      weekDay < 7 &&
-      !s.tours.some((t) => t.status === "active") &&
-      !s.tourDayInWeek
-    )
-      s.tourDayInWeek = weekDay;
     if (people.some((a) => a.energy < q.mode.minEnergy))
       throw Error(`This lineup requires ${q.mode.minEnergy} energy for each label artist.`);
     if (s.cash < q.upfront + q.weekly)
@@ -2036,8 +2036,9 @@
       fatigueWarning: false,
       profitMilestone: false,
     };
-    // CEO runs remember the day of the week the tour began, to give its dates on the label's calendar.
-    if (s.company) t.startDay = s.tourDayInWeek || 0;
+    // CEO runs tour in whole weeks (src/data/touring.js TOUR_WEEKS): the first week on the road
+    // settles at the next weekly settlement.
+    if (s.company) startTourWeeks(s, t);
     s.tours.push(t);
     p.tourLaunched = true;
     p.boosts.push({ start: s.week + 1, until: s.week + q.scale.weeks + 1, mult: 1.12, sourceTour: t.id });
@@ -2222,8 +2223,37 @@
         event: true,
       });
     }
-    if (o.tourPause) t.pause += o.tourPause;
-    if (o.tourMult) t.effects.push({ until: t.elapsed + (o.tourBoostWeeks || 2), mult: o.tourMult });
+    if (t.byWeek) {
+      // Weeks on the road: rest weeks, more or fewer weeks, quality and money (CEO runs).
+      if (o.tourPause) {
+        t.restWeeks += o.tourPause;
+        t.plannedWeeks = Math.min(t.baseWeeks * TW.maxLength, t.plannedWeeks + o.tourPause);
+      }
+      if (o.addWeeks) t.plannedWeeks = Math.min(t.baseWeeks * TW.maxLength, t.plannedWeeks + o.addWeeks);
+      if (o.cutWeeks) t.plannedWeeks = Math.max(t.weeksPlayed + 1, t.plannedWeeks - o.cutWeeks);
+      if (o.qualityDelta) t.quality = clamp(t.quality + o.qualityDelta);
+      if (o.tourMult) t.effects.push({ until: t.showWeeks + (o.tourBoostWeeks || 1), mult: o.tourMult });
+      if (o.tourCash) {
+        s.cash += o.tourCash;
+        t.revenue += o.tourCash;
+        t.otherRevenue = (t.otherRevenue || 0) + o.tourCash;
+        t.net = t.revenue - t.costs;
+        t.history.push({
+          week: s.week,
+          tourWeek: t.weeksPlayed,
+          event: true,
+          revenue: o.tourCash,
+          cost: 0,
+          net: t.net,
+          totalCosts: t.costs,
+        });
+      }
+      syncTourDays(t);
+      checkTourProfit(s, t);
+    } else {
+      if (o.tourPause) t.pause += o.tourPause;
+      if (o.tourMult) t.effects.push({ until: t.elapsed + (o.tourBoostWeeks || 2), mult: o.tourMult });
+    }
     if (o.royaltyIncrease && a) {
       a.contract.royalty = Math.min(0.3, a.contract.royalty + o.royaltyIncrease);
       a.royaltyFloor = a.contract.royalty;
@@ -3033,6 +3063,7 @@
     );
   }
   function advanceTourToNextActivity(s) {
+    if (s.company) return advance(s);
     requireAction(s);
     const week = s.week;
     let days = 0;
@@ -3523,7 +3554,230 @@
       body: `${a.name}: ${event.body} Day ${t.day}/${t.plannedDays} has already settled (${rest ? "recovery, no tickets" : "show " + t.showDays}). ${t.day >= t.plannedDays ? "This closing decision completes the tour; there is no next tour interaction." : "Your choice affects what happens next; another interaction follows the next calendar day. Ticket boosts stack up to ×2.5."} Tour quality ${Math.round(t.quality)}/100.`,
     });
   }
+  // ---- Tours in weeks (CEO runs) ----
+  const TW = D.TOUR_WEEKS;
+  /** Sets a new CEO tour up to run in weeks. Day fields are kept in step for older readers. */
+  function startTourWeeks(s, t) {
+    Object.assign(t, {
+      byWeek: true,
+      weeksPlayed: 0,
+      plannedWeeks: t.duration,
+      baseWeeks: t.duration,
+      restWeeks: 0,
+      showWeeks: 0,
+      nextDecision: s.week + 1 + (TW?.firstDecision ?? 1),
+    });
+    syncTourDays(t);
+  }
+  function syncTourDays(t) {
+    t.day = t.weeksPlayed * 7;
+    t.plannedDays = t.plannedWeeks * 7;
+    t.restDays = t.restWeeks * 7;
+    t.elapsed = Math.min(t.duration, t.showWeeks);
+  }
+  /** Plays a week on the road for every CEO tour. Returns the tours' net cash for the week. */
+  function settleTourWeeks(s) {
+    const before = s.cash;
+    for (const t of s.tours.filter((t) => t.status === "active" && t.byWeek)) settleTourWeek(s, t);
+    return s.cash - before;
+  }
+  function settleTourWeek(s, t) {
+    const r = TOUR_SCALES.find((r) => r.id === t.scale),
+      m = TOUR_MODES.find((m) => m.id === t.mode),
+      people = t.artists.map((id) => s.artists.find((a) => a.id === id)).filter(Boolean);
+    let revenue = 0,
+      weekCost = t.weekly,
+      rest = false;
+    s.cash -= t.weekly;
+    t.costs += t.weekly;
+    t.weeksPlayed++;
+    if (t.restWeeks > 0) {
+      t.restWeeks--;
+      rest = true;
+      for (const a of people) a.energy = clamp(a.energy + TW.restEnergy);
+    } else {
+      const week = t.showWeeks + 1;
+      t.effects = t.effects.filter((e) => e.until >= week);
+      const boost = Math.min(
+        2.5,
+        t.effects.reduce((n, e) => n * e.mult, 1),
+      );
+      t.teamGate = hooks.product("tourGate", s, t);
+      // Seven shows' tickets, worked out as before and paid as one week.
+      for (let d = 0; d < 7; d++) {
+        t.showDays++;
+        revenue += Math.round(
+          tourTicketRevenue(r, m, t.demand, t.quality, t.showDays, boost, 0.9 + rng(s) * 0.2) *
+            t.teamGate *
+            TW.ticketScale,
+        );
+      }
+      const venueFee = Math.round(revenue * 0.15);
+      s.cash += revenue - venueFee;
+      t.revenue += revenue;
+      t.costs += venueFee;
+      weekCost += venueFee;
+      t.showWeeks = week;
+      const solo = t.mode === "solo";
+      for (const a of people) {
+        a.energy = clamp(a.energy - m.drain * hooks.product("tourDrain", s, t, a));
+        a.fame = clamp(a.fame + (solo ? 3 : 2));
+        a.fans = clamp(a.fans + (solo ? 4 : 2), 0, 1000);
+        a.morale = clamp(a.morale + 0.84);
+        a.career.showDays += 7;
+        a.career.showWeeks = (a.career.showWeeks || 0) + 1;
+        if (week % (solo ? TW.xpEvery.solo : TW.xpEvery.shared) === 0) a.xp++;
+        if (solo && week % TW.craftEvery === 0) a.talent = Math.min(trainingInfo(s, a).cap, a.talent + 1);
+      }
+    }
+    syncTourDays(t);
+    t.net = t.revenue - t.costs;
+    t.history.push({
+      week: s.week,
+      tourWeek: t.weeksPlayed,
+      revenue,
+      cost: weekCost,
+      totalCosts: t.costs,
+      net: t.net,
+      rest,
+      quality: t.quality,
+    });
+    checkTourProfit(s, t);
+    const energy = Math.min(...people.map((a) => a.energy), 100);
+    if (people.length && energy <= 2) return endTour(s, t, "Exhaustion forced the tour to stop");
+    if (t.weeksPlayed >= t.plannedWeeks) return endTour(s, t, "The last planned week was played", true);
+    // A decision card: at once for an exhausted artist, otherwise on the scale's cadence.
+    const tired = people.length && energy < TW.fatigueEnergy;
+    if (tired || s.week >= (t.nextDecision ?? 0)) {
+      s.eventQueue.push(tourWeekEvent(s, t, tired));
+      t.nextDecision = s.week + (r.eventEvery || 2);
+    }
+  }
+  /** A week's decision card for a CEO tour, every effect in weeks. */
+  function tourWeekEvent(s, t, tired = false) {
+    const a = artist(s, t.artist),
+      head = `Tour week ${t.weeksPlayed} of ${t.plannedWeeks}`;
+    if (tired || (t.mode === "rival" && !t.recruitmentOffered)) {
+      const e = tourEvent(s, t, tired);
+      return { ...e, title: `${head} · ${e.title}`, byWeek: true };
+    }
+    t.eventBag ??= [];
+    t.eventBag = t.eventBag.filter((id) => TW.events.some((e) => e.id === id));
+    if (!t.eventBag.length) {
+      t.eventBag = TW.events.map((e) => e.id);
+      for (let i = t.eventBag.length - 1; i > 0; i--) {
+        const j = Math.floor(rng(s) * (i + 1));
+        [t.eventBag[i], t.eventBag[j]] = [t.eventBag[j], t.eventBag[i]];
+      }
+    }
+    const picked = t.eventBag.pop(),
+      ev = TW.events.find((e) => e.id === picked);
+    const options = ev.options.map((o) => {
+      const { costWeeks, cashWeeks, ...rest } = o,
+        out = { ...rest };
+      if (costWeeks) out.cost = Math.round((t.weekly * costWeeks) / 50) * 50;
+      if (cashWeeks) out.tourCash = Math.round((t.weekly * cashWeeks) / 50) * 50;
+      if (out.addWeeks)
+        out.addWeeks = Math.max(0, Math.min(out.addWeeks, t.baseWeeks * TW.maxLength - t.plannedWeeks));
+      out.hint = tourWeekHint(out);
+      return out;
+    });
+    return {
+      type: "tour",
+      byWeek: true,
+      tour: t.id,
+      artist: a.id,
+      eventId: ev.id,
+      title: `${head} · ${ev.title}`,
+      body: `${a.name}: ${ev.body} Tour quality ${Math.round(t.quality)}/100.`,
+      options,
+    };
+  }
+  function tourWeekHint(o) {
+    const parts = [],
+      signed = (n) => (n > 0 ? "+" + n : String(n)),
+      weeks = (n) => `${n} week${n === 1 ? "" : "s"}`;
+    if (o.cost) parts.push(`costs $${o.cost.toLocaleString("en-US")}`);
+    if (o.tourCash) parts.push(`earns $${o.tourCash.toLocaleString("en-US")}`);
+    if (o.addWeeks) parts.push(`${weeks(o.addWeeks)} more on the road`);
+    if (o.cutWeeks) parts.push(`${weeks(o.cutWeeks)} of dates dropped`);
+    if (o.tourPause)
+      parts.push(`${weeks(o.tourPause)} of rest (no tickets; energy +${TW.restEnergy} a week)`);
+    if (o.tourMult) parts.push(`ticket sales ×${o.tourMult} for ${weeks(o.tourBoostWeeks || 1)}`);
+    if (o.qualityDelta) parts.push(`tour quality ${signed(o.qualityDelta)}`);
+    for (const [k, name] of [
+      ["energy", "energy"],
+      ["morale", "morale"],
+      ["fans", "fans"],
+      ["trust", "trust"],
+      ["attention", "attention"],
+    ])
+      if (o[k]) parts.push(`${name} ${signed(o[k])}`);
+    if (o.cancelChance) parts.push(`a ${Math.round(o.cancelChance * 100)}% chance the tour ends`);
+    return parts.length ? parts.join(", ").replace(/^./, (c) => c.toUpperCase()) + "." : "No change.";
+  }
+  /** What's left of a CEO tour, week by week: { net, breakEvenWeek } (tour weeks). */
+  function tourWeeksForecast(t) {
+    const r = TOUR_SCALES.find((r) => r.id === t.scale),
+      m = TOUR_MODES.find((m) => m.id === t.mode);
+    let net = t.net,
+      show = t.showDays,
+      showWeek = t.showWeeks,
+      rest = t.restWeeks,
+      breakEvenWeek = net >= 0 ? t.weeksPlayed : null;
+    for (let w = t.weeksPlayed + 1; w <= t.plannedWeeks; w++) {
+      net -= t.weekly;
+      if (rest > 0) rest--;
+      else {
+        showWeek++;
+        const boost = Math.min(
+          2.5,
+          t.effects.filter((e) => e.until >= showWeek).reduce((n, e) => n * e.mult, 1),
+        );
+        let gate = 0;
+        for (let d = 0; d < 7; d++)
+          gate += Math.round(
+            tourTicketRevenue(r, m, t.demand, t.quality, ++show, boost) * (t.teamGate ?? 1) * TW.ticketScale,
+          );
+        net += gate - Math.round(gate * 0.15);
+      }
+      if (breakEvenWeek === null && net >= 0) breakEvenWeek = w;
+    }
+    return { net, breakEvenWeek };
+  }
+  /** Converts a CEO tour planned in days (an older save) to weeks. */
+  function tourToWeeks(s, t) {
+    if (t.byWeek || t.status !== "active") return;
+    const played = Math.floor((t.day || 0) / 7);
+    Object.assign(t, {
+      byWeek: true,
+      weeksPlayed: played,
+      plannedWeeks: Math.max(played + 1, Math.ceil((t.plannedDays || t.duration * 7) / 7)),
+      baseWeeks: t.duration,
+      restWeeks: Math.ceil((t.restDays || 0) / 7),
+      showWeeks: Math.floor((t.showDays || 0) / 7),
+      nextDecision: s.week + 1,
+      awaitingDayEvent: false,
+      recoveryQueue: [],
+    });
+    t.effects = t.effects.map((e) => ({
+      mult: e.mult,
+      until: e.untilDay !== undefined ? Math.ceil(e.untilDay / 7) : e.until,
+    }));
+    syncTourDays(t);
+  }
+  function toursToWeeks(s) {
+    if (!s.company) return;
+    for (const t of s.tours || []) tourToWeeks(s, t);
+    // Day-by-day tour cards no longer apply.
+    s.eventQueue = (s.eventQueue || []).filter((e) => e.type !== "tourDay");
+    if (s.event?.type === "tourDay") s.event = s.eventQueue.shift() || null;
+    s.pendingTourWeek = false;
+    s.tourDayInWeek = 0;
+  }
+
   function advanceTourDay(s) {
+    if (s.company) return advance(s);
     requireAction(s);
     if (productionBlock(s)) throw Error("Complete the ready album decision before moving the calendar.");
     if (s.pendingTourWeek) {
@@ -3743,6 +3997,9 @@
     careerTier,
     operatingYear,
     advanceTourDay,
+    tourWeeksForecast,
+    toursToWeeks,
+    tourWeekEvent,
     awardEligible,
     awardStrength,
     autoEnterAwards,
