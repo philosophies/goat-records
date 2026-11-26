@@ -592,6 +592,7 @@ function milestoneBanner() {
       debt: ["!", "CASH WARNING"],
       phase: ["★", "COMPANY GROWTH"],
       walkout: ["!", "ARTIST WALKED OUT"],
+      departure: ["!", "ARTIST LEFT THE LABEL"],
       board: ["♜", "BOARD"],
       gossip: ["?", "OFFICE GOSSIP"],
     },
@@ -754,7 +755,7 @@ function render() {
     reveal
       ? reveal
       : s.event
-        ? `<div class="event ${s.event.type === "story" ? "story-event" : ""}"><span class="tag">${s.event.type === "story" ? esc(G.storyCardName(s, s.event) + "'s story").toUpperCase() : /^rival/.test(s.event.type) ? "RIVAL LABEL" : s.event.type === "era" ? "THE MUSIC BUSINESS" : "INDUSTRY MOMENT"} · TIME IS PAUSED</span><h2>${esc(s.event.title)}</h2><p>${esc(s.event.body)}</p>${s.company ? outcomeSwitch() : ""}<div class="options">${eventOptions(s)}</div></div>`
+        ? `<div class="event ${s.event.type === "story" ? "story-event" : ""}"><span class="tag">${s.event.type === "story" ? esc(G.storyCardName(s, s.event) + "'s story").toUpperCase() : /^rival/.test(s.event.type) ? "RIVAL LABEL" : s.event.type === "era" ? "THE MUSIC BUSINESS" : "INDUSTRY MOMENT"} · TIME IS PAUSED</span>${s.event.headline ? pressHeadline(s.event.headline) : ""}<h2>${esc(s.event.title)}</h2><p>${esc(s.event.body)}</p>${s.company ? outcomeSwitch() : ""}<div class="options">${eventOptions(s)}</div></div>`
         : "",
   );
   // The open sheet belongs to a person or place; it closes if they leave (a released artist).

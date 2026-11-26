@@ -33,6 +33,10 @@ function outcomeSwitch() {
   return `<button class="link outcome-switch" data-action="toggleOutcomes" aria-pressed="${on}">${on ? "Hide outcomes" : "Show outcomes"} (testing)</button>`;
 }
 const signedNum = (n) => (n > 0 ? "+" : n < 0 ? "−" : "") + Math.abs(n).toLocaleString("en-US");
+/** A press line on a story card, sliding in like a news ticker. */
+function pressHeadline(text) {
+  return `<div class="press-headline" role="note"><span>THE WIRE</span><b>${esc(text)}</b></div>`;
+}
 /** The card that reveals what the last choice did. */
 function outcomeReveal() {
   const x = state.company?.lastOutcome;
@@ -41,11 +45,11 @@ function outcomeReveal() {
     ? x.effects
         .map(
           (e, i) =>
-            `<li style="--i:${i}" class="${e.delta > 0 ? "up" : e.delta < 0 ? "down" : "news"}">${esc(e.name)}${e.delta ? ` <b>${e.money ? (e.delta < 0 ? "−" : "+") + money(Math.abs(e.delta)) : signedNum(e.delta)}</b>` : ""}</li>`,
+            `<li style="--i:${i}" class="${e.delta > 0 ? "up" : e.delta < 0 ? "down" : /left the label|called off/.test(e.name) ? "news exit" : "news"}">${esc(e.name)}${e.delta ? ` <b>${e.money ? (e.delta < 0 ? "−" : "+") + money(Math.abs(e.delta)) : signedNum(e.delta)}</b>` : ""}</li>`,
         )
         .join("")
     : `<li class="news">Nothing changed.</li>`;
-  return `<div class="event outcome-reveal tier-${x.tier} risk-${x.risk}"><span class="tag">${G.FORTUNE.riskNames[x.risk].toUpperCase()} CALL · THE OUTCOME</span><h2>${esc(x.title)}</h2><p class="outcome-choice">You chose: <b>${esc(x.label)}</b></p><div class="outcome-stamp" aria-live="polite">${esc(x.name)}</div><ul class="outcome-effects">${lines}</ul><div class="actions"><button class="primary" data-action="outcomeSeen">Continue</button></div></div>`;
+  return `<div class="event outcome-reveal tier-${x.tier} risk-${x.risk}${x.major ? " major" : ""}"><span class="tag">${G.FORTUNE.riskNames[x.risk].toUpperCase()} CALL · THE OUTCOME</span>${x.major ? `<div class="outcome-breaking" aria-hidden="true">BREAKING</div>` : ""}${x.headline ? pressHeadline(x.headline) : ""}<h2>${esc(x.title)}</h2><p class="outcome-choice">You chose: <b>${esc(x.label)}</b></p><div class="outcome-stamp" aria-live="polite">${esc(x.name)}</div><ul class="outcome-effects">${lines}</ul><div class="actions"><button class="primary" data-action="outcomeSeen">Continue</button></div></div>`;
 }
 
 GoatUI.pauses.push({
