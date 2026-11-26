@@ -509,6 +509,8 @@ function run(seed, label, policy) {
     catalogShare,
     lostToRivals: (s.company.rivals || []).reduce((n, r) => n + r.roster.filter((x) => x.from).length, 0),
     lostToStories: storyExits.get(s) || 0,
+    tours: s.tours.length,
+    tourNet: s.tours.reduce((n, t) => n + (t.net || 0), 0),
     battles: s.albums.filter((p) => p.battle).length,
     battlesWon: s.albums.filter((p) => p.battle?.won).length,
     platformShare: G.platformInfo(s)?.share ?? 0,
@@ -555,6 +557,9 @@ for (const [name, policy] of Object.entries(policies)) {
     console.log(
       `  catalog share of year-10 revenue: median ${Math.round(100 * shares.toSorted((a, b) => a - b)[Math.floor(shares.length / 2)])}% (${shares.length} runs reached year 10)`,
     );
+  console.log(
+    `  tours: ${sum("tours")} booked, median net per run $${median(runs.map((r) => r.tourNet)).toLocaleString("en-US")}; median company value $${report.policies[name].medianValue.toLocaleString("en-US")}`,
+  );
   console.log(
     `  rivals: ${sum("lostToRivals")} artists lost to bids, ${sum("lostToStories")} left after a story, ${sum("battlesWon")} of ${sum("battles")} chart battles won`,
   );

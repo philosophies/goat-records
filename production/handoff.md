@@ -11,8 +11,8 @@ Task: v2.0.0 released
 
 **Updated:** 2026-11-26
 **Branch:** `main`
-**Current task:** main (T80 merged)
-**Next step:** Owner review of T77–T80. Backlog has no open tasks; propose new ones from design/gdd/ceo-3.0.md and the handoff before adding them.
+**Current task:** t82-tour-pay
+**Next step:** T83 · No genre choice; calculating after each decision
 **Blocked on:** Nothing.
 **Files in progress:** None.
 **Open questions:** Whether platform stakes should skip the board budget; whether late-game tours should pay more now that the studio limit makes them the main way to earn; whether one or two artists lost to stories in a 20-year run feels right.

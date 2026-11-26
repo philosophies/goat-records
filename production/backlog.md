@@ -676,3 +676,29 @@ Done when: harness for hidden and shown outcomes, the reveal and the switch; scr
 Files: `src/data/story-context.js`, `src/systems/stories.js`, tests
 Do: Owner decision: interactions depend on what the artist is doing: headlining a tour, sharing a tour, recording, with an album just out, or waiting to record. Several are multi-part stories drawn from the kinds of headlines artists in each genre make (no real names), and some can cost the label an artist, sales or tour dates. Major moments get a short animation.
 Done when: tests for each context, the new effects (an artist leaving, a sales hit, a tour cut short) and a full arc; rules updated.
+
+## Owner requests of 2026-11-26: departures, tour pay, the album form and awards
+
+### [ ] T81 · Only stars leave, and more often
+
+Files: `src/data/story-context.js`, `src/systems/stories.js`, tests
+Do: Owner decision: a story can only cost the label a star or a superstar, and it should happen more often. Up-and-comers never leave from a story; for stars and superstars the chances on the card are higher.
+Done when: tests that up-and-comers stay and stars leave at the higher odds; balance runs show more departures; rules updated.
+
+### [x] T82 · Tour pay by fame, quality, status and reputation
+
+Files: `src/data/company.js` or a new data table, a system's `tourGate`, `src/app.js`, tests
+Do: Owner decision: ticket pay varies with the artist's fame, the tour's quality, the artist's tier and the label's reputation. Shared tours get a base boost plus more for the two artists' and two labels' combined standing, without upsetting the economy.
+Done when: tests for each factor, the shared-tour boost and its caps; the quote and ledger explain the rate; balance runs show tour income within reason; rules updated.
+
+### [ ] T83 · No genre choice; calculating after each decision
+
+Files: `src/app.js`, `src/ui/*.js`, `styles/*.css`, tests
+Do: Owner decision: the album form no longer asks for a genre (an album is in its artist's genre). After each album decision a five-second animation calculates the outcome before it shows.
+Done when: harness for the form without a genre and the calculating step; screenshots; rules updated; classic unchanged.
+
+### [ ] T84 · Automatic award entries
+
+Files: awards code in `src/engine.js` or a system, the trophy case, tests
+Do: Owner decision: albums are entered for the awards automatically, the strongest of the year in each genre by its stats.
+Done when: tests for the choice of entry, a better album replacing a weaker one and the ceremony using them; the trophy case says why; rules updated.

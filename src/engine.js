@@ -25,6 +25,7 @@
     "delegation",
     "platform",
     "fortune",
+    "touring",
   ];
   function optionalRequire(path) {
     try {
@@ -1936,7 +1937,9 @@
     const upfront = Math.round(r.upfront * m.upfront),
       weekly = Math.round(r.weekly * m.weekly),
       quality = clamp(55 + a.talent * 0.25 + a.morale * 0.1),
-      projection = tourForecast(r, m, demand, quality, upfront, weekly);
+      // CEO runs: the ticket rate from fame, quality, tier and reputation (src/systems/touring.js).
+      rate = s.company ? api.tourRate?.(s, { lead: a, partner, rival, mode, quality }) : null,
+      projection = tourForecast(r, m, demand * (rate?.mult ?? 1), quality, upfront, weekly);
     return {
       album: p,
       artist: a,
@@ -1948,6 +1951,7 @@
       upfront,
       weekly,
       quality,
+      ...(rate ? { rate } : {}),
       ...projection,
     };
   }
